@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2017-02-07T02:40:35.558Z</updated>
+  <updated>2017-02-07T02:44:22.557Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -20,9 +20,9 @@
     <link href="http://yoursite.com/2017/02/07/fragment/"/>
     <id>http://yoursite.com/2017/02/07/fragment/</id>
     <published>2017-02-07T02:37:42.000Z</published>
-    <updated>2017-02-07T02:40:35.558Z</updated>
+    <updated>2017-02-07T02:44:22.557Z</updated>
     
-    <content type="html"><![CDATA[<p>官网帮助文档链接：<br><a href="http://developer.Android.com/guide/components/fragments.html" target="_blank" rel="external">http://developer.Android.com/guide/components/fragments.html</a><br>主要看两张图，和跑代码<br>一，Fragment的生命周期<br>    <img src="http://p1.bqimg.com/567571/c920789881829185.png" alt=""><br>二，与Activity生命周期的对比<br>    <img src="http://p1.bpimg.com/567571/95814a0d3084313e.png" alt=""><br>场景演示 : 切换到该Fragment<br>11-29 14:26:35.095: D/AppListFragment(7649): onAttach<br>11-29 14:26:35.095: D/AppListFragment(7649): onCreate<br>11-29 14:26:35.095: D/AppListFragment(7649): onCreateView<br>11-29 14:26:35.100: D/AppListFragment(7649): onActivityCreated<br>11-29 14:26:35.120: D/AppListFragment(7649): onStart<br>11-29 14:26:35.120: D/AppListFragment(7649): onResume<br>屏幕灭掉：<br>11-29 14:27:35.185: D/AppListFragment(7649): onPause<br>11-29 14:27:35.205: D/AppListFragment(7649): onSaveInstanceState<br>11-29 14:27:35.205: D/AppListFragment(7649): onStop</p>
+    <content type="html"><![CDATA[<p>官网帮助文档链接：<br><a href="https://developer.android.google.cn/reference/android/support/v4/app/Fragment.html" target="_blank" rel="external">https://developer.android.google.cn/reference/android/support/v4/app/Fragment.html</a><br>主要看两张图，和跑代码<br>一，Fragment的生命周期<br>    <img src="http://p1.bqimg.com/567571/c920789881829185.png" alt=""><br>二，与Activity生命周期的对比<br>    <img src="http://p1.bpimg.com/567571/95814a0d3084313e.png" alt=""><br>场景演示 : 切换到该Fragment<br>11-29 14:26:35.095: D/AppListFragment(7649): onAttach<br>11-29 14:26:35.095: D/AppListFragment(7649): onCreate<br>11-29 14:26:35.095: D/AppListFragment(7649): onCreateView<br>11-29 14:26:35.100: D/AppListFragment(7649): onActivityCreated<br>11-29 14:26:35.120: D/AppListFragment(7649): onStart<br>11-29 14:26:35.120: D/AppListFragment(7649): onResume<br>屏幕灭掉：<br>11-29 14:27:35.185: D/AppListFragment(7649): onPause<br>11-29 14:27:35.205: D/AppListFragment(7649): onSaveInstanceState<br>11-29 14:27:35.205: D/AppListFragment(7649): onStop</p>
 <p>屏幕解锁<br>11-29 14:33:13.240: D/AppListFragment(7649): onStart<br>11-29 14:33:13.275: D/AppListFragment(7649): onResume</p>
 <p>切换到其他Fragment:<br>11-29 14:33:33.655: D/AppListFragment(7649): onPause<br>11-29 14:33:33.655: D/AppListFragment(7649): onStop<br>11-29 14:33:33.660: D/AppListFragment(7649): onDestroyView</p>
 <p>切换回本身的Fragment:<br>11-29 14:33:55.820: D/AppListFragment(7649): onCreateView<br>11-29 14:33:55.825: D/AppListFragment(7649): onActivityCreated<br>11-29 14:33:55.825: D/AppListFragment(7649): onStart<br>11-29 14:33:55.825: D/AppListFragment(7649): onResume<br>回到桌面<br>11-29 14:34:26.590: D/AppListFragment(7649): onPause<br>11-29 14:34:26.880: D/AppListFragment(7649): onSaveInstanceState<br>11-29 14:34:26.880: D/AppListFragment(7649): onStop<br>回到应用<br>11-29 14:36:51.940: D/AppListFragment(7649): onStart<br>11-29 14:36:51.940: D/AppListFragment(7649): onResume</p>
@@ -31,7 +31,7 @@
     
     <summary type="html">
     
-      &lt;p&gt;官网帮助文档链接：&lt;br&gt;&lt;a href=&quot;http://developer.Android.com/guide/components/fragments.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://developer.Andro
+      &lt;p&gt;官网帮助文档链接：&lt;br&gt;&lt;a href=&quot;https://developer.android.google.cn/reference/android/support/v4/app/Fragment.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;
     
     </summary>
     
