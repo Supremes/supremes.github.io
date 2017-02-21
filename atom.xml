@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2017-02-21T03:37:25.795Z</updated>
+  <updated>2017-02-21T03:41:53.089Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -16,11 +16,11 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title></title>
+    <title>OpenCvError</title>
     <link href="http://yoursite.com/2017/02/21/OpenCvError/"/>
     <id>http://yoursite.com/2017/02/21/OpenCvError/</id>
     <published>2017-02-21T03:37:41.100Z</published>
-    <updated>2017-02-21T03:37:25.795Z</updated>
+    <updated>2017-02-21T03:41:53.089Z</updated>
     
     <content type="html"><![CDATA[<h2 id="仅以此纪念我被Opencv4Android的被虐之旅"><a href="#仅以此纪念我被Opencv4Android的被虐之旅" class="headerlink" title="仅以此纪念我被Opencv4Android的被虐之旅"></a>仅以此纪念我被Opencv4Android的被虐之旅</h2><p>###问题：No implementation found for long org.opencv.core.Mat.n_Mat(int, int, int) (tried Java_org_opencv_core……</p>
 <p>####办法（需要依次执行）：</p>
@@ -62,6 +62,8 @@ OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, this, mLoaderCallback)
     
     </summary>
     
+    
+      <category term="Opencv" scheme="http://yoursite.com/tags/Opencv/"/>
     
   </entry>
   
