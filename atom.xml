@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2017-02-21T03:44:52.440Z</updated>
+  <updated>2017-02-21T03:46:16.513Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -20,10 +20,9 @@
     <link href="http://yoursite.com/2017/02/21/OpenCvError/"/>
     <id>http://yoursite.com/2017/02/21/OpenCvError/</id>
     <published>2017-02-21T03:44:20.202Z</published>
-    <updated>2017-02-21T03:44:52.440Z</updated>
+    <updated>2017-02-21T03:46:16.513Z</updated>
     
-    <content type="html"><![CDATA[<h2 id="仅以此纪念我被Opencv4Android的被虐之旅"><a href="#仅以此纪念我被Opencv4Android的被虐之旅" class="headerlink" title="仅以此纪念我被Opencv4Android的被虐之旅"></a>仅以此纪念我被Opencv4Android的被虐之旅</h2><p>###问题：No implementation found for long org.opencv.core.Mat.n_Mat(int, int, int) (tried Java_org_opencv_core……###</p>
-<p>####办法（需要依次执行）：####</p>
+    <content type="html"><![CDATA[<h2 id="仅以此纪念我被Opencv4Android的被虐之旅"><a href="#仅以此纪念我被Opencv4Android的被虐之旅" class="headerlink" title="仅以此纪念我被Opencv4Android的被虐之旅"></a>仅以此纪念我被Opencv4Android的被虐之旅</h2><p>问题：No implementation found for long org.opencv.core.Mat.n_Mat(int, int, int) (tried Java_org_opencv_core……<br>办法（需要依次执行）：</p>
 <ol>
 <li><p>确保已经含有一下代码</p>
 <pre><code>//OpenCV类库加载并初始化成功后的回调函数，在此我们不进行任何操作
