@@ -1600,6 +1600,187 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2025/11/uncategorized/officeDocuments/homeDocs/Spring/Spring%20AOP%20%E4%BA%8B%E5%8A%A1%E5%A4%B1%E6%95%88%E4%B8%8E%E5%BA%95%E5%B1%82%E4%BB%A3%E7%90%86%E6%80%BB%E7%BB%93/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Supremes">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Hexo">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2025/11/uncategorized/officeDocuments/homeDocs/Spring/Spring%20AOP%20%E4%BA%8B%E5%8A%A1%E5%A4%B1%E6%95%88%E4%B8%8E%E5%BA%95%E5%B1%82%E4%BB%A3%E7%90%86%E6%80%BB%E7%BB%93/" class="post-title-link" itemprop="url">Spring AOP 事务失效与底层代理总结</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2025-11-26 00:00:00 / Modified: 15:43:52" itemprop="dateCreated datePublished" datetime="2025-11-26T00:00:00+08:00">2025-11-26</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="Spring-AOP-事务失效与底层代理机制深度总结"><a href="#Spring-AOP-事务失效与底层代理机制深度总结" class="headerlink" title="Spring AOP 事务失效与底层代理机制深度总结"></a>Spring AOP 事务失效与底层代理机制深度总结</h1><h2 id="1-核心问题-为什么自调用导致事务失效"><a href="#1-核心问题-为什么自调用导致事务失效" class="headerlink" title="1. 核心问题:为什么自调用导致事务失效?"></a>1. 核心问题:为什么自调用导致事务失效?</h2><h3 id="现象"><a href="#现象" class="headerlink" title="现象"></a>现象</h3><p>在同一个类中，方法 A 调用方法 B（<code>this.methodB()</code>），即使方法 B 上加了 <code>@Transactional</code> 注解，事务依然不生效。</p>
+<h3 id="根本原因"><a href="#根本原因" class="headerlink" title="根本原因"></a>根本原因</h3><p>Spring AOP 的默认实现基于 <strong>代理模式 (Proxy Pattern)</strong>。Spring 容器中注入的 Bean 实际上是一个 <strong>代理对象 (Proxy)</strong>，它持有你编写的 <strong>目标对象 (Target)</strong>。</p>
+<ul>
+<li><strong>生效路径</strong>：外部调用 $\rightarrow$ Proxy $\rightarrow$ 事务拦截器 (Interceptor) $\rightarrow$ Target。</li>
+<li><strong>失效路径</strong>：Target 内部调用 $\rightarrow$ <code>this.methodB()</code> $\rightarrow$ Target。</li>
+</ul>
+<p>此时，<code>this</code> 指针指向的是<strong>目标对象本身</strong>。代码执行流直接在目标对象内部流转，完全<strong>绕过</strong>了外层的代理对象及其持有的事务拦截器。</p>
+<h3 id="形象比喻"><a href="#形象比喻" class="headerlink" title="形象比喻"></a>形象比喻</h3><ul>
+<li><strong>Proxy (代理)</strong>：大楼门口的<strong>安检员</strong>。</li>
+<li><strong>Target (目标)</strong>：大楼里的<strong>员工</strong>。</li>
+<li><strong>外部访问</strong>：访客找员工，必须经过安检（事务生效）。</li>
+<li><strong>内部自调用</strong>：员工之间互找，直接在楼里见面，不需要跑出去再过一次安检（事务失效）。</li>
+</ul>
+<hr>
+<h2 id="2-解决方案-按架构师推荐度排序"><a href="#2-解决方案-按架构师推荐度排序" class="headerlink" title="2. 解决方案 (按架构师推荐度排序)"></a>2. 解决方案 (按架构师推荐度排序)</h2><table>
+<thead>
+<tr>
+<th><strong>方案</strong></th>
+<th><strong>具体做法</strong></th>
+<th><strong>评价</strong></th>
+<th><strong>适用场景</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>1. 架构重构 (Refactoring)</strong></td>
+<td>将需要事务的方法提取到<strong>独立的 Service</strong> 中，通过 Bean 注入调用。</td>
+<td>⭐⭐⭐⭐⭐ (强烈推荐)</td>
+<td>符合单一职责原则 (SRP)，代码结构最清晰。</td>
+</tr>
+<tr>
+<td><strong>2. 自我注入 (Self-Injection)</strong></td>
+<td>在类中注入自身 (<code>@Lazy</code> 解决循环依赖)，调用 <code>self.methodB()</code>。</td>
+<td>⭐⭐⭐ (可用)</td>
+<td>业务逻辑紧密耦合，不适合拆分文件时。</td>
+</tr>
+<tr>
+<td><strong>3. AopContext</strong></td>
+<td>使用 <code>AopContext.currentProxy()</code> 强转获取当前代理对象。</td>
+<td>⭐ (不推荐)</td>
+<td>代码侵入性强，与 Spring API 强耦合。</td>
+</tr>
+<tr>
+<td><strong>4. AspectJ</strong></td>
+<td>放弃代理模式，使用字节码织入 (Weaving)。</td>
+<td>N&#x2F;A (特殊需求)</td>
+<td>追求极致性能或必须在 private&#x2F;自调用中生效时。</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="3-深度辨析：JDK-动态代理-vs-CGLIB"><a href="#3-深度辨析：JDK-动态代理-vs-CGLIB" class="headerlink" title="3. 深度辨析：JDK 动态代理 vs CGLIB"></a>3. 深度辨析：JDK 动态代理 vs CGLIB</h2><p><img src="/../../Pics/image-20251126101915903.png" alt="image-20251126101915903"></p>
+<h3 id="常见误区"><a href="#常见误区" class="headerlink" title="常见误区"></a>常见误区</h3><blockquote>
+<p><strong>误区</strong>：”JDK Proxy 会导致自调用失效，换成 CGLIB 就能解决了。”</p>
+<p><strong>真相</strong>：<strong>错误的。</strong> 无论是 JDK Proxy 还是 CGLIB，只要是基于<strong>代理模式</strong>，自调用都会失效。因为它们底层架构都是 <code>Proxy</code> 持有 <code>Target</code>。</p>
+</blockquote>
+<h3 id="技术对比表"><a href="#技术对比表" class="headerlink" title="技术对比表"></a>技术对比表</h3><table>
+<thead>
+<tr>
+<th><strong>维度</strong></th>
+<th><strong>JDK 动态代理</strong></th>
+<th><strong>CGLIB (Code Generation Library)</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>实现机制</strong></td>
+<td>基于 <strong>接口 (Interface)</strong></td>
+<td>基于 <strong>继承 (Subclass)</strong></td>
+</tr>
+<tr>
+<td><strong>类关系</strong></td>
+<td>代理类与目标类是 <strong>兄弟关系</strong></td>
+<td>代理类是目标类的 <strong>子类</strong></td>
+</tr>
+<tr>
+<td><strong>核心限制</strong></td>
+<td>目标类 <strong>必须实现接口</strong></td>
+<td>目标类或方法 <strong>不能是 Final</strong></td>
+</tr>
+<tr>
+<td><strong>调用方式</strong></td>
+<td><strong>反射</strong> (<code>Method.invoke</code>)</td>
+<td><strong>FastClass 索引</strong> (直接调用)</td>
+</tr>
+<tr>
+<td><strong>自调用支持</strong></td>
+<td>❌ 不支持</td>
+<td>❌ 不支持</td>
+</tr>
+<tr>
+<td><strong>Spring 默认</strong></td>
+<td>旧版本 (有接口时默认)</td>
+<td><strong>Spring Boot 2.0+ 默认</strong></td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="4-性能黑科技：CGLIB-的-FastClass-机制"><a href="#4-性能黑科技：CGLIB-的-FastClass-机制" class="headerlink" title="4. 性能黑科技：CGLIB 的 FastClass 机制"></a>4. 性能黑科技：CGLIB 的 FastClass 机制</h2><p>CGLIB 在运行时之所以高效，是因为它通过 <strong>FastClass</strong> 机制规避了 Java 反射 API 的开销。</p>
+<h3 id="FastClass-原理"><a href="#FastClass-原理" class="headerlink" title="FastClass 原理"></a>FastClass 原理</h3><p>CGLIB 在生成代理类时，会利用 ASM 字节码技术额外生成一个 <code>FastClass</code>。它相当于把”反射查找”变成了”硬编码的索引跳转”。</p>
+<p><strong>伪代码逻辑：</strong></p>
+<p>Java</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">// FastClass 就像一个巨大的 switch-case，建立了 方法签名 -&gt; 索引 的映射</span><br><span class="line">public Object invoke(int index, Object target, Object[] args) &#123;</span><br><span class="line">    MyService service = (MyService) target;</span><br><span class="line">    // 直接调用，没有反射的 invoke() 开销</span><br><span class="line">    switch (index) &#123;</span><br><span class="line">        case 1: return service.login(); </span><br><span class="line">        case 2: return service.logout();</span><br><span class="line">    &#125;</span><br><span class="line">    return null;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="总结-FastClass"><a href="#总结-FastClass" class="headerlink" title="总结 FastClass"></a>总结 FastClass</h3><ul>
+<li><strong>本质</strong>：<strong>空间换时间</strong>。通过生成更多的字节码类，建立索引。</li>
+<li><strong>优势</strong>：<strong>运行时 (Runtime)</strong> 调用速度极快，接近原生 Java 方法调用，不仅省去了反射的安全检查，还能享受 JVM 的内联优化。</li>
+<li><strong>劣势</strong>：<strong>启动时间</strong>稍慢（需要生成和加载字节码）。</li>
+</ul>
+<hr>
+<h2 id="5-架构师建议-“The-Spring-Way”"><a href="#5-架构师建议-“The-Spring-Way”" class="headerlink" title="5. 架构师建议 (“The Spring Way”)"></a>5. 架构师建议 (“The Spring Way”)</h2><ol>
+<li><strong>首选重构</strong>：遇到自调用失效，首先反思类的职责是否过重。将事务逻辑拆分到不同 Service 是最优雅的解法。</li>
+<li><strong>拥抱 CGLIB</strong>：在 Spring Boot 2.x&#x2F;3.x 时代，默认使用 CGLIB 是最佳实践（稳定、高效、无需接口），除非你有特殊的 JDK 原生洁癖。</li>
+<li><strong>避坑 Final</strong>：使用 Spring 管理的 Bean（尤其是涉及 AOP&#x2F;事务的），<strong>严禁</strong>将类或方法设为 <code>final</code>，否则 CGLIB 无法生成子类代理，会导致启动报错或 AOP 失效。</li>
+<li><strong>理解原理</strong>：不要盲目背诵“CGLIB 比 JDK 快”，要理解它是通过“启动时的复杂”换取了“运行时的简单”。</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
     <link itemprop="mainEntityOfPage" href="http://example.com/2025/11/uncategorized/officeDocuments/officeDocs/objective-c/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1914,187 +2095,6 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2025/11/uncategorized/officeDocuments/homeDocs/Spring/Spring%20AOP%20%E4%BA%8B%E5%8A%A1%E5%A4%B1%E6%95%88%E4%B8%8E%E5%BA%95%E5%B1%82%E4%BB%A3%E7%90%86%E6%80%BB%E7%BB%93/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Supremes">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Hexo">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2025/11/uncategorized/officeDocuments/homeDocs/Spring/Spring%20AOP%20%E4%BA%8B%E5%8A%A1%E5%A4%B1%E6%95%88%E4%B8%8E%E5%BA%95%E5%B1%82%E4%BB%A3%E7%90%86%E6%80%BB%E7%BB%93/" class="post-title-link" itemprop="url">Spring AOP 事务失效与底层代理总结</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">Posted on</span>
-      
-
-      <time title="Created: 2025-11-26 00:00:00 / Modified: 15:43:52" itemprop="dateCreated datePublished" datetime="2025-11-26T00:00:00+08:00">2025-11-26</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="Spring-AOP-事务失效与底层代理机制深度总结"><a href="#Spring-AOP-事务失效与底层代理机制深度总结" class="headerlink" title="Spring AOP 事务失效与底层代理机制深度总结"></a>Spring AOP 事务失效与底层代理机制深度总结</h1><h2 id="1-核心问题-为什么自调用导致事务失效"><a href="#1-核心问题-为什么自调用导致事务失效" class="headerlink" title="1. 核心问题:为什么自调用导致事务失效?"></a>1. 核心问题:为什么自调用导致事务失效?</h2><h3 id="现象"><a href="#现象" class="headerlink" title="现象"></a>现象</h3><p>在同一个类中，方法 A 调用方法 B（<code>this.methodB()</code>），即使方法 B 上加了 <code>@Transactional</code> 注解，事务依然不生效。</p>
-<h3 id="根本原因"><a href="#根本原因" class="headerlink" title="根本原因"></a>根本原因</h3><p>Spring AOP 的默认实现基于 <strong>代理模式 (Proxy Pattern)</strong>。Spring 容器中注入的 Bean 实际上是一个 <strong>代理对象 (Proxy)</strong>，它持有你编写的 <strong>目标对象 (Target)</strong>。</p>
-<ul>
-<li><strong>生效路径</strong>：外部调用 $\rightarrow$ Proxy $\rightarrow$ 事务拦截器 (Interceptor) $\rightarrow$ Target。</li>
-<li><strong>失效路径</strong>：Target 内部调用 $\rightarrow$ <code>this.methodB()</code> $\rightarrow$ Target。</li>
-</ul>
-<p>此时，<code>this</code> 指针指向的是<strong>目标对象本身</strong>。代码执行流直接在目标对象内部流转，完全<strong>绕过</strong>了外层的代理对象及其持有的事务拦截器。</p>
-<h3 id="形象比喻"><a href="#形象比喻" class="headerlink" title="形象比喻"></a>形象比喻</h3><ul>
-<li><strong>Proxy (代理)</strong>：大楼门口的<strong>安检员</strong>。</li>
-<li><strong>Target (目标)</strong>：大楼里的<strong>员工</strong>。</li>
-<li><strong>外部访问</strong>：访客找员工，必须经过安检（事务生效）。</li>
-<li><strong>内部自调用</strong>：员工之间互找，直接在楼里见面，不需要跑出去再过一次安检（事务失效）。</li>
-</ul>
-<hr>
-<h2 id="2-解决方案-按架构师推荐度排序"><a href="#2-解决方案-按架构师推荐度排序" class="headerlink" title="2. 解决方案 (按架构师推荐度排序)"></a>2. 解决方案 (按架构师推荐度排序)</h2><table>
-<thead>
-<tr>
-<th><strong>方案</strong></th>
-<th><strong>具体做法</strong></th>
-<th><strong>评价</strong></th>
-<th><strong>适用场景</strong></th>
-</tr>
-</thead>
-<tbody><tr>
-<td><strong>1. 架构重构 (Refactoring)</strong></td>
-<td>将需要事务的方法提取到<strong>独立的 Service</strong> 中，通过 Bean 注入调用。</td>
-<td>⭐⭐⭐⭐⭐ (强烈推荐)</td>
-<td>符合单一职责原则 (SRP)，代码结构最清晰。</td>
-</tr>
-<tr>
-<td><strong>2. 自我注入 (Self-Injection)</strong></td>
-<td>在类中注入自身 (<code>@Lazy</code> 解决循环依赖)，调用 <code>self.methodB()</code>。</td>
-<td>⭐⭐⭐ (可用)</td>
-<td>业务逻辑紧密耦合，不适合拆分文件时。</td>
-</tr>
-<tr>
-<td><strong>3. AopContext</strong></td>
-<td>使用 <code>AopContext.currentProxy()</code> 强转获取当前代理对象。</td>
-<td>⭐ (不推荐)</td>
-<td>代码侵入性强，与 Spring API 强耦合。</td>
-</tr>
-<tr>
-<td><strong>4. AspectJ</strong></td>
-<td>放弃代理模式，使用字节码织入 (Weaving)。</td>
-<td>N&#x2F;A (特殊需求)</td>
-<td>追求极致性能或必须在 private&#x2F;自调用中生效时。</td>
-</tr>
-</tbody></table>
-<hr>
-<h2 id="3-深度辨析：JDK-动态代理-vs-CGLIB"><a href="#3-深度辨析：JDK-动态代理-vs-CGLIB" class="headerlink" title="3. 深度辨析：JDK 动态代理 vs CGLIB"></a>3. 深度辨析：JDK 动态代理 vs CGLIB</h2><p><img src="/../../Pics/image-20251126101915903.png" alt="image-20251126101915903"></p>
-<h3 id="常见误区"><a href="#常见误区" class="headerlink" title="常见误区"></a>常见误区</h3><blockquote>
-<p><strong>误区</strong>：”JDK Proxy 会导致自调用失效，换成 CGLIB 就能解决了。”</p>
-<p><strong>真相</strong>：<strong>错误的。</strong> 无论是 JDK Proxy 还是 CGLIB，只要是基于<strong>代理模式</strong>，自调用都会失效。因为它们底层架构都是 <code>Proxy</code> 持有 <code>Target</code>。</p>
-</blockquote>
-<h3 id="技术对比表"><a href="#技术对比表" class="headerlink" title="技术对比表"></a>技术对比表</h3><table>
-<thead>
-<tr>
-<th><strong>维度</strong></th>
-<th><strong>JDK 动态代理</strong></th>
-<th><strong>CGLIB (Code Generation Library)</strong></th>
-</tr>
-</thead>
-<tbody><tr>
-<td><strong>实现机制</strong></td>
-<td>基于 <strong>接口 (Interface)</strong></td>
-<td>基于 <strong>继承 (Subclass)</strong></td>
-</tr>
-<tr>
-<td><strong>类关系</strong></td>
-<td>代理类与目标类是 <strong>兄弟关系</strong></td>
-<td>代理类是目标类的 <strong>子类</strong></td>
-</tr>
-<tr>
-<td><strong>核心限制</strong></td>
-<td>目标类 <strong>必须实现接口</strong></td>
-<td>目标类或方法 <strong>不能是 Final</strong></td>
-</tr>
-<tr>
-<td><strong>调用方式</strong></td>
-<td><strong>反射</strong> (<code>Method.invoke</code>)</td>
-<td><strong>FastClass 索引</strong> (直接调用)</td>
-</tr>
-<tr>
-<td><strong>自调用支持</strong></td>
-<td>❌ 不支持</td>
-<td>❌ 不支持</td>
-</tr>
-<tr>
-<td><strong>Spring 默认</strong></td>
-<td>旧版本 (有接口时默认)</td>
-<td><strong>Spring Boot 2.0+ 默认</strong></td>
-</tr>
-</tbody></table>
-<hr>
-<h2 id="4-性能黑科技：CGLIB-的-FastClass-机制"><a href="#4-性能黑科技：CGLIB-的-FastClass-机制" class="headerlink" title="4. 性能黑科技：CGLIB 的 FastClass 机制"></a>4. 性能黑科技：CGLIB 的 FastClass 机制</h2><p>CGLIB 在运行时之所以高效，是因为它通过 <strong>FastClass</strong> 机制规避了 Java 反射 API 的开销。</p>
-<h3 id="FastClass-原理"><a href="#FastClass-原理" class="headerlink" title="FastClass 原理"></a>FastClass 原理</h3><p>CGLIB 在生成代理类时，会利用 ASM 字节码技术额外生成一个 <code>FastClass</code>。它相当于把”反射查找”变成了”硬编码的索引跳转”。</p>
-<p><strong>伪代码逻辑：</strong></p>
-<p>Java</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">// FastClass 就像一个巨大的 switch-case，建立了 方法签名 -&gt; 索引 的映射</span><br><span class="line">public Object invoke(int index, Object target, Object[] args) &#123;</span><br><span class="line">    MyService service = (MyService) target;</span><br><span class="line">    // 直接调用，没有反射的 invoke() 开销</span><br><span class="line">    switch (index) &#123;</span><br><span class="line">        case 1: return service.login(); </span><br><span class="line">        case 2: return service.logout();</span><br><span class="line">    &#125;</span><br><span class="line">    return null;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="总结-FastClass"><a href="#总结-FastClass" class="headerlink" title="总结 FastClass"></a>总结 FastClass</h3><ul>
-<li><strong>本质</strong>：<strong>空间换时间</strong>。通过生成更多的字节码类，建立索引。</li>
-<li><strong>优势</strong>：<strong>运行时 (Runtime)</strong> 调用速度极快，接近原生 Java 方法调用，不仅省去了反射的安全检查，还能享受 JVM 的内联优化。</li>
-<li><strong>劣势</strong>：<strong>启动时间</strong>稍慢（需要生成和加载字节码）。</li>
-</ul>
-<hr>
-<h2 id="5-架构师建议-“The-Spring-Way”"><a href="#5-架构师建议-“The-Spring-Way”" class="headerlink" title="5. 架构师建议 (“The Spring Way”)"></a>5. 架构师建议 (“The Spring Way”)</h2><ol>
-<li><strong>首选重构</strong>：遇到自调用失效，首先反思类的职责是否过重。将事务逻辑拆分到不同 Service 是最优雅的解法。</li>
-<li><strong>拥抱 CGLIB</strong>：在 Spring Boot 2.x&#x2F;3.x 时代，默认使用 CGLIB 是最佳实践（稳定、高效、无需接口），除非你有特殊的 JDK 原生洁癖。</li>
-<li><strong>避坑 Final</strong>：使用 Spring 管理的 Bean（尤其是涉及 AOP&#x2F;事务的），<strong>严禁</strong>将类或方法设为 <code>final</code>，否则 CGLIB 无法生成子类代理，会导致启动报错或 AOP 失效。</li>
-<li><strong>理解原理</strong>：不要盲目背诵“CGLIB 比 JDK 快”，要理解它是通过“启动时的复杂”换取了“运行时的简单”。</li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
     <link itemprop="mainEntityOfPage" href="http://example.com/2025/11/uncategorized/officeDocuments/officeDocs/MDM/Stolen%20Device%20Protection/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2178,6 +2178,209 @@
 <h3 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a><strong>Conclusion</strong></h3><ul>
 <li>The feature describes a powerful anti-theft tool that shifts security from “What you know” (Passcode) to “Who you are” (Biometrics). </li>
 <li><strong>There is no specific MDM command, payload, or configuration key</strong> that allows an MDM provider to directly enable, disable, or configure Stolen Device Protection. This is a user-centric security feature tied to the user’s personal Apple ID and biometric data (Face ID&#x2F;Touch ID), designed to prevent unauthorized changes even if the device is managed.</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2025/11/uncategorized/officeDocuments/officeDocs/MDM/UserEnrollment/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Supremes">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Hexo">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2025/11/uncategorized/officeDocuments/officeDocs/MDM/UserEnrollment/" class="post-title-link" itemprop="url">MDM Enrolment Types</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2025-11-26 00:00:00 / Modified: 15:43:52" itemprop="dateCreated datePublished" datetime="2025-11-26T00:00:00+08:00">2025-11-26</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="MDM-Enrolment-Types"><a href="#MDM-Enrolment-Types" class="headerlink" title="MDM Enrolment Types"></a>MDM Enrolment Types</h1><p><a target="_blank" rel="noopener" href="https://support.apple.com/en-sg/guide/deployment/dep08f54fcf6/web">Enrolment methods for Apple devices</a></p>
+<h2 id="1-Profile-based-Device-Enrollment"><a href="#1-Profile-based-Device-Enrollment" class="headerlink" title="1. Profile-based Device Enrollment"></a>1. Profile-based Device Enrollment</h2><p><a target="_blank" rel="noopener" href="https://support.apple.com/en-in/guide/deployment/depd1c27dfe6/1/web/1.0">https://support.apple.com/en-in/guide/deployment/depd1c27dfe6/1/web/1.0</a></p>
+<blockquote>
+<p><em>Profile-based Device Enrolment:</em> Users get an enrolment profile they must install on their device.</p>
+</blockquote>
+<h2 id="2-Account-Driven-Device-Enrollment"><a href="#2-Account-Driven-Device-Enrollment" class="headerlink" title="2. Account-Driven Device Enrollment"></a>2. Account-Driven Device Enrollment</h2><p><a target="_blank" rel="noopener" href="https://support.apple.com/en-in/guide/deployment/depd1c27dfe6/1/web/1.0">https://support.apple.com/en-in/guide/deployment/depd1c27dfe6/1/web/1.0</a></p>
+<blockquote>
+<p><em>Account-driven Device Enrolment:</em> Users sign in with their Managed Apple Account in Settings or System Settings.</p>
+</blockquote>
+<h2 id="3-Automated-Device-Enrollment"><a href="#3-Automated-Device-Enrollment" class="headerlink" title="3. Automated Device Enrollment"></a>3. Automated Device Enrollment</h2><p><a target="_blank" rel="noopener" href="https://support.apple.com/en-in/guide/deployment/dep73069dd57/1/web/1.0">https://support.apple.com/en-in/guide/deployment/dep73069dd57/1/web/1.0</a></p>
+<h2 id="4-Profile-based-User-Enrollment"><a href="#4-Profile-based-User-Enrollment" class="headerlink" title="4. Profile-based User Enrollment"></a>4. <del>Profile-based User Enrollment</del></h2><blockquote>
+<p><a target="_blank" rel="noopener" href="https://support.apple.com/en-in/121158">https://support.apple.com/en-in/121158</a>: <strong>Profile-based is no longer supported since iOS 18.</strong></p>
+</blockquote>
+<h2 id="5-Account-Driven-User-Enrollment"><a href="#5-Account-Driven-User-Enrollment" class="headerlink" title="5. Account-Driven User Enrollment"></a>5. Account-Driven User Enrollment</h2><h3 id="Concept"><a href="#Concept" class="headerlink" title="Concept"></a>Concept</h3><p><a target="_blank" rel="noopener" href="https://support.apple.com/en-in/guide/deployment/dep23db2037d/1/web/1.0">https://support.apple.com/en-in/guide/deployment/dep23db2037d/1/web/1.0</a></p>
+<p>Users sign in with their Managed Apple Account in Settings or System Settings.</p>
+<h3 id="Key-Points"><a href="#Key-Points" class="headerlink" title="Key Points"></a>Key Points</h3><ul>
+<li>Organisations can take advantage of integrating with an IdP, Google Workspace or Microsoft Entra ID: <a target="_blank" rel="noopener" href="https://support.apple.com/guide/apple-business-manager/axmb19317543">Intro to federated authentication with Apple Business Manager</a>.</li>
+<li>Federated authentication - Integrate Apple devices with Microsoft: <a target="_blank" rel="noopener" href="https://support.apple.com/en-sg/guide/deployment/depa85a35cf2/1/web/1.0">https://support.apple.com/en-sg/guide/deployment/depa85a35cf2/1/web/1.0</a></li>
+<li><a target="_blank" rel="noopener" href="https://support.apple.com/en-sg/guide/deployment/enrolment-sso-iphone-ipad-apple-vision-pro-dep267836bdc/1/web/1.0">Enrolment Single Sign-on for iPhone, iPad and Apple Vision Pro</a>.</li>
+</ul>
+<p>![image-20250407150326290](&#x2F;Users&#x2F;junkangd&#x2F;Library&#x2F;Application Support&#x2F;typora-user-images&#x2F;image-20250407150326290.png)</p>
+<p>![image-20250407150250557](&#x2F;Users&#x2F;junkangd&#x2F;Library&#x2F;Application Support&#x2F;typora-user-images&#x2F;image-20250407150250557.png)</p>
+<h3 id="Authenticate-Methods"><a href="#Authenticate-Methods" class="headerlink" title="Authenticate Methods"></a>Authenticate Methods</h3><h4 id="Simple-Authentication"><a href="#Simple-Authentication" class="headerlink" title="Simple Authentication"></a>Simple Authentication</h4><p>This method was introduced in iOS 15.</p>
+<p>Guide: <a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/devicemanagement/implementing-the-simple-authentication-user-enrollment-flow">Implementing the simple authentication user-enrollment flow</a></p>
+<p><img src="https://docs-assets.developer.apple.com/published/0d3c28bcc45f65cb5210f9635b1a95a6/media-4091468@2x.png" alt="A sequence diagram showing the first 5 interactions between the user, client, server, and Apple servers for simple authentication."></p>
+<p><img src="https://docs-assets.developer.apple.com/published/be55f211bba11bab44eff9ec91bf8764/media-4091469@2x.png" alt="A sequence diagram showing interactions 6-11 between the user, client, server, and Apple servers for simple authentication."></p>
+<p><img src="https://docs-assets.developer.apple.com/published/0d9a9bb4703ca84da712f9b77ec825d1/media-4091470@2x.png" alt="A sequence diagram showing interactions 12-20 between the user, client, server, and Apple servers for simple authentication."></p>
+<h4 id="OAuth2-Authentication"><a href="#OAuth2-Authentication" class="headerlink" title="OAuth2 Authentication"></a>OAuth2 Authentication</h4><p>This method was introduced in iOS 16.</p>
+<p>Guide: <a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/devicemanagement/implementing-the-oauth2-authentication-user-enrollment-flow">Implementing the OAuth2 authentication user-enrollment flow</a></p>
+<p><img src="https://docs-assets.developer.apple.com/published/0d3c28bcc45f65cb5210f9635b1a95a6/media-4091468@2x.png" alt="A sequence diagram showing the first 5 interactions between the user, client, server, and Apple servers for simple authentication."></p>
+<p>401 Response Bearer scheme</p>
+<table>
+<thead>
+<tr>
+<th align="left">Name</th>
+<th align="left">Content</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>method</code></td>
+<td align="left">(Required) A string that must be <code>apple-oauth2</code>, defining the authentication protocol.</td>
+</tr>
+<tr>
+<td align="left"><code>authorization-url</code></td>
+<td align="left">(Required) The OAuth2 protocol authorization endpoint URL, for the initial ASWebAuthenticationSession HTTP request. The URL scheme must be <code>https</code>.</td>
+</tr>
+<tr>
+<td align="left"><code>token-url</code></td>
+<td align="left">(Required) The OAuth2 protocol token endpoint URL, for the token request. The URL scheme must be <code>https</code>.</td>
+</tr>
+<tr>
+<td align="left"><code>redirect-url</code></td>
+<td align="left">(Required) The OAuth2 protocol redirection endpoint URL, where the OAuth2 authorization request redirects to on success. Since the authorization request uses the <a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/AuthenticationServices/ASWebAuthenticationSession"><code>ASWebAuthenticationSession</code></a> protocol, this URL scheme must be set to <code>apple-remotemanagement-user-login</code> and have a path component set to the server’s redirection endpoint.</td>
+</tr>
+<tr>
+<td align="left"><code>client-id</code></td>
+<td align="left">(Required) The OAuth2 protocol client identifier that the client must use in the OAuth2 authorization request.</td>
+</tr>
+<tr>
+<td align="left"><code>scope</code></td>
+<td align="left">The OAuth2 protocol access token scope the client must use in the OAuth2 authorization request.</td>
+</tr>
+</tbody></table>
+<p><img src="https://docs-assets.developer.apple.com/published/28b776ef1f3d2b49cde6c822b6ae94f0/media-4091472@2x.png" alt="A sequence diagram showing interactions 6-11 between the user, client, server, and Apple servers for OAuth2 authentication."></p>
+<p><img src="https://docs-assets.developer.apple.com/published/a35a8a1b9c4a92b221ca627681a6fa5c/media-4091471@2x.png" alt="A sequence diagram showing interactions 12 and 13 between the user, client, server, and Apple servers for OAuth2 authentication."></p>
+<p><img src="https://docs-assets.developer.apple.com/published/6a9f1c4d34cfffc5b380b886414e97cb/media-4091473@2x.png" alt="A sequence diagram showing interactions 14-20 between the user, client, server, and Apple servers for OAuth2 authentication."></p>
+<h4 id="Enrollment-SSO-Based-on-OAuth2"><a href="#Enrollment-SSO-Based-on-OAuth2" class="headerlink" title="Enrollment SSO (Based on OAuth2)"></a>Enrollment SSO (Based on OAuth2)</h4><h3 id="Account-driven-enrolment-process"><a href="#Account-driven-enrolment-process" class="headerlink" title="Account-driven enrolment process"></a>Account-driven enrolment process</h3><h4 id="Simple-Authentication-1"><a href="#Simple-Authentication-1" class="headerlink" title="Simple Authentication"></a>Simple Authentication</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">sequenceDiagram</span><br><span class="line">	Participant a as ADS</span><br><span class="line">	Participant b as Device</span><br><span class="line">	Participant c as MDM Server</span><br><span class="line">	Participant d as IDP</span><br><span class="line">	</span><br><span class="line">	autonumber</span><br><span class="line">	</span><br><span class="line">	Note over a,b: 1. Service discovery</span><br><span class="line">	b -&gt;&gt; a: https://&lt;domain&gt;/.well-known/com.apple.remotemanagement</span><br><span class="line">	a --&gt;&gt; b: MDM URL</span><br><span class="line">	</span><br><span class="line">	Note over b,c: 2. first enrollment attempt - fetch enrollment profile</span><br><span class="line">	b -&gt;&gt; c: POST /enroll</span><br><span class="line">  c --&gt;&gt; b: 401 response with new URL: https://xxx/authenticate</span><br><span class="line">  </span><br><span class="line">  Note over b,d: 3. Authentication flow</span><br><span class="line">  </span><br><span class="line">  b -&gt;&gt; c: GET /authenticate?user-identifier=xxx</span><br><span class="line">  c -&gt;&gt; d: auth request</span><br><span class="line">  d --&gt;&gt; c: auth successfully</span><br><span class="line">  c --&gt;&gt; b: 200 OK with HTML Login Page</span><br><span class="line">  b -&gt;&gt; c: POST /authenticate-results</span><br><span class="line">  c --&gt;&gt; b: 308 permanent Redirect - with token</span><br><span class="line">  </span><br><span class="line">  Note over b,c : 4. second enrollment attempt - fetch enrollment profile</span><br><span class="line">  b -&gt;&gt; c: POST /enroll with token</span><br><span class="line">  c --&gt;&gt; b: 200 with enrollment profile</span><br><span class="line">  </span><br><span class="line">  Note left of b: 4. Enroll</span><br><span class="line">  b -&gt;&gt; b: Enroll</span><br><span class="line">  </span><br><span class="line">  Note over b,c : 5. regular checkin</span><br><span class="line">  b -&gt;&gt; c: MDM Checkin request</span><br><span class="line">  </span><br></pre></td></tr></table></figure>
+
+<h5 id="First-enrollment-attempt"><a href="#First-enrollment-attempt" class="headerlink" title="First enrollment attempt"></a>First enrollment attempt</h5><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">&lt;&lt;&lt;&lt;&lt; Request</span><br><span class="line">POST /enroll/byod HTTP/1.1</span><br><span class="line">Host: mdmserver.example.com</span><br><span class="line">Content-Type: application/pkcs7-signature</span><br><span class="line">Content-Length: 327</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">plist</span> <span class="keyword">PUBLIC</span> <span class="string">&quot;-//Apple//DTD PLIST 1.0//EN&quot;</span> <span class="string">&quot;http://www.apple.com/DTDs/PropertyList-1.0.dtd&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">plist</span> <span class="attr">version</span>=<span class="string">&quot;1.0&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dict</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">key</span>&gt;</span>LANGUAGE<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">string</span>&gt;</span>en-US<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">key</span>&gt;</span>PRODUCT<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">string</span>&gt;</span>iPhone10,2<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">key</span>&gt;</span>VERSION<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">string</span>&gt;</span>19A240<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dict</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">plist</span>&gt;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&gt;&gt;&gt;&gt;&gt; Response</span><br><span class="line">HTTP/1.1 401 Unauthorized</span><br><span class="line">Content-Length: 0</span><br><span class="line">WWW-Authenticate: Bearer method=&quot;apple-as-web&quot;, url=&quot;https://mdmserver.example.com/authenticate&quot;</span><br></pre></td></tr></table></figure>
+
+<h5 id="Authentication-flow"><a href="#Authentication-flow" class="headerlink" title="Authentication flow"></a>Authentication flow</h5><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">&lt;&lt;&lt;&lt;&lt; Request</span><br><span class="line">GET /authenticate?user-identifier=user01@example.com HTTP/1.1</span><br><span class="line">Host: mdmserver.example.com</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&gt;&gt;&gt;&gt;&gt; Response</span><br><span class="line">HTTP/1.1 200 OK</span><br><span class="line">Content-Type: text/html; charset=&quot;utf-8&quot;</span><br><span class="line">Content-Length: 17643</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line">…</span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">&lt;&lt;&lt;&lt;&lt; Request</span><br><span class="line">POST /authenticate-results HTTP/1.1</span><br><span class="line">Content-Type: multipart/form-data; boundary=----WebKitFormBoundarySaBDj3Bd7BeKC1s2</span><br><span class="line">Content-Length: 236</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">------WebKitFormBoundarySaBDj3Bd7BeKC1s2</span><br><span class="line">Content-Disposition: form-data; name=&quot;username&quot;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">user01</span><br><span class="line">------WebKitFormBoundarySaBDj3Bd7BeKC1s2</span><br><span class="line">Content-Disposition: form-data; name=&quot;password&quot;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">secret</span><br><span class="line">------WebKitFormBoundarySaBDj3Bd7BeKC1s2--</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&gt;&gt;&gt;&gt;&gt; Response</span><br><span class="line">HTTP/1.1 308 Permanent Redirect</span><br><span class="line">Content-Length: 0</span><br><span class="line">Location: apple-remotemanagement-user-login://authentication-results?access-token=dXNlci1pZGVudGl0eQ</span><br></pre></td></tr></table></figure>
+
+<h5 id="Second-enrollment-attempt"><a href="#Second-enrollment-attempt" class="headerlink" title="Second enrollment attempt"></a>Second enrollment attempt</h5><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line">&lt;&lt;&lt;&lt;&lt; Request</span><br><span class="line">POST /enroll/byod HTTP/1.1</span><br><span class="line">Host: mdmserver.example.com</span><br><span class="line">Content-Type: application/x-www-form-urlencoded</span><br><span class="line">Content-Length: 326</span><br><span class="line">Authorization: Bearer dXNlci1pZGVudGl0eQ</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">plist</span> <span class="keyword">PUBLIC</span> <span class="string">&quot;-//Apple//DTD PLIST 1.0//EN&quot;</span> <span class="string">&quot;http://www.apple.com/DTDs/PropertyList-1.0.dtd&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">plist</span> <span class="attr">version</span>=<span class="string">&quot;1.0&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dict</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">key</span>&gt;</span>LANGUAGE<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">string</span>&gt;</span>en-US<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">key</span>&gt;</span>PRODUCT<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">string</span>&gt;</span>iPhone10,2<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">key</span>&gt;</span>VERSION<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">string</span>&gt;</span>19A240<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dict</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">plist</span>&gt;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&gt;&gt;&gt;&gt;&gt; Response</span><br><span class="line">HTTP/1.1 200 OK</span><br><span class="line">Content-Type: application/x-apple-aspen-config</span><br><span class="line">Content-Length: 6785</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">plist</span> <span class="keyword">PUBLIC</span> <span class="string">&quot;-//Apple//DTD PLIST 1.0//EN&quot;</span> <span class="string">&quot;http://www.apple.com/DTDs/PropertyList-1.0.dtd&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">plist</span> <span class="attr">version</span>=<span class="string">&quot;1.0&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dict</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">key</span>&gt;</span>PayloadType<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">string</span>&gt;</span>Configuration<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">   …</span><br><span class="line">    <span class="tag">&lt;<span class="name">key</span>&gt;</span>PayloadContent<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">array</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dict</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">key</span>&gt;</span>PayloadType<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">string</span>&gt;</span>com.apple.security.scep<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">            …</span><br><span class="line">        <span class="tag">&lt;/<span class="name">dict</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dict</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">key</span>&gt;</span>PayloadType<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">string</span>&gt;</span>com.apple.mdm<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">            …</span><br><span class="line">            <span class="tag">&lt;<span class="name">key</span>&gt;</span>AssignedManagedAppleID<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">string</span>&gt;</span>user01@appleid.example.com<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">key</span>&gt;</span>EnrollmentMode<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">string</span>&gt;</span>BYOD<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dict</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">array</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dict</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">plist</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h4 id="OAuth2-Authentication-1"><a href="#OAuth2-Authentication-1" class="headerlink" title="OAuth2 Authentication"></a>OAuth2 Authentication</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">sequenceDiagram</span><br><span class="line">	Participant a as ADS</span><br><span class="line">	Participant b as Device</span><br><span class="line">	Participant c as MDM Server</span><br><span class="line">	Participant d as OAuth2 IDP</span><br><span class="line">	</span><br><span class="line">	autonumber</span><br><span class="line">	</span><br><span class="line">	Note over a,b: 1. Service discovery</span><br><span class="line">	b -&gt;&gt; a: https://&lt;domain&gt;/.well-known/com.apple.remotemanagement</span><br><span class="line">	a --&gt;&gt; b: MDM URL</span><br><span class="line">	</span><br><span class="line">	Note over b,c: 2. first enrollment attempt - fetch enrollment profile</span><br><span class="line">	b -&gt;&gt; c: POST /enroll</span><br><span class="line">  c --&gt;&gt; b: 401 response with URL</span><br><span class="line">  </span><br><span class="line">  Note over b,d: 3. Authentication flow</span><br><span class="line">  b -&gt;&gt; c: GET /oauth2/authorization</span><br><span class="line">  c -&gt;&gt; d: auth request</span><br><span class="line">  d --&gt;&gt; c: auth successfully</span><br><span class="line">  c --&gt;&gt; b: 200 OK</span><br><span class="line">  b -&gt;&gt; c: POST /oauth2/results </span><br><span class="line">  c --&gt;&gt; b: 308 permanent Redirect - with code</span><br><span class="line">  </span><br><span class="line">  Note over b,d: 4. Token request and response</span><br><span class="line">  b -&gt;&gt; d: POST /oauth2/token with code</span><br><span class="line">  d --&gt;&gt; b: 200 OK with access_token</span><br><span class="line">  </span><br><span class="line">  Note over b,c : 5. second enrollment attempt - fetch enrollment profile</span><br><span class="line">  b -&gt;&gt; c: POST /enroll with access_token</span><br><span class="line">  c --&gt;&gt; b: 200 with enrollment profile</span><br><span class="line">  </span><br><span class="line">  Note left of b: 4. Enroll</span><br><span class="line">  b -&gt;&gt; b: Enroll</span><br><span class="line">  </span><br><span class="line">  Note over b,c : 5. regular checkin</span><br><span class="line">  b -&gt;&gt; c: MDM Checkin request</span><br><span class="line">  </span><br></pre></td></tr></table></figure>
+
+<h5 id="Authentication-flow-1"><a href="#Authentication-flow-1" class="headerlink" title="Authentication flow"></a>Authentication flow</h5><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">&lt;&lt;&lt;&lt;&lt; Request</span><br><span class="line">GET /oauth2/authorization?response_type=code</span><br><span class="line">    &amp;client_id=03FDDE96-FDAB-45EF-A589-0E29C026E824</span><br><span class="line">    &amp;redirect_uri=apple-remotemanagement-user-login:/oauth2/redirection</span><br><span class="line">    &amp;state=340B948D-A84A-45A3-AC45-C93195124B00</span><br><span class="line">    &amp;login_hint=useroauth@example.com HTTP/1.1</span><br><span class="line">Host: mdmserver.example.com</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&gt;&gt;&gt;&gt;&gt; Response</span><br><span class="line">HTTP/1.1 200 OK</span><br><span class="line">Content-Type: text/html; charset=&quot;utf-8&quot;</span><br><span class="line">Content-Length: 17643</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line">…</span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">&lt;&lt;&lt;&lt;&lt; Request</span><br><span class="line">POST /oauth2/results HTTP/1.1</span><br><span class="line">Content-Type: multipart/form-data; boundary=----WebKitFormBoundarySaBDj3Bd7BeKC1s2</span><br><span class="line">Content-Length: 236</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">------WebKitFormBoundarySaBDj3Bd7BeKC1s2</span><br><span class="line">Content-Disposition: form-data; name=&quot;username&quot;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">user01</span><br><span class="line">------WebKitFormBoundarySaBDj3Bd7BeKC1s2</span><br><span class="line">Content-Disposition: form-data; name=&quot;password&quot;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">secret</span><br><span class="line">------WebKitFormBoundarySaBDj3Bd7BeKC1s2--</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&gt;&gt;&gt;&gt;&gt; Response</span><br><span class="line">HTTP/1.1 308 Permanent Redirect</span><br><span class="line">Content-Length: 0</span><br><span class="line">Location: apple-remotemanagement-user-login:/oauth2/redirection</span><br><span class="line">    ?code=Dek1jUOEcaIPGhbDrCTm9GDV5qT1sb&amp;state=340B948D-A84A-45A3-AC45-C93195124B00</span><br></pre></td></tr></table></figure>
+
+<h5 id="Token-request-and-response"><a href="#Token-request-and-response" class="headerlink" title="Token request and response"></a>Token request and response</h5><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">&lt;&lt;&lt;&lt;&lt; Request</span><br><span class="line">POST /oauth2/token HTTP/1.1</span><br><span class="line">Content-Type: application/x-www-form-urlencoded</span><br><span class="line">Content-Length: 195</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">grant_type=authorization_code</span><br><span class="line">    &amp;code=Dek1jUOEcaIPGhbDrCTm9GDV5qT1sb</span><br><span class="line">    &amp;redirect_uri=apple-remotemanagement-user-login:/oauth2/redirection</span><br><span class="line">    &amp;client_id=03FDDE96-FDAB-45EF-A589-0E29C026E824</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&gt;&gt;&gt;&gt;&gt; Response</span><br><span class="line">HTTP/1.1 200 OK</span><br><span class="line">Content-Length: 245</span><br><span class="line">Content-Type: application/json</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">    &quot;token_type&quot;: &quot;Bearer&quot;,</span><br><span class="line">    &quot;scope&quot;: &quot;MDM&quot;,</span><br><span class="line">    &quot;access_token&quot;: &quot;dXNlcm9hdXRo.MjZkNTkzZmMtNzk4MC00OWFkLTllZTAtZTA2NzhmNmVhNzg5&quot;,</span><br><span class="line">    &quot;expires_in&quot;: 3600,</span><br><span class="line">    &quot;refresh_token&quot;: &quot;dXNlcm9hdXRo.NzhiNWU0NWQtMDVlZS00MTAwLThhMjEtZDA5MzI2N2RjNzUx&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="POC"><a href="#POC" class="headerlink" title="POC"></a>POC</h3><ol>
+<li><p>Make the auth process works with CEM AD configuration.</p>
+</li>
+<li><p>Configure ADS Service</p>
+</li>
+<li><p>Configure federated auth with AAD </p>
+<ul>
+<li>Need more information from Apple before we can start this</li>
+</ul>
+</li>
+<li><p>Customize the UE enrollment UI</p>
+</li>
+<li><p>Add new policy which account-driven UE newly supports</p>
+</li>
+<li><p>Dynamically disable commands that do not apply to UE (wipe device, etc.)</p>
+</li>
+<li><p>How to make sure that there won’t be duplicate device info if one device enroll to CEM many times?</p>
+<ul>
+<li>How to identify the device</li>
+</ul>
+</li>
+</ol>
+<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ul>
+<li>Developer Doc: <a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/devicemanagement/user-enrollment">https://developer.apple.com/documentation/devicemanagement/user-enrollment</a></li>
+<li>Account-driven enrolment methods with Apple devices: <a target="_blank" rel="noopener" href="https://support.apple.com/en-sg/guide/deployment/dep4d9e9cd26/1/web/1.0">https://support.apple.com/en-sg/guide/deployment/dep4d9e9cd26/1/web/1.0</a></li>
+<li>User Enrolment MDM information: <a target="_blank" rel="noopener" href="https://support.apple.com/en-in/guide/deployment/dep6ae3f1d5a/1/web/1.0">https://support.apple.com/en-in/guide/deployment/dep6ae3f1d5a/1/web/1.0</a><ul>
+<li>MDM payloads for User Enrolment</li>
+<li>MDM commands for User Enrolment</li>
+<li>MDM queries for User Enrolment</li>
+</ul>
+</li>
+</ul>
+<h1 id="Reference-1"><a href="#Reference-1" class="headerlink" title="Reference"></a>Reference</h1><p>Apple资料是这一个 <a target="_blank" rel="noopener" href="https://support.apple.com/en-hk/guide/deployment/dep23db2037d/web">https://support.apple.com/en-hk/guide/deployment/dep23db2037d/web</a></p>
+<p>内部资料都在这个comment里面 - <a target="_blank" rel="noopener" href="https://issues.citrite.net/browse/CXM-112317">https://issues.citrite.net/browse/CXM-112317</a></p>
+<p>这个是epic - <a target="_blank" rel="noopener" href="https://issues.citrite.net/browse/CXM-112218">https://issues.citrite.net/browse/CXM-112218</a></p>
+<p><a target="_blank" rel="noopener" href="https://support.apple.com/en-in/121158">What’s new for enterprise in iOS 18</a></p>
+<h1 id="Apple-Officials"><a href="#Apple-Officials" class="headerlink" title="Apple Officials"></a>Apple Officials</h1><p>Apple Support:</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://support.apple.com/en-sg/guide/deployment/dep4d9e9cd26/1/web/1.0">Account-driven enrolment methods with Apple devices</a></li>
+<li><a target="_blank" rel="noopener" href="https://support.apple.com/en-in/guide/deployment/dep23db2037d/1/web/1.0#dep6c59a3144">User Enrolment and MDM</a></li>
+<li><a target="_blank" rel="noopener" href="https://support.apple.com/en-sg/guide/deployment/dep08f54fcf6/web">Enrolment methods for Apple devices</a></li>
+</ul>
+<p>Apple Developer:</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/devicemanagement/user-enrollment">User Enrollment</a></li>
 </ul>
 
       
@@ -2468,209 +2671,6 @@ add member and delete member to group</p>
 </li>
 <li><p>This feature may be affected by iCloud Contact synchronization, leading to unexpected data loss. If issues occur, consider disabling two-way sync to prevent concurrent modification conflicts.</p>
 </li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2025/11/uncategorized/officeDocuments/officeDocs/MDM/UserEnrollment/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Supremes">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Hexo">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2025/11/uncategorized/officeDocuments/officeDocs/MDM/UserEnrollment/" class="post-title-link" itemprop="url">MDM Enrolment Types</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">Posted on</span>
-      
-
-      <time title="Created: 2025-11-26 00:00:00 / Modified: 15:43:52" itemprop="dateCreated datePublished" datetime="2025-11-26T00:00:00+08:00">2025-11-26</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="MDM-Enrolment-Types"><a href="#MDM-Enrolment-Types" class="headerlink" title="MDM Enrolment Types"></a>MDM Enrolment Types</h1><p><a target="_blank" rel="noopener" href="https://support.apple.com/en-sg/guide/deployment/dep08f54fcf6/web">Enrolment methods for Apple devices</a></p>
-<h2 id="1-Profile-based-Device-Enrollment"><a href="#1-Profile-based-Device-Enrollment" class="headerlink" title="1. Profile-based Device Enrollment"></a>1. Profile-based Device Enrollment</h2><p><a target="_blank" rel="noopener" href="https://support.apple.com/en-in/guide/deployment/depd1c27dfe6/1/web/1.0">https://support.apple.com/en-in/guide/deployment/depd1c27dfe6/1/web/1.0</a></p>
-<blockquote>
-<p><em>Profile-based Device Enrolment:</em> Users get an enrolment profile they must install on their device.</p>
-</blockquote>
-<h2 id="2-Account-Driven-Device-Enrollment"><a href="#2-Account-Driven-Device-Enrollment" class="headerlink" title="2. Account-Driven Device Enrollment"></a>2. Account-Driven Device Enrollment</h2><p><a target="_blank" rel="noopener" href="https://support.apple.com/en-in/guide/deployment/depd1c27dfe6/1/web/1.0">https://support.apple.com/en-in/guide/deployment/depd1c27dfe6/1/web/1.0</a></p>
-<blockquote>
-<p><em>Account-driven Device Enrolment:</em> Users sign in with their Managed Apple Account in Settings or System Settings.</p>
-</blockquote>
-<h2 id="3-Automated-Device-Enrollment"><a href="#3-Automated-Device-Enrollment" class="headerlink" title="3. Automated Device Enrollment"></a>3. Automated Device Enrollment</h2><p><a target="_blank" rel="noopener" href="https://support.apple.com/en-in/guide/deployment/dep73069dd57/1/web/1.0">https://support.apple.com/en-in/guide/deployment/dep73069dd57/1/web/1.0</a></p>
-<h2 id="4-Profile-based-User-Enrollment"><a href="#4-Profile-based-User-Enrollment" class="headerlink" title="4. Profile-based User Enrollment"></a>4. <del>Profile-based User Enrollment</del></h2><blockquote>
-<p><a target="_blank" rel="noopener" href="https://support.apple.com/en-in/121158">https://support.apple.com/en-in/121158</a>: <strong>Profile-based is no longer supported since iOS 18.</strong></p>
-</blockquote>
-<h2 id="5-Account-Driven-User-Enrollment"><a href="#5-Account-Driven-User-Enrollment" class="headerlink" title="5. Account-Driven User Enrollment"></a>5. Account-Driven User Enrollment</h2><h3 id="Concept"><a href="#Concept" class="headerlink" title="Concept"></a>Concept</h3><p><a target="_blank" rel="noopener" href="https://support.apple.com/en-in/guide/deployment/dep23db2037d/1/web/1.0">https://support.apple.com/en-in/guide/deployment/dep23db2037d/1/web/1.0</a></p>
-<p>Users sign in with their Managed Apple Account in Settings or System Settings.</p>
-<h3 id="Key-Points"><a href="#Key-Points" class="headerlink" title="Key Points"></a>Key Points</h3><ul>
-<li>Organisations can take advantage of integrating with an IdP, Google Workspace or Microsoft Entra ID: <a target="_blank" rel="noopener" href="https://support.apple.com/guide/apple-business-manager/axmb19317543">Intro to federated authentication with Apple Business Manager</a>.</li>
-<li>Federated authentication - Integrate Apple devices with Microsoft: <a target="_blank" rel="noopener" href="https://support.apple.com/en-sg/guide/deployment/depa85a35cf2/1/web/1.0">https://support.apple.com/en-sg/guide/deployment/depa85a35cf2/1/web/1.0</a></li>
-<li><a target="_blank" rel="noopener" href="https://support.apple.com/en-sg/guide/deployment/enrolment-sso-iphone-ipad-apple-vision-pro-dep267836bdc/1/web/1.0">Enrolment Single Sign-on for iPhone, iPad and Apple Vision Pro</a>.</li>
-</ul>
-<p>![image-20250407150326290](&#x2F;Users&#x2F;junkangd&#x2F;Library&#x2F;Application Support&#x2F;typora-user-images&#x2F;image-20250407150326290.png)</p>
-<p>![image-20250407150250557](&#x2F;Users&#x2F;junkangd&#x2F;Library&#x2F;Application Support&#x2F;typora-user-images&#x2F;image-20250407150250557.png)</p>
-<h3 id="Authenticate-Methods"><a href="#Authenticate-Methods" class="headerlink" title="Authenticate Methods"></a>Authenticate Methods</h3><h4 id="Simple-Authentication"><a href="#Simple-Authentication" class="headerlink" title="Simple Authentication"></a>Simple Authentication</h4><p>This method was introduced in iOS 15.</p>
-<p>Guide: <a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/devicemanagement/implementing-the-simple-authentication-user-enrollment-flow">Implementing the simple authentication user-enrollment flow</a></p>
-<p><img src="https://docs-assets.developer.apple.com/published/0d3c28bcc45f65cb5210f9635b1a95a6/media-4091468@2x.png" alt="A sequence diagram showing the first 5 interactions between the user, client, server, and Apple servers for simple authentication."></p>
-<p><img src="https://docs-assets.developer.apple.com/published/be55f211bba11bab44eff9ec91bf8764/media-4091469@2x.png" alt="A sequence diagram showing interactions 6-11 between the user, client, server, and Apple servers for simple authentication."></p>
-<p><img src="https://docs-assets.developer.apple.com/published/0d9a9bb4703ca84da712f9b77ec825d1/media-4091470@2x.png" alt="A sequence diagram showing interactions 12-20 between the user, client, server, and Apple servers for simple authentication."></p>
-<h4 id="OAuth2-Authentication"><a href="#OAuth2-Authentication" class="headerlink" title="OAuth2 Authentication"></a>OAuth2 Authentication</h4><p>This method was introduced in iOS 16.</p>
-<p>Guide: <a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/devicemanagement/implementing-the-oauth2-authentication-user-enrollment-flow">Implementing the OAuth2 authentication user-enrollment flow</a></p>
-<p><img src="https://docs-assets.developer.apple.com/published/0d3c28bcc45f65cb5210f9635b1a95a6/media-4091468@2x.png" alt="A sequence diagram showing the first 5 interactions between the user, client, server, and Apple servers for simple authentication."></p>
-<p>401 Response Bearer scheme</p>
-<table>
-<thead>
-<tr>
-<th align="left">Name</th>
-<th align="left">Content</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left"><code>method</code></td>
-<td align="left">(Required) A string that must be <code>apple-oauth2</code>, defining the authentication protocol.</td>
-</tr>
-<tr>
-<td align="left"><code>authorization-url</code></td>
-<td align="left">(Required) The OAuth2 protocol authorization endpoint URL, for the initial ASWebAuthenticationSession HTTP request. The URL scheme must be <code>https</code>.</td>
-</tr>
-<tr>
-<td align="left"><code>token-url</code></td>
-<td align="left">(Required) The OAuth2 protocol token endpoint URL, for the token request. The URL scheme must be <code>https</code>.</td>
-</tr>
-<tr>
-<td align="left"><code>redirect-url</code></td>
-<td align="left">(Required) The OAuth2 protocol redirection endpoint URL, where the OAuth2 authorization request redirects to on success. Since the authorization request uses the <a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/AuthenticationServices/ASWebAuthenticationSession"><code>ASWebAuthenticationSession</code></a> protocol, this URL scheme must be set to <code>apple-remotemanagement-user-login</code> and have a path component set to the server’s redirection endpoint.</td>
-</tr>
-<tr>
-<td align="left"><code>client-id</code></td>
-<td align="left">(Required) The OAuth2 protocol client identifier that the client must use in the OAuth2 authorization request.</td>
-</tr>
-<tr>
-<td align="left"><code>scope</code></td>
-<td align="left">The OAuth2 protocol access token scope the client must use in the OAuth2 authorization request.</td>
-</tr>
-</tbody></table>
-<p><img src="https://docs-assets.developer.apple.com/published/28b776ef1f3d2b49cde6c822b6ae94f0/media-4091472@2x.png" alt="A sequence diagram showing interactions 6-11 between the user, client, server, and Apple servers for OAuth2 authentication."></p>
-<p><img src="https://docs-assets.developer.apple.com/published/a35a8a1b9c4a92b221ca627681a6fa5c/media-4091471@2x.png" alt="A sequence diagram showing interactions 12 and 13 between the user, client, server, and Apple servers for OAuth2 authentication."></p>
-<p><img src="https://docs-assets.developer.apple.com/published/6a9f1c4d34cfffc5b380b886414e97cb/media-4091473@2x.png" alt="A sequence diagram showing interactions 14-20 between the user, client, server, and Apple servers for OAuth2 authentication."></p>
-<h4 id="Enrollment-SSO-Based-on-OAuth2"><a href="#Enrollment-SSO-Based-on-OAuth2" class="headerlink" title="Enrollment SSO (Based on OAuth2)"></a>Enrollment SSO (Based on OAuth2)</h4><h3 id="Account-driven-enrolment-process"><a href="#Account-driven-enrolment-process" class="headerlink" title="Account-driven enrolment process"></a>Account-driven enrolment process</h3><h4 id="Simple-Authentication-1"><a href="#Simple-Authentication-1" class="headerlink" title="Simple Authentication"></a>Simple Authentication</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">sequenceDiagram</span><br><span class="line">	Participant a as ADS</span><br><span class="line">	Participant b as Device</span><br><span class="line">	Participant c as MDM Server</span><br><span class="line">	Participant d as IDP</span><br><span class="line">	</span><br><span class="line">	autonumber</span><br><span class="line">	</span><br><span class="line">	Note over a,b: 1. Service discovery</span><br><span class="line">	b -&gt;&gt; a: https://&lt;domain&gt;/.well-known/com.apple.remotemanagement</span><br><span class="line">	a --&gt;&gt; b: MDM URL</span><br><span class="line">	</span><br><span class="line">	Note over b,c: 2. first enrollment attempt - fetch enrollment profile</span><br><span class="line">	b -&gt;&gt; c: POST /enroll</span><br><span class="line">  c --&gt;&gt; b: 401 response with new URL: https://xxx/authenticate</span><br><span class="line">  </span><br><span class="line">  Note over b,d: 3. Authentication flow</span><br><span class="line">  </span><br><span class="line">  b -&gt;&gt; c: GET /authenticate?user-identifier=xxx</span><br><span class="line">  c -&gt;&gt; d: auth request</span><br><span class="line">  d --&gt;&gt; c: auth successfully</span><br><span class="line">  c --&gt;&gt; b: 200 OK with HTML Login Page</span><br><span class="line">  b -&gt;&gt; c: POST /authenticate-results</span><br><span class="line">  c --&gt;&gt; b: 308 permanent Redirect - with token</span><br><span class="line">  </span><br><span class="line">  Note over b,c : 4. second enrollment attempt - fetch enrollment profile</span><br><span class="line">  b -&gt;&gt; c: POST /enroll with token</span><br><span class="line">  c --&gt;&gt; b: 200 with enrollment profile</span><br><span class="line">  </span><br><span class="line">  Note left of b: 4. Enroll</span><br><span class="line">  b -&gt;&gt; b: Enroll</span><br><span class="line">  </span><br><span class="line">  Note over b,c : 5. regular checkin</span><br><span class="line">  b -&gt;&gt; c: MDM Checkin request</span><br><span class="line">  </span><br></pre></td></tr></table></figure>
-
-<h5 id="First-enrollment-attempt"><a href="#First-enrollment-attempt" class="headerlink" title="First enrollment attempt"></a>First enrollment attempt</h5><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">&lt;&lt;&lt;&lt;&lt; Request</span><br><span class="line">POST /enroll/byod HTTP/1.1</span><br><span class="line">Host: mdmserver.example.com</span><br><span class="line">Content-Type: application/pkcs7-signature</span><br><span class="line">Content-Length: 327</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">plist</span> <span class="keyword">PUBLIC</span> <span class="string">&quot;-//Apple//DTD PLIST 1.0//EN&quot;</span> <span class="string">&quot;http://www.apple.com/DTDs/PropertyList-1.0.dtd&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">plist</span> <span class="attr">version</span>=<span class="string">&quot;1.0&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dict</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">key</span>&gt;</span>LANGUAGE<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">string</span>&gt;</span>en-US<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">key</span>&gt;</span>PRODUCT<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">string</span>&gt;</span>iPhone10,2<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">key</span>&gt;</span>VERSION<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">string</span>&gt;</span>19A240<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dict</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">plist</span>&gt;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&gt;&gt;&gt;&gt;&gt; Response</span><br><span class="line">HTTP/1.1 401 Unauthorized</span><br><span class="line">Content-Length: 0</span><br><span class="line">WWW-Authenticate: Bearer method=&quot;apple-as-web&quot;, url=&quot;https://mdmserver.example.com/authenticate&quot;</span><br></pre></td></tr></table></figure>
-
-<h5 id="Authentication-flow"><a href="#Authentication-flow" class="headerlink" title="Authentication flow"></a>Authentication flow</h5><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">&lt;&lt;&lt;&lt;&lt; Request</span><br><span class="line">GET /authenticate?user-identifier=user01@example.com HTTP/1.1</span><br><span class="line">Host: mdmserver.example.com</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&gt;&gt;&gt;&gt;&gt; Response</span><br><span class="line">HTTP/1.1 200 OK</span><br><span class="line">Content-Type: text/html; charset=&quot;utf-8&quot;</span><br><span class="line">Content-Length: 17643</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line">…</span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">&lt;&lt;&lt;&lt;&lt; Request</span><br><span class="line">POST /authenticate-results HTTP/1.1</span><br><span class="line">Content-Type: multipart/form-data; boundary=----WebKitFormBoundarySaBDj3Bd7BeKC1s2</span><br><span class="line">Content-Length: 236</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">------WebKitFormBoundarySaBDj3Bd7BeKC1s2</span><br><span class="line">Content-Disposition: form-data; name=&quot;username&quot;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">user01</span><br><span class="line">------WebKitFormBoundarySaBDj3Bd7BeKC1s2</span><br><span class="line">Content-Disposition: form-data; name=&quot;password&quot;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">secret</span><br><span class="line">------WebKitFormBoundarySaBDj3Bd7BeKC1s2--</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&gt;&gt;&gt;&gt;&gt; Response</span><br><span class="line">HTTP/1.1 308 Permanent Redirect</span><br><span class="line">Content-Length: 0</span><br><span class="line">Location: apple-remotemanagement-user-login://authentication-results?access-token=dXNlci1pZGVudGl0eQ</span><br></pre></td></tr></table></figure>
-
-<h5 id="Second-enrollment-attempt"><a href="#Second-enrollment-attempt" class="headerlink" title="Second enrollment attempt"></a>Second enrollment attempt</h5><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line">&lt;&lt;&lt;&lt;&lt; Request</span><br><span class="line">POST /enroll/byod HTTP/1.1</span><br><span class="line">Host: mdmserver.example.com</span><br><span class="line">Content-Type: application/x-www-form-urlencoded</span><br><span class="line">Content-Length: 326</span><br><span class="line">Authorization: Bearer dXNlci1pZGVudGl0eQ</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">plist</span> <span class="keyword">PUBLIC</span> <span class="string">&quot;-//Apple//DTD PLIST 1.0//EN&quot;</span> <span class="string">&quot;http://www.apple.com/DTDs/PropertyList-1.0.dtd&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">plist</span> <span class="attr">version</span>=<span class="string">&quot;1.0&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dict</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">key</span>&gt;</span>LANGUAGE<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">string</span>&gt;</span>en-US<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">key</span>&gt;</span>PRODUCT<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">string</span>&gt;</span>iPhone10,2<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">key</span>&gt;</span>VERSION<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">string</span>&gt;</span>19A240<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dict</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">plist</span>&gt;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&gt;&gt;&gt;&gt;&gt; Response</span><br><span class="line">HTTP/1.1 200 OK</span><br><span class="line">Content-Type: application/x-apple-aspen-config</span><br><span class="line">Content-Length: 6785</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">plist</span> <span class="keyword">PUBLIC</span> <span class="string">&quot;-//Apple//DTD PLIST 1.0//EN&quot;</span> <span class="string">&quot;http://www.apple.com/DTDs/PropertyList-1.0.dtd&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">plist</span> <span class="attr">version</span>=<span class="string">&quot;1.0&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dict</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">key</span>&gt;</span>PayloadType<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">string</span>&gt;</span>Configuration<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">   …</span><br><span class="line">    <span class="tag">&lt;<span class="name">key</span>&gt;</span>PayloadContent<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">array</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dict</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">key</span>&gt;</span>PayloadType<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">string</span>&gt;</span>com.apple.security.scep<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">            …</span><br><span class="line">        <span class="tag">&lt;/<span class="name">dict</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dict</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">key</span>&gt;</span>PayloadType<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">string</span>&gt;</span>com.apple.mdm<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">            …</span><br><span class="line">            <span class="tag">&lt;<span class="name">key</span>&gt;</span>AssignedManagedAppleID<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">string</span>&gt;</span>user01@appleid.example.com<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">key</span>&gt;</span>EnrollmentMode<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">string</span>&gt;</span>BYOD<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dict</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">array</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dict</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">plist</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-
-
-
-
-<h4 id="OAuth2-Authentication-1"><a href="#OAuth2-Authentication-1" class="headerlink" title="OAuth2 Authentication"></a>OAuth2 Authentication</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">sequenceDiagram</span><br><span class="line">	Participant a as ADS</span><br><span class="line">	Participant b as Device</span><br><span class="line">	Participant c as MDM Server</span><br><span class="line">	Participant d as OAuth2 IDP</span><br><span class="line">	</span><br><span class="line">	autonumber</span><br><span class="line">	</span><br><span class="line">	Note over a,b: 1. Service discovery</span><br><span class="line">	b -&gt;&gt; a: https://&lt;domain&gt;/.well-known/com.apple.remotemanagement</span><br><span class="line">	a --&gt;&gt; b: MDM URL</span><br><span class="line">	</span><br><span class="line">	Note over b,c: 2. first enrollment attempt - fetch enrollment profile</span><br><span class="line">	b -&gt;&gt; c: POST /enroll</span><br><span class="line">  c --&gt;&gt; b: 401 response with URL</span><br><span class="line">  </span><br><span class="line">  Note over b,d: 3. Authentication flow</span><br><span class="line">  b -&gt;&gt; c: GET /oauth2/authorization</span><br><span class="line">  c -&gt;&gt; d: auth request</span><br><span class="line">  d --&gt;&gt; c: auth successfully</span><br><span class="line">  c --&gt;&gt; b: 200 OK</span><br><span class="line">  b -&gt;&gt; c: POST /oauth2/results </span><br><span class="line">  c --&gt;&gt; b: 308 permanent Redirect - with code</span><br><span class="line">  </span><br><span class="line">  Note over b,d: 4. Token request and response</span><br><span class="line">  b -&gt;&gt; d: POST /oauth2/token with code</span><br><span class="line">  d --&gt;&gt; b: 200 OK with access_token</span><br><span class="line">  </span><br><span class="line">  Note over b,c : 5. second enrollment attempt - fetch enrollment profile</span><br><span class="line">  b -&gt;&gt; c: POST /enroll with access_token</span><br><span class="line">  c --&gt;&gt; b: 200 with enrollment profile</span><br><span class="line">  </span><br><span class="line">  Note left of b: 4. Enroll</span><br><span class="line">  b -&gt;&gt; b: Enroll</span><br><span class="line">  </span><br><span class="line">  Note over b,c : 5. regular checkin</span><br><span class="line">  b -&gt;&gt; c: MDM Checkin request</span><br><span class="line">  </span><br></pre></td></tr></table></figure>
-
-<h5 id="Authentication-flow-1"><a href="#Authentication-flow-1" class="headerlink" title="Authentication flow"></a>Authentication flow</h5><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">&lt;&lt;&lt;&lt;&lt; Request</span><br><span class="line">GET /oauth2/authorization?response_type=code</span><br><span class="line">    &amp;client_id=03FDDE96-FDAB-45EF-A589-0E29C026E824</span><br><span class="line">    &amp;redirect_uri=apple-remotemanagement-user-login:/oauth2/redirection</span><br><span class="line">    &amp;state=340B948D-A84A-45A3-AC45-C93195124B00</span><br><span class="line">    &amp;login_hint=useroauth@example.com HTTP/1.1</span><br><span class="line">Host: mdmserver.example.com</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&gt;&gt;&gt;&gt;&gt; Response</span><br><span class="line">HTTP/1.1 200 OK</span><br><span class="line">Content-Type: text/html; charset=&quot;utf-8&quot;</span><br><span class="line">Content-Length: 17643</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line">…</span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">&lt;&lt;&lt;&lt;&lt; Request</span><br><span class="line">POST /oauth2/results HTTP/1.1</span><br><span class="line">Content-Type: multipart/form-data; boundary=----WebKitFormBoundarySaBDj3Bd7BeKC1s2</span><br><span class="line">Content-Length: 236</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">------WebKitFormBoundarySaBDj3Bd7BeKC1s2</span><br><span class="line">Content-Disposition: form-data; name=&quot;username&quot;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">user01</span><br><span class="line">------WebKitFormBoundarySaBDj3Bd7BeKC1s2</span><br><span class="line">Content-Disposition: form-data; name=&quot;password&quot;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">secret</span><br><span class="line">------WebKitFormBoundarySaBDj3Bd7BeKC1s2--</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&gt;&gt;&gt;&gt;&gt; Response</span><br><span class="line">HTTP/1.1 308 Permanent Redirect</span><br><span class="line">Content-Length: 0</span><br><span class="line">Location: apple-remotemanagement-user-login:/oauth2/redirection</span><br><span class="line">    ?code=Dek1jUOEcaIPGhbDrCTm9GDV5qT1sb&amp;state=340B948D-A84A-45A3-AC45-C93195124B00</span><br></pre></td></tr></table></figure>
-
-<h5 id="Token-request-and-response"><a href="#Token-request-and-response" class="headerlink" title="Token request and response"></a>Token request and response</h5><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">&lt;&lt;&lt;&lt;&lt; Request</span><br><span class="line">POST /oauth2/token HTTP/1.1</span><br><span class="line">Content-Type: application/x-www-form-urlencoded</span><br><span class="line">Content-Length: 195</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">grant_type=authorization_code</span><br><span class="line">    &amp;code=Dek1jUOEcaIPGhbDrCTm9GDV5qT1sb</span><br><span class="line">    &amp;redirect_uri=apple-remotemanagement-user-login:/oauth2/redirection</span><br><span class="line">    &amp;client_id=03FDDE96-FDAB-45EF-A589-0E29C026E824</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&gt;&gt;&gt;&gt;&gt; Response</span><br><span class="line">HTTP/1.1 200 OK</span><br><span class="line">Content-Length: 245</span><br><span class="line">Content-Type: application/json</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">    &quot;token_type&quot;: &quot;Bearer&quot;,</span><br><span class="line">    &quot;scope&quot;: &quot;MDM&quot;,</span><br><span class="line">    &quot;access_token&quot;: &quot;dXNlcm9hdXRo.MjZkNTkzZmMtNzk4MC00OWFkLTllZTAtZTA2NzhmNmVhNzg5&quot;,</span><br><span class="line">    &quot;expires_in&quot;: 3600,</span><br><span class="line">    &quot;refresh_token&quot;: &quot;dXNlcm9hdXRo.NzhiNWU0NWQtMDVlZS00MTAwLThhMjEtZDA5MzI2N2RjNzUx&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="POC"><a href="#POC" class="headerlink" title="POC"></a>POC</h3><ol>
-<li><p>Make the auth process works with CEM AD configuration.</p>
-</li>
-<li><p>Configure ADS Service</p>
-</li>
-<li><p>Configure federated auth with AAD </p>
-<ul>
-<li>Need more information from Apple before we can start this</li>
-</ul>
-</li>
-<li><p>Customize the UE enrollment UI</p>
-</li>
-<li><p>Add new policy which account-driven UE newly supports</p>
-</li>
-<li><p>Dynamically disable commands that do not apply to UE (wipe device, etc.)</p>
-</li>
-<li><p>How to make sure that there won’t be duplicate device info if one device enroll to CEM many times?</p>
-<ul>
-<li>How to identify the device</li>
-</ul>
-</li>
-</ol>
-<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ul>
-<li>Developer Doc: <a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/devicemanagement/user-enrollment">https://developer.apple.com/documentation/devicemanagement/user-enrollment</a></li>
-<li>Account-driven enrolment methods with Apple devices: <a target="_blank" rel="noopener" href="https://support.apple.com/en-sg/guide/deployment/dep4d9e9cd26/1/web/1.0">https://support.apple.com/en-sg/guide/deployment/dep4d9e9cd26/1/web/1.0</a></li>
-<li>User Enrolment MDM information: <a target="_blank" rel="noopener" href="https://support.apple.com/en-in/guide/deployment/dep6ae3f1d5a/1/web/1.0">https://support.apple.com/en-in/guide/deployment/dep6ae3f1d5a/1/web/1.0</a><ul>
-<li>MDM payloads for User Enrolment</li>
-<li>MDM commands for User Enrolment</li>
-<li>MDM queries for User Enrolment</li>
-</ul>
-</li>
-</ul>
-<h1 id="Reference-1"><a href="#Reference-1" class="headerlink" title="Reference"></a>Reference</h1><p>Apple资料是这一个 <a target="_blank" rel="noopener" href="https://support.apple.com/en-hk/guide/deployment/dep23db2037d/web">https://support.apple.com/en-hk/guide/deployment/dep23db2037d/web</a></p>
-<p>内部资料都在这个comment里面 - <a target="_blank" rel="noopener" href="https://issues.citrite.net/browse/CXM-112317">https://issues.citrite.net/browse/CXM-112317</a></p>
-<p>这个是epic - <a target="_blank" rel="noopener" href="https://issues.citrite.net/browse/CXM-112218">https://issues.citrite.net/browse/CXM-112218</a></p>
-<p><a target="_blank" rel="noopener" href="https://support.apple.com/en-in/121158">What’s new for enterprise in iOS 18</a></p>
-<h1 id="Apple-Officials"><a href="#Apple-Officials" class="headerlink" title="Apple Officials"></a>Apple Officials</h1><p>Apple Support:</p>
-<ul>
-<li><a target="_blank" rel="noopener" href="https://support.apple.com/en-sg/guide/deployment/dep4d9e9cd26/1/web/1.0">Account-driven enrolment methods with Apple devices</a></li>
-<li><a target="_blank" rel="noopener" href="https://support.apple.com/en-in/guide/deployment/dep23db2037d/1/web/1.0#dep6c59a3144">User Enrolment and MDM</a></li>
-<li><a target="_blank" rel="noopener" href="https://support.apple.com/en-sg/guide/deployment/dep08f54fcf6/web">Enrolment methods for Apple devices</a></li>
-</ul>
-<p>Apple Developer:</p>
-<ul>
-<li><a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/devicemanagement/user-enrollment">User Enrollment</a></li>
 </ul>
 
       
