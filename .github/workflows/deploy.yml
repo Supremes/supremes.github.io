@@ -32,7 +32,9 @@ jobs:
 
       # 4. 生成静态文件
       - name: Build
-        run: npx hexo generate
+        run: |
+          npx hexo clean
+          npx hexo generate
 
       # 5. 部署到 gh-pages 分支
       - name: Deploy
