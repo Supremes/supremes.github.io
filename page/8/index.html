@@ -2095,116 +2095,6 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2025/11/uncategorized/officeDocuments/officeDocs/MDM/Stolen%20Device%20Protection/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Supremes">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Hexo">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2025/11/uncategorized/officeDocuments/officeDocs/MDM/Stolen%20Device%20Protection/" class="post-title-link" itemprop="url">Stolen Device Protection</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">Posted on</span>
-      
-
-      <time title="Created: 2025-11-26 00:00:00 / Modified: 15:43:52" itemprop="dateCreated datePublished" datetime="2025-11-26T00:00:00+08:00">2025-11-26</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>Reference Doc: <a target="_blank" rel="noopener" href="https://support.apple.com/en-us/120340">https://support.apple.com/en-us/120340</a></p>
-<h3 id="1-Executive-Summary-of-the-Article"><a href="#1-Executive-Summary-of-the-Article" class="headerlink" title="1. Executive Summary of the Article"></a><strong>1. Executive Summary of the Article</strong></h3><p><strong>“Stolen Device Protection”</strong> is a security feature introduced in iOS 17.3 designed to protect users if their iPhone is stolen <em>and</em> the thief knows their passcode.</p>
-<p>Prior to this feature, a passcode was enough to reset the Apple ID password, turn off Find My, and access passwords. This feature adds a layer of security that requires <strong>Face ID or Touch ID</strong> (biometrics) without a passcode fallback when the device detects it is away from <strong>“Familiar Locations”</strong> (like home or work).</p>
-<h3 id="2-Key-Mechanisms"><a href="#2-Key-Mechanisms" class="headerlink" title="2. Key Mechanisms"></a><strong>2. Key Mechanisms</strong></h3><p>The feature details two specific restrictions applied when the device is in an unfamiliar location:</p>
-<ul>
-<li><strong>Biometric Authentication (No Passcode Fallback):</strong><ul>
-<li>Use passwords or passkeys saved in Keychain</li>
-<li>Use payment methods saved in Safari (AutoFill)</li>
-<li>Turn off Lost Mode</li>
-<li>Open a locked app</li>
-<li>Erase all content and settings</li>
-<li>Apply for a new Apple Card</li>
-<li>View your Apple Card or Apple Cash virtual card number</li>
-<li>Take certain Apple Cash and Savings actions in Wallet (for example, Apple Cash or Savings transfers)</li>
-<li>Use your iPhone to set up a new device (for example, Quick Start)</li>
-<li>Set up or transfer an eSIM</li>
-<li><em><strong>Impact</strong>:</em> Even if a thief knows the passcode, they cannot access money or credentials.</li>
-</ul>
-</li>
-<li><strong>Security Delay (1-Hour Wait):</strong><ul>
-<li>Following critical security changes, the device imposes a <strong>1-hour delay</strong>.<ul>
-<li>Change your Apple Account password</li>
-<li>Sign out of your Apple Account</li>
-<li>Update Apple Account security settings (such as adding or removing a trusted device, Recovery Key, or Recovery Contact)</li>
-<li>Add or remove Face ID or Touch ID</li>
-<li>Change your passcode</li>
-<li>Reset All Settings</li>
-<li>Enroll in Mobile Device Management</li>
-<li>Turn off Stolen Device Protection</li>
-</ul>
-</li>
-<li><strong>The Workflow:</strong> User authenticates with Face ID &#x3D;&gt; Wait 1 hour &#x3D;&gt; User authenticates with Face ID again.</li>
-<li><em><strong>Purpose</strong>:</em> This gives the original owner time to mark the device as lost before the thief can lock them out of their account.</li>
-</ul>
-</li>
-</ul>
-<hr>
-<h3 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a><strong>Conclusion</strong></h3><ul>
-<li>The feature describes a powerful anti-theft tool that shifts security from “What you know” (Passcode) to “Who you are” (Biometrics). </li>
-<li><strong>There is no specific MDM command, payload, or configuration key</strong> that allows an MDM provider to directly enable, disable, or configure Stolen Device Protection. This is a user-centric security feature tied to the user’s personal Apple ID and biometric data (Face ID&#x2F;Touch ID), designed to prevent unauthorized changes even if the device is managed.</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
     <link itemprop="mainEntityOfPage" href="http://example.com/2025/11/uncategorized/officeDocuments/officeDocs/MDM/UserEnrollment/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2381,6 +2271,116 @@
 <p>Apple Developer:</p>
 <ul>
 <li><a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/devicemanagement/user-enrollment">User Enrollment</a></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2025/11/uncategorized/officeDocuments/officeDocs/MDM/Stolen%20Device%20Protection/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Supremes">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Hexo">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2025/11/uncategorized/officeDocuments/officeDocs/MDM/Stolen%20Device%20Protection/" class="post-title-link" itemprop="url">Stolen Device Protection</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2025-11-26 00:00:00 / Modified: 15:43:52" itemprop="dateCreated datePublished" datetime="2025-11-26T00:00:00+08:00">2025-11-26</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>Reference Doc: <a target="_blank" rel="noopener" href="https://support.apple.com/en-us/120340">https://support.apple.com/en-us/120340</a></p>
+<h3 id="1-Executive-Summary-of-the-Article"><a href="#1-Executive-Summary-of-the-Article" class="headerlink" title="1. Executive Summary of the Article"></a><strong>1. Executive Summary of the Article</strong></h3><p><strong>“Stolen Device Protection”</strong> is a security feature introduced in iOS 17.3 designed to protect users if their iPhone is stolen <em>and</em> the thief knows their passcode.</p>
+<p>Prior to this feature, a passcode was enough to reset the Apple ID password, turn off Find My, and access passwords. This feature adds a layer of security that requires <strong>Face ID or Touch ID</strong> (biometrics) without a passcode fallback when the device detects it is away from <strong>“Familiar Locations”</strong> (like home or work).</p>
+<h3 id="2-Key-Mechanisms"><a href="#2-Key-Mechanisms" class="headerlink" title="2. Key Mechanisms"></a><strong>2. Key Mechanisms</strong></h3><p>The feature details two specific restrictions applied when the device is in an unfamiliar location:</p>
+<ul>
+<li><strong>Biometric Authentication (No Passcode Fallback):</strong><ul>
+<li>Use passwords or passkeys saved in Keychain</li>
+<li>Use payment methods saved in Safari (AutoFill)</li>
+<li>Turn off Lost Mode</li>
+<li>Open a locked app</li>
+<li>Erase all content and settings</li>
+<li>Apply for a new Apple Card</li>
+<li>View your Apple Card or Apple Cash virtual card number</li>
+<li>Take certain Apple Cash and Savings actions in Wallet (for example, Apple Cash or Savings transfers)</li>
+<li>Use your iPhone to set up a new device (for example, Quick Start)</li>
+<li>Set up or transfer an eSIM</li>
+<li><em><strong>Impact</strong>:</em> Even if a thief knows the passcode, they cannot access money or credentials.</li>
+</ul>
+</li>
+<li><strong>Security Delay (1-Hour Wait):</strong><ul>
+<li>Following critical security changes, the device imposes a <strong>1-hour delay</strong>.<ul>
+<li>Change your Apple Account password</li>
+<li>Sign out of your Apple Account</li>
+<li>Update Apple Account security settings (such as adding or removing a trusted device, Recovery Key, or Recovery Contact)</li>
+<li>Add or remove Face ID or Touch ID</li>
+<li>Change your passcode</li>
+<li>Reset All Settings</li>
+<li>Enroll in Mobile Device Management</li>
+<li>Turn off Stolen Device Protection</li>
+</ul>
+</li>
+<li><strong>The Workflow:</strong> User authenticates with Face ID &#x3D;&gt; Wait 1 hour &#x3D;&gt; User authenticates with Face ID again.</li>
+<li><em><strong>Purpose</strong>:</em> This gives the original owner time to mark the device as lost before the thief can lock them out of their account.</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a><strong>Conclusion</strong></h3><ul>
+<li>The feature describes a powerful anti-theft tool that shifts security from “What you know” (Passcode) to “Who you are” (Biometrics). </li>
+<li><strong>There is no specific MDM command, payload, or configuration key</strong> that allows an MDM provider to directly enable, disable, or configure Stolen Device Protection. This is a user-centric security feature tied to the user’s personal Apple ID and biometric data (Face ID&#x2F;Touch ID), designed to prevent unauthorized changes even if the device is managed.</li>
 </ul>
 
       
