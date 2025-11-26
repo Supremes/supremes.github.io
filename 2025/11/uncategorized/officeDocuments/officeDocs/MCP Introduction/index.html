@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.1">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.26.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="What is the MCP? MCP (Model Context Protocol) is an open-source standard for connecting AI applications to external systems. Using MCP, AI applications like Claude or ChatGPT can connect to data sourc">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hexo">
+<meta property="og:url" content="http://example.com/2025/11/uncategorized/officeDocuments/officeDocs/MCP%20Introduction/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="What is the MCP? MCP (Model Context Protocol) is an open-source standard for connecting AI applications to external systems. Using MCP, AI applications like Claude or ChatGPT can connect to data sourc">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://mintcdn.com/mcp/bEUxYpZqie0DsluH/images/mcp-simple-diagram.png?fit=max&auto=format&n=bEUxYpZqie0DsluH&q=85&s=35268aa0ad50b8c385913810e7604550">
+<meta property="og:image" content="http://example.com/Pics/WX20251124-172727@2x.png">
+<meta property="og:image" content="https://picx.zhimg.com/50/v2-987260a35809fece3edb804df7691c0a_720w.jpg?source=2c26e567">
+<meta property="og:image" content="http://example.com/Pics/WX20251124-172550@2x.png">
+<meta property="article:published_time" content="2025-11-26T07:30:03.194Z">
+<meta property="article:modified_time" content="2025-11-26T07:30:03.195Z">
+<meta property="article:author" content="Supremes">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://mintcdn.com/mcp/bEUxYpZqie0DsluH/images/mcp-simple-diagram.png?fit=max&auto=format&n=bEUxYpZqie0DsluH&q=85&s=35268aa0ad50b8c385913810e7604550">
+
+
+<link rel="canonical" href="http://example.com/2025/11/uncategorized/officeDocuments/officeDocs/MCP%20Introduction/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://example.com/2025/11/uncategorized/officeDocuments/officeDocs/MCP%20Introduction/","path":"2025/11/uncategorized/officeDocuments/officeDocs/MCP Introduction/","title":""}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title> | Hexo</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hexo</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#What-is-the-MCP"><span class="nav-number">1.</span> <span class="nav-text">What is the MCP?</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Architecture"><span class="nav-number">1.1.</span> <span class="nav-text">Architecture</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Data-Layer"><span class="nav-number">1.1.1.</span> <span class="nav-text">Data Layer</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Transport-Layer"><span class="nav-number">1.1.2.</span> <span class="nav-text">Transport Layer</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Develop-a-MCP-Server"><span class="nav-number">2.</span> <span class="nav-text">Develop a MCP Server</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Company-Policy-for-MCP-Usage"><span class="nav-number">3.</span> <span class="nav-text">Company Policy for MCP Usage</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Data"><span class="nav-number">3.1.</span> <span class="nav-text">Data</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Supremes</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2025/11/uncategorized/officeDocuments/officeDocs/MCP%20Introduction/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Supremes">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Hexo">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-11-26 15:30:03" itemprop="dateCreated datePublished" datetime="2025-11-26T15:30:03+08:00">2025-11-26</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="What-is-the-MCP"><a href="#What-is-the-MCP" class="headerlink" title="What is the MCP?"></a>What is the MCP?</h2><ul>
+<li>MCP (Model Context Protocol) is an <strong>open-source standard</strong> for connecting AI applications to external systems.</li>
+<li>Using MCP, AI applications like Claude or ChatGPT can connect to <strong>data sources</strong> (e.g. local files, databases), <strong>tools</strong> (e.g. search engines, calculators) and <strong>workflows</strong> (e.g. specialized prompts)—enabling them to access key information and perform tasks.</li>
+<li>Think of MCP like a USB-C port for AI applications. Just as USB-C provides a standardized way to connect electronic devices, MCP provides a standardized way to connect AI applications to external systems.</li>
+</ul>
+<p><img src="https://mintcdn.com/mcp/bEUxYpZqie0DsluH/images/mcp-simple-diagram.png?fit=max&auto=format&n=bEUxYpZqie0DsluH&q=85&s=35268aa0ad50b8c385913810e7604550" alt="img"></p>
+<h3 id="Architecture"><a href="#Architecture" class="headerlink" title="Architecture"></a>Architecture</h3><p>Key participants in the MCP architecture are:</p>
+<ul>
+<li><strong>MCP Host</strong>: The AI application that coordinates and manages one or multiple MCP clients</li>
+<li><strong>MCP Client</strong>: A component that maintains a connection to an MCP server and obtains context from an MCP server for the MCP host to use</li>
+<li><strong>MCP Server</strong>: A program that provides context to MCP clients</li>
+</ul>
+<p><img src="/../Pics/WX20251124-172727@2x.png" alt="img"></p>
+<h4 id="Data-Layer"><a href="#Data-Layer" class="headerlink" title="Data Layer"></a>Data Layer</h4><p>Defines the <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/JSON-RPC#Implementations"><strong>JSON-RPC</strong></a> based protocol for client-server communication, including lifecycle management, and core primitives, such as tools, resources, prompts and notifications.</p>
+<p>Core Primitives:</p>
+<ul>
+<li><strong>Tools</strong>: Executable functions that AI applications can invoke to perform actions (e.g., file operations, API calls, database queries)</li>
+<li><strong>Resources</strong>: Data sources that provide contextual information to AI applications (e.g., file contents, database records, API responses)</li>
+<li><strong>Prompts</strong>: Reusable templates that help structure interactions with language models (e.g., system prompts, few-shot examples)</li>
+</ul>
+<h4 id="Transport-Layer"><a href="#Transport-Layer" class="headerlink" title="Transport Layer"></a>Transport Layer</h4><p>Defines the communication mechanisms and channels that enable data exchange between clients and servers, including transport-specific connection establishment, message framing, and authorization.</p>
+<ul>
+<li><strong>STDIO</strong> : Uses standard input&#x2F;output streams for direct process communication between <strong>local processes</strong> on the same machine, providing optimal performance with no network overhead.</li>
+<li><strong>Server-Sent Events (SSE)</strong> : This approach required two separate endpoints:<ol>
+<li>An SSE endpoint (<code>/sse</code>) that established a persistent connection for the client to receive responses</li>
+<li>A separate messages endpoint (<code>/sse/messages</code>) where clients would send request</li>
+</ol>
+</li>
+<li><strong>Streamable HTTP</strong> : Offers a more elegant solution by enabling <strong>bidirectional communication through a single endpoint</strong>.</li>
+</ul>
+<p><img src="https://picx.zhimg.com/50/v2-987260a35809fece3edb804df7691c0a_720w.jpg?source=2c26e567" alt="img"></p>
+<h2 id="Develop-a-MCP-Server"><a href="#Develop-a-MCP-Server" class="headerlink" title="Develop a MCP Server"></a>Develop a MCP Server</h2><ol>
+<li>Integrate MCP SDK</li>
+<li>Develop tools&#x2F;resources&#x2F;prompts as your business needs</li>
+<li>Debug it with MCP Inspector</li>
+</ol>
+<h2 id="Company-Policy-for-MCP-Usage"><a href="#Company-Policy-for-MCP-Usage" class="headerlink" title="Company Policy for MCP Usage"></a>Company Policy for MCP Usage</h2><h4 id="Data"><a href="#Data" class="headerlink" title="Data"></a>Data</h4><ul>
+<li><strong>Customer Data</strong>  You may not use customer data in AI systems without confirming that we are<br>contractually and legally allowed to do so. In the absence of such contractual or other legal rights,<br>you must secure customer instruction to use their data in AI systems.</li>
+<li><strong>Company Data:</strong> Company data is classified according to the Company’s Information Classification &amp;<br>Handling Policy.<ul>
+<li>Public &#x2F; Non-Confidential Information. You may use public Company data in AI systems.</li>
+<li>Confidential Information. You may not use Confidential Information to train any AI model. In<br>addition, the following rules regarding the different tiers of Confidential Information apply:<ul>
+<li>Confidential: Low. You may use confidential: low Company data with an articulated<br>legitimate business need.</li>
+<li>Confidential: Restricted. You may not use restricted Company data in AI systems<br>without your ELT member’s approval.</li>
+<li>Confidential: Highly Restricted. You may not use highly restricted Company data in AI<br>systems without your ELT member’s sign-off and the CLAO’s review and approval.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Third Party Data</strong>: For other third party (e.g., partner, vendor, public) data, you may be able to leverage<br>such data for use in AI systems, provided that you have an appropriate contractual agreement in<br>place with the third party data owner that affords the Company rights to use such data sets. If you are<br>unsure as to whether we have such contractual rights, you may contact the Legal-Commercial team<br>via <a href="mailto:&#65;&#115;&#x6b;&#x4c;&#x65;&#x67;&#97;&#108;&#64;&#99;&#x6c;&#x6f;&#117;&#x64;&#x2e;&#x63;&#x6f;&#x6d;">AskLegal@cloud.com</a>.</li>
+<li><strong>Synthetic Data:</strong> You may use synthetic&#x2F;fake data in AI systems&#x2F;model training, POCs, and testing.</li>
+</ul>
+<p>CSG Approved MCPs</p>
+<p><img src="/../Pics/WX20251124-172550@2x.png" alt="img"></p>
+<p>Guideline for using MCP in CSG</p>
+<p><a target="_blank" rel="noopener" href="https://docs.google.com/document/d/10x2_jw_C3MCK9m62C3LcSGPflhqiByf4rNf2y_9kvIw/edit?tab=t.0">https://docs.google.com/document/d/10x2_jw_C3MCK9m62C3LcSGPflhqiByf4rNf2y_9kvIw/edit?tab=t.0</a></p>
+<ol>
+<li><strong>CSG Hosted MCP Servers (Internal):</strong> Must be internal, have RBAC, not send CSG data to third parties, and use a CSG-approved AI model (Contact Adam Mongiovi).</li>
+<li><strong>Third-Party Hosted MCP Servers (External):</strong> Must use a vendor with an existing CSG trust relationship (verified with Adam Mongiovi), have RBAC, and access only approved context.</li>
+<li><strong>MCP Servers for Customer Usage (Customer-Facing):</strong> Must be reviewed by the ProdSec team (Contact Mohan Sekar), prevent customers from accessing private CSG data, be multi-tenant aware, and support RBAC controls.</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/11/uncategorized/officeDocuments/officeDocs/MAM/Remove%20MDX%20Support/SecureMail%20-%20Remove%20MDX/" rel="prev" title="">
+                  <i class="fa fa-angle-left"></i> 
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/11/uncategorized/officeDocuments/officeDocs/Knowledge/%E8%AE%A4%E8%AF%81%E5%92%8C%E6%8E%88%E6%9D%83/" rel="next" title="">
+                   <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Supremes</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

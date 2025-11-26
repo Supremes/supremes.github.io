@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.1">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.26.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="yuanbao认证授权过程中的协议与Token详解在认证（Authentication）和授权（Authorization）过程中，协议和Token是确保安全访问资源的基石。以下从协议和Token两个维度进行系统性阐述：  一、认证授权协议1. OAuth 2.0 用途：专注于授权（资源访问权限的委派），而非直接处理用户身份认证。 核心角色： 客户端（Client）：请求访问资源的应用。 资源所有">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hexo">
+<meta property="og:url" content="http://example.com/2025/11/uncategorized/officeDocuments/officeDocs/Knowledge/%E8%AE%A4%E8%AF%81%E5%92%8C%E6%8E%88%E6%9D%83/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="yuanbao认证授权过程中的协议与Token详解在认证（Authentication）和授权（Authorization）过程中，协议和Token是确保安全访问资源的基石。以下从协议和Token两个维度进行系统性阐述：  一、认证授权协议1. OAuth 2.0 用途：专注于授权（资源访问权限的委派），而非直接处理用户身份认证。 核心角色： 客户端（Client）：请求访问资源的应用。 资源所有">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-11-26T07:30:03.198Z">
+<meta property="article:modified_time" content="2025-11-26T07:30:03.199Z">
+<meta property="article:author" content="Supremes">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://example.com/2025/11/uncategorized/officeDocuments/officeDocs/Knowledge/%E8%AE%A4%E8%AF%81%E5%92%8C%E6%8E%88%E6%9D%83/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://example.com/2025/11/uncategorized/officeDocuments/officeDocs/Knowledge/%E8%AE%A4%E8%AF%81%E5%92%8C%E6%8E%88%E6%9D%83/","path":"2025/11/uncategorized/officeDocuments/officeDocs/Knowledge/认证和授权/","title":""}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title> | Hexo</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hexo</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#yuanbao"><span class="nav-number">1.</span> <span class="nav-text">yuanbao</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%A4%E8%AF%81%E6%8E%88%E6%9D%83%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E5%8D%8F%E8%AE%AE%E4%B8%8EToken%E8%AF%A6%E8%A7%A3"><span class="nav-number">1.1.</span> <span class="nav-text">认证授权过程中的协议与Token详解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E8%AE%A4%E8%AF%81%E6%8E%88%E6%9D%83%E5%8D%8F%E8%AE%AE"><span class="nav-number">1.2.</span> <span class="nav-text">一、认证授权协议</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-OAuth-2-0"><span class="nav-number">1.2.1.</span> <span class="nav-text">1. OAuth 2.0</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-OpenID-Connect-OIDC"><span class="nav-number">1.2.2.</span> <span class="nav-text">2. OpenID Connect (OIDC)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-SAML-2-0"><span class="nav-number">1.2.3.</span> <span class="nav-text">3. SAML 2.0</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-LDAP%EF%BC%88Lightweight-Directory-Access-Protocol%EF%BC%89"><span class="nav-number">1.2.4.</span> <span class="nav-text">4. LDAP（Lightweight Directory Access Protocol）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-Kerberos"><span class="nav-number">1.2.5.</span> <span class="nav-text">5. Kerberos</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E8%AE%A4%E8%AF%81%E6%8E%88%E6%9D%83%E4%B8%AD%E7%9A%84Token%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.3.</span> <span class="nav-text">二、认证授权中的Token类型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-Access-Token"><span class="nav-number">1.3.1.</span> <span class="nav-text">1. Access Token</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-Refresh-Token"><span class="nav-number">1.3.2.</span> <span class="nav-text">2. Refresh Token</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-ID-Token%EF%BC%88OpenID-Connect%EF%BC%89"><span class="nav-number">1.3.3.</span> <span class="nav-text">3. ID Token（OpenID Connect）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-JWT%EF%BC%88JSON-Web-Token%EF%BC%89"><span class="nav-number">1.3.4.</span> <span class="nav-text">4. JWT（JSON Web Token）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-Session-Token%EF%BC%88%E4%BC%9A%E8%AF%9DToken%EF%BC%89"><span class="nav-number">1.3.5.</span> <span class="nav-text">5. Session Token（会话Token）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-SAML%E6%96%AD%E8%A8%80"><span class="nav-number">1.3.6.</span> <span class="nav-text">6. SAML断言</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%8D%8F%E8%AE%AE%E4%B8%8EToken%E7%9A%84%E9%85%8D%E5%90%88%E4%BD%BF%E7%94%A8"><span class="nav-number">1.4.</span> <span class="nav-text">三、协议与Token的配合使用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-OAuth-2-0-OpenID-Connect"><span class="nav-number">1.4.1.</span> <span class="nav-text">1. OAuth 2.0 + OpenID Connect</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-SAML-LDAP"><span class="nav-number">1.4.2.</span> <span class="nav-text">2. SAML + LDAP</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E5%AE%89%E5%85%A8%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">1.5.</span> <span class="nav-text">四、安全注意事项</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E6%80%BB%E7%BB%93%E4%B8%8E%E9%80%89%E5%9E%8B%E5%BB%BA%E8%AE%AE"><span class="nav-number">1.6.</span> <span class="nav-text">五、总结与选型建议</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E8%AE%A4%E8%AF%81%E6%8E%88%E6%9D%83%E6%A0%B8%E5%BF%83%E5%8D%8F%E8%AE%AE"><span class="nav-number">1.7.</span> <span class="nav-text">一、认证授权核心协议</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%85%B3%E9%94%AEToken%E6%8A%80%E6%9C%AF"><span class="nav-number">1.8.</span> <span class="nav-text">二、关键Token技术</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%8D%8F%E8%AE%AE%E4%B8%8EToken%E5%8D%8F%E5%90%8C%E6%9E%B6%E6%9E%84"><span class="nav-number">1.9.</span> <span class="nav-text">三、协议与Token协同架构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E5%AE%89%E5%85%A8%E5%A2%9E%E5%BC%BA%E6%8E%AA%E6%96%BD"><span class="nav-number">1.10.</span> <span class="nav-text">五、安全增强措施</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Supremes</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2025/11/uncategorized/officeDocuments/officeDocs/Knowledge/%E8%AE%A4%E8%AF%81%E5%92%8C%E6%8E%88%E6%9D%83/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Supremes">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Hexo">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-11-26 15:30:03" itemprop="dateCreated datePublished" datetime="2025-11-26T15:30:03+08:00">2025-11-26</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="yuanbao"><a href="#yuanbao" class="headerlink" title="yuanbao"></a>yuanbao</h1><h3 id="认证授权过程中的协议与Token详解"><a href="#认证授权过程中的协议与Token详解" class="headerlink" title="认证授权过程中的协议与Token详解"></a>认证授权过程中的协议与Token详解</h3><p>在认证（Authentication）和授权（Authorization）过程中，协议和Token是确保安全访问资源的基石。以下从协议和Token两个维度进行系统性阐述：</p>
+<hr>
+<h3 id="一、认证授权协议"><a href="#一、认证授权协议" class="headerlink" title="一、认证授权协议"></a><strong>一、认证授权协议</strong></h3><h4 id="1-OAuth-2-0"><a href="#1-OAuth-2-0" class="headerlink" title="1. OAuth 2.0"></a><strong>1. OAuth 2.0</strong></h4><ul>
+<li><strong>用途</strong>：专注于<strong>授权</strong>（资源访问权限的委派），而非直接处理用户身份认证。</li>
+<li><strong>核心角色</strong>：<ul>
+<li>客户端（Client）：请求访问资源的应用。</li>
+<li>资源所有者（Resource Owner）：用户。</li>
+<li>授权服务器（Authorization Server）：颁发Token。</li>
+<li>资源服务器（Resource Server）：存储受保护资源。</li>
+</ul>
+</li>
+<li><strong>授权模式</strong>：<ul>
+<li><strong>授权码模式（Authorization Code）</strong>：适用于Web应用（服务端安全）。</li>
+<li><strong>隐式模式（Implicit）</strong>：适用于SPA或原生App（客户端不安全）。</li>
+<li><strong>密码模式（Resource Owner Password Credentials）</strong>：用户直接提供密码（仅信任客户端时使用）。</li>
+<li><strong>客户端凭证模式（Client Credentials）</strong>：服务端间通信（无用户参与）。</li>
+</ul>
+</li>
+<li><strong>场景</strong>：第三方应用访问用户资源（如微信登录后获取用户数据）。</li>
+</ul>
+<h4 id="2-OpenID-Connect-OIDC"><a href="#2-OpenID-Connect-OIDC" class="headerlink" title="2. OpenID Connect (OIDC)"></a><strong>2. OpenID Connect (OIDC)</strong></h4><ul>
+<li><strong>用途</strong>：在OAuth 2.0基础上扩展，解决<strong>身份认证</strong>问题。</li>
+<li><strong>核心组件</strong>：<ul>
+<li><strong>ID Token</strong>：JWT格式，包含用户身份信息（如姓名、邮箱）。</li>
+<li><strong>UserInfo端点</strong>：通过Access Token获取用户详细信息。</li>
+</ul>
+</li>
+<li><strong>流程</strong>：在OAuth流程中返回ID Token，明确用户身份。</li>
+<li><strong>场景</strong>：单点登录（SSO），如使用Google账号登录第三方应用。</li>
+</ul>
+<h4 id="3-SAML-2-0"><a href="#3-SAML-2-0" class="headerlink" title="3. SAML 2.0"></a><strong>3. SAML 2.0</strong></h4><ul>
+<li><strong>用途</strong>：企业级<strong>认证与授权</strong>，基于XML实现跨域单点登录。</li>
+<li><strong>核心组件</strong>：<ul>
+<li><strong>断言（Assertion）</strong>：包含用户身份和权限信息（类似Token）。</li>
+<li><strong>身份提供者（IdP）</strong>：认证用户并生成SAML断言。</li>
+<li><strong>服务提供者（SP）</strong>：依赖IdP的断言授权访问。</li>
+</ul>
+</li>
+<li><strong>流程</strong>：用户访问SP → 重定向到IdP认证 → 返回SAML断言 → SP验证断言。</li>
+<li><strong>场景</strong>：企业内网SSO（如使用ADFS实现Office 365登录）。</li>
+</ul>
+<h4 id="4-LDAP（Lightweight-Directory-Access-Protocol）"><a href="#4-LDAP（Lightweight-Directory-Access-Protocol）" class="headerlink" title="4. LDAP（Lightweight Directory Access Protocol）"></a><strong>4. LDAP（Lightweight Directory Access Protocol）</strong></h4><ul>
+<li><strong>用途</strong>：访问和维护<strong>目录服务</strong>（如用户、组织信息查询）。</li>
+<li><strong>常见实现</strong>：Microsoft Active Directory（AD）、OpenLDAP。</li>
+<li><strong>场景</strong>：企业内部用户认证和权限管理（如VPN登录验证）。</li>
+</ul>
+<h4 id="5-Kerberos"><a href="#5-Kerberos" class="headerlink" title="5. Kerberos"></a><strong>5. Kerberos</strong></h4><ul>
+<li><strong>用途</strong>：基于票据的<strong>网络认证协议</strong>，防止中间人攻击。</li>
+<li><strong>核心组件</strong>：<ul>
+<li><strong>TGT（Ticket-Granting Ticket）</strong>：用户首次认证后获取的长期票据。</li>
+<li><strong>服务票据（Service Ticket）</strong>：访问具体服务时使用。</li>
+</ul>
+</li>
+<li><strong>场景</strong>：Windows域环境中的资源访问认证。</li>
+</ul>
+<hr>
+<h3 id="二、认证授权中的Token类型"><a href="#二、认证授权中的Token类型" class="headerlink" title="二、认证授权中的Token类型"></a><strong>二、认证授权中的Token类型</strong></h3><h4 id="1-Access-Token"><a href="#1-Access-Token" class="headerlink" title="1. Access Token"></a><strong>1. Access Token</strong></h4><ul>
+<li><strong>用途</strong>：客户端访问资源服务器的凭证。</li>
+<li><strong>格式</strong>：<ul>
+<li><strong>不透明Token</strong>：随机字符串，需向授权服务器验证（如OAuth 2.0默认）。</li>
+<li><strong>JWT（自包含Token）</strong>：包含用户信息和权限，资源服务器可本地验证。</li>
+</ul>
+</li>
+<li><strong>生命周期</strong>：短期有效（如1小时），需配合Refresh Token续期。</li>
+</ul>
+<h4 id="2-Refresh-Token"><a href="#2-Refresh-Token" class="headerlink" title="2. Refresh Token"></a><strong>2. Refresh Token</strong></h4><ul>
+<li><strong>用途</strong>：在Access Token过期后，获取新的Access Token。</li>
+<li><strong>特点</strong>：<ul>
+<li>长期有效（如7天），但可撤销。</li>
+<li>仅存储于客户端和授权服务器，不暴露给资源服务器。</li>
+</ul>
+</li>
+<li><strong>安全要求</strong>：必须通过HTTPS传输，避免泄露。</li>
+</ul>
+<h4 id="3-ID-Token（OpenID-Connect）"><a href="#3-ID-Token（OpenID-Connect）" class="headerlink" title="3. ID Token（OpenID Connect）"></a><strong>3. ID Token（OpenID Connect）</strong></h4><ul>
+<li><p><strong>格式</strong>：JWT，包含用户身份信息（如<code>sub</code>用户ID、<code>email</code>）。</p>
+</li>
+<li><p><strong>签名</strong>：由授权服务器签名，防止篡改。</p>
+</li>
+<li><p><strong>示例</strong>：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;iss&quot;</span><span class="punctuation">:</span> <span class="string">&quot;https://accounts.google.com&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;sub&quot;</span><span class="punctuation">:</span> <span class="string">&quot;1234567890&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;email&quot;</span><span class="punctuation">:</span> <span class="string">&quot;user@example.com&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;exp&quot;</span><span class="punctuation">:</span> <span class="number">1620000000</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="4-JWT（JSON-Web-Token）"><a href="#4-JWT（JSON-Web-Token）" class="headerlink" title="4. JWT（JSON Web Token）"></a><strong>4. JWT（JSON Web Token）</strong></h4><ul>
+<li><strong>结构</strong>：<ul>
+<li><strong>Header</strong>：算法（如HS256、RS256）和Token类型。</li>
+<li><strong>Payload</strong>：声明（Claims），如用户ID、过期时间。</li>
+<li><strong>Signature</strong>：防止数据篡改（Header+Payload+密钥生成）。</li>
+</ul>
+</li>
+<li><strong>用途</strong>：<ul>
+<li>Access Token（自包含，无需查库验证）。</li>
+<li>ID Token（传递用户信息）。</li>
+</ul>
+</li>
+<li><strong>风险</strong>：若密钥泄露或弱算法（如HS256密钥简单），可能导致伪造。</li>
+</ul>
+<h4 id="5-Session-Token（会话Token）"><a href="#5-Session-Token（会话Token）" class="headerlink" title="5. Session Token（会话Token）"></a><strong>5. Session Token（会话Token）</strong></h4><ul>
+<li><strong>用途</strong>：服务端维护用户会话状态（如PHP的PHPSESSID）。</li>
+<li><strong>存储</strong>：<ul>
+<li>服务端：Session数据存储在内存&#x2F;数据库（如Redis）。</li>
+<li>客户端：通过Cookie或LocalStorage传递Session ID。</li>
+</ul>
+</li>
+<li><strong>与JWT对比</strong>：<ul>
+<li><strong>有状态 vs 无状态</strong>：Session需服务端存储状态，JWT自包含。</li>
+<li><strong>扩展性</strong>：JWT更适合分布式系统，Session需共享存储。</li>
+</ul>
+</li>
+</ul>
+<h4 id="6-SAML断言"><a href="#6-SAML断言" class="headerlink" title="6. SAML断言"></a><strong>6. SAML断言</strong></h4><ul>
+<li><strong>格式</strong>：XML结构，包含用户属性和授权决策。</li>
+<li><strong>类型</strong>：<ul>
+<li><strong>认证断言</strong>：用户已通过IdP认证。</li>
+<li><strong>属性断言</strong>：用户属性（如角色、部门）。</li>
+<li><strong>授权决策断言</strong>：用户是否有权访问资源。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="三、协议与Token的配合使用"><a href="#三、协议与Token的配合使用" class="headerlink" title="三、协议与Token的配合使用"></a><strong>三、协议与Token的配合使用</strong></h3><h4 id="1-OAuth-2-0-OpenID-Connect"><a href="#1-OAuth-2-0-OpenID-Connect" class="headerlink" title="1. OAuth 2.0 + OpenID Connect"></a><strong>1. OAuth 2.0 + OpenID Connect</strong></h4><ul>
+<li><strong>流程</strong>：<ol>
+<li>用户通过OAuth授权客户端访问资源。</li>
+<li>授权服务器返回Access Token（访问资源）和ID Token（认证身份）。</li>
+<li>客户端通过UserInfo端点获取详细信息。</li>
+</ol>
+</li>
+<li><strong>优势</strong>：同时解决授权（OAuth）和认证（OIDC）需求。</li>
+</ul>
+<h4 id="2-SAML-LDAP"><a href="#2-SAML-LDAP" class="headerlink" title="2. SAML + LDAP"></a><strong>2. SAML + LDAP</strong></h4><ul>
+<li><strong>流程</strong>：<ol>
+<li>用户登录企业IdP（如AD），生成SAML断言。</li>
+<li>SP（如SaaS应用）验证断言，授权访问。</li>
+<li>用户属性通过LDAP从目录服务获取。</li>
+</ol>
+</li>
+<li><strong>场景</strong>：企业应用集成AD实现SSO。</li>
+</ul>
+<hr>
+<h3 id="四、安全注意事项"><a href="#四、安全注意事项" class="headerlink" title="四、安全注意事项"></a><strong>四、安全注意事项</strong></h3><ol>
+<li><p><strong>Token传输安全</strong>：</p>
+<ul>
+<li>必须使用HTTPS，防止中间人窃听。</li>
+<li>避免URL传递Token（可能被日志记录）。</li>
+</ul>
+</li>
+<li><p><strong>Token存储安全</strong>：</p>
+<ul>
+<li>浏览器端：使用HttpOnly Cookie防止XSS攻击。</li>
+<li>移动端：安全存储（如Android Keystore、iOS Keychain）。</li>
+</ul>
+</li>
+<li><p><strong>密钥管理</strong>：</p>
+<ul>
+<li>JWT签名密钥需定期轮换。</li>
+<li>避免硬编码密钥，使用密钥管理服务（如AWS KMS）。</li>
+</ul>
+</li>
+<li><p><strong>防止重放攻击</strong>：</p>
+<ul>
+<li>Token设置短期有效期。</li>
+<li>使用<code>nonce</code>参数（OIDC）或时间戳校验。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="五、总结与选型建议"><a href="#五、总结与选型建议" class="headerlink" title="五、总结与选型建议"></a><strong>五、总结与选型建议</strong></h3><table>
+<thead>
+<tr>
+<th><strong>场景</strong></th>
+<th><strong>推荐协议</strong></th>
+<th><strong>Token类型</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>第三方应用授权（如社交登录）</td>
+<td>OAuth 2.0 + OIDC</td>
+<td>Access Token + ID Token</td>
+</tr>
+<tr>
+<td>企业SSO（内部系统集成）</td>
+<td>SAML 2.0</td>
+<td>SAML断言</td>
+</tr>
+<tr>
+<td>移动端&#x2F;SPA无状态认证</td>
+<td>OIDC + JWT</td>
+<td>JWT（自包含Access Token）</td>
+</tr>
+<tr>
+<td>服务间通信</td>
+<td>OAuth 2.0客户端凭证模式</td>
+<td>不透明Token或JWT</td>
+</tr>
+</tbody></table>
+<p><strong>最佳实践</strong>：</p>
+<ul>
+<li>优先使用OAuth 2.1（合并OAuth 2.0安全增强）。</li>
+<li>对公共客户端（如SPA）启用PKCE（Proof Key for Code Exchange）。</li>
+<li>定期审计Token权限，遵循最小权限原则。</li>
+</ul>
+<p>在现代网络安全体系中，认证（Authentication）和授权（Authorization）是保障系统安全的核心机制。以下是系统性梳理相关协议和Token技术的框架：</p>
+<h3 id="一、认证授权核心协议"><a href="#一、认证授权核心协议" class="headerlink" title="一、认证授权核心协议"></a>一、认证授权核心协议</h3><ol>
+<li><strong>OAuth 2.0</strong><ul>
+<li>协议定位：专注于授权的标准协议，支持第三方应用安全获取资源访问权限</li>
+<li>核心流程：</li>
+</ul>
+</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">graph TD</span><br><span class="line">A[资源所有者] --&gt;|用户授权|B(授权服务器)</span><br><span class="line">B --&gt;|发放授权码|C(客户端)</span><br><span class="line">C --&gt;|交换令牌|D(资源服务器)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>典型场景：社交媒体登录（如微信&#x2F;QQ登录）、API访问控制</li>
+<li>安全增强：PKCE（Proof Key for Code Exchange）防止授权码劫持<ol start="2">
+<li><strong>OpenID Connect (OIDC)</strong></li>
+</ol>
+</li>
+<li>协议定位：基于OAuth 2.0的身份认证层</li>
+<li>核心扩展：</li>
+<li>ID Token：携带用户身份信息的JWT</li>
+<li>UserInfo Endpoint：提供标准化用户信息接口</li>
+<li>应用场景：单点登录（SSO）、跨域身份验证<ol start="3">
+<li><strong>SAML 2.0</strong></li>
+</ol>
+</li>
+<li>协议定位：企业级身份联邦标准</li>
+<li>核心组件：</li>
+<li>断言（Assertion）：包含用户身份、权限等信息</li>
+<li>身份提供者（IdP）与服务提供者（SP）</li>
+<li>部署特点：基于XML格式，常见于企业内部系统集成<ol start="4">
+<li><strong>Kerberos</strong></li>
+</ol>
+</li>
+<li>协议定位：基于票据的网络认证协议</li>
+<li>核心机制：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">graph LR</span><br><span class="line">C[客户端] --&gt;|AS_REQ|KDC[密钥分发中心]</span><br><span class="line">KDC --&gt;|AS_REP|C</span><br><span class="line">C --&gt;|TGS_REQ|KDC</span><br><span class="line">KDC --&gt;|TGS_REP|C</span><br><span class="line">C --&gt;|AP_REQ|S[服务端]</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>典型应用：Windows域环境、Hadoop集群</p>
+<h3 id="二、关键Token技术"><a href="#二、关键Token技术" class="headerlink" title="二、关键Token技术"></a>二、关键Token技术</h3><ol start="5">
+<li><strong>JWT (JSON Web Token)</strong></li>
+</ol>
+</li>
+<li><p>结构组成：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line"><span class="attr">&quot;alg&quot;</span><span class="punctuation">:</span> <span class="string">&quot;HS256&quot;</span><span class="punctuation">,</span></span><br><span class="line"><span class="attr">&quot;typ&quot;</span><span class="punctuation">:</span> <span class="string">&quot;JWT&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line"><span class="attr">&quot;sub&quot;</span><span class="punctuation">:</span> <span class="string">&quot;user123&quot;</span><span class="punctuation">,</span></span><br><span class="line"><span class="attr">&quot;iat&quot;</span><span class="punctuation">:</span> <span class="number">1646092800</span><span class="punctuation">,</span></span><br><span class="line"><span class="attr">&quot;exp&quot;</span><span class="punctuation">:</span> <span class="number">1646096400</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>签名方式：HS256（对称加密）、RS256（非对称加密）</p>
+</li>
+<li><p>应用场景：无状态会话管理、微服务间通信</p>
+<ol start="6">
+<li><strong>Bearer Token</strong></li>
+</ol>
+</li>
+<li><p>安全特性：</p>
+</li>
+<li><p>无状态性</p>
+</li>
+<li><p>传输层安全要求（HTTPS）</p>
+</li>
+<li><p>存储建议：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安全存储示例（客户端）</span></span><br><span class="line"><span class="keyword">if</span> request.headers.get(<span class="string">&#x27;Authorization&#x27;</span>):</span><br><span class="line">token = request.headers[<span class="string">&#x27;Authorization&#x27;</span>].split()[<span class="number">1</span>]</span><br><span class="line"><span class="comment"># 验证签名后存储于内存缓存</span></span><br></pre></td></tr></table></figure>
+
+<ol start="7">
+<li><strong>Session Token</strong></li>
+</ol>
+</li>
+<li><p>典型实现：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ASP.NET Core示例</span></span><br><span class="line"><span class="keyword">var</span> claims = <span class="keyword">new</span> List&lt;Claim&gt; &#123; <span class="keyword">new</span> Claim(ClaimTypes.Name, username) &#125;;</span><br><span class="line"><span class="keyword">var</span> identity = <span class="keyword">new</span> ClaimsIdentity(claims, <span class="string">&quot;Cookies&quot;</span>);</span><br><span class="line"><span class="keyword">await</span> HttpContext.SignInAsync(<span class="keyword">new</span> ClaimsPrincipal(identity));</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>状态管理：依赖服务器端存储（如Redis）</p>
+<ol start="8">
+<li><strong>HMAC Token</strong></li>
+</ol>
+</li>
+<li><p>生成算法：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> crypto = <span class="built_in">require</span>(<span class="string">&#x27;crypto&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> secret = <span class="string">&#x27;your-secret-key&#x27;</span>;</span><br><span class="line"><span class="keyword">const</span> data = <span class="string">&#x27;user_id=123&amp;timestamp=1646092800&#x27;</span>;</span><br><span class="line"><span class="keyword">const</span> hmac = crypto.<span class="title function_">createHmac</span>(<span class="string">&#x27;sha256&#x27;</span>, secret);</span><br><span class="line">hmac.<span class="title function_">update</span>(data);</span><br><span class="line"><span class="keyword">const</span> token = hmac.<span class="title function_">digest</span>(<span class="string">&#x27;hex&#x27;</span>);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>防篡改机制：验证签名与时间戳</p>
+<h3 id="三、协议与Token协同架构"><a href="#三、协议与Token协同架构" class="headerlink" title="三、协议与Token协同架构"></a>三、协议与Token协同架构</h3></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">graph TD</span><br><span class="line">A[客户端] --&gt;|OIDC授权码| B[认证服务器]</span><br><span class="line">B --&gt;|ID Token + Access Token| A</span><br><span class="line">A --&gt;|Bearer Token| C[资源服务器]</span><br><span class="line">C --&gt;|JWT验证| D[业务逻辑]</span><br><span class="line">D --&gt;|SAML断言| E[第三方服务]</span><br></pre></td></tr></table></figure>
+
+<pre><code> ### 四、技术选择建议
+</code></pre>
+<ol start="9">
+<li><p><strong>企业级系统</strong>：优先考虑SAML 2.0 + JWT组合</p>
+</li>
+<li><p><strong>第三方集成</strong>：OAuth 2.0&#x2F;OIDC是首选方案</p>
+</li>
+<li><p><strong>高性能场景</strong>：HMAC Token适用于轻量级API保护</p>
+</li>
+<li><p><strong>遗留系统</strong>：Kerberos在Windows环境仍具优势</p>
+<h3 id="五、安全增强措施"><a href="#五、安全增强措施" class="headerlink" title="五、安全增强措施"></a>五、安全增强措施</h3></li>
+<li><p>Token安全策略：</p>
+<ul>
+<li>设置合理过期时间（建议30分钟~1小时）</li>
+<li>使用刷新令牌（Refresh Token）机制</li>
+<li>强制HTTPS传输</li>
+</ul>
+</li>
+<li><p>存储安全：</p>
+<ul>
+<li>客户端避免明文存储（推荐使用Secure Storage API）</li>
+<li>服务端采用加密存储（AES-256-GCM）</li>
+</ul>
+</li>
+<li><p>防御措施：</p>
+<ul>
+<li>防止Token劫持（SameSite Cookie策略）</li>
+<li>实施Token黑名单机制</li>
+<li>定期进行渗透测试<br>当前技术演进方向包括：</li>
+</ul>
+</li>
+</ol>
+<ul>
+<li>OAuth 2.1标准制定（强化安全要求）</li>
+<li>WebAuthn（FIDO2）生物认证集成</li>
+<li>零信任架构（ZTA）下的动态授权模型<br>在具体实施时，需结合RFC标准文档（如RFC 6749 OAuth 2.0规范）和行业最佳实践（如OWASP API Security Top 10）进行方案设计。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/11/uncategorized/officeDocuments/officeDocs/MCP%20Introduction/" rel="prev" title="">
+                  <i class="fa fa-angle-left"></i> 
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/11/uncategorized/officeDocuments/officeDocs/Secure%20Mail%20and%20Secure%20Web/Sensitivity%20lables/" rel="next" title="">
+                   <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Supremes</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

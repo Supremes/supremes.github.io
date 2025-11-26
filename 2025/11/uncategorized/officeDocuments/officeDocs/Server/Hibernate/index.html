@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.1">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.26.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="HibernateHibernate 是一个用于 Java 环境的开源对象关系映射（ORM）框架，XML 映射文件是 Hibernate 配置实体类和数据库表之间映射关系的重要方式。以下是 Hibernate XML 映射文件中常见标签的介绍： XML 配置文件&lt;hibernate-mapping&gt;这是 Hibernate XML 映射文件的根标签，用于标识一个映射文档的开始和结束，它">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hexo">
+<meta property="og:url" content="http://example.com/2025/11/uncategorized/officeDocuments/officeDocs/Server/Hibernate/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="HibernateHibernate 是一个用于 Java 环境的开源对象关系映射（ORM）框架，XML 映射文件是 Hibernate 配置实体类和数据库表之间映射关系的重要方式。以下是 Hibernate XML 映射文件中常见标签的介绍： XML 配置文件&lt;hibernate-mapping&gt;这是 Hibernate XML 映射文件的根标签，用于标识一个映射文档的开始和结束，它">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-11-26T07:30:03.124Z">
+<meta property="article:modified_time" content="2025-11-26T07:30:03.124Z">
+<meta property="article:author" content="Supremes">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://example.com/2025/11/uncategorized/officeDocuments/officeDocs/Server/Hibernate/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://example.com/2025/11/uncategorized/officeDocuments/officeDocs/Server/Hibernate/","path":"2025/11/uncategorized/officeDocuments/officeDocs/Server/Hibernate/","title":""}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title> | Hexo</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hexo</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Hibernate"><span class="nav-number">1.</span> <span class="nav-text">Hibernate</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#XML-%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-number">1.1.</span> <span class="nav-text">XML 配置文件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">1.1.1.</span> <span class="nav-text">&lt;hibernate-mapping&gt;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#-1"><span class="nav-number">1.1.2.</span> <span class="nav-text">&lt;class&gt;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#-2"><span class="nav-number">1.1.3.</span> <span class="nav-text">&lt;id&gt;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#-3"><span class="nav-number">1.1.4.</span> <span class="nav-text">&lt;generator&gt;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#-4"><span class="nav-number">1.1.5.</span> <span class="nav-text">&lt;property&gt;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#-5"><span class="nav-number">1.1.6.</span> <span class="nav-text">&lt;many-to-one&gt;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#-6"><span class="nav-number">1.1.7.</span> <span class="nav-text">&lt;one-to-many&gt;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#-7"><span class="nav-number">1.1.8.</span> <span class="nav-text">&lt;set&gt;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#-8"><span class="nav-number">1.1.9.</span> <span class="nav-text">&lt;Bag&gt;</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95"><span class="nav-number">1.1.9.1.</span> <span class="nav-text">基本用法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E5%B1%9E%E6%80%A7"><span class="nav-number">1.1.9.2.</span> <span class="nav-text">常用属性</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#-9"><span class="nav-number">1.1.10.</span> <span class="nav-text">&lt;discriminator&gt;</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">1.1.10.1.</span> <span class="nav-text">基本使用场景</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E8%AF%AD%E6%B3%95"><span class="nav-number">1.1.10.2.</span> <span class="nav-text">基本语法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E5%B1%9E%E6%80%A7-1"><span class="nav-number">1.1.10.3.</span> <span class="nav-text">常用属性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="nav-number">1.1.10.4.</span> <span class="nav-text">工作原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BC%98%E5%8A%BF"><span class="nav-number">1.1.10.5.</span> <span class="nav-text">优势</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">1.1.10.6.</span> <span class="nav-text">注意事项</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#-10"><span class="nav-number">1.1.11.</span> <span class="nav-text">&lt;key&gt;</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Supremes</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2025/11/uncategorized/officeDocuments/officeDocs/Server/Hibernate/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Supremes">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Hexo">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-11-26 15:30:03" itemprop="dateCreated datePublished" datetime="2025-11-26T15:30:03+08:00">2025-11-26</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="Hibernate"><a href="#Hibernate" class="headerlink" title="Hibernate"></a>Hibernate</h1><p>Hibernate 是一个用于 Java 环境的开源对象关系映射（ORM）框架，XML 映射文件是 Hibernate 配置实体类和数据库表之间映射关系的重要方式。以下是 Hibernate XML 映射文件中常见标签的介绍：</p>
+<h2 id="XML-配置文件"><a href="#XML-配置文件" class="headerlink" title="XML 配置文件"></a>XML 配置文件</h2><h3 id=""><a href="#" class="headerlink" title="&lt;hibernate-mapping&gt;"></a><code>&lt;hibernate-mapping&gt;</code></h3><p>这是 Hibernate XML 映射文件的根标签，用于标识一个映射文档的开始和结束，它可以包含多个 <code>&lt;class&gt;</code> 标签。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">hibernate-mapping</span>&gt;</span></span><br><span class="line"> <span class="comment">&lt;!-- 其他标签 --&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">hibernate-mapping</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="-1"><a href="#-1" class="headerlink" title="&lt;class&gt;"></a><code>&lt;class&gt;</code></h3><p><code>&lt;class&gt;</code> 标签用于定义 Java 类和数据库表之间的映射关系。</p>
+<ul>
+<li><p><code>name</code> 属性：指定 Java 类的全限定名。</p>
+</li>
+<li><p><code>table</code> 属性：指定对应的数据库表名。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">class</span> <span class="attr">name</span>=<span class="string">&quot;com.example.User&quot;</span> <span class="attr">table</span>=<span class="string">&quot;users&quot;</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 其他标签 --&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">class</span>&gt;</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="-2"><a href="#-2" class="headerlink" title="&lt;id&gt;"></a><code>&lt;id&gt;</code></h3><p>  <code>&lt;id&gt;</code> 标签用于映射 Java 类中的主键属性到数据库表的主键列。</p>
+<ul>
+<li><p><code>name</code> 属性：指定 Java 类中的主键属性名。</p>
+</li>
+<li><p><code>column</code> 属性：指定数据库表中的主键列名。</p>
+</li>
+<li><p><code>type</code> 属性：指定属性的数据类型。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">id</span> <span class="attr">name</span>=<span class="string">&quot;id&quot;</span> <span class="attr">column</span>=<span class="string">&quot;user_id&quot;</span> <span class="attr">type</span>=<span class="string">&quot;long&quot;</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 主键生成策略 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">generator</span> <span class="attr">class</span>=<span class="string">&quot;native&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="-3"><a href="#-3" class="headerlink" title="&lt;generator&gt;"></a><code>&lt;generator&gt;</code></h3><p><code>&lt;generator&gt;</code> 标签用于指定主键的生成策略，通常嵌套在 <code>&lt;id&gt;</code> 标签内。常见的生成策略有：</p>
+<ul>
+<li><p><code>native</code>：根据数据库的支持自动选择合适的主键生成策略（如自增、序列等）。</p>
+</li>
+<li><p><code>increment</code>：由 Hibernate 自动生成一个递增的主键值。</p>
+</li>
+<li><p><code>uuid</code>：生成一个 UUID 作为主键值。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">generator</span> <span class="attr">class</span>=<span class="string">&quot;native&quot;</span>/&gt;</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="-4"><a href="#-4" class="headerlink" title="&lt;property&gt;"></a><code>&lt;property&gt;</code></h3><p><code>&lt;property&gt;</code> 标签用于映射 Java 类中的普通属性到数据库表的列。</p>
+<ul>
+<li><p><code>name</code> 属性：指定 Java 类中的属性名。</p>
+</li>
+<li><p><code>column</code> 属性：指定数据库表中的列名。</p>
+</li>
+<li><p><code>type</code> 属性：指定属性的数据类型。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;username&quot;</span> <span class="attr">column</span>=<span class="string">&quot;user_name&quot;</span> <span class="attr">type</span>=<span class="string">&quot;string&quot;</span>/&gt;</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="-5"><a href="#-5" class="headerlink" title="&lt;many-to-one&gt;"></a><code>&lt;many-to-one&gt;</code></h3><p><code>&lt;many-to-one&gt;</code> 标签用于映射多对一的关联关系，例如多个用户属于一个部门。</p>
+<ul>
+<li><p><code>name</code> 属性：指定 Java 类中关联对象的属性名。</p>
+</li>
+<li><p><code>column</code> 属性：指定数据库表中用于关联的外键列名。</p>
+</li>
+<li><p><code>class</code> 属性：指定关联对象的 Java 类全限定名。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">many-to-one</span> <span class="attr">name</span>=<span class="string">&quot;department&quot;</span> <span class="attr">column</span>=<span class="string">&quot;dept_id&quot;</span> <span class="attr">class</span>=<span class="string">&quot;com.example.Department&quot;</span>/&gt;</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="-6"><a href="#-6" class="headerlink" title="&lt;one-to-many&gt;"></a><code>&lt;one-to-many&gt;</code></h3><p><code>&lt;one-to-many&gt;</code> 标签用于映射一对多的关联关系，例如一个部门有多个用户。</p>
+<ul>
+<li><p><code>name</code> 属性：指定 Java 类中关联对象集合的属性名。</p>
+</li>
+<li><p><code>class</code> 属性：指定关联对象的 Java 类全限定名。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">one-to-many</span> <span class="attr">name</span>=<span class="string">&quot;users&quot;</span> <span class="attr">class</span>=<span class="string">&quot;com.example.User&quot;</span>/&gt;</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="-7"><a href="#-7" class="headerlink" title="&lt;set&gt;"></a><code>&lt;set&gt;</code></h3><p><code>&lt;set&gt;</code> 标签用于映射 Java 类中的集合属性，通常与 <code>&lt;one-to-many&gt;</code> 或 <code>&lt;many-to-many&gt;</code> 关联使用。</p>
+<ul>
+<li><p><code>name</code> 属性：指定 Java 类中的集合属性名。</p>
+</li>
+<li><p><code>table</code> 属性：指定关联表名（在多对多关系中使用）。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">set</span> <span class="attr">name</span>=<span class="string">&quot;users&quot;</span> <span class="attr">table</span>=<span class="string">&quot;user_department&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">key</span> <span class="attr">column</span>=<span class="string">&quot;dept_id&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">one-to-many</span> <span class="attr">class</span>=<span class="string">&quot;com.example.User&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">set</span>&gt;</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="-8"><a href="#-8" class="headerlink" title="&lt;Bag&gt;"></a><code>&lt;Bag&gt;</code></h3><p>在 Hibernate XML 映射文件里，<code>&lt;bag&gt;</code>标签用于映射 Java 类中的集合属性，它表示无序且可重复的集合，类似于 Java 里的<code>java.util.Collection</code>。下面为你详细介绍其用法和相关属性：</p>
+<h4 id="基本用法"><a href="#基本用法" class="headerlink" title="基本用法"></a>基本用法</h4><p><code>&lt;bag&gt;</code>标签常被用于映射一对多或者多对多的关联关系。它一般和<code>&lt;key&gt;</code>、<code>&lt;one-to-many&gt;</code>或者<code>&lt;many-to-many&gt;</code>标签搭配使用。以下是个简单示例：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">class</span> <span class="attr">name</span>=<span class="string">&quot;com.example.Department&quot;</span> <span class="attr">table</span>=<span class="string">&quot;departments&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">id</span> <span class="attr">name</span>=<span class="string">&quot;id&quot;</span> <span class="attr">column</span>=<span class="string">&quot;dept_id&quot;</span> <span class="attr">type</span>=<span class="string">&quot;long&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">generator</span> <span class="attr">class</span>=<span class="string">&quot;native&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;name&quot;</span> <span class="attr">column</span>=<span class="string">&quot;dept_name&quot;</span> <span class="attr">type</span>=<span class="string">&quot;string&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">bag</span> <span class="attr">name</span>=<span class="string">&quot;employees&quot;</span> <span class="attr">table</span>=<span class="string">&quot;dept_emp&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">key</span> <span class="attr">column</span>=<span class="string">&quot;dept_id&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">one-to-many</span> <span class="attr">class</span>=<span class="string">&quot;com.example.Employee&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">bag</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">class</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>在这个例子中，<code>Department</code>类有一个<code>employees</code>属性，它是一个无序且可重复的<code>Employee</code>对象集合。<code>&lt;bag&gt;</code>标签定义了这个集合属性的映射，<code>&lt;key&gt;</code>标签指明了关联表中的外键列，<code>&lt;one-to-many&gt;</code>标签表明了一对多的关联关系。</p>
+<h4 id="常用属性"><a href="#常用属性" class="headerlink" title="常用属性"></a>常用属性</h4><ul>
+<li><strong><code>name</code></strong>：指定 Java 类中的集合属性名，就像上面例子中的<code>employees</code>。</li>
+<li><strong><code>table</code></strong>：指定关联表名，在一对多或者多对多关系里使用。比如在多对多关系中，需要一个中间表来存储关联信息，<code>table</code>属性就指定了这个中间表的名称。</li>
+<li><strong><code>cascade</code></strong>：定义级联操作，它确定了在对父对象执行某些操作（如保存、更新、删除）时，是否要对关联对象也执行相同操作。常见的值有<code>save-update</code>、<code>delete</code>、<code>all</code>等。示例如下：</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bag</span> <span class="attr">name</span>=<span class="string">&quot;employees&quot;</span> <span class="attr">table</span>=<span class="string">&quot;dept_emp&quot;</span> <span class="attr">cascade</span>=<span class="string">&quot;save-update&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">key</span> <span class="attr">column</span>=<span class="string">&quot;dept_id&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">one-to-many</span> <span class="attr">class</span>=<span class="string">&quot;com.example.Employee&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bag</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong><code>inverse</code></strong>：是一个布尔值，用来指定关联关系的控制权在哪一方。若设为<code>true</code>，则表示关联关系的维护由另一方负责；若设为<code>false</code>（默认值），则当前对象负责维护关联关系。</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bag</span> <span class="attr">name</span>=<span class="string">&quot;employees&quot;</span> <span class="attr">table</span>=<span class="string">&quot;dept_emp&quot;</span> <span class="attr">inverse</span>=<span class="string">&quot;true&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">key</span> <span class="attr">column</span>=<span class="string">&quot;dept_id&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">one-to-many</span> <span class="attr">class</span>=<span class="string">&quot;com.example.Employee&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bag</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>与<code>&lt;set&gt;</code>标签对比</p>
+<p>和<code>&lt;set&gt;</code>标签不同，<code>&lt;bag&gt;</code>允许集合中有重复元素，而<code>&lt;set&gt;</code>要求元素唯一。所以，当你需要一个可包含重复元素的集合时，就可以使用<code>&lt;bag&gt;</code>标签。 </p>
+<h3 id="-9"><a href="#-9" class="headerlink" title="&lt;discriminator&gt;"></a><code>&lt;discriminator&gt;</code></h3><p>在 Hibernate 的 XML 配置文件里，<code>&lt;discriminator&gt;</code>标签主要用于实现继承映射。当 Java 类存在继承关系时，该标签能够把这些具有继承关系的类映射到数据库的同一张表中，借助一个特定的列来区分不同的子类。下面为你详细介绍其使用方式和相关属性。</p>
+<h4 id="基本使用场景"><a href="#基本使用场景" class="headerlink" title="基本使用场景"></a>基本使用场景</h4><p>在实际开发中，可能会有多个子类继承自同一个父类的情况。若把这些子类分别映射到不同的数据库表，会使数据库结构变得复杂。通过<code>&lt;discriminator&gt;</code>标签，可将所有子类的数据存储在同一张表中，再用一个特殊的列来辨别不同的子类。</p>
+<h4 id="基本语法"><a href="#基本语法" class="headerlink" title="基本语法"></a>基本语法</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">class</span> <span class="attr">name</span>=<span class="string">&quot;com.example.Animal&quot;</span> <span class="attr">table</span>=<span class="string">&quot;animals&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">id</span> <span class="attr">name</span>=<span class="string">&quot;id&quot;</span> <span class="attr">column</span>=<span class="string">&quot;animal_id&quot;</span> <span class="attr">type</span>=<span class="string">&quot;long&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">generator</span> <span class="attr">class</span>=<span class="string">&quot;native&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">discriminator</span> <span class="attr">column</span>=<span class="string">&quot;animal_type&quot;</span> <span class="attr">type</span>=<span class="string">&quot;string&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">subclass</span> <span class="attr">name</span>=<span class="string">&quot;com.example.Dog&quot;</span> <span class="attr">discriminator-value</span>=<span class="string">&quot;dog&quot;</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- Dog 类特有的属性映射 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">subclass</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">subclass</span> <span class="attr">name</span>=<span class="string">&quot;com.example.Cat&quot;</span> <span class="attr">discriminator-value</span>=<span class="string">&quot;cat&quot;</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- Cat 类特有的属性映射 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">subclass</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">class</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>在上述示例中：</p>
+<ul>
+<li><code>Animal</code>是父类，<code>Dog</code>和<code>Cat</code>是它的子类。</li>
+<li><code>&lt;discriminator&gt;</code>标签指定了一个名为<code>animal_type</code>的列，数据类型为字符串，用于区分不同的子类。</li>
+<li><code>&lt;subclass&gt;</code>标签定义了子类的映射，<code>discriminator-value</code>属性指定了该子类在<code>animal_type</code>列中对应的值。</li>
+</ul>
+<h4 id="常用属性-1"><a href="#常用属性-1" class="headerlink" title="常用属性"></a>常用属性</h4><ul>
+<li><strong><code>column</code></strong>：指定数据库表中用于区分不同子类的列名。在上面的例子中，<code>column=&quot;animal_type&quot;</code>表示使用<code>animal_type</code>列来存储子类的区分信息。</li>
+<li><strong><code>type</code></strong>：指定区分列的数据类型，例如<code>string</code>、<code>integer</code>等。</li>
+</ul>
+<h4 id="工作原理"><a href="#工作原理" class="headerlink" title="工作原理"></a>工作原理</h4><p>当 Hibernate 从数据库中查询数据时，会依据<code>&lt;discriminator&gt;</code>标签指定的列的值来判断应该将数据实例化为哪个子类的对象。比如，若<code>animal_type</code>列的值为<code>dog</code>，Hibernate 就会把数据实例化为<code>Dog</code>类的对象；若值为<code>cat</code>，则实例化为<code>Cat</code>类的对象。</p>
+<h4 id="优势"><a href="#优势" class="headerlink" title="优势"></a>优势</h4><ul>
+<li><strong>简化数据库结构</strong>：避免为每个子类创建单独的表，减少了数据库表的数量，使数据库结构更加简洁。</li>
+<li><strong>提高数据查询效率</strong>：因为所有子类的数据都存储在同一张表中，查询时无需进行复杂的表连接操作，提高了查询效率。</li>
+</ul>
+<h4 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h4><ul>
+<li><strong>区分列的唯一性</strong>：<code>discriminator-value</code>属性的值必须唯一，否则会导致 Hibernate 在实例化对象时出现混淆。</li>
+<li><strong>数据一致性</strong>：在插入数据时，要确保区分列的值与<code>&lt;subclass&gt;</code>标签中<code>discriminator-value</code>属性的值一致，以保证数据的一致性。</li>
+</ul>
+<h3 id="-10"><a href="#-10" class="headerlink" title="&lt;key&gt;"></a><code>&lt;key&gt;</code></h3><p><code>&lt;key&gt;</code> 标签用于指定关联表中的外键列，通常在 <code>&lt;set&gt;</code> 或 <code>&lt;list&gt;</code> 标签中使用。</p>
+<ul>
+<li><p><code>column</code> 属性：指定外键列名。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">key</span> <span class="attr">column</span>=<span class="string">&quot;dept_id&quot;</span>/&gt;</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<p>这些标签是 Hibernate XML 映射文件中最常用的部分，通过合理使用它们，可以实现 Java 类和数据库表之间的灵活映射。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/11/uncategorized/officeDocuments/officeDocs/Server/mysql/" rel="prev" title="">
+                  <i class="fa fa-angle-left"></i> 
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/11/uncategorized/officeDocuments/officeDocs/Server/java/" rel="next" title="">
+                   <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Supremes</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

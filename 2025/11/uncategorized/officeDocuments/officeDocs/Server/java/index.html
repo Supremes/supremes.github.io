@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.1">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.26.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="[TOC] gradlebuild相关命令 assemble：编译打包该工程 build： 编译打包并测试该工程 buildDependents: 编译打包并测试该工程和依赖它的工程 buildNeeded：编译打包并测试该工程和它依赖的工程  classes：编译打包主要的类文件 clean：删除编译目录 jar：编译成jar包，该jar包包含主要的类文件 testClasses：编译打包该测试">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hexo">
+<meta property="og:url" content="http://example.com/2025/11/uncategorized/officeDocuments/officeDocs/Server/java/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="[TOC] gradlebuild相关命令 assemble：编译打包该工程 build： 编译打包并测试该工程 buildDependents: 编译打包并测试该工程和依赖它的工程 buildNeeded：编译打包并测试该工程和它依赖的工程  classes：编译打包主要的类文件 clean：删除编译目录 jar：编译成jar包，该jar包包含主要的类文件 testClasses：编译打包该测试">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/Users/junkangd/Desktop/ios-enroll.png">
+<meta property="og:image" content="http://example.com/Users/junkangd/Library/Application%20Support/typora-user-images/image-20220608112114621.png">
+<meta property="article:published_time" content="2025-11-26T07:30:03.125Z">
+<meta property="article:modified_time" content="2025-11-26T07:30:03.126Z">
+<meta property="article:author" content="Supremes">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/Users/junkangd/Desktop/ios-enroll.png">
+
+
+<link rel="canonical" href="http://example.com/2025/11/uncategorized/officeDocuments/officeDocs/Server/java/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://example.com/2025/11/uncategorized/officeDocuments/officeDocs/Server/java/","path":"2025/11/uncategorized/officeDocuments/officeDocs/Server/java/","title":""}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title> | Hexo</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hexo</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#gradle"><span class="nav-number">1.</span> <span class="nav-text">gradle</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#build"><span class="nav-number">1.1.</span> <span class="nav-text">build</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E5%91%BD%E4%BB%A4"><span class="nav-number">1.1.1.</span> <span class="nav-text">相关命令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%A7%E5%87%BA%E7%89%A9%E7%9B%AE%E5%BD%95"><span class="nav-number">1.1.2.</span> <span class="nav-text">产出物目录</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CEM-SERVER"><span class="nav-number">1.2.</span> <span class="nav-text">CEM SERVER</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ios-enrollment"><span class="nav-number">1.2.1.</span> <span class="nav-text">ios enrollment</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#iOS-enroll-with-user-password"><span class="nav-number">1.2.2.</span> <span class="nav-text">iOS enroll with user  + password:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#deploy-policy"><span class="nav-number">1.2.3.</span> <span class="nav-text">deploy policy</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#useful-command"><span class="nav-number">1.3.</span> <span class="nav-text">useful command</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#JAVA"><span class="nav-number">2.</span> <span class="nav-text">JAVA</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E7%B1%BB%E5%BA%93"><span class="nav-number">2.1.</span> <span class="nav-text">常用类库</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%A5%E5%BF%97%E5%BA%93"><span class="nav-number">2.1.1.</span> <span class="nav-text">日志库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JSON%E8%A7%A3%E6%9E%90%E5%BA%93"><span class="nav-number">2.1.2.</span> <span class="nav-text">JSON解析库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E5%BA%93"><span class="nav-number">2.1.3.</span> <span class="nav-text">单元测试库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#http%E5%BA%93"><span class="nav-number">2.1.4.</span> <span class="nav-text">http库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E6%B1%A0%E5%BA%93"><span class="nav-number">2.1.5.</span> <span class="nav-text">数据库连接池库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%A5%E6%9C%9F%E5%92%8C%E6%97%B6%E9%97%B4%E5%BA%93"><span class="nav-number">2.1.6.</span> <span class="nav-text">日期和时间库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8A%A0%E5%AF%86%E5%BA%93"><span class="nav-number">2.1.7.</span> <span class="nav-text">加密库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B5%8C%E5%85%A5%E5%BC%8FSQL%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BA%93"><span class="nav-number">2.1.8.</span> <span class="nav-text">嵌入式SQL数据库库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C%E5%BA%93"><span class="nav-number">2.1.9.</span> <span class="nav-text">网络库</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9B%86%E5%90%88"><span class="nav-number">2.2.</span> <span class="nav-text">集合</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E7%BA%BF%E7%A8%8B"><span class="nav-number">2.3.</span> <span class="nav-text">多线程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Annotation"><span class="nav-number">2.4.</span> <span class="nav-text">Annotation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Generics"><span class="nav-number">2.5.</span> <span class="nav-text">Generics</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Supremes</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2025/11/uncategorized/officeDocuments/officeDocs/Server/java/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Supremes">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Hexo">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-11-26 15:30:03" itemprop="dateCreated datePublished" datetime="2025-11-26T15:30:03+08:00">2025-11-26</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>[TOC]</p>
+<h1 id="gradle"><a href="#gradle" class="headerlink" title="gradle"></a>gradle</h1><h2 id="build"><a href="#build" class="headerlink" title="build"></a>build</h2><h3 id="相关命令"><a href="#相关命令" class="headerlink" title="相关命令"></a>相关命令</h3><ul>
+<li>assemble：编译打包该工程</li>
+<li>build： 编译打包并测试该工程</li>
+<li>buildDependents: 编译打包并测试该工程和依赖它的工程</li>
+<li>buildNeeded：编译打包并测试该工程和它依赖的工程 </li>
+<li>classes：编译打包主要的类文件</li>
+<li>clean：删除编译目录</li>
+<li>jar：编译成jar包，该jar包包含主要的类文件</li>
+<li>testClasses：编译打包该测试文件</li>
+</ul>
+<h3 id="产出物目录"><a href="#产出物目录" class="headerlink" title="产出物目录"></a>产出物目录</h3><p>Classes：存放编译后的类文件，就是.class文件</p>
+<p>dependency-cache：存放相关依赖的缓存数据</p>
+<p>libs：存放最终编译打包好的jar包</p>
+<p>tmp：存放编译过程中的临时文件</p>
+<h2 id="CEM-SERVER"><a href="#CEM-SERVER" class="headerlink" title="CEM SERVER"></a>CEM SERVER</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">2022-05-31T09:52:58.646+0000 | &quot;user.id=no_authenticated_user&quot; &quot;session.id=5b134fcd4f8a1fb02c6cb4ffcb398b82b89d51cea0de5ab85642aa0e6b896917_hashed&quot; &quot;client.ip=103.14.252.248&quot; &quot;push.info=&quot; &quot;transaction.id=002395AC-775F-429A-A300-A89223F57193&quot; |  INFO | http-nio-10080-exec-26 | com.zenprise.zdm.enroll.internal.mgmt.EnrollmentManagerImpl | Adding iOS_AGENT/null certificate (serial=18) to enrollment EnrollmentImpl&#123;activationDate=Tue May 31 09:52:11 UTC 2022, id=1, status=ACTIVE, deviceEnrollmentStatus=NOT_STARTED, deviceMode=null, deviceRequiredAction=null, enrolled_auth_method=classic, username=&#x27;djk&#x27;, device=&#123;id:&quot;1&quot;, serialNumber:&quot;FNJV7CV7YW&quot;, imei:&quot;35 327271 933534 9&quot;, activeSyncId:&quot;2BJ1AFLH9D5JR7CRSU1EL90390&quot;, osFamily:&quot;iOS&quot;, strongId:&quot;T8TPQMYC&quot;, Last user name:&quot;djk &quot;djk&quot;&quot;, mamDeviceId: &quot;&quot;, mamRegistered: &quot;false&quot;, mamReady: &quot;false&quot;, appWipe: &quot;false&quot;, deviceType: &quot;&quot;, depRegistered: &quot;false&quot;, asmDepRegistered: &quot;false&quot;, asmDepShared: &quot;false&quot;, depAccountId: &quot;-1&quot;, depProfileId: &quot;-1&quot;, depProfileStatus:&quot;NO_BULK&quot;&#125;recoveryKey:&quot;null&quot;&#125;macDepAdminGUID:&quot;null&quot;&#125;, type=DEVICE, shareable=false, asmDepDeviceType: , enrollmentMethod=REGULAR&#125;</span><br></pre></td></tr></table></figure>
+
+<img src="/Users/junkangd/Desktop/ios-enroll.png" alt="ios-enroll" style="zoom:50%;" />
+
+<h3 id="ios-enrollment"><a href="#ios-enrollment" class="headerlink" title="ios enrollment"></a>ios enrollment</h3><ol>
+<li>com.citrix.xam.rest.DeviceEnrollmentProfileResource</li>
+<li>com.zenprise.zdm.enroll.handler.EnrollmentAuthenticator</li>
+<li>com.sparus.nps.variables.XMLVariablesManager</li>
+<li>com.zenprise.zdm.enroll.internal.mgmt.EnrollmentManagerImpl</li>
+</ol>
+<h3 id="iOS-enroll-with-user-password"><a href="#iOS-enroll-with-user-password" class="headerlink" title="iOS enroll with user  + password:"></a>iOS enroll with user  + password:</h3><p>debug method <code>handleExplicitFormsAuthenticateAttempt</code>:</p>
+<h3 id="deploy-policy"><a href="#deploy-policy" class="headerlink" title="deploy policy"></a>deploy policy</h3><p>debug <code>DeviceManager::updateOrAddIOSProfileInventoryForDevice</code></p>
+<p>Axel</p>
+<p>.&#x2F;jfrog rt c mia –interactive&#x3D;false –url&#x3D;”<a target="_blank" rel="noopener" href="https://mia-repo.citrite.net/">https://mia-repo.citrite.net/</a>“ –user&#x3D;”junkangd” –apikey&#x3D;”AKCp8mZ8G2xSqxYGz1KkjzYpawyrLW4YJx8XEx4Y1ZbJcjLwN1rkBdV7cvCPhYBwmuyc77BVn”</p>
+<h2 id="useful-command"><a href="#useful-command" class="headerlink" title="useful command"></a>useful command</h2><ul>
+<li>ssh -i ~&#x2F;azure_key -L 8001:20.115.16.180:8001 <a href="mailto:&#x63;&#105;&#x74;&#114;&#x69;&#x78;&#x61;&#100;&#109;&#105;&#x6e;&#x40;&#50;&#x30;&#x2e;&#x31;&#49;&#53;&#46;&#49;&#x36;&#46;&#x31;&#x38;&#x30;">citrixadmin@20.115.16.180</a></li>
+</ul>
+<h1 id="JAVA"><a href="#JAVA" class="headerlink" title="JAVA"></a>JAVA</h1><h2 id="常用类库"><a href="#常用类库" class="headerlink" title="常用类库"></a>常用类库</h2><h3 id="日志库"><a href="#日志库" class="headerlink" title="日志库"></a>日志库</h3><p>SLF4J</p>
+<p>Log4J</p>
+<p>logback</p>
+<h3 id="JSON解析库"><a href="#JSON解析库" class="headerlink" title="JSON解析库"></a>JSON解析库</h3><p>Jackson</p>
+<p>Gson</p>
+<h3 id="单元测试库"><a href="#单元测试库" class="headerlink" title="单元测试库"></a>单元测试库</h3><p>JUnit</p>
+<p>Mockito</p>
+<p>PowerMock</p>
+<h3 id="http库"><a href="#http库" class="headerlink" title="http库"></a>http库</h3><p>HttpClient</p>
+<p>HttpCore</p>
+<h3 id="数据库连接池库"><a href="#数据库连接池库" class="headerlink" title="数据库连接池库"></a>数据库连接池库</h3><h3 id="日期和时间库"><a href="#日期和时间库" class="headerlink" title="日期和时间库"></a>日期和时间库</h3><h3 id="加密库"><a href="#加密库" class="headerlink" title="加密库"></a>加密库</h3><p>base64</p>
+<p>Hex</p>
+<p>URLs</p>
+<h3 id="嵌入式SQL数据库库"><a href="#嵌入式SQL数据库库" class="headerlink" title="嵌入式SQL数据库库"></a><strong>嵌入式SQL数据库库</strong></h3><p>他可以嵌入到你的Java应用中。在你跑单测的时候如果你需要一个数据库，用来验证你的SQL的话，他是个很好的选择。顺便说一句,H2不是唯一嵌入式DB，你还有 Apache Derby 和 HSQL 可供选择。</p>
+<h3 id="网络库"><a href="#网络库" class="headerlink" title="网络库"></a><strong>网络库</strong></h3><p>Netty</p>
+<h2 id="集合"><a href="#集合" class="headerlink" title="集合"></a>集合</h2><p>Set：无序，不可重复</p>
+<p>List：有序，可重复</p>
+<p>Map：kv集合。</p>
+<ul>
+<li>插入有序：LinkedHashMap</li>
+<li>无序：HashMap</li>
+<li>排序：TreeMap</li>
+</ul>
+<h2 id="多线程"><a href="#多线程" class="headerlink" title="多线程"></a>多线程</h2><h2 id="Annotation"><a href="#Annotation" class="headerlink" title="Annotation"></a>Annotation</h2><ol>
+<li><p>The annotation member types must be one of:</p>
+<ul>
+<li>primitive</li>
+<li>String</li>
+<li>an Enum</li>
+<li>another Annotation</li>
+<li>Class</li>
+<li>an array of any of the above</li>
+</ul>
+<p>It does seem restrictive, but no doubt there are reasons for it.</p>
+<p>Also note that multidimensional arrays (e.g. <code>String[][]</code>) are implicitly forbidden by the above rule.</p>
+</li>
+</ol>
+<h2 id="Generics"><a href="#Generics" class="headerlink" title="Generics"></a>Generics</h2><? super Integer>：
+
+- 往其中存Integer及其子类是没问题的
+- 往其中读，只能读取Object类型
+
+<? extends Number>
+
+- 不能写，因为编译器不清楚里面存的是Number的哪个子类
+- 可以读，类型为Number及其超类是安全的
+
+## Hibernate
+
+> Hibernate 是关于**Java对象和关系数据库**之间的联系
+
+Many-to-one: 该表的多行对应另一张表的一行，比如雇员表对应公司表
+
+One-to-many：该表的一行对应另一张表的多行，比如公司表对应雇员表
+
+JoinColumn: 指定外键列， 配合@ManyToOne 或 @OneToOne 注解一起使用
+
+
+
+### Spring Debug
+
+Spring配置文件:
+
+1. <filter-mapping></filter-mapping>：定义了哪些servlet会使用这个filter
+
+   <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">filter-mapping</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">filter-name</span>&gt;</span>XmsDeviceAPISecurityFilter<span class="tag">&lt;/<span class="name">filter-name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>XAM<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span>               <span class="comment">&lt;!-- /Citrix/* --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>XAMKMS<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span>            <span class="comment">&lt;!-- /xv/* --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>XAMAG<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span>             <span class="comment">&lt;!-- /AGServices/* --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>XAMSTA<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span>            <span class="comment">&lt;!-- /STA/* --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>XAMAUTH<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span>           <span class="comment">&lt;!-- /Auth/v1/* --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>XAMScripts<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span>        <span class="comment">&lt;!-- /Scripts/* --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>WorxStoreLaunch<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span>   <span class="comment">&lt;!-- /Citrix/StoreWeb/* --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>WorxStoreApp<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span>      <span class="comment">&lt;!-- /StoreWeb/ws/* --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>ios_agent<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span>         <span class="comment">&lt;!-- /zdm/ios/agent --&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">filter-mapping</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+2. <servlet-mapping></servlet-mapping>：定义了URL路径与servlet的映射：
+
+   <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">servlet-mapping</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>Unified console Jersey Web Application<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">url-pattern</span>&gt;</span>/controlpoint/rest/*<span class="tag">&lt;/<span class="name">url-pattern</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">servlet-mapping</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">servlet-mapping</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>rest<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">url-pattern</span>&gt;</span>/api/endpoint-management/*<span class="tag">&lt;/<span class="name">url-pattern</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">servlet-mapping</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+3. <servlet> </servlet>：定义了servlet与实际class的映射：
+
+   <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">servlet</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>ios_agent<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-class</span>&gt;</span>com.sparus.nps.ios.agent.AgentServlet<span class="tag">&lt;/<span class="name">servlet-class</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">servlet</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+# Jersey
+
+## JAX-RS
+
+RESTful Web 服务的 Java API（JAX-RS）是 Java 编程语言 API 规范，它提供了根据代表性状态传输（REST）架构模式创建 Web 服务的支持。 JAX-RS 使用注解来简化 Web 服务客户端和端点的开发和部署。 JAX-RS 是 Java EE 的正式组成部分。
+
+
+
+## Jersey
+
+Jersey 是用于用 Java 开发 RESTful Web 服务的开源框架。 它是 RESTful Web 服务 Java API（JAX-RS）规范的参考实现。
+
+
+
+## Example
+
+Configuration:
+
+1. 继承`ResourceConfig`
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">PublicRestApplication</span> <span class="keyword">extends</span> <span class="title class_">ResourceConfig</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">PublicRestApplication</span><span class="params">()</span> &#123;</span><br><span class="line">        register(MultiPartFeature.class);</span><br><span class="line">        register(CertificatesResource.class);</span><br><span class="line">        register(KeystoreResource.class);</span><br><span class="line">        register(LicensesResource.class);</span><br><span class="line">        register(MultiPartFeature.class);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+2. 在web.xml中加载
+
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">servlet</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>Unified console Jersey Web Application<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-class</span>&gt;</span>org.glassfish.jersey.servlet.ServletContainer<span class="tag">&lt;/<span class="name">servlet-class</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">init-param</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">param-name</span>&gt;</span>jersey.config.server.provider.packages<span class="tag">&lt;/<span class="name">param-name</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">param-value</span>&gt;</span></span><br><span class="line">        com.citrix.services.endpoint.rs;com.citrix.services;com.citrix.controlpoint.rest</span><br><span class="line">      <span class="tag">&lt;/<span class="name">param-value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">init-param</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">init-param</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">param-name</span>&gt;</span>jersey.config.server.wadl.disableWadl<span class="tag">&lt;/<span class="name">param-name</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">param-value</span>&gt;</span>true<span class="tag">&lt;/<span class="name">param-value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">init-param</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">init-param</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">param-name</span>&gt;</span>jersey.config.server.provider.classnames<span class="tag">&lt;/<span class="name">param-name</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">param-value</span>&gt;</span>com.citrix.controlpoint.rest.security.AuthenticationRequestFilter;com.citrix.controlpoint.rest.security.AuthorizationRequestFilter<span class="tag">&lt;/<span class="name">param-value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">init-param</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">load-on-startup</span>&gt;</span>0<span class="tag">&lt;/<span class="name">load-on-startup</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">servlet</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+
+Servelt:
+
+@Path 注解
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Path(&quot;/certificates&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CertificatesResource</span> &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+## SwiftTestApp
+
+TODO：
+
+1. CTXMAMCore: [ssh://git@code.citrite.net/xmios/iossdk_ctxmamcore.git](ssh://git@code.citrite.net/xmios/iossdk_ctxmamcore.git)
+2. CTXMAMConfigManager — initializeStorage 
+3. `ios shared keychain`
+4. ~~build up `swiftTestApp`~~
+5. ios interface builder tutorial
+6. NSUserDefaults
+
+PROBLEM:
+
+- swift open, get/set
+
+### keychain
+
+<img src="/Users/junkangd/Library/Application Support/typora-user-images/image-20220608112114621.png" alt="image-20220608112114621" style="zoom:50%;" />
+
+- 类型：
+
+1. kSecClassInternetPassword：网络密码
+2. kSecClassGenericPassword：通用密码
+3. kSecClassCertificate：证书
+4. kSecClassKey：公钥
+5. kSecClassIdentity：身份
+
+- 不同的类型包含了不同的attributes，这些attribute定义了这个item的具体信息
+
+- 每个item中包含一个`密码项`来存储对应的密码：
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/11/uncategorized/officeDocuments/officeDocs/Server/Hibernate/" rel="prev" title="">
+                  <i class="fa fa-angle-left"></i> 
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/11/uncategorized/officeDocuments/officeDocs/Server/JAVA-ORM-Library/" rel="next" title="">
+                   <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Supremes</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

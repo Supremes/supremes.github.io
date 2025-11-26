@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.1">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.26.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="HibernateHibernate 是一个用于 Java 环境的开源对象关系映射（ORM）框架，XML 映射文件是 Hibernate 配置实体类和数据库表之间映射关系的重要方式。以下是 Hibernate XML 映射文件中常见标签的介绍： 这是 Hibernate XML 映射文件的根标签，用于标识一个映射文档的开始和结束，它可以包含多个 &lt;class&gt; 标签。 123&lt;h">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hexo">
+<meta property="og:url" content="http://example.com/2025/11/uncategorized/officeDocuments/officeDocs/Server/JAVA-ORM-Library/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="HibernateHibernate 是一个用于 Java 环境的开源对象关系映射（ORM）框架，XML 映射文件是 Hibernate 配置实体类和数据库表之间映射关系的重要方式。以下是 Hibernate XML 映射文件中常见标签的介绍： 这是 Hibernate XML 映射文件的根标签，用于标识一个映射文档的开始和结束，它可以包含多个 &lt;class&gt; 标签。 123&lt;h">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-11-26T07:30:03.126Z">
+<meta property="article:modified_time" content="2025-11-26T07:30:03.127Z">
+<meta property="article:author" content="Supremes">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://example.com/2025/11/uncategorized/officeDocuments/officeDocs/Server/JAVA-ORM-Library/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://example.com/2025/11/uncategorized/officeDocuments/officeDocs/Server/JAVA-ORM-Library/","path":"2025/11/uncategorized/officeDocuments/officeDocs/Server/JAVA-ORM-Library/","title":""}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title> | Hexo</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hexo</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Hibernate"><span class="nav-number">1.</span> <span class="nav-text">Hibernate</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">1.1.</span> <span class="nav-text"></span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#-1"><span class="nav-number">1.2.</span> <span class="nav-text">&lt;class&gt;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#-2"><span class="nav-number">1.3.</span> <span class="nav-text"></span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#-3"><span class="nav-number">1.4.</span> <span class="nav-text"></span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#-4"><span class="nav-number">1.5.</span> <span class="nav-text">&lt;property&gt;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#-5"><span class="nav-number">1.6.</span> <span class="nav-text">&lt;many-to-one&gt;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#-6"><span class="nav-number">1.7.</span> <span class="nav-text">&lt;one-to-many&gt;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#-7"><span class="nav-number">1.8.</span> <span class="nav-text">&lt;set&gt;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#-8"><span class="nav-number">1.9.</span> <span class="nav-text">&lt;key&gt;</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Supremes</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2025/11/uncategorized/officeDocuments/officeDocs/Server/JAVA-ORM-Library/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Supremes">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Hexo">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-11-26 15:30:03" itemprop="dateCreated datePublished" datetime="2025-11-26T15:30:03+08:00">2025-11-26</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="Hibernate"><a href="#Hibernate" class="headerlink" title="Hibernate"></a>Hibernate</h1><p>Hibernate 是一个用于 Java 环境的开源对象关系映射（ORM）框架，XML 映射文件是 Hibernate 配置实体类和数据库表之间映射关系的重要方式。以下是 Hibernate XML 映射文件中常见标签的介绍：</p>
+<h3 id=""><a href="#" class="headerlink" title=""></a><hibernate-mapping></h3><p>这是 Hibernate XML 映射文件的根标签，用于标识一个映射文档的开始和结束，它可以包含多个 <code>&lt;class&gt;</code> 标签。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">hibernate-mapping</span>&gt;</span></span><br><span class="line"> <span class="comment">&lt;!-- 其他标签 --&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">hibernate-mapping</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="-1"><a href="#-1" class="headerlink" title="&lt;class&gt;"></a><code>&lt;class&gt;</code></h3><p><code>&lt;class&gt;</code> 标签用于定义 Java 类和数据库表之间的映射关系。</p>
+<ul>
+<li><p><code>name</code> 属性：指定 Java 类的全限定名。</p>
+</li>
+<li><p><code>table</code> 属性：指定对应的数据库表名。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">class</span> <span class="attr">name</span>=<span class="string">&quot;com.example.User&quot;</span> <span class="attr">table</span>=<span class="string">&quot;users&quot;</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 其他标签 --&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">class</span>&gt;</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="-2"><a href="#-2" class="headerlink" title=""></a><id></h3><p>  <code>&lt;id&gt;</code> 标签用于映射 Java 类中的主键属性到数据库表的主键列。</p>
+<ul>
+<li><p><code>name</code> 属性：指定 Java 类中的主键属性名。</p>
+</li>
+<li><p><code>column</code> 属性：指定数据库表中的主键列名。</p>
+</li>
+<li><p><code>type</code> 属性：指定属性的数据类型。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">id</span> <span class="attr">name</span>=<span class="string">&quot;id&quot;</span> <span class="attr">column</span>=<span class="string">&quot;user_id&quot;</span> <span class="attr">type</span>=<span class="string">&quot;long&quot;</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 主键生成策略 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">generator</span> <span class="attr">class</span>=<span class="string">&quot;native&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="-3"><a href="#-3" class="headerlink" title=""></a><generator></h3><p><code>&lt;generator&gt;</code> 标签用于指定主键的生成策略，通常嵌套在 <code>&lt;id&gt;</code> 标签内。常见的生成策略有：</p>
+</li>
+<li><p><code>native</code>：根据数据库的支持自动选择合适的主键生成策略（如自增、序列等）。</p>
+</li>
+<li><p><code>increment</code>：由 Hibernate 自动生成一个递增的主键值。</p>
+</li>
+<li><p><code>uuid</code>：生成一个 UUID 作为主键值。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">generator</span> <span class="attr">class</span>=<span class="string">&quot;native&quot;</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="-4"><a href="#-4" class="headerlink" title="&lt;property&gt;"></a><code>&lt;property&gt;</code></h3><p><code>&lt;property&gt;</code> 标签用于映射 Java 类中的普通属性到数据库表的列。</p>
+</li>
+<li><p><code>name</code> 属性：指定 Java 类中的属性名。</p>
+</li>
+<li><p><code>column</code> 属性：指定数据库表中的列名。</p>
+</li>
+<li><p><code>type</code> 属性：指定属性的数据类型。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;username&quot;</span> <span class="attr">column</span>=<span class="string">&quot;user_name&quot;</span> <span class="attr">type</span>=<span class="string">&quot;string&quot;</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="-5"><a href="#-5" class="headerlink" title="&lt;many-to-one&gt;"></a><code>&lt;many-to-one&gt;</code></h3><p><code>&lt;many-to-one&gt;</code> 标签用于映射多对一的关联关系，例如多个用户属于一个部门。</p>
+</li>
+<li><p><code>name</code> 属性：指定 Java 类中关联对象的属性名。</p>
+</li>
+<li><p><code>column</code> 属性：指定数据库表中用于关联的外键列名。</p>
+</li>
+<li><p><code>class</code> 属性：指定关联对象的 Java 类全限定名。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">many-to-one</span> <span class="attr">name</span>=<span class="string">&quot;department&quot;</span> <span class="attr">column</span>=<span class="string">&quot;dept_id&quot;</span> <span class="attr">class</span>=<span class="string">&quot;com.example.Department&quot;</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="-6"><a href="#-6" class="headerlink" title="&lt;one-to-many&gt;"></a><code>&lt;one-to-many&gt;</code></h3><p><code>&lt;one-to-many&gt;</code> 标签用于映射一对多的关联关系，例如一个部门有多个用户。</p>
+</li>
+<li><p><code>name</code> 属性：指定 Java 类中关联对象集合的属性名。</p>
+</li>
+<li><p><code>class</code> 属性：指定关联对象的 Java 类全限定名。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">one-to-many</span> <span class="attr">name</span>=<span class="string">&quot;users&quot;</span> <span class="attr">class</span>=<span class="string">&quot;com.example.User&quot;</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="-7"><a href="#-7" class="headerlink" title="&lt;set&gt;"></a><code>&lt;set&gt;</code></h3><p><code>&lt;set&gt;</code> 标签用于映射 Java 类中的集合属性，通常与 <code>&lt;one-to-many&gt;</code> 或 <code>&lt;many-to-many&gt;</code> 关联使用。</p>
+</li>
+<li><p><code>name</code> 属性：指定 Java 类中的集合属性名。</p>
+</li>
+<li><p><code>table</code> 属性：指定关联表名（在多对多关系中使用）。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">set</span> <span class="attr">name</span>=<span class="string">&quot;users&quot;</span> <span class="attr">table</span>=<span class="string">&quot;user_department&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">key</span> <span class="attr">column</span>=<span class="string">&quot;dept_id&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">one-to-many</span> <span class="attr">class</span>=<span class="string">&quot;com.example.User&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">set</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="-8"><a href="#-8" class="headerlink" title="&lt;key&gt;"></a><code>&lt;key&gt;</code></h3><p><code>&lt;key&gt;</code> 标签用于指定关联表中的外键列，通常在 <code>&lt;set&gt;</code> 或 <code>&lt;list&gt;</code> 标签中使用。</p>
+</li>
+<li><p><code>column</code> 属性：指定外键列名。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">key</span> <span class="attr">column</span>=<span class="string">&quot;dept_id&quot;</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>这些标签是 Hibernate XML 映射文件中最常用的部分，通过合理使用它们，可以实现 Java 类和数据库表之间的灵活映射。</p>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/11/uncategorized/officeDocuments/officeDocs/Server/java/" rel="prev" title="">
+                  <i class="fa fa-angle-left"></i> 
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/11/uncategorized/officeDocuments/officeDocs/Server/spring-demo/" rel="next" title="">
+                   <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Supremes</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
