@@ -1,8 +1,29 @@
+# public/：这是 hexo g 生成的静态网页。我们不需要备份它，因为只要有源码，随时能重新生成。它应该只出现在你的 gh-pages 分支里，而不是源码分支。
+
+#node_modules/：这是 npm install 下载的依赖包，通常有几百兆大，且包含成千上万个小文件。上传它会让 git 变得巨慢。只要有 package.json，随时能装回来，不需要备份。
+
+#.deploy_git/：这是 hexo d 部署插件生成的临时仓库，绝对不要备份。
+
+d#b.json：Hexo 的缓存文件，不需要备份。
+
+# Hexo 核心忽略项 (必须要)
+.deploy_git/
+public/
+_config.yml.deploy
+db.json
+node_modules/
+
+# 插件产生的垃圾文件
+.yarn/
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# 操作系统生成的垃圾文件 (Mac/Windows)
 .DS_Store
 Thumbs.db
-db.json
+
+# IDE 编辑器生成的配置 (可选，如果你用 vscode/idea)
+.vscode/
+.idea/
 *.log
-node_modules/
-public/
-.deploy*/
-_multiconfig.yml
