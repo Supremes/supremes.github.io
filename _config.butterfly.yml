@@ -21,3 +21,13 @@ subtitle:
 social:
   GitHub: https://github.com/Supremes || fab fa-github
   Email: mailto:djk951221@163.com || fas fa-envelope
+
+
+# 设置全局背景图片 (如果不设置，默认是灰白色)
+# background: url(https://your-background-image.jpg)
+
+# 或者是设置简单的背景颜色/渐变
+background: "#f0f0f0"
+
+# 代码块风格 (推荐 mac 风格，带有红黄绿三个小圆点)
+# highlight_theme: mac
