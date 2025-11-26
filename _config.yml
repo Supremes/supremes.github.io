@@ -7,14 +7,14 @@ title: Hexo
 subtitle: ''
 description: ''
 keywords:
-author: John Doe
+author: Supremes
 language: en
 timezone: ''
 
 # URL
 ## Set your site url here. For example, if you use GitHub Page, set url as 'https://username.github.io/project'
 url: http://example.com
-permalink: :year/:month/:day/:title/
+permalink: :category/:title/
 permalink_defaults:
 pretty_urls:
   trailing_index: true # Set to false to remove trailing 'index.html' from permalinks
@@ -65,9 +65,18 @@ index_generator:
   order_by: -date
 
 # Category & Tag
-default_category: uncategorized
+default_category: blog
 category_map:
+  技术: tech
+  生活: life
+  学习: study
+  随笔: notes
 tag_map:
+  前端: frontend
+  后端: backend
+  数据库: database
+  算法: algorithm
+  工具: tools
 
 # Metadata elements
 ## https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta
@@ -96,7 +105,7 @@ ignore:
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: landscape
+theme: butterfly
 
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
