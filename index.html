@@ -185,7 +185,7 @@
       <span class="post-meta-item-text">Posted on</span>
       
 
-      <time title="Created: 2025-11-26 16:10:45 / Modified: 16:14:16" itemprop="dateCreated datePublished" datetime="2025-11-26T16:10:45+08:00">2025-11-26</time>
+      <time title="Created: 2025-11-26 16:10:45 / Modified: 16:24:28" itemprop="dateCreated datePublished" datetime="2025-11-26T16:10:45+08:00">2025-11-26</time>
     </span>
 
   
@@ -247,7 +247,7 @@
 </tr>
 </tbody></table>
 <hr>
-<h2 id="3-深度辨析：JDK-动态代理-vs-CGLIB"><a href="#3-深度辨析：JDK-动态代理-vs-CGLIB" class="headerlink" title="3. 深度辨析：JDK 动态代理 vs CGLIB"></a>3. 深度辨析：JDK 动态代理 vs CGLIB</h2><p><img src="/../../Pics/image-20251126101915903.png" alt="image-20251126101915903"></p>
+<h2 id="3-深度辨析：JDK-动态代理-vs-CGLIB"><a href="#3-深度辨析：JDK-动态代理-vs-CGLIB" class="headerlink" title="3. 深度辨析：JDK 动态代理 vs CGLIB"></a>3. 深度辨析：JDK 动态代理 vs CGLIB</h2><p><img src="/imgs/image-20251126101915903.png" alt="image-20251126101915903"></p>
 <h3 id="常见误区"><a href="#常见误区" class="headerlink" title="常见误区"></a>常见误区</h3><blockquote>
 <p><strong>误区</strong>：”JDK Proxy 会导致自调用失效，换成 CGLIB 就能解决了。”</p>
 <p><strong>真相</strong>：<strong>错误的。</strong> 无论是 JDK Proxy 还是 CGLIB，只要是基于<strong>代理模式</strong>，自调用都会失效。因为它们底层架构都是 <code>Proxy</code> 持有 <code>Target</code>。</p>
