@@ -1,0 +1,23 @@
+# _config.butterfly.yml
+
+# 顶部导航栏的大图 (index_img)
+index_img: /imgs/covers.jpg
+
+# 侧边栏个人信息
+avatar:
+  img: /imgs/avatar.jpg # 你的头像
+  effect: false # 头像旋转效果，鼠标悬停时旋转
+
+# 博客副标题（打字机效果）
+subtitle:
+  enable: true
+  effect: true # 开启打字机特效
+  loop: true # 循环打字
+  sub:
+    - 既然选择了远方，便只顾风雨兼程
+    - Code is Poetry
+
+# 社交图标 (在侧边栏显示 GitHub, Email 等)
+social:
+  GitHub: https://github.com/Supremes || fab fa-github
+  Email: mailto:djk951221@163.com || fas fa-envelope
