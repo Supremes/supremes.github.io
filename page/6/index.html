@@ -128,7 +128,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-count">82</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -146,385 +146,6 @@
     </div>
 
     <div class="main-inner index posts-expand">
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2025/11/uncategorized/officeDocuments/officeDocs/Server/JAVA-ORM-Library/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Supremes">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Hexo">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2025/11/uncategorized/officeDocuments/officeDocs/Server/JAVA-ORM-Library/" class="post-title-link" itemprop="url">Untitled</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">Posted on</span>
-
-      <time title="Created: 2025-11-26 15:30:03" itemprop="dateCreated datePublished" datetime="2025-11-26T15:30:03+08:00">2025-11-26</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="Hibernate"><a href="#Hibernate" class="headerlink" title="Hibernate"></a>Hibernate</h1><p>Hibernate 是一个用于 Java 环境的开源对象关系映射（ORM）框架，XML 映射文件是 Hibernate 配置实体类和数据库表之间映射关系的重要方式。以下是 Hibernate XML 映射文件中常见标签的介绍：</p>
-<h3 id=""><a href="#" class="headerlink" title=""></a><hibernate-mapping></h3><p>这是 Hibernate XML 映射文件的根标签，用于标识一个映射文档的开始和结束，它可以包含多个 <code>&lt;class&gt;</code> 标签。</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">hibernate-mapping</span>&gt;</span></span><br><span class="line"> <span class="comment">&lt;!-- 其他标签 --&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">hibernate-mapping</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="-1"><a href="#-1" class="headerlink" title="&lt;class&gt;"></a><code>&lt;class&gt;</code></h3><p><code>&lt;class&gt;</code> 标签用于定义 Java 类和数据库表之间的映射关系。</p>
-<ul>
-<li><p><code>name</code> 属性：指定 Java 类的全限定名。</p>
-</li>
-<li><p><code>table</code> 属性：指定对应的数据库表名。</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">class</span> <span class="attr">name</span>=<span class="string">&quot;com.example.User&quot;</span> <span class="attr">table</span>=<span class="string">&quot;users&quot;</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 其他标签 --&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">class</span>&gt;</span></span><br></pre></td></tr></table></figure></li>
-</ul>
-<h3 id="-2"><a href="#-2" class="headerlink" title=""></a><id></h3><p>  <code>&lt;id&gt;</code> 标签用于映射 Java 类中的主键属性到数据库表的主键列。</p>
-<ul>
-<li><p><code>name</code> 属性：指定 Java 类中的主键属性名。</p>
-</li>
-<li><p><code>column</code> 属性：指定数据库表中的主键列名。</p>
-</li>
-<li><p><code>type</code> 属性：指定属性的数据类型。</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">id</span> <span class="attr">name</span>=<span class="string">&quot;id&quot;</span> <span class="attr">column</span>=<span class="string">&quot;user_id&quot;</span> <span class="attr">type</span>=<span class="string">&quot;long&quot;</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 主键生成策略 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">generator</span> <span class="attr">class</span>=<span class="string">&quot;native&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="-3"><a href="#-3" class="headerlink" title=""></a><generator></h3><p><code>&lt;generator&gt;</code> 标签用于指定主键的生成策略，通常嵌套在 <code>&lt;id&gt;</code> 标签内。常见的生成策略有：</p>
-</li>
-<li><p><code>native</code>：根据数据库的支持自动选择合适的主键生成策略（如自增、序列等）。</p>
-</li>
-<li><p><code>increment</code>：由 Hibernate 自动生成一个递增的主键值。</p>
-</li>
-<li><p><code>uuid</code>：生成一个 UUID 作为主键值。</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">generator</span> <span class="attr">class</span>=<span class="string">&quot;native&quot;</span>/&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="-4"><a href="#-4" class="headerlink" title="&lt;property&gt;"></a><code>&lt;property&gt;</code></h3><p><code>&lt;property&gt;</code> 标签用于映射 Java 类中的普通属性到数据库表的列。</p>
-</li>
-<li><p><code>name</code> 属性：指定 Java 类中的属性名。</p>
-</li>
-<li><p><code>column</code> 属性：指定数据库表中的列名。</p>
-</li>
-<li><p><code>type</code> 属性：指定属性的数据类型。</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;username&quot;</span> <span class="attr">column</span>=<span class="string">&quot;user_name&quot;</span> <span class="attr">type</span>=<span class="string">&quot;string&quot;</span>/&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="-5"><a href="#-5" class="headerlink" title="&lt;many-to-one&gt;"></a><code>&lt;many-to-one&gt;</code></h3><p><code>&lt;many-to-one&gt;</code> 标签用于映射多对一的关联关系，例如多个用户属于一个部门。</p>
-</li>
-<li><p><code>name</code> 属性：指定 Java 类中关联对象的属性名。</p>
-</li>
-<li><p><code>column</code> 属性：指定数据库表中用于关联的外键列名。</p>
-</li>
-<li><p><code>class</code> 属性：指定关联对象的 Java 类全限定名。</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">many-to-one</span> <span class="attr">name</span>=<span class="string">&quot;department&quot;</span> <span class="attr">column</span>=<span class="string">&quot;dept_id&quot;</span> <span class="attr">class</span>=<span class="string">&quot;com.example.Department&quot;</span>/&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="-6"><a href="#-6" class="headerlink" title="&lt;one-to-many&gt;"></a><code>&lt;one-to-many&gt;</code></h3><p><code>&lt;one-to-many&gt;</code> 标签用于映射一对多的关联关系，例如一个部门有多个用户。</p>
-</li>
-<li><p><code>name</code> 属性：指定 Java 类中关联对象集合的属性名。</p>
-</li>
-<li><p><code>class</code> 属性：指定关联对象的 Java 类全限定名。</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">one-to-many</span> <span class="attr">name</span>=<span class="string">&quot;users&quot;</span> <span class="attr">class</span>=<span class="string">&quot;com.example.User&quot;</span>/&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="-7"><a href="#-7" class="headerlink" title="&lt;set&gt;"></a><code>&lt;set&gt;</code></h3><p><code>&lt;set&gt;</code> 标签用于映射 Java 类中的集合属性，通常与 <code>&lt;one-to-many&gt;</code> 或 <code>&lt;many-to-many&gt;</code> 关联使用。</p>
-</li>
-<li><p><code>name</code> 属性：指定 Java 类中的集合属性名。</p>
-</li>
-<li><p><code>table</code> 属性：指定关联表名（在多对多关系中使用）。</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">set</span> <span class="attr">name</span>=<span class="string">&quot;users&quot;</span> <span class="attr">table</span>=<span class="string">&quot;user_department&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">key</span> <span class="attr">column</span>=<span class="string">&quot;dept_id&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">one-to-many</span> <span class="attr">class</span>=<span class="string">&quot;com.example.User&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">set</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="-8"><a href="#-8" class="headerlink" title="&lt;key&gt;"></a><code>&lt;key&gt;</code></h3><p><code>&lt;key&gt;</code> 标签用于指定关联表中的外键列，通常在 <code>&lt;set&gt;</code> 或 <code>&lt;list&gt;</code> 标签中使用。</p>
-</li>
-<li><p><code>column</code> 属性：指定外键列名。</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">key</span> <span class="attr">column</span>=<span class="string">&quot;dept_id&quot;</span>/&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>这些标签是 Hibernate XML 映射文件中最常用的部分，通过合理使用它们，可以实现 Java 类和数据库表之间的灵活映射。</p>
-</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2025/11/uncategorized/officeDocuments/officeDocs/Server/java/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Supremes">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Hexo">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2025/11/uncategorized/officeDocuments/officeDocs/Server/java/" class="post-title-link" itemprop="url">Untitled</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">Posted on</span>
-
-      <time title="Created: 2025-11-26 15:30:03" itemprop="dateCreated datePublished" datetime="2025-11-26T15:30:03+08:00">2025-11-26</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>[TOC]</p>
-<h1 id="gradle"><a href="#gradle" class="headerlink" title="gradle"></a>gradle</h1><h2 id="build"><a href="#build" class="headerlink" title="build"></a>build</h2><h3 id="相关命令"><a href="#相关命令" class="headerlink" title="相关命令"></a>相关命令</h3><ul>
-<li>assemble：编译打包该工程</li>
-<li>build： 编译打包并测试该工程</li>
-<li>buildDependents: 编译打包并测试该工程和依赖它的工程</li>
-<li>buildNeeded：编译打包并测试该工程和它依赖的工程 </li>
-<li>classes：编译打包主要的类文件</li>
-<li>clean：删除编译目录</li>
-<li>jar：编译成jar包，该jar包包含主要的类文件</li>
-<li>testClasses：编译打包该测试文件</li>
-</ul>
-<h3 id="产出物目录"><a href="#产出物目录" class="headerlink" title="产出物目录"></a>产出物目录</h3><p>Classes：存放编译后的类文件，就是.class文件</p>
-<p>dependency-cache：存放相关依赖的缓存数据</p>
-<p>libs：存放最终编译打包好的jar包</p>
-<p>tmp：存放编译过程中的临时文件</p>
-<h2 id="CEM-SERVER"><a href="#CEM-SERVER" class="headerlink" title="CEM SERVER"></a>CEM SERVER</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">2022-05-31T09:52:58.646+0000 | &quot;user.id=no_authenticated_user&quot; &quot;session.id=5b134fcd4f8a1fb02c6cb4ffcb398b82b89d51cea0de5ab85642aa0e6b896917_hashed&quot; &quot;client.ip=103.14.252.248&quot; &quot;push.info=&quot; &quot;transaction.id=002395AC-775F-429A-A300-A89223F57193&quot; |  INFO | http-nio-10080-exec-26 | com.zenprise.zdm.enroll.internal.mgmt.EnrollmentManagerImpl | Adding iOS_AGENT/null certificate (serial=18) to enrollment EnrollmentImpl&#123;activationDate=Tue May 31 09:52:11 UTC 2022, id=1, status=ACTIVE, deviceEnrollmentStatus=NOT_STARTED, deviceMode=null, deviceRequiredAction=null, enrolled_auth_method=classic, username=&#x27;djk&#x27;, device=&#123;id:&quot;1&quot;, serialNumber:&quot;FNJV7CV7YW&quot;, imei:&quot;35 327271 933534 9&quot;, activeSyncId:&quot;2BJ1AFLH9D5JR7CRSU1EL90390&quot;, osFamily:&quot;iOS&quot;, strongId:&quot;T8TPQMYC&quot;, Last user name:&quot;djk &quot;djk&quot;&quot;, mamDeviceId: &quot;&quot;, mamRegistered: &quot;false&quot;, mamReady: &quot;false&quot;, appWipe: &quot;false&quot;, deviceType: &quot;&quot;, depRegistered: &quot;false&quot;, asmDepRegistered: &quot;false&quot;, asmDepShared: &quot;false&quot;, depAccountId: &quot;-1&quot;, depProfileId: &quot;-1&quot;, depProfileStatus:&quot;NO_BULK&quot;&#125;recoveryKey:&quot;null&quot;&#125;macDepAdminGUID:&quot;null&quot;&#125;, type=DEVICE, shareable=false, asmDepDeviceType: , enrollmentMethod=REGULAR&#125;</span><br></pre></td></tr></table></figure>
-
-<img src="/Users/junkangd/Desktop/ios-enroll.png" alt="ios-enroll" style="zoom:50%;" />
-
-<h3 id="ios-enrollment"><a href="#ios-enrollment" class="headerlink" title="ios enrollment"></a>ios enrollment</h3><ol>
-<li>com.citrix.xam.rest.DeviceEnrollmentProfileResource</li>
-<li>com.zenprise.zdm.enroll.handler.EnrollmentAuthenticator</li>
-<li>com.sparus.nps.variables.XMLVariablesManager</li>
-<li>com.zenprise.zdm.enroll.internal.mgmt.EnrollmentManagerImpl</li>
-</ol>
-<h3 id="iOS-enroll-with-user-password"><a href="#iOS-enroll-with-user-password" class="headerlink" title="iOS enroll with user  + password:"></a>iOS enroll with user  + password:</h3><p>debug method <code>handleExplicitFormsAuthenticateAttempt</code>:</p>
-<h3 id="deploy-policy"><a href="#deploy-policy" class="headerlink" title="deploy policy"></a>deploy policy</h3><p>debug <code>DeviceManager::updateOrAddIOSProfileInventoryForDevice</code></p>
-<p>Axel</p>
-<p>.&#x2F;jfrog rt c mia –interactive&#x3D;false –url&#x3D;”<a target="_blank" rel="noopener" href="https://mia-repo.citrite.net/">https://mia-repo.citrite.net/</a>“ –user&#x3D;”junkangd” –apikey&#x3D;”AKCp8mZ8G2xSqxYGz1KkjzYpawyrLW4YJx8XEx4Y1ZbJcjLwN1rkBdV7cvCPhYBwmuyc77BVn”</p>
-<h2 id="useful-command"><a href="#useful-command" class="headerlink" title="useful command"></a>useful command</h2><ul>
-<li>ssh -i ~&#x2F;azure_key -L 8001:20.115.16.180:8001 <a href="mailto:&#x63;&#105;&#x74;&#114;&#x69;&#x78;&#x61;&#100;&#109;&#105;&#x6e;&#x40;&#50;&#x30;&#x2e;&#x31;&#49;&#53;&#46;&#49;&#x36;&#46;&#x31;&#x38;&#x30;">citrixadmin@20.115.16.180</a></li>
-</ul>
-<h1 id="JAVA"><a href="#JAVA" class="headerlink" title="JAVA"></a>JAVA</h1><h2 id="常用类库"><a href="#常用类库" class="headerlink" title="常用类库"></a>常用类库</h2><h3 id="日志库"><a href="#日志库" class="headerlink" title="日志库"></a>日志库</h3><p>SLF4J</p>
-<p>Log4J</p>
-<p>logback</p>
-<h3 id="JSON解析库"><a href="#JSON解析库" class="headerlink" title="JSON解析库"></a>JSON解析库</h3><p>Jackson</p>
-<p>Gson</p>
-<h3 id="单元测试库"><a href="#单元测试库" class="headerlink" title="单元测试库"></a>单元测试库</h3><p>JUnit</p>
-<p>Mockito</p>
-<p>PowerMock</p>
-<h3 id="http库"><a href="#http库" class="headerlink" title="http库"></a>http库</h3><p>HttpClient</p>
-<p>HttpCore</p>
-<h3 id="数据库连接池库"><a href="#数据库连接池库" class="headerlink" title="数据库连接池库"></a>数据库连接池库</h3><h3 id="日期和时间库"><a href="#日期和时间库" class="headerlink" title="日期和时间库"></a>日期和时间库</h3><h3 id="加密库"><a href="#加密库" class="headerlink" title="加密库"></a>加密库</h3><p>base64</p>
-<p>Hex</p>
-<p>URLs</p>
-<h3 id="嵌入式SQL数据库库"><a href="#嵌入式SQL数据库库" class="headerlink" title="嵌入式SQL数据库库"></a><strong>嵌入式SQL数据库库</strong></h3><p>他可以嵌入到你的Java应用中。在你跑单测的时候如果你需要一个数据库，用来验证你的SQL的话，他是个很好的选择。顺便说一句,H2不是唯一嵌入式DB，你还有 Apache Derby 和 HSQL 可供选择。</p>
-<h3 id="网络库"><a href="#网络库" class="headerlink" title="网络库"></a><strong>网络库</strong></h3><p>Netty</p>
-<h2 id="集合"><a href="#集合" class="headerlink" title="集合"></a>集合</h2><p>Set：无序，不可重复</p>
-<p>List：有序，可重复</p>
-<p>Map：kv集合。</p>
-<ul>
-<li>插入有序：LinkedHashMap</li>
-<li>无序：HashMap</li>
-<li>排序：TreeMap</li>
-</ul>
-<h2 id="多线程"><a href="#多线程" class="headerlink" title="多线程"></a>多线程</h2><h2 id="Annotation"><a href="#Annotation" class="headerlink" title="Annotation"></a>Annotation</h2><ol>
-<li><p>The annotation member types must be one of:</p>
-<ul>
-<li>primitive</li>
-<li>String</li>
-<li>an Enum</li>
-<li>another Annotation</li>
-<li>Class</li>
-<li>an array of any of the above</li>
-</ul>
-<p>It does seem restrictive, but no doubt there are reasons for it.</p>
-<p>Also note that multidimensional arrays (e.g. <code>String[][]</code>) are implicitly forbidden by the above rule.</p>
-</li>
-</ol>
-<h2 id="Generics"><a href="#Generics" class="headerlink" title="Generics"></a>Generics</h2><? super Integer>：
-
-- 往其中存Integer及其子类是没问题的
-- 往其中读，只能读取Object类型
-
-<? extends Number>
-
-- 不能写，因为编译器不清楚里面存的是Number的哪个子类
-- 可以读，类型为Number及其超类是安全的
-
-## Hibernate
-
-> Hibernate 是关于**Java对象和关系数据库**之间的联系
-
-Many-to-one: 该表的多行对应另一张表的一行，比如雇员表对应公司表
-
-One-to-many：该表的一行对应另一张表的多行，比如公司表对应雇员表
-
-JoinColumn: 指定外键列， 配合@ManyToOne 或 @OneToOne 注解一起使用
-
-
-
-### Spring Debug
-
-Spring配置文件:
-
-1. <filter-mapping></filter-mapping>：定义了哪些servlet会使用这个filter
-
-   <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">filter-mapping</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">filter-name</span>&gt;</span>XmsDeviceAPISecurityFilter<span class="tag">&lt;/<span class="name">filter-name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>XAM<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span>               <span class="comment">&lt;!-- /Citrix/* --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>XAMKMS<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span>            <span class="comment">&lt;!-- /xv/* --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>XAMAG<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span>             <span class="comment">&lt;!-- /AGServices/* --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>XAMSTA<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span>            <span class="comment">&lt;!-- /STA/* --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>XAMAUTH<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span>           <span class="comment">&lt;!-- /Auth/v1/* --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>XAMScripts<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span>        <span class="comment">&lt;!-- /Scripts/* --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>WorxStoreLaunch<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span>   <span class="comment">&lt;!-- /Citrix/StoreWeb/* --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>WorxStoreApp<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span>      <span class="comment">&lt;!-- /StoreWeb/ws/* --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>ios_agent<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span>         <span class="comment">&lt;!-- /zdm/ios/agent --&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">filter-mapping</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-2. <servlet-mapping></servlet-mapping>：定义了URL路径与servlet的映射：
-
-   <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">servlet-mapping</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>Unified console Jersey Web Application<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">url-pattern</span>&gt;</span>/controlpoint/rest/*<span class="tag">&lt;/<span class="name">url-pattern</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">servlet-mapping</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">servlet-mapping</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>rest<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">url-pattern</span>&gt;</span>/api/endpoint-management/*<span class="tag">&lt;/<span class="name">url-pattern</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">servlet-mapping</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-3. <servlet> </servlet>：定义了servlet与实际class的映射：
-
-   <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">servlet</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>ios_agent<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-class</span>&gt;</span>com.sparus.nps.ios.agent.AgentServlet<span class="tag">&lt;/<span class="name">servlet-class</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">servlet</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-
-# Jersey
-
-## JAX-RS
-
-RESTful Web 服务的 Java API（JAX-RS）是 Java 编程语言 API 规范，它提供了根据代表性状态传输（REST）架构模式创建 Web 服务的支持。 JAX-RS 使用注解来简化 Web 服务客户端和端点的开发和部署。 JAX-RS 是 Java EE 的正式组成部分。
-
-
-
-## Jersey
-
-Jersey 是用于用 Java 开发 RESTful Web 服务的开源框架。 它是 RESTful Web 服务 Java API（JAX-RS）规范的参考实现。
-
-
-
-## Example
-
-Configuration:
-
-1. 继承`ResourceConfig`
-
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">PublicRestApplication</span> <span class="keyword">extends</span> <span class="title class_">ResourceConfig</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">PublicRestApplication</span><span class="params">()</span> &#123;</span><br><span class="line">        register(MultiPartFeature.class);</span><br><span class="line">        register(CertificatesResource.class);</span><br><span class="line">        register(KeystoreResource.class);</span><br><span class="line">        register(LicensesResource.class);</span><br><span class="line">        register(MultiPartFeature.class);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-2. 在web.xml中加载
-
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">servlet</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>Unified console Jersey Web Application<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-class</span>&gt;</span>org.glassfish.jersey.servlet.ServletContainer<span class="tag">&lt;/<span class="name">servlet-class</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">init-param</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">param-name</span>&gt;</span>jersey.config.server.provider.packages<span class="tag">&lt;/<span class="name">param-name</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">param-value</span>&gt;</span></span><br><span class="line">        com.citrix.services.endpoint.rs;com.citrix.services;com.citrix.controlpoint.rest</span><br><span class="line">      <span class="tag">&lt;/<span class="name">param-value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">init-param</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">init-param</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">param-name</span>&gt;</span>jersey.config.server.wadl.disableWadl<span class="tag">&lt;/<span class="name">param-name</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">param-value</span>&gt;</span>true<span class="tag">&lt;/<span class="name">param-value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">init-param</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">init-param</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">param-name</span>&gt;</span>jersey.config.server.provider.classnames<span class="tag">&lt;/<span class="name">param-name</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">param-value</span>&gt;</span>com.citrix.controlpoint.rest.security.AuthenticationRequestFilter;com.citrix.controlpoint.rest.security.AuthorizationRequestFilter<span class="tag">&lt;/<span class="name">param-value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">init-param</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">load-on-startup</span>&gt;</span>0<span class="tag">&lt;/<span class="name">load-on-startup</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">servlet</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-
-
-Servelt:
-
-@Path 注解
-
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Path(&quot;/certificates&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CertificatesResource</span> &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-## SwiftTestApp
-
-TODO：
-
-1. CTXMAMCore: [ssh://git@code.citrite.net/xmios/iossdk_ctxmamcore.git](ssh://git@code.citrite.net/xmios/iossdk_ctxmamcore.git)
-2. CTXMAMConfigManager — initializeStorage 
-3. `ios shared keychain`
-4. ~~build up `swiftTestApp`~~
-5. ios interface builder tutorial
-6. NSUserDefaults
-
-PROBLEM:
-
-- swift open, get/set
-
-### keychain
-
-<img src="/Users/junkangd/Library/Application Support/typora-user-images/image-20220608112114621.png" alt="image-20220608112114621" style="zoom:50%;" />
-
-- 类型：
-
-1. kSecClassInternetPassword：网络密码
-2. kSecClassGenericPassword：通用密码
-3. kSecClassCertificate：证书
-4. kSecClassKey：公钥
-5. kSecClassIdentity：身份
-
-- 不同的类型包含了不同的attributes，这些attribute定义了这个item的具体信息
-
-- 每个item中包含一个`密码项`来存储对应的密码：
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
 
     
 
@@ -1480,8 +1101,295 @@ PROBLEM:
 
 
 
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2025/11/uncategorized/officeDocuments/officeDocs/Career/2024-self%20evaluation/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Supremes">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Hexo">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2025/11/uncategorized/officeDocuments/officeDocs/Career/2024-self%20evaluation/" class="post-title-link" itemprop="url">Untitled</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-11-26 15:30:03" itemprop="dateCreated datePublished" datetime="2025-11-26T15:30:03+08:00">2025-11-26</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>![image-20240906095856908](&#x2F;Users&#x2F;junkangd&#x2F;Library&#x2F;Application Support&#x2F;typora-user-images&#x2F;image-20240906095856908.png)</p>
+<p><em><strong>*What have been your key achievements in the last year?*</strong></em> Consider how you have used your strengths and are tracking on your priorities and goals.</p>
+<p>Over the past year, I’ve experienced significant growth and accomplishments. I’ve become a mainstay of the team and successfully transitioned from an iOS E2E CEM role to an Android CEB project.</p>
+<p>Android CEB: </p>
+<ul>
+<li><p>Achieved a breakthrough from zero to one:</p>
+<ul>
+<li>Detailedly Summarized the project architecture and related knowledge of chromium :( <a target="_blank" rel="noopener" href="https://docs.google.com/document/d/1cNk-TxA8zP4OLA_h-pkiOErJDx-ppwFlfR-FA1qSesQ/edit#heading=h.5j8fvhy6v0wm">https://docs.google.com/document/d/1cNk-TxA8zP4OLA_h-pkiOErJDx-ppwFlfR-FA1qSesQ/edit#heading=h.5j8fvhy6v0wm</a>), and Made Extension Works for Android CEB.</li>
+</ul>
+</li>
+<li><p>Take initiative to invesgate challenging issues and provide best practice. </p>
+<ul>
+<li><p>CEB Debug(<a target="_blank" rel="noopener" href="https://docs.google.com/document/d/1jz0qmEv5GDA_wljmUNNBcXPdqwixTV4baalMUU9g7vw/edit">https://docs.google.com/document/d/1jz0qmEv5GDA_wljmUNNBcXPdqwixTV4baalMUU9g7vw/edit</a>): During the initial development stage, our team encountered difficulties in reading code. Debugging was crucial, but we lacked local Linux machines and had to rely on remote Linux servers to debug code. I took the initiative to create a guide that helps us debug CEB code in Java, CPP, and JS.</p>
+</li>
+<li><p>CEB - Extension API(<a target="_blank" rel="noopener" href="https://docs.google.com/document/d/1gAn1LDvEdab5-lsrWvSkBp3SVqPvPCFsc6oCZ6IOiZE/edit#heading=h.4gz9d21putr7">https://docs.google.com/document/d/1gAn1LDvEdab5-lsrWvSkBp3SVqPvPCFsc6oCZ6IOiZE/edit#heading=h.4gz9d21putr7</a>): Go through the api usage and address some issues:</p>
+<ul>
+<li><p>What are the primary functions these APIs within the CEB project?</p>
+</li>
+<li><p>What role does the API play in the CEB project?</p>
+</li>
+<li><p>Are these APIs still functional on the Android platform? If not, what modifications are necessary for the Android platform?</p>
+</li>
+</ul>
+<p>With knowledge above, providing a best practice guide for updating&#x2F;developing an extension API for CEB.</p>
+</li>
+<li><p>JNI: JNI is the standard of JVM which define the interface to interact between Java and native(C&#x2F;C++). I summarize the doc - Best practice - CEB JNI(<a target="_blank" rel="noopener" href="https://docs.google.com/document/d/1JJnozeoUeUjuQZKEtNC-d8545JEauLP3Mum_H_WbdcQ/edit#heading=h.a4iccdjlolth">https://docs.google.com/document/d/1JJnozeoUeUjuQZKEtNC-d8545JEauLP3Mum_H_WbdcQ/edit#heading=h.a4iccdjlolth</a>) . It summarize the details below:</p>
+<ul>
+<li>Calling Native -&gt; Java</li>
+<li>Calling Java - &gt; Native</li>
+<li>Some Tips for Input&#x2F;Return Params</li>
+<li>Performance Analyze</li>
+</ul>
+<p>This allows our team to easily use JNI technology to implement new features or enhancements in CEB.</p>
+</li>
+</ul>
+</li>
+<li><p>Take responsibility for the development of core parts of the project:</p>
+<ul>
+<li>Fetch SPA Policies(<a target="_blank" rel="noopener" href="https://issues.citrite.net/browse/CTXBR-8013">https://issues.citrite.net/browse/CTXBR-8013</a>): Validate and fix issues of SPA policies fetcher.</li>
+<li>Enforce SPA Policies(<a target="_blank" rel="noopener" href="https://issues.citrite.net/browse/CTXBR-8014">https://issues.citrite.net/browse/CTXBR-8014</a>): <ul>
+<li>Investigate and implement the SPA policies enforcement on CEB Android with high efficiency and quality:<ul>
+<li>Familiar with the Chromium code architecture, based on the GN build system, reasonably avoiding circular dependency issues that exist in Android coding. Taking the design of the Restriction Dialog as an example.</li>
+<li>From zero to one: Based on the Chromium Android code architecture and the GN build system, completed the code development from application layer Java to C++. Provided a best practice for the team.</li>
+</ul>
+</li>
+<li>Host the bugbash meeting for SPA policies enforcement with a detailed document prepared.</li>
+</ul>
+</li>
+<li>Add Support Bundle Support(<a target="_blank" rel="noopener" href="https://issues.citrite.net/browse/CTXBR-9639">https://issues.citrite.net/browse/CTXBR-9639</a>): Aligned with CWA Android, add log collections with screenshots, issue description supported, and log options enabled.</li>
+</ul>
+</li>
+</ul>
+<p>iOS CEM:</p>
+<ul>
+<li>Develiered high priority RFE: CXM-112561 - Enforce a minimum OS version in order to complete setup on Automated Enrollment. Earn the recognition from teams and customer.</li>
+<li>Take over MAM SDK release work and devliver MAM SDK 24.2.0 on time</li>
+<li>Improve CEM functionality and experience: CXM-108544 - iOS eSim Support</li>
+<li>Improve iOS Securehub&#x2F;MAM SDK functionality and experience<ul>
+<li>Refine app interaction of the Containment SDK with iOS newly update</li>
+<li>Provide a solution to deprecate MDX functionality </li>
+<li>Provide policy read callback for MAM SDK customer for better usage</li>
+</ul>
+</li>
+</ul>
+<p><em><strong>*Is there anything that would make you more successful in your role moving forward?*</strong></em> Consider any feedback you received to guide how you would like to improve performance and further your development.</p>
+<p>This marks my second year at Citrix, during which I transitioned from a CEM role to a CEB role. This year presented numerous challenges, but they contributed to my professional growth.</p>
+<ul>
+<li>Handled high-priority REFs from iOS CEM customers</li>
+<li>Adapted to a new working environment - CEB Android<ul>
+<li>Accomplished the product’s research and development from scratch</li>
+<li>Managed high-priority tasks</li>
+<li>Adapted to a completely new tech stack</li>
+</ul>
+</li>
+<li>Ensured timely and high-quality feature delivery</li>
+<li>Conduct technical knowledge sharing sessions within the team and provide support during daily work.</li>
+</ul>
+<p>Throughout my tenure, I have consistently aimed to improve functionality, user experience, and team efficiency. I look forward to continuing to contribute to the team and individual’s success.</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2025/11/uncategorized/officeDocuments/officeDocs/URL%20Command%20between%20SH%20and%20MAM%20Applications/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Supremes">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Hexo">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2025/11/uncategorized/officeDocuments/officeDocs/URL%20Command%20between%20SH%20and%20MAM%20Applications/" class="post-title-link" itemprop="url">Untitled</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-11-26 15:30:03" itemprop="dateCreated datePublished" datetime="2025-11-26T15:30:03+08:00">2025-11-26</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="MAM-SDK-Usage"><a href="#MAM-SDK-Usage" class="headerlink" title="MAM SDK Usage"></a>MAM SDK Usage</h1><h2 id="kMDXREQUEST-SDK-APP-LOGON"><a href="#kMDXREQUEST-SDK-APP-LOGON" class="headerlink" title="kMDXREQUEST_SDK_APP_LOGON"></a>kMDXREQUEST_SDK_APP_LOGON</h2><h2 id="Params"><a href="#Params" class="headerlink" title="Params"></a>Params</h2><ul>
+<li>withReauth： YES</li>
+</ul>
+<h2 id="Scenario"><a href="#Scenario" class="headerlink" title="Scenario"></a>Scenario</h2><p>For MAM App call.</p>
+<h3 id="handleSAMLTokenRequestFailureWithTimeout-andCompletionBlock"><a href="#handleSAMLTokenRequestFailureWithTimeout-andCompletionBlock" class="headerlink" title="+handleSAMLTokenRequestFailureWithTimeout:andCompletionBlock:"></a>+handleSAMLTokenRequestFailureWithTimeout:andCompletionBlock:</h3><h3 id="configManagerAppCoreInit"><a href="#configManagerAppCoreInit" class="headerlink" title="+configManagerAppCoreInit"></a>+configManagerAppCoreInit</h3><blockquote>
+<p>FTU</p>
+</blockquote>
+<h3 id="performLogon"><a href="#performLogon" class="headerlink" title="+performLogon"></a>+performLogon</h3><blockquote>
+<p>This API provides an app developer a way to invoke a Secure Hub login from a delegate called back from the MAM SDK </p>
+</blockquote>
+<h3 id="getSTATicketWithCompletionBlock-performLogonOnFailure"><a href="#getSTATicketWithCompletionBlock-performLogonOnFailure" class="headerlink" title="getSTATicketWithCompletionBlock:performLogonOnFailure:"></a>getSTATicketWithCompletionBlock:performLogonOnFailure:</h3><blockquote>
+<p>Get STA ticket failed if auth failed but not cert failure, AG session is unvalid, flip to SH to renew AG session.</p>
+</blockquote>
+<p><strong>renew ag session:</strong></p>
+<p>FTU Scenario: SH -&gt; Gateway(load balance) -&gt; CEM</p>
+<p>Other Scenario(STA unvalid): Appcore -&gt; Gateway(load balance) -&gt; CEM</p>
+<h3 id="detectAppUpgradeAndLogon"><a href="#detectAppUpgradeAndLogon" class="headerlink" title="detectAppUpgradeAndLogon"></a>detectAppUpgradeAndLogon</h3><blockquote>
+<p>This app upgraded, need to sign on in Secure Hub to fetch updated app info.</p>
+</blockquote>
+<h3 id="showNowLogonAlertForUnexpectedSHData"><a href="#showNowLogonAlertForUnexpectedSHData" class="headerlink" title="showNowLogonAlertForUnexpectedSHData"></a>showNowLogonAlertForUnexpectedSHData</h3><p>Alert: Managed Data Changed</p>
+<blockquote>
+<p>The app was already managed, but couldn’t decrypt managed containers. Need to perform logon</p>
+</blockquote>
+<h2 id="SH-Logic"><a href="#SH-Logic" class="headerlink" title="SH Logic"></a>SH Logic</h2><p>Perform <code>MAM Login</code> and Construct <code>Payload</code> containing application data, including:</p>
+<p>kCTXSSO_APP_INFO:</p>
+<ul>
+<li>AppResourceID</li>
+<li>AppResourceURL</li>
+<li>AppResourceURLTranslated</li>
+<li>AppLogLevel</li>
+<li>AppLogTarget</li>
+</ul>
+<p>kCTXSSO_SUPPORTS_MAMAPPDATA_SHARING</p>
+<ul>
+<li>supportsMAMAppDataSharing</li>
+</ul>
+<p>UNMANAGED_CONTAINER_KEYCHAINACCESSGROUP</p>
+<ul>
+<li>unmanaged container</li>
+</ul>
+<p>![image-20250523102231420](&#x2F;Users&#x2F;junkangd&#x2F;Library&#x2F;Application Support&#x2F;typora-user-images&#x2F;image-20250523102231420.png)</p>
+<h2 id="kMDXREQUEST-VPNLOGON"><a href="#kMDXREQUEST-VPNLOGON" class="headerlink" title="kMDXREQUEST_VPNLOGON"></a>kMDXREQUEST_VPNLOGON</h2><h2 id="Params-1"><a href="#Params-1" class="headerlink" title="Params"></a>Params</h2><ul>
+<li>withReauth： NO</li>
+</ul>
+<h2 id="Scenario-1"><a href="#Scenario-1" class="headerlink" title="Scenario"></a>Scenario</h2><ul>
+<li>Get STA ticket failed and request vpn logon if cert is expired(cert provided environment)</li>
+<li><del>Other MDX scenarios…</del></li>
+</ul>
+<h2 id="SH-Logic-1"><a href="#SH-Logic-1" class="headerlink" title="SH Logic"></a>SH Logic</h2><p>Perform MAM Login and Cert Renew</p>
+<h1 id="kMDXREQUEST-UPDATEAPP"><a href="#kMDXREQUEST-UPDATEAPP" class="headerlink" title="kMDXREQUEST_UPDATEAPP"></a>kMDXREQUEST_UPDATEAPP</h1><p>Handle app update scenario, which is triggerd in the compliance SDK.</p>
+<h1 id="kMDXREQUEST-PASSCODEPINRESET"><a href="#kMDXREQUEST-PASSCODEPINRESET" class="headerlink" title="kMDXREQUEST_PASSCODEPINRESET"></a>kMDXREQUEST_PASSCODEPINRESET</h1><p>Triggered by <code>localAuth</code> SDK</p>
+<ul>
+<li>Forgot Offline AD Password</li>
+<li>Forgot Pin</li>
+</ul>
+<h1 id="Only-for-MDX"><a href="#Only-for-MDX" class="headerlink" title="Only for MDX"></a>Only for MDX</h1><h2 id="kMDXREQUEST-STARTAPPREGISTRATION"><a href="#kMDXREQUEST-STARTAPPREGISTRATION" class="headerlink" title="kMDXREQUEST_STARTAPPREGISTRATION"></a>kMDXREQUEST_STARTAPPREGISTRATION</h2><p>For MDX call to launch SH if it’s not active during FTU Stage</p>
+<img src="/Users/junkangd/Library/Application Support/typora-user-images/image-20250523172011188.png" alt="image-20250523172011188" style="zoom:50%;" />
+
+<h2 id="kMDXREQUEST-NETWORKLOGON"><a href="#kMDXREQUEST-NETWORKLOGON" class="headerlink" title="kMDXREQUEST_NETWORKLOGON"></a>kMDXREQUEST_NETWORKLOGON</h2><p>Only for MDX call.</p>
+<h3 id="SH-Logic-2"><a href="#SH-Logic-2" class="headerlink" title="SH Logic"></a>SH Logic</h3><p>Perform <code>MAM Login</code> and send payload like below:</p>
+<ul>
+<li><p>Login Result</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">enum</span> &#123;</span></span><br><span class="line">    LOGON_SUCCESS = <span class="number">0</span>,</span><br><span class="line">    LOGON_AUTH_FAILURE,</span><br><span class="line">    LOGON_NETWORK_ERROR,</span><br><span class="line">    LOGON_INVALID_NONCE,</span><br><span class="line">    LOGON_CANCELLED,</span><br><span class="line">    LOGON_INVALID_STORE,</span><br><span class="line">    LOGON_INVALID_APP,</span><br><span class="line">    LOGON_NO_STORE_ADDED,</span><br><span class="line">    LOGON_SUBSCRIPTION_FAILURE,</span><br><span class="line">    LOGON_SERVER_CERT_ERROR,</span><br><span class="line">    LOGON_OTHER_ERROR,</span><br><span class="line">    LOGON_CANCELLED_REENROLL,</span><br><span class="line">    LOGON_CANCELLED_MDM_ENROLL_TO_CONTINUE</span><br><span class="line">&#125; eCTXSSO_LOGON;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Store id</p>
+</li>
+<li><p>Nonce</p>
+</li>
+</ul>
+<p>![image-20250523142701814](&#x2F;Users&#x2F;junkangd&#x2F;Library&#x2F;Application Support&#x2F;typora-user-images&#x2F;image-20250523142701814.png)</p>
+<h2 id="kMDXREQUEST-DEVICELOCK-kMDXREQUEST-ESDK-DEVICELOCK"><a href="#kMDXREQUEST-DEVICELOCK-kMDXREQUEST-ESDK-DEVICELOCK" class="headerlink" title="kMDXREQUEST_DEVICELOCK &#x2F; kMDXREQUEST_ESDK_DEVICELOCK"></a>kMDXREQUEST_DEVICELOCK &#x2F; kMDXREQUEST_ESDK_DEVICELOCK</h2><p>Only for mdx</p>
+<h2 id="kMDXREQUEST-RECOVERSHAREDVAULT"><a href="#kMDXREQUEST-RECOVERSHAREDVAULT" class="headerlink" title="kMDXREQUEST_RECOVERSHAREDVAULT"></a>kMDXREQUEST_RECOVERSHAREDVAULT</h2><p>Only for MDX</p>
+<h2 id="kCTXSSO-LAUNCH-REQUEST"><a href="#kCTXSSO-LAUNCH-REQUEST" class="headerlink" title="kCTXSSO_LAUNCH_REQUEST"></a>kCTXSSO_LAUNCH_REQUEST</h2><p>Only for MDX</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
   <nav class="pagination">
-    <a class="extend prev" rel="prev" title="Previous page" aria-label="Previous page" href="/page/5/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" title="Next page" aria-label="Next page" href="/page/7/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" title="Previous page" aria-label="Previous page" href="/page/5/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><a class="extend next" rel="next" title="Next page" aria-label="Next page" href="/page/7/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 </div>

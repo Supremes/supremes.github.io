@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.1">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.26.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="[TOC] 面向对象1. Category(分类)Category 是 Objective-C 中用于扩展已有类功能的一种机制，无需继承即可为类添加方法。它的主要用途是增强类的功能或将类的实现分模块组织。 特点： 无需子类化：可以在不修改原始类源码的情况下，为类添加新的方法。 动态扩展：Category 在运行时动态地将方法添加到类中。 模块化开发：可以将类的功能拆分成多个文件，便于团队协作或代码">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Objective-C 面向对象">
+<meta property="og:url" content="http://example.com/2025/11/uncategorized/officeDocuments/officeDocs/objective-c/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="[TOC] 面向对象1. Category(分类)Category 是 Objective-C 中用于扩展已有类功能的一种机制，无需继承即可为类添加方法。它的主要用途是增强类的功能或将类的实现分模块组织。 特点： 无需子类化：可以在不修改原始类源码的情况下，为类添加新的方法。 动态扩展：Category 在运行时动态地将方法添加到类中。 模块化开发：可以将类的功能拆分成多个文件，便于团队协作或代码">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-11-25T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-11-26T07:43:52.756Z">
+<meta property="article:author" content="Supremes">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://example.com/2025/11/uncategorized/officeDocuments/officeDocs/objective-c/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://example.com/2025/11/uncategorized/officeDocuments/officeDocs/objective-c/","path":"2025/11/uncategorized/officeDocuments/officeDocs/objective-c/","title":"Objective-C 面向对象"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Objective-C 面向对象 | Hexo</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hexo</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1"><span class="nav-number">1.</span> <span class="nav-text">面向对象</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Category-%E5%88%86%E7%B1%BB"><span class="nav-number">1.1.</span> <span class="nav-text">1. Category(分类)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%89%B9%E7%82%B9%EF%BC%9A"><span class="nav-number">1.1.1.</span> <span class="nav-text">特点：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AF%AD%E6%B3%95%EF%BC%9A"><span class="nav-number">1.1.2.</span> <span class="nav-text">语法：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%EF%BC%9A"><span class="nav-number">1.1.3.</span> <span class="nav-text">应用场景：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9%EF%BC%9A"><span class="nav-number">1.1.4.</span> <span class="nav-text">注意事项：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Protocol%EF%BC%88%E5%8D%8F%E8%AE%AE%EF%BC%89"><span class="nav-number">1.2.</span> <span class="nav-text">2. Protocol（协议）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%89%B9%E7%82%B9%EF%BC%9A-1"><span class="nav-number">1.2.1.</span> <span class="nav-text">特点：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AF%AD%E6%B3%95%EF%BC%9A-1"><span class="nav-number">1.2.2.</span> <span class="nav-text">语法：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%EF%BC%9A-1"><span class="nav-number">1.2.3.</span> <span class="nav-text">应用场景：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9%EF%BC%9A-1"><span class="nav-number">1.2.4.</span> <span class="nav-text">注意事项：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Extension%EF%BC%88%E7%B1%BB%E6%89%A9%E5%B1%95%EF%BC%89"><span class="nav-number">1.3.</span> <span class="nav-text">3 Extension（类扩展）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-Dynamic-Runtime%EF%BC%88%E8%BF%90%E8%A1%8C%E6%97%B6%E5%8A%A8%E6%80%81%E6%80%A7%EF%BC%89"><span class="nav-number">1.4.</span> <span class="nav-text">4  Dynamic Runtime（运行时动态性）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-Category-vs-Protocol-vs-%E5%85%B6%E4%BB%96%E6%96%B9%E6%A1%88%E5%AF%B9%E6%AF%94"><span class="nav-number">1.5.</span> <span class="nav-text">5. Category vs Protocol vs 其他方案对比</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-%E6%80%BB%E7%BB%93%E4%B8%8E%E5%BB%BA%E8%AE%AE"><span class="nav-number">1.6.</span> <span class="nav-text">6. 总结与建议</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#NSURL"><span class="nav-number">2.</span> <span class="nav-text">NSURL</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#NSURLProtocol"><span class="nav-number">2.1.</span> <span class="nav-text">NSURLProtocol</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#WKURLSchemeHandler"><span class="nav-number">2.2.</span> <span class="nav-text">WKURLSchemeHandler</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#NSURLSessionDelegate"><span class="nav-number">2.3.</span> <span class="nav-text">NSURLSessionDelegate</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#UIViewController"><span class="nav-number">3.</span> <span class="nav-text">UIViewController</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E6%96%B9%E6%B3%95"><span class="nav-number">3.1.</span> <span class="nav-text">主要生命周期方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-viewDidLoad"><span class="nav-number">3.1.1.</span> <span class="nav-text">1. viewDidLoad</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-viewWillAppear"><span class="nav-number">3.1.2.</span> <span class="nav-text">2. viewWillAppear:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-viewDidAppear"><span class="nav-number">3.1.3.</span> <span class="nav-text">3. viewDidAppear:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-viewWillDisappear"><span class="nav-number">3.1.4.</span> <span class="nav-text">4. viewWillDisappear:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-viewDidDisappear"><span class="nav-number">3.1.5.</span> <span class="nav-text">5. viewDidDisappear:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-viewDidUnload-iOS-6%E4%B9%8B%E5%89%8D"><span class="nav-number">3.1.6.</span> <span class="nav-text">6. viewDidUnload (iOS 6之前)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E9%A1%BA%E5%BA%8F"><span class="nav-number">3.2.</span> <span class="nav-text">生命周期顺序</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="nav-number">3.3.</span> <span class="nav-text">最佳实践</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#UIApplication"><span class="nav-number">4.</span> <span class="nav-text">UIApplication</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#UIViewController-%E5%92%8C-UIApplication-%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="nav-number">4.1.</span> <span class="nav-text">UIViewController 和 UIApplication 的关系</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B1%82%E6%AC%A1%E5%85%B3%E7%B3%BB"><span class="nav-number">4.1.1.</span> <span class="nav-text">层次关系</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8C%85%E5%90%AB%E5%85%B3%E7%B3%BB"><span class="nav-number">4.1.2.</span> <span class="nav-text">包含关系</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E5%87%BD%E6%95%B0%E5%AF%B9%E5%BA%94%E5%85%B3%E7%B3%BB"><span class="nav-number">4.2.</span> <span class="nav-text">生命周期函数对应关系</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#UIApplication-%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E6%96%B9%E6%B3%95%EF%BC%88AppDelegate%EF%BC%89"><span class="nav-number">4.2.1.</span> <span class="nav-text">UIApplication 生命周期方法（AppDelegate）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-application-didFinishLaunchingWithOptions"><span class="nav-number">4.2.1.1.</span> <span class="nav-text">1. application:didFinishLaunchingWithOptions:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-applicationDidBecomeActive"><span class="nav-number">4.2.1.2.</span> <span class="nav-text">2. applicationDidBecomeActive:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-applicationWillResignActive"><span class="nav-number">4.2.1.3.</span> <span class="nav-text">3. applicationWillResignActive:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-applicationDidEnterBackground"><span class="nav-number">4.2.1.4.</span> <span class="nav-text">4. applicationDidEnterBackground:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-applicationWillEnterForeground"><span class="nav-number">4.2.1.5.</span> <span class="nav-text">5. applicationWillEnterForeground:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-applicationWillTerminate"><span class="nav-number">4.2.1.6.</span> <span class="nav-text">6. applicationWillTerminate:</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B0%83%E7%94%A8%E9%A1%BA%E5%BA%8F%E7%A4%BA%E4%BE%8B"><span class="nav-number">4.3.</span> <span class="nav-text">调用顺序示例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E5%90%AF%E5%8A%A8"><span class="nav-number">4.3.1.</span> <span class="nav-text">应用启动</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E8%BF%9B%E5%85%A5%E5%90%8E%E5%8F%B0"><span class="nav-number">4.3.2.</span> <span class="nav-text">应用进入后台</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E5%9B%9E%E5%88%B0%E5%89%8D%E5%8F%B0"><span class="nav-number">4.3.3.</span> <span class="nav-text">应用回到前台</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E9%99%85%E5%BA%94%E7%94%A8%E5%BB%BA%E8%AE%AE"><span class="nav-number">4.4.</span> <span class="nav-text">实际应用建议</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Supremes</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">82</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2025/11/uncategorized/officeDocuments/officeDocs/objective-c/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Supremes">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Objective-C 面向对象 | Hexo">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Objective-C 面向对象
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2025-11-26 00:00:00 / Modified: 15:43:52" itemprop="dateCreated datePublished" datetime="2025-11-26T00:00:00+08:00">2025-11-26</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>[TOC]</p>
+<h1 id="面向对象"><a href="#面向对象" class="headerlink" title="面向对象"></a>面向对象</h1><h3 id="1-Category-分类"><a href="#1-Category-分类" class="headerlink" title="1. Category(分类)"></a>1. <strong>Category(分类)</strong></h3><p><strong>Category</strong> 是 Objective-C 中用于扩展已有类功能的一种机制，无需继承即可为类添加方法。它的主要用途是增强类的功能或将类的实现分模块组织。</p>
+<h4 id="特点："><a href="#特点：" class="headerlink" title="特点："></a>特点：</h4><ul>
+<li><strong>无需子类化</strong>：可以在不修改原始类源码的情况下，为类添加新的方法。</li>
+<li><strong>动态扩展</strong>：Category 在运行时动态地将方法添加到类中。</li>
+<li><strong>模块化开发</strong>：可以将类的功能拆分成多个文件，便于团队协作或代码管理。</li>
+<li><strong>限制</strong>：<ul>
+<li>不能添加实例变量，只能添加方法。</li>
+<li>如果 Category 中定义的方法与原始类或另一个 Category 中的方法同名，会覆盖原始方法（可能导致不可预测的行为）。</li>
+<li>不能直接访问原始类的私有方法或变量。</li>
+</ul>
+</li>
+</ul>
+<h4 id="语法："><a href="#语法：" class="headerlink" title="语法："></a>语法：</h4><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@interface</span> 原类名 (<span class="title">CategoryName</span>)</span></span><br><span class="line"><span class="comment">// 声明新方法</span></span><br><span class="line">- (<span class="type">void</span>)newMethod;</span><br><span class="line"><span class="keyword">@end</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">@implementation</span> 原类名 (<span class="title">CategoryName</span>)</span></span><br><span class="line"><span class="comment">// 实现新方法</span></span><br><span class="line">- (<span class="type">void</span>)newMethod &#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;This is a new method added by Category.&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="应用场景："><a href="#应用场景：" class="headerlink" title="应用场景："></a>应用场景：</h4><ol>
+<li><p><strong>扩展系统类</strong>：例如，为 <code>NSString</code> 添加一个自定义方法：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">NSString</span> (<span class="title">MyExtension</span>)</span></span><br><span class="line">- (<span class="built_in">NSString</span> *)reverseString;</span><br><span class="line"><span class="keyword">@end</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">NSString</span> (<span class="title">MyExtension</span>)</span></span><br><span class="line">- (<span class="built_in">NSString</span> *)reverseString &#123;</span><br><span class="line">    <span class="built_in">NSMutableString</span> *reversed = [<span class="built_in">NSMutableString</span> stringWithCapacity:<span class="keyword">self</span>.length];</span><br><span class="line">    <span class="keyword">for</span> (<span class="built_in">NSInteger</span> i = <span class="keyword">self</span>.length - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">        [reversed appendString:[<span class="built_in">NSString</span> stringWithFormat:<span class="string">@&quot;%C&quot;</span>, [<span class="keyword">self</span> characterAtIndex:i]]];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> reversed;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+<p>使用：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">NSString</span> *str = <span class="string">@&quot;Hello&quot;</span>;</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;%@&quot;</span>, [str reverseString]); <span class="comment">// 输出: olleH</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>代码组织</strong>：将大类的实现分成多个 Category，增强可读性和维护性。例如，<code>UIViewController</code> 可以按功能分为 <code>DataHandling</code> 和 <code>UIConfiguration</code> 两个 Category。</p>
+</li>
+<li><p><strong>修复或增强功能</strong>：在不修改第三方库的情况下，为其类添加功能。</p>
+</li>
+</ol>
+<h4 id="注意事项："><a href="#注意事项：" class="headerlink" title="注意事项："></a>注意事项：</h4><ul>
+<li><strong>方法冲突</strong>：如果多个 Category 或原始类定义了同名方法，运行时会选择其中一个（不可预测），应避免命名冲突。</li>
+<li><strong>调试困难</strong>：Category 的方法覆盖可能导致调试复杂。</li>
+<li><strong>最佳实践</strong>：为避免冲突，建议在方法名中加入前缀（如 <code>my_reverseString</code>）。</li>
+</ul>
+<hr>
+<h3 id="2-Protocol（协议）"><a href="#2-Protocol（协议）" class="headerlink" title="2. Protocol（协议）"></a>2. <strong>Protocol（协议）</strong></h3><p><strong>Protocol</strong> 是 Objective-C 中定义一组方法规范的机制，类似于接口（interface）。它用于声明一组方法，供类实现，以保证类具有特定行为。</p>
+<h4 id="特点：-1"><a href="#特点：-1" class="headerlink" title="特点："></a>特点：</h4><ul>
+<li><strong>抽象性</strong>：Protocol 仅定义方法签名，不提供实现。</li>
+<li><strong>多类共享</strong>：多个类可以实现同一个 Protocol，实现代码共享或行为一致性。</li>
+<li><strong>可选与必须</strong>：方法可以标记为 <code>@required</code>（默认，必须实现）或 <code>@optional</code>（可选实现）。</li>
+<li><strong>类型检查</strong>：编译器可以检查类是否遵循某个 Protocol。</li>
+</ul>
+<h4 id="语法：-1"><a href="#语法：-1" class="headerlink" title="语法："></a>语法：</h4><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@protocol</span> <span class="title">MyProtocol</span> &lt;<span class="title">NSObject</span>&gt;</span></span><br><span class="line"><span class="comment">// 必须实现的方法</span></span><br><span class="line"><span class="keyword">@required</span></span><br><span class="line">- (<span class="type">void</span>)requiredMethod;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 可选实现的方法</span></span><br><span class="line"><span class="keyword">@optional</span></span><br><span class="line">- (<span class="type">void</span>)optionalMethod;</span><br><span class="line"><span class="keyword">@end</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">MyClass</span> : <span class="title">NSObject</span> &lt;<span class="title">MyProtocol</span>&gt;</span></span><br><span class="line"><span class="keyword">@end</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">MyClass</span></span></span><br><span class="line">- (<span class="type">void</span>)requiredMethod &#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;Required method implemented.&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="应用场景：-1"><a href="#应用场景：-1" class="headerlink" title="应用场景："></a>应用场景：</h4><ol>
+<li><p><strong>委托模式（Delegate）</strong>：最常见的用途，例如 <code>UITableViewDelegate</code> 和 <code>UITableViewDataSource</code>。</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@protocol</span> <span class="title">MyDelegate</span> &lt;<span class="title">NSObject</span>&gt;</span></span><br><span class="line"><span class="keyword">@required</span></span><br><span class="line">- (<span class="type">void</span>)didCompleteTask;</span><br><span class="line"><span class="keyword">@optional</span></span><br><span class="line">- (<span class="type">void</span>)progressUpdated:(<span class="type">float</span>)progress;</span><br><span class="line"><span class="keyword">@end</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">MyClass</span> : <span class="title">NSObject</span></span></span><br><span class="line"><span class="keyword">@property</span> (<span class="keyword">weak</span>, <span class="keyword">nonatomic</span>) <span class="type">id</span>&lt;MyDelegate&gt; delegate;</span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>接口定义</strong>：定义一组标准接口，供不同类实现。例如，多个视图控制器实现同一个数据处理协议。</p>
+</li>
+<li><p><strong>类型安全</strong>：通过 Protocol 限制对象类型，确保对象支持特定方法：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">id</span>&lt;MyProtocol&gt; obj = [[MyClass alloc] init];</span><br><span class="line">[obj requiredMethod]; <span class="comment">// 编译器确保方法存在</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h4 id="注意事项：-1"><a href="#注意事项：-1" class="headerlink" title="注意事项："></a>注意事项：</h4><ul>
+<li><strong>NSObject 协议</strong>：通常 Protocol 会继承 <code>&lt;NSObject&gt;</code> 协议，以确保对象支持基本方法（如 <code>respondsToSelector:</code>）。</li>
+<li><strong>动态检查</strong>：使用 <code>conformsToProtocol:</code> 和 <code>respondsToSelector:</code> 检查对象是否遵循协议或实现某方法： <figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ([obj conformsToProtocol:<span class="class"><span class="keyword">@protocol</span>(<span class="title">MyProtocol</span>)]) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> ([obj respondsToSelector:<span class="keyword">@selector</span>(optionalMethod)]) &#123;</span><br><span class="line">        [obj optionalMethod];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="3-Extension（类扩展）"><a href="#3-Extension（类扩展）" class="headerlink" title="3 Extension（类扩展）"></a>3 <strong>Extension（类扩展）</strong></h3><ul>
+<li><strong>定义</strong>：类扩展是匿名的 Category，通常用于在类的实现文件中声明私有方法或属性。</li>
+<li><strong>特点</strong>：<ul>
+<li>可以在 <code>.m</code> 文件中声明私有方法或属性。</li>
+<li>可以添加实例变量（与 Category 不同）。</li>
+<li>仅在当前类实现文件可见，外部无法访问。</li>
+</ul>
+</li>
+<li><strong>语法</strong>：<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">MyClass</span> ()</span></span><br><span class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>, <span class="keyword">strong</span>) <span class="built_in">NSString</span> *privateProperty;</span><br><span class="line">- (<span class="type">void</span>)privateMethod;</span><br><span class="line"><span class="keyword">@end</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">MyClass</span></span></span><br><span class="line">- (<span class="type">void</span>)privateMethod &#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;This is a private method.&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure></li>
+<li><strong>用途</strong>：隐藏实现细节，声明私有接口，或为只读属性添加私有读写支持。</li>
+</ul>
+<h3 id="4-Dynamic-Runtime（运行时动态性）"><a href="#4-Dynamic-Runtime（运行时动态性）" class="headerlink" title="4  Dynamic Runtime（运行时动态性）"></a>4  <strong>Dynamic Runtime（运行时动态性）</strong></h3><ul>
+<li>Objective-C 的运行时系统提供了强大的动态特性，支持以下功能：<ul>
+<li><strong>方法交换（Method Swizzling）</strong>：在运行时替换方法实现，常用于调试或修改系统类行为。</li>
+<li><strong>动态添加方法</strong>：通过 <code>class_addMethod</code> 动态为类添加方法。</li>
+<li><strong>关联对象（Associated Objects）</strong>：通过 <code>objc_setAssociatedObject</code> 为 Category 添加“伪属性”。</li>
+<li><strong>示例</strong>（添加关联对象）：<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#import <span class="string">&lt;objc/runtime.h&gt;</span></span></span><br><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">NSObject</span> (<span class="title">MyCategory</span>)</span></span><br><span class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>, <span class="keyword">strong</span>) <span class="built_in">NSString</span> *associatedString;</span><br><span class="line"><span class="keyword">@end</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">NSObject</span> (<span class="title">MyCategory</span>)</span></span><br><span class="line"><span class="keyword">static</span> <span class="type">char</span> kAssociatedStringKey;</span><br><span class="line">- (<span class="type">void</span>)setAssociatedString:(<span class="built_in">NSString</span> *)string &#123;</span><br><span class="line">    objc_setAssociatedObject(<span class="keyword">self</span>, &amp;kAssociatedStringKey, string, OBJC_ASSOCIATION_RETAIN_NONATOMIC);</span><br><span class="line">&#125;</span><br><span class="line">- (<span class="built_in">NSString</span> *)associatedString &#123;</span><br><span class="line">    <span class="keyword">return</span> objc_getAssociatedObject(<span class="keyword">self</span>, &amp;kAssociatedStringKey);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure></li>
+<li><strong>用途</strong>：增强 Category 功能，实现动态行为修改。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="5-Category-vs-Protocol-vs-其他方案对比"><a href="#5-Category-vs-Protocol-vs-其他方案对比" class="headerlink" title="5. Category vs Protocol vs 其他方案对比"></a>5. <strong>Category vs Protocol vs 其他方案对比</strong></h3><table>
+<thead>
+<tr>
+<th>特性&#x2F;机制</th>
+<th>Category</th>
+<th>Protocol</th>
+<th>Extension</th>
+<th>Block</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>用途</strong></td>
+<td>扩展类方法</td>
+<td>定义接口规范</td>
+<td>声明私有方法&#x2F;属性</td>
+<td>回调和函数式编程</td>
+</tr>
+<tr>
+<td><strong>添加实例变量</strong></td>
+<td>否（可通过关联对象实现）</td>
+<td>否</td>
+<td>是</td>
+<td>否</td>
+</tr>
+<tr>
+<td><strong>代码复用</strong></td>
+<td>高（直接扩展类）</td>
+<td>中（需实现）</td>
+<td>低（仅限当前类）</td>
+<td>高（独立逻辑）</td>
+</tr>
+<tr>
+<td><strong>动态性</strong></td>
+<td>高（运行时添加方法）</td>
+<td>中（运行时检查方法）</td>
+<td>低（编译时确定）</td>
+<td>高（捕获上下文）</td>
+</tr>
+<tr>
+<td><strong>典型场景</strong></td>
+<td>系统类扩展、代码模块化</td>
+<td>委托模式、接口定义</td>
+<td>私有接口、属性扩展</td>
+<td>异步回调、事件处理</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="6-总结与建议"><a href="#6-总结与建议" class="headerlink" title="6. 总结与建议"></a>6. <strong>总结与建议</strong></h3><ul>
+<li><strong>Category</strong> 适合快速扩展类功能，特别是为系统类或第三方库添加方法，但需注意方法冲突。</li>
+<li><strong>Protocol</strong> 适合定义标准接口，确保类行为一致，广泛用于委托模式。</li>
+<li><strong>Extension</strong> 用于私有接口，适合隐藏实现细节。</li>
+<li><strong>Block</strong> 提供轻量级回调，适合异步任务。</li>
+<li><strong>运行时动态性</strong> 提供了强大的灵活性，但需谨慎使用以避免复杂性。</li>
+</ul>
+<p>根据具体需求选择合适的方案：</p>
+<ul>
+<li>如果需要扩展现有类，使用 <strong>Category</strong>。</li>
+<li>如果需要定义行为规范，使用 <strong>Protocol</strong>。</li>
+<li>如果需要私有方法或属性，使用 <strong>Extension</strong>。</li>
+<li>如果需要动态或回调逻辑，考虑 <strong>Block</strong> 或 <strong>运行时特性</strong>。</li>
+</ul>
+<p>如需更具体示例或深入探讨某一机制，请告诉我！</p>
+<h1 id="NSURL"><a href="#NSURL" class="headerlink" title="NSURL"></a>NSURL</h1><h2 id="NSURLProtocol"><a href="#NSURLProtocol" class="headerlink" title="NSURLProtocol"></a>NSURLProtocol</h2><p>In the context of <code>WKWebView</code>, requests are generally <strong>not</strong> handled by <code>NSURLProtocol</code>, especially for custom schemes or even for <code>http/https</code> in most cases. Apple restricts <code>NSURLProtocol</code> usage in <code>WKWebView</code> for security and performance reasons.</p>
+<p><strong>However, requests can be handled by <code>NSURLProtocol</code> in these scenarios:</strong></p>
+<ul>
+<li>When using <code>NSURLConnection</code> or <code>NSURLSession</code> <strong>outside</strong> of <code>WKWebView</code>, and you register a custom <code>NSURLProtocol</code> class, all matching requests (e.g., <code>http</code>, <code>https</code>, or custom schemes if registered) will be intercepted by your protocol handler.</li>
+<li>In <code>UIWebView</code> (deprecated), <code>NSURLProtocol</code> can intercept requests.</li>
+<li>In <code>WKWebView</code>, only if you use a custom <code>NSURLSession</code> (not the web view’s internal networking), and you register a protocol class on that session’s configuration, then requests made by that session (not the web view) can be intercepted.</li>
+</ul>
+<p><strong>Summary:</strong><br>In <code>WKWebView</code>, requests are not forwarded to <code>NSURLProtocol</code>. Only network requests made by your own <code>NSURLSession</code> or <code>NSURLConnection</code> (outside of <code>WKWebView</code>) can be intercepted by <code>NSURLProtocol</code>.</p>
+<hr>
+<h2 id="WKURLSchemeHandler"><a href="#WKURLSchemeHandler" class="headerlink" title="WKURLSchemeHandler"></a>WKURLSchemeHandler</h2><ul>
+<li><p>拦截处理自定义 scheme（非 https&#x2F;http） </p>
+<blockquote>
+<p>通过实现WKURLSchemeHandler protocol，可以拦截和处理 WKWebView 发起的特定 scheme（如 http&#x2F;https 以外的自定义协议）请求，实现自定义的网络请求逻辑</p>
+</blockquote>
+</li>
+<li><p>apple 推荐的官方协议，用来处理自定义的 scheme</p>
+</li>
+<li><p><strong><code> https/http</code> 请求无法在 wkwebview 中被拦截处理</strong></p>
+</li>
+<li><p>WKWebview 不支持使用<code>NSURLProtocol</code>来拦截请求，forward 到<code>NSURLSession</code>是官方推荐可信任的做法</p>
+</li>
+</ul>
+<hr>
+<h2 id="NSURLSessionDelegate"><a href="#NSURLSessionDelegate" class="headerlink" title="NSURLSessionDelegate"></a>NSURLSessionDelegate</h2><ul>
+<li><code>WKURLSchemeHandler</code> 拦截的请求，会被转发到<code>NSURLSession</code>， 并通过 NSURLSessionDelegate 进行处理。</li>
+</ul>
+<h1 id="UIViewController"><a href="#UIViewController" class="headerlink" title="UIViewController"></a>UIViewController</h1><p>UIViewController的生命周期函数介绍：</p>
+<h2 id="主要生命周期方法"><a href="#主要生命周期方法" class="headerlink" title="主要生命周期方法"></a>主要生命周期方法</h2><h3 id="1-viewDidLoad"><a href="#1-viewDidLoad" class="headerlink" title="1. viewDidLoad"></a>1. <code>viewDidLoad</code></h3><ul>
+<li><strong>调用时机</strong>：视图控制器的视图层次结构加载到内存中后调用</li>
+<li><strong>用途</strong>：进行一次性初始化，如创建UI元素、设置初始状态</li>
+<li><strong>特点</strong>：只调用一次</li>
+</ul>
+<h3 id="2-viewWillAppear"><a href="#2-viewWillAppear" class="headerlink" title="2. viewWillAppear:"></a>2. <code>viewWillAppear:</code></h3><ul>
+<li><strong>调用时机</strong>：视图即将显示前调用</li>
+<li><strong>用途</strong>：准备显示视图，如刷新数据、重置UI状态</li>
+<li><strong>特点</strong>：每次视图显示前都会调用</li>
+</ul>
+<h3 id="3-viewDidAppear"><a href="#3-viewDidAppear" class="headerlink" title="3. viewDidAppear:"></a>3. <code>viewDidAppear:</code></h3><ul>
+<li><strong>调用时机</strong>：视图已经显示后调用</li>
+<li><strong>用途</strong>：启动动画、开始定时器、注册通知等</li>
+<li><strong>特点</strong>：每次视图显示后都会调用</li>
+</ul>
+<h3 id="4-viewWillDisappear"><a href="#4-viewWillDisappear" class="headerlink" title="4. viewWillDisappear:"></a>4. <code>viewWillDisappear:</code></h3><ul>
+<li><strong>调用时机</strong>：视图即将消失前调用</li>
+<li><strong>用途</strong>：保存数据、暂停操作、验证输入等</li>
+<li><strong>特点</strong>：每次视图消失前都会调用</li>
+</ul>
+<h3 id="5-viewDidDisappear"><a href="#5-viewDidDisappear" class="headerlink" title="5. viewDidDisappear:"></a>5. <code>viewDidDisappear:</code></h3><ul>
+<li><strong>调用时机</strong>：视图已经消失后调用</li>
+<li><strong>用途</strong>：停止定时器、取消网络请求、清理资源等</li>
+<li><strong>特点</strong>：每次视图消失后都会调用</li>
+</ul>
+<h3 id="6-viewDidUnload-iOS-6之前"><a href="#6-viewDidUnload-iOS-6之前" class="headerlink" title="6. viewDidUnload (iOS 6之前)"></a>6. <code>viewDidUnload</code> (iOS 6之前)</h3><ul>
+<li><strong>调用时机</strong>：内存不足时系统卸载视图</li>
+<li><strong>用途</strong>：清理视图相关资源</li>
+<li><strong>特点</strong>：iOS 6后已废弃</li>
+</ul>
+<h2 id="生命周期顺序"><a href="#生命周期顺序" class="headerlink" title="生命周期顺序"></a>生命周期顺序</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">创建 → viewDidLoad → viewWillAppear → viewDidAppear</span><br><span class="line">     ↓</span><br><span class="line">显示中的视图</span><br><span class="line">     ↓</span><br><span class="line">viewWillDisappear → viewDidDisappear → 销毁</span><br></pre></td></tr></table></figure>
+
+<h2 id="最佳实践"><a href="#最佳实践" class="headerlink" title="最佳实践"></a>最佳实践</h2><ul>
+<li><strong>viewDidLoad</strong>：创建UI、设置委托、初始化数据源</li>
+<li><strong>viewWillAppear</strong>：刷新界面数据、重置状态</li>
+<li><strong>viewDidAppear</strong>：开始网络请求、启动动画</li>
+<li><strong>viewWillDisappear</strong>：保存用户输入、暂停活动</li>
+<li><strong>viewDidDisappear</strong>：清理资源、停止后台任务</li>
+</ul>
+<h1 id="UIApplication"><a href="#UIApplication" class="headerlink" title="UIApplication"></a>UIApplication</h1><h2 id="UIViewController-和-UIApplication-的关系"><a href="#UIViewController-和-UIApplication-的关系" class="headerlink" title="UIViewController 和 UIApplication 的关系"></a>UIViewController 和 UIApplication 的关系</h2><h3 id="层次关系"><a href="#层次关系" class="headerlink" title="层次关系"></a>层次关系</h3><ul>
+<li><strong>UIApplication</strong>：应用程序的单例对象，管理整个应用的生命周期</li>
+<li><strong>UIViewController</strong>：管理单个视图的控制器，是UIApplication管理的视图层次结构的一部分</li>
+</ul>
+<h3 id="包含关系"><a href="#包含关系" class="headerlink" title="包含关系"></a>包含关系</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">UIApplication</span><br><span class="line">├── UIWindow</span><br><span class="line">    ├── Root UIViewController</span><br><span class="line">        ├── Child UIViewController</span><br><span class="line">        └── Presented UIViewController</span><br></pre></td></tr></table></figure>
+
+<h2 id="生命周期函数对应关系"><a href="#生命周期函数对应关系" class="headerlink" title="生命周期函数对应关系"></a>生命周期函数对应关系</h2><h3 id="UIApplication-生命周期方法（AppDelegate）"><a href="#UIApplication-生命周期方法（AppDelegate）" class="headerlink" title="UIApplication 生命周期方法（AppDelegate）"></a>UIApplication 生命周期方法（AppDelegate）</h3><h4 id="1-application-didFinishLaunchingWithOptions"><a href="#1-application-didFinishLaunchingWithOptions" class="headerlink" title="1. application:didFinishLaunchingWithOptions:"></a>1. <code>application:didFinishLaunchingWithOptions:</code></h4><ul>
+<li><strong>对应UIViewController</strong>：在root view controller的<code>viewDidLoad</code>之前调用</li>
+<li><strong>关系</strong>：应用启动完成 → 创建window和root view controller</li>
+</ul>
+<h4 id="2-applicationDidBecomeActive"><a href="#2-applicationDidBecomeActive" class="headerlink" title="2. applicationDidBecomeActive:"></a>2. <code>applicationDidBecomeActive:</code></h4><ul>
+<li><strong>对应UIViewController</strong>：当前可见view controller的<code>viewWillAppear:</code>和<code>viewDidAppear:</code></li>
+<li><strong>关系</strong>：应用变为活跃状态 → 视图控制器开始显示</li>
+</ul>
+<h4 id="3-applicationWillResignActive"><a href="#3-applicationWillResignActive" class="headerlink" title="3. applicationWillResignActive:"></a>3. <code>applicationWillResignActive:</code></h4><ul>
+<li><strong>对应UIViewController</strong>：当前可见view controller的<code>viewWillDisappear:</code></li>
+<li><strong>关系</strong>：应用即将失去焦点 → 视图即将不可交互</li>
+</ul>
+<h4 id="4-applicationDidEnterBackground"><a href="#4-applicationDidEnterBackground" class="headerlink" title="4. applicationDidEnterBackground:"></a>4. <code>applicationDidEnterBackground:</code></h4><ul>
+<li><strong>对应UIViewController</strong>：当前可见view controller的<code>viewDidDisappear:</code></li>
+<li><strong>关系</strong>：应用进入后台 → 视图完全不可见</li>
+</ul>
+<h4 id="5-applicationWillEnterForeground"><a href="#5-applicationWillEnterForeground" class="headerlink" title="5. applicationWillEnterForeground:"></a>5. <code>applicationWillEnterForeground:</code></h4><ul>
+<li><strong>对应UIViewController</strong>：即将显示的view controller的<code>viewWillAppear:</code></li>
+<li><strong>关系</strong>：应用即将回到前台 → 视图即将重新显示</li>
+</ul>
+<h4 id="6-applicationWillTerminate"><a href="#6-applicationWillTerminate" class="headerlink" title="6. applicationWillTerminate:"></a>6. <code>applicationWillTerminate:</code></h4><ul>
+<li><strong>对应UIViewController</strong>：所有view controller的清理工作</li>
+<li><strong>关系</strong>：应用即将终止 → 所有视图控制器被销毁</li>
+</ul>
+<h2 id="调用顺序示例"><a href="#调用顺序示例" class="headerlink" title="调用顺序示例"></a>调用顺序示例</h2><h3 id="应用启动"><a href="#应用启动" class="headerlink" title="应用启动"></a>应用启动</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1. application:didFinishLaunchingWithOptions:</span><br><span class="line">2. viewDidLoad (root ViewController)</span><br><span class="line">3. viewWillAppear: (root ViewController) </span><br><span class="line">4. applicationDidBecomeActive:</span><br><span class="line">5. viewDidAppear: (root ViewController)</span><br></pre></td></tr></table></figure>
+
+<h3 id="应用进入后台"><a href="#应用进入后台" class="headerlink" title="应用进入后台"></a>应用进入后台</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1. applicationWillResignActive:</span><br><span class="line">2. viewWillDisappear: (current ViewController)</span><br><span class="line">3. applicationDidEnterBackground:</span><br><span class="line">4. viewDidDisappear: (current ViewController)</span><br></pre></td></tr></table></figure>
+
+<h3 id="应用回到前台"><a href="#应用回到前台" class="headerlink" title="应用回到前台"></a>应用回到前台</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1. applicationWillEnterForeground:</span><br><span class="line">2. viewWillAppear: (current ViewController)</span><br><span class="line">3. applicationDidBecomeActive:</span><br><span class="line">4. viewDidAppear: (current ViewController)</span><br></pre></td></tr></table></figure>
+
+<h2 id="实际应用建议"><a href="#实际应用建议" class="headerlink" title="实际应用建议"></a>实际应用建议</h2><ul>
+<li><strong>UIApplication级别</strong>：处理全局状态、推送通知、应用级别的数据保存</li>
+<li><strong>UIViewController级别</strong>：处理界面相关的逻辑、用户交互、视图状态管理</li>
+<li><strong>协调使用</strong>：在AppDelegate中可以通知当前的view controller应用状态变化</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/11/uncategorized/officeDocuments/homeDocs/Spring/Spring%20AOP%20%E4%BA%8B%E5%8A%A1%E5%A4%B1%E6%95%88%E4%B8%8E%E5%BA%95%E5%B1%82%E4%BB%A3%E7%90%86%E6%80%BB%E7%BB%93/" rel="prev" title="Spring AOP 事务失效与底层代理总结">
+                  <i class="fa fa-angle-left"></i> Spring AOP 事务失效与底层代理总结
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/11/uncategorized/officeDocuments/officeDocs/Hibernate/" rel="next" title="Hibernate">
+                  Hibernate <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Supremes</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.1">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.26.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="Spring AOP 事务失效与底层代理机制深度总结1. 核心问题:为什么自调用导致事务失效?现象在同一个类中，方法 A 调用方法 B（this.methodB()），即使方法 B 上加了 @Transactional 注解，事务依然不生效。 根本原因Spring AOP 的默认实现基于 代理模式 (Proxy Pattern)。Spring 容器中注入的 Bean 实际上是一个 代理对象 (Pr">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring AOP 事务失效与底层代理总结">
+<meta property="og:url" content="http://example.com/2025/11/uncategorized/officeDocuments/homeDocs/Spring/Spring%20AOP%20%E4%BA%8B%E5%8A%A1%E5%A4%B1%E6%95%88%E4%B8%8E%E5%BA%95%E5%B1%82%E4%BB%A3%E7%90%86%E6%80%BB%E7%BB%93/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="Spring AOP 事务失效与底层代理机制深度总结1. 核心问题:为什么自调用导致事务失效?现象在同一个类中，方法 A 调用方法 B（this.methodB()），即使方法 B 上加了 @Transactional 注解，事务依然不生效。 根本原因Spring AOP 的默认实现基于 代理模式 (Proxy Pattern)。Spring 容器中注入的 Bean 实际上是一个 代理对象 (Pr">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/Pics/image-20251126101915903.png">
+<meta property="article:published_time" content="2025-11-25T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-11-26T07:43:52.756Z">
+<meta property="article:author" content="Supremes">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/Pics/image-20251126101915903.png">
+
+
+<link rel="canonical" href="http://example.com/2025/11/uncategorized/officeDocuments/homeDocs/Spring/Spring%20AOP%20%E4%BA%8B%E5%8A%A1%E5%A4%B1%E6%95%88%E4%B8%8E%E5%BA%95%E5%B1%82%E4%BB%A3%E7%90%86%E6%80%BB%E7%BB%93/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://example.com/2025/11/uncategorized/officeDocuments/homeDocs/Spring/Spring%20AOP%20%E4%BA%8B%E5%8A%A1%E5%A4%B1%E6%95%88%E4%B8%8E%E5%BA%95%E5%B1%82%E4%BB%A3%E7%90%86%E6%80%BB%E7%BB%93/","path":"2025/11/uncategorized/officeDocuments/homeDocs/Spring/Spring AOP 事务失效与底层代理总结/","title":"Spring AOP 事务失效与底层代理总结"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Spring AOP 事务失效与底层代理总结 | Hexo</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hexo</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Spring-AOP-%E4%BA%8B%E5%8A%A1%E5%A4%B1%E6%95%88%E4%B8%8E%E5%BA%95%E5%B1%82%E4%BB%A3%E7%90%86%E6%9C%BA%E5%88%B6%E6%B7%B1%E5%BA%A6%E6%80%BB%E7%BB%93"><span class="nav-number">1.</span> <span class="nav-text">Spring AOP 事务失效与底层代理机制深度总结</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E6%A0%B8%E5%BF%83%E9%97%AE%E9%A2%98-%E4%B8%BA%E4%BB%80%E4%B9%88%E8%87%AA%E8%B0%83%E7%94%A8%E5%AF%BC%E8%87%B4%E4%BA%8B%E5%8A%A1%E5%A4%B1%E6%95%88"><span class="nav-number">1.1.</span> <span class="nav-text">1. 核心问题:为什么自调用导致事务失效?</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%8E%B0%E8%B1%A1"><span class="nav-number">1.1.1.</span> <span class="nav-text">现象</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%B9%E6%9C%AC%E5%8E%9F%E5%9B%A0"><span class="nav-number">1.1.2.</span> <span class="nav-text">根本原因</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BD%A2%E8%B1%A1%E6%AF%94%E5%96%BB"><span class="nav-number">1.1.3.</span> <span class="nav-text">形象比喻</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88-%E6%8C%89%E6%9E%B6%E6%9E%84%E5%B8%88%E6%8E%A8%E8%8D%90%E5%BA%A6%E6%8E%92%E5%BA%8F"><span class="nav-number">1.2.</span> <span class="nav-text">2. 解决方案 (按架构师推荐度排序)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E6%B7%B1%E5%BA%A6%E8%BE%A8%E6%9E%90%EF%BC%9AJDK-%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86-vs-CGLIB"><span class="nav-number">1.3.</span> <span class="nav-text">3. 深度辨析：JDK 动态代理 vs CGLIB</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E8%AF%AF%E5%8C%BA"><span class="nav-number">1.3.1.</span> <span class="nav-text">常见误区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8A%80%E6%9C%AF%E5%AF%B9%E6%AF%94%E8%A1%A8"><span class="nav-number">1.3.2.</span> <span class="nav-text">技术对比表</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E6%80%A7%E8%83%BD%E9%BB%91%E7%A7%91%E6%8A%80%EF%BC%9ACGLIB-%E7%9A%84-FastClass-%E6%9C%BA%E5%88%B6"><span class="nav-number">1.4.</span> <span class="nav-text">4. 性能黑科技：CGLIB 的 FastClass 机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#FastClass-%E5%8E%9F%E7%90%86"><span class="nav-number">1.4.1.</span> <span class="nav-text">FastClass 原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93-FastClass"><span class="nav-number">1.4.2.</span> <span class="nav-text">总结 FastClass</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E6%9E%B6%E6%9E%84%E5%B8%88%E5%BB%BA%E8%AE%AE-%E2%80%9CThe-Spring-Way%E2%80%9D"><span class="nav-number">1.5.</span> <span class="nav-text">5. 架构师建议 (“The Spring Way”)</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Supremes</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">82</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2025/11/uncategorized/officeDocuments/homeDocs/Spring/Spring%20AOP%20%E4%BA%8B%E5%8A%A1%E5%A4%B1%E6%95%88%E4%B8%8E%E5%BA%95%E5%B1%82%E4%BB%A3%E7%90%86%E6%80%BB%E7%BB%93/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Supremes">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Spring AOP 事务失效与底层代理总结 | Hexo">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Spring AOP 事务失效与底层代理总结
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2025-11-26 00:00:00 / Modified: 15:43:52" itemprop="dateCreated datePublished" datetime="2025-11-26T00:00:00+08:00">2025-11-26</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="Spring-AOP-事务失效与底层代理机制深度总结"><a href="#Spring-AOP-事务失效与底层代理机制深度总结" class="headerlink" title="Spring AOP 事务失效与底层代理机制深度总结"></a>Spring AOP 事务失效与底层代理机制深度总结</h1><h2 id="1-核心问题-为什么自调用导致事务失效"><a href="#1-核心问题-为什么自调用导致事务失效" class="headerlink" title="1. 核心问题:为什么自调用导致事务失效?"></a>1. 核心问题:为什么自调用导致事务失效?</h2><h3 id="现象"><a href="#现象" class="headerlink" title="现象"></a>现象</h3><p>在同一个类中，方法 A 调用方法 B（<code>this.methodB()</code>），即使方法 B 上加了 <code>@Transactional</code> 注解，事务依然不生效。</p>
+<h3 id="根本原因"><a href="#根本原因" class="headerlink" title="根本原因"></a>根本原因</h3><p>Spring AOP 的默认实现基于 <strong>代理模式 (Proxy Pattern)</strong>。Spring 容器中注入的 Bean 实际上是一个 <strong>代理对象 (Proxy)</strong>，它持有你编写的 <strong>目标对象 (Target)</strong>。</p>
+<ul>
+<li><strong>生效路径</strong>：外部调用 $\rightarrow$ Proxy $\rightarrow$ 事务拦截器 (Interceptor) $\rightarrow$ Target。</li>
+<li><strong>失效路径</strong>：Target 内部调用 $\rightarrow$ <code>this.methodB()</code> $\rightarrow$ Target。</li>
+</ul>
+<p>此时，<code>this</code> 指针指向的是<strong>目标对象本身</strong>。代码执行流直接在目标对象内部流转，完全<strong>绕过</strong>了外层的代理对象及其持有的事务拦截器。</p>
+<h3 id="形象比喻"><a href="#形象比喻" class="headerlink" title="形象比喻"></a>形象比喻</h3><ul>
+<li><strong>Proxy (代理)</strong>：大楼门口的<strong>安检员</strong>。</li>
+<li><strong>Target (目标)</strong>：大楼里的<strong>员工</strong>。</li>
+<li><strong>外部访问</strong>：访客找员工，必须经过安检（事务生效）。</li>
+<li><strong>内部自调用</strong>：员工之间互找，直接在楼里见面，不需要跑出去再过一次安检（事务失效）。</li>
+</ul>
+<hr>
+<h2 id="2-解决方案-按架构师推荐度排序"><a href="#2-解决方案-按架构师推荐度排序" class="headerlink" title="2. 解决方案 (按架构师推荐度排序)"></a>2. 解决方案 (按架构师推荐度排序)</h2><table>
+<thead>
+<tr>
+<th><strong>方案</strong></th>
+<th><strong>具体做法</strong></th>
+<th><strong>评价</strong></th>
+<th><strong>适用场景</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>1. 架构重构 (Refactoring)</strong></td>
+<td>将需要事务的方法提取到<strong>独立的 Service</strong> 中，通过 Bean 注入调用。</td>
+<td>⭐⭐⭐⭐⭐ (强烈推荐)</td>
+<td>符合单一职责原则 (SRP)，代码结构最清晰。</td>
+</tr>
+<tr>
+<td><strong>2. 自我注入 (Self-Injection)</strong></td>
+<td>在类中注入自身 (<code>@Lazy</code> 解决循环依赖)，调用 <code>self.methodB()</code>。</td>
+<td>⭐⭐⭐ (可用)</td>
+<td>业务逻辑紧密耦合，不适合拆分文件时。</td>
+</tr>
+<tr>
+<td><strong>3. AopContext</strong></td>
+<td>使用 <code>AopContext.currentProxy()</code> 强转获取当前代理对象。</td>
+<td>⭐ (不推荐)</td>
+<td>代码侵入性强，与 Spring API 强耦合。</td>
+</tr>
+<tr>
+<td><strong>4. AspectJ</strong></td>
+<td>放弃代理模式，使用字节码织入 (Weaving)。</td>
+<td>N&#x2F;A (特殊需求)</td>
+<td>追求极致性能或必须在 private&#x2F;自调用中生效时。</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="3-深度辨析：JDK-动态代理-vs-CGLIB"><a href="#3-深度辨析：JDK-动态代理-vs-CGLIB" class="headerlink" title="3. 深度辨析：JDK 动态代理 vs CGLIB"></a>3. 深度辨析：JDK 动态代理 vs CGLIB</h2><p><img src="/../../Pics/image-20251126101915903.png" alt="image-20251126101915903"></p>
+<h3 id="常见误区"><a href="#常见误区" class="headerlink" title="常见误区"></a>常见误区</h3><blockquote>
+<p><strong>误区</strong>：”JDK Proxy 会导致自调用失效，换成 CGLIB 就能解决了。”</p>
+<p><strong>真相</strong>：<strong>错误的。</strong> 无论是 JDK Proxy 还是 CGLIB，只要是基于<strong>代理模式</strong>，自调用都会失效。因为它们底层架构都是 <code>Proxy</code> 持有 <code>Target</code>。</p>
+</blockquote>
+<h3 id="技术对比表"><a href="#技术对比表" class="headerlink" title="技术对比表"></a>技术对比表</h3><table>
+<thead>
+<tr>
+<th><strong>维度</strong></th>
+<th><strong>JDK 动态代理</strong></th>
+<th><strong>CGLIB (Code Generation Library)</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>实现机制</strong></td>
+<td>基于 <strong>接口 (Interface)</strong></td>
+<td>基于 <strong>继承 (Subclass)</strong></td>
+</tr>
+<tr>
+<td><strong>类关系</strong></td>
+<td>代理类与目标类是 <strong>兄弟关系</strong></td>
+<td>代理类是目标类的 <strong>子类</strong></td>
+</tr>
+<tr>
+<td><strong>核心限制</strong></td>
+<td>目标类 <strong>必须实现接口</strong></td>
+<td>目标类或方法 <strong>不能是 Final</strong></td>
+</tr>
+<tr>
+<td><strong>调用方式</strong></td>
+<td><strong>反射</strong> (<code>Method.invoke</code>)</td>
+<td><strong>FastClass 索引</strong> (直接调用)</td>
+</tr>
+<tr>
+<td><strong>自调用支持</strong></td>
+<td>❌ 不支持</td>
+<td>❌ 不支持</td>
+</tr>
+<tr>
+<td><strong>Spring 默认</strong></td>
+<td>旧版本 (有接口时默认)</td>
+<td><strong>Spring Boot 2.0+ 默认</strong></td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="4-性能黑科技：CGLIB-的-FastClass-机制"><a href="#4-性能黑科技：CGLIB-的-FastClass-机制" class="headerlink" title="4. 性能黑科技：CGLIB 的 FastClass 机制"></a>4. 性能黑科技：CGLIB 的 FastClass 机制</h2><p>CGLIB 在运行时之所以高效，是因为它通过 <strong>FastClass</strong> 机制规避了 Java 反射 API 的开销。</p>
+<h3 id="FastClass-原理"><a href="#FastClass-原理" class="headerlink" title="FastClass 原理"></a>FastClass 原理</h3><p>CGLIB 在生成代理类时，会利用 ASM 字节码技术额外生成一个 <code>FastClass</code>。它相当于把”反射查找”变成了”硬编码的索引跳转”。</p>
+<p><strong>伪代码逻辑：</strong></p>
+<p>Java</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">// FastClass 就像一个巨大的 switch-case，建立了 方法签名 -&gt; 索引 的映射</span><br><span class="line">public Object invoke(int index, Object target, Object[] args) &#123;</span><br><span class="line">    MyService service = (MyService) target;</span><br><span class="line">    // 直接调用，没有反射的 invoke() 开销</span><br><span class="line">    switch (index) &#123;</span><br><span class="line">        case 1: return service.login(); </span><br><span class="line">        case 2: return service.logout();</span><br><span class="line">    &#125;</span><br><span class="line">    return null;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="总结-FastClass"><a href="#总结-FastClass" class="headerlink" title="总结 FastClass"></a>总结 FastClass</h3><ul>
+<li><strong>本质</strong>：<strong>空间换时间</strong>。通过生成更多的字节码类，建立索引。</li>
+<li><strong>优势</strong>：<strong>运行时 (Runtime)</strong> 调用速度极快，接近原生 Java 方法调用，不仅省去了反射的安全检查，还能享受 JVM 的内联优化。</li>
+<li><strong>劣势</strong>：<strong>启动时间</strong>稍慢（需要生成和加载字节码）。</li>
+</ul>
+<hr>
+<h2 id="5-架构师建议-“The-Spring-Way”"><a href="#5-架构师建议-“The-Spring-Way”" class="headerlink" title="5. 架构师建议 (“The Spring Way”)"></a>5. 架构师建议 (“The Spring Way”)</h2><ol>
+<li><strong>首选重构</strong>：遇到自调用失效，首先反思类的职责是否过重。将事务逻辑拆分到不同 Service 是最优雅的解法。</li>
+<li><strong>拥抱 CGLIB</strong>：在 Spring Boot 2.x&#x2F;3.x 时代，默认使用 CGLIB 是最佳实践（稳定、高效、无需接口），除非你有特殊的 JDK 原生洁癖。</li>
+<li><strong>避坑 Final</strong>：使用 Spring 管理的 Bean（尤其是涉及 AOP&#x2F;事务的），<strong>严禁</strong>将类或方法设为 <code>final</code>，否则 CGLIB 无法生成子类代理，会导致启动报错或 AOP 失效。</li>
+<li><strong>理解原理</strong>：不要盲目背诵“CGLIB 比 JDK 快”，要理解它是通过“启动时的复杂”换取了“运行时的简单”。</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/11/uncategorized/officeDocuments/officeDocs/MDM/UserEnrollment/" rel="prev" title="MDM Enrolment Types">
+                  <i class="fa fa-angle-left"></i> MDM Enrolment Types
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/11/uncategorized/officeDocuments/officeDocs/objective-c/" rel="next" title="Objective-C 面向对象">
+                  Objective-C 面向对象 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Supremes</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
