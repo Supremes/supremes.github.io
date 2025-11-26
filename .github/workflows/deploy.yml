@@ -1,0 +1,44 @@
+name: Deploy Hexo Site
+
+on:
+  push:
+    branches:
+      - develop  # 触发部署的分支，如果你用的是 master，请改为 master
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # 必须！允许 Action 修改仓库内容（用于推送 gh-pages）
+
+    steps:
+      # 1. 拉取代码
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true # 如果你的主题是作为 submodule 添加的，这里必须开启
+          fetch-depth: 0    # 建议设为 0，拉取完整历史（有些插件如 hexo-generator-sitemap 需要）
+
+      # 2. 设置 Node.js 环境
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # 建议使用 LTS 版本
+          cache: 'npm'       # 开启缓存，加快安装速度
+
+      # 3. 安装依赖
+      - name: Install Dependencies
+        run: npm ci # 相比 npm install，ci 更适合自动化环境，它会严格按照 package-lock.json 安装
+
+      # 4. 生成静态文件
+      - name: Build
+        run: npx hexo generate
+
+      # 5. 部署到 gh-pages 分支
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }} # GitHub 自动生成的 Token，无需手动设置
+          publish_dir: ./public  # Hexo 生成的静态文件目录
+          publish_branch: gh-pages  # 推送到哪个分支
+          commit_message: ${{ github.event.head_commit.message }}

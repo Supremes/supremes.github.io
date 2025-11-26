@@ -16,7 +16,6 @@ node_modules/
 # 插件产生的垃圾文件
 .yarn/
 yarn-error.log
-package-lock.json
 yarn.lock
 
 # 操作系统生成的垃圾文件 (Mac/Windows)
