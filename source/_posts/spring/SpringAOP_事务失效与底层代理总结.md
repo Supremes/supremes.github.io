@@ -1,5 +1,14 @@
 ---
 title: Spring AOP 事务失效与底层代理机制深度总结
+date: 2025-11-25 20:39:20
+tags:
+    - Spring
+    - Java
+    - AOP
+categories:
+    - 学习笔记
+description:
+cover: /imgs/AOP-PROXY.png
 ---
 
 # Spring AOP 事务失效与底层代理机制深度总结
