@@ -1,0 +1,351 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Hexo | Hexo</title><meta name="author" content="Supremes"><meta name="copyright" content="Supremes"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="** ** leader replica: for client to read and write follower replica: sync latest data with leader replica ** ** kafka broker 持久化消费日志:  使用顺序I&#x2F;O追加写消费日志 Log segment: 将日志按照Log segment进行分段，然后定时去更新删除">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hexo">
+<meta property="og:url" content="https://supremes.github.io/blog/message_queue/KafkaNotes/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="** ** leader replica: for client to read and write follower replica: sync latest data with leader replica ** ** kafka broker 持久化消费日志:  使用顺序I&#x2F;O追加写消费日志 Log segment: 将日志按照Log segment进行分段，然后定时去更新删除">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://supremes.github.io/imgs/avatar.jpg">
+<meta property="article:published_time" content="2025-11-27T13:13:52.022Z">
+<meta property="article:modified_time" content="2025-11-27T13:13:52.022Z">
+<meta property="article:author" content="Supremes">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://supremes.github.io/imgs/avatar.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "",
+  "url": "https://supremes.github.io/blog/message_queue/KafkaNotes/",
+  "image": "https://supremes.github.io/imgs/avatar.jpg",
+  "datePublished": "2025-11-27T13:13:52.022Z",
+  "dateModified": "2025-11-27T13:13:52.022Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Supremes",
+      "url": "https://supremes.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://supremes.github.io/blog/message_queue/KafkaNotes/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.2"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Failed',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Hexo',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 8.1.1"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/imgs/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">4</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">5</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">1</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Hexo</span></a><a class="nav-page-title" href="/"><span class="site-name">Hexo</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  Back to Home</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">Untitled</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-11-27T13:13:52.022Z" title="Created 2025-11-27 13:13:52">2025-11-27</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-11-27T13:13:52.022Z" title="Updated 2025-11-27 13:13:52">2025-11-27</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p><img src="https://cdn.nlark.com/yuque/0/2024/png/26265874/1729754130306-a1a3af15-9b76-490d-b9af-0224ad74ff97.png" alt="img"></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2024/jpeg/26265874/1729754903829-7e18bd78-ced4-496f-8a6b-52fe21c941a1.jpeg" alt="img"></p>
+<p>**</p>
+<p>**</p>
+<p><strong>leader replica: for client to read and write</strong></p>
+<p><strong>follower replica: sync latest data with leader replica</strong></p>
+<p>**</p>
+<p>**</p>
+<p><strong>kafka broker 持久化消费日志:</strong></p>
+<ul>
+<li><strong>使用顺序I&#x2F;O追加写消费日志</strong></li>
+<li><strong>Log segment: 将日志按照Log segment进行分段，然后定时去更新删除Log segment来腾出空间</strong></li>
+</ul>
+<h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>kafka早期版本由scala编写，编译成class文件，跑在JVM上，后面由Java编写。</p>
+<h1 id="术语"><a href="#术语" class="headerlink" title="术语"></a>术语</h1><ul>
+<li>消息：Record。Kafka是消息引擎嘛，这里的消息就是指Kafka处理的主要对象。</li>
+<li>主题：Topic。主题是承载消息的逻辑容器，在实际使用中多用来区分具体的业务。</li>
+<li>分区：Partition。一个有序不变的消息序列。每个主题下可以有多个分区。</li>
+<li>消息位移：Offset。表示分区中每条消息的位置信息，是一个单调递增且不变的值。</li>
+<li>副本：Replica。Kafka中同一条消息能够被拷贝到多个地方以提供数据冗余，这些地方就是所谓的副本。副本还分为领导者副本和追随者副本，各自有不同的角色划分。副本是在分区层级下的，即每个分区可配置多个副本实现高可用。</li>
+<li>生产者：Producer。向主题发布新消息的应用程序。</li>
+<li>消费者：Consumer。从主题订阅新消息的应用程序。</li>
+<li>消费者位移：Consumer Offset。表征消费者消费进度，每个消费者都有自己的消费者位移。</li>
+<li>消费者组：Consumer Group。多个消费者实例共同组成的一个组，同时消费多个分区以实现高吞吐。</li>
+<li>重平衡：Rebalance。消费者组内某个消费者实例挂掉后，其他消费者实例自动重新分配订阅主题分区的过程。Rebalance是Kafka消费者端实现高可用的重要手段。</li>
+<li><strong>刷盘</strong>：刷盘是指将内存中的数据持久化到磁盘的过程。Kafka 的数据存储在磁盘上的日志文件（Log File）中，消息先被写入到内存缓冲区，然后根据一定的策略将这些消息从内存刷写到磁盘，以保证数据的持久性，即使在服务器重启等情况下数据也不会丢失。</li>
+<li>replication-factor：副本因子。例如，一个主题分区有 3 个副本，意味着除了主副本（Leader Replica）外，还有 2 个从副本（Follower Replica）存储相同的数据。</li>
+<li>Purgatory：是一个用于处理延迟操作的内部机制。它主要用于处理那些不能立即完成，需要等待一些条件满足后才能完成的操作，比如事务（Transaction）相关的操作。</li>
+</ul>
+<h1 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h1><p><img src="https://cdn.nlark.com/yuque/0/2024/jpeg/26265874/1729760833135-4703b8dc-570c-4d7b-a938-e9ffad214cce.jpeg" alt="img"></p>
+<h2 id="集群参数设置"><a href="#集群参数设置" class="headerlink" title="集群参数设置"></a>集群参数设置</h2><p><img src="https://cdn.nlark.com/yuque/0/2024/jpeg/26265874/1729822843114-90d3b692-99ef-4fba-9859-27aebf9ec514.jpeg" alt="img"></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2024/jpeg/26265874/1729824751683-671327c5-2f28-44eb-98ed-793f21f57d84.jpeg" alt="img"></p>
+<h3 id="Broker参数"><a href="#Broker参数" class="headerlink" title="Broker参数"></a>Broker参数</h3><ul>
+<li>Log.dirs: 建议各个目录挂在到不同的磁盘csv格式，<strong>提升读写性能和实现故障转移</strong></li>
+</ul>
+<p>&#x2F;home&#x2F;dir1, &#x2F;home&#x2F;dir2</p>
+<ul>
+<li>Log.dir：单个路径，补充上述参数所用</li>
+<li>listeners：告诉外部连接者（客户端或其他broker）使用什么协议连接</li>
+<li>advertised.listeners：和listeners相比多了个advertised。Advertised的含义表示宣称的、公布的，就是说这组监听器是Broker用于对外发布的。</li>
+</ul>
+<p><strong>监听器</strong></p>
+<p>协议可以是标准协议或自定义协议，如：</p>
+<p> controller:&#x2F;&#x2F;localhost:9992</p>
+<p>若使用了自定义协议（如：controller），还需要指定以下参数：</p>
+<ul>
+<li>listener.security.protocol.map：告诉协议底层使用了哪种安全协议 - listener.security.protocol.map&#x3D;CONTROLLER:PLAINTEXT</li>
+</ul>
+<p><strong>Topic管理</strong></p>
+<ul>
+<li>auto.create.topics.enable：是否允许自动创建Topic。建议默认设置为false，避免线上环境出现未知问题</li>
+<li>unclean.leader.election.enable：是否允许Unclean Leader选举。建议默认设置为false</li>
+<li>auto.leader.rebalance.enable：是否允许定期进行Leader选举。建议默认设置为false，不然线上会出现定期换leader副本的情况</li>
+</ul>
+<p><strong>数据管理</strong></p>
+<ul>
+<li>log.retention.{hours|minutes|ms}：这是个“三兄弟”，都是控制一条消息数据被保存多长时间。从优先级上来说ms设置最高、minutes次之、hours最低。</li>
+<li>log.retention.bytes：这是指定Broker为消息保存的总磁盘容量大小。</li>
+<li>message.max.bytes：控制Broker能够接收的最大消息大小。</li>
+</ul>
+<h3 id="Topic参数"><a href="#Topic参数" class="headerlink" title="Topic参数"></a>Topic参数</h3><p>同时设置broker参数和topic参数，以topic参数为准。</p>
+<ul>
+<li><code>retention.ms</code>：规定了该Topic消息被保存的时长。默认是7天，即该Topic只保存最近7天的消息。一旦设置了这个值，它会覆盖掉Broker端的全局参数值。</li>
+<li><code>retention.bytes</code>：规定了要为该Topic预留多大的磁盘空间。和全局参数作用相似，这个值通常在多租户的Kafka集群中会有用武之地。当前默认值是-1，表示可以无限使用磁盘空间。</li>
+<li><code>max.message.bytes</code>。它决定了Kafka Broker能够正常接收该Topic的最大消息大小。</li>
+</ul>
+<h3 id="JVM-参数"><a href="#JVM-参数" class="headerlink" title="JVM 参数"></a>JVM 参数</h3><p>JVM参数：在启动时设置</p>
+<ul>
+<li>KAFKA_HEAP_OPTS：堆大小参数：默认为1GB，建议设置成6GB，业界公认的值，毕竟broker在和客户端交互时，会创建大量的ByteBuffer实例</li>
+<li>KAFKA_JVM_PERFORMANCE_OPTS：垃圾回收期参数- GC参数</li>
+</ul>
+<h2 id="分区策略"><a href="#分区策略" class="headerlink" title="分区策略"></a>分区策略</h2><p>决定生产者将消息发送到哪个分区的算法，kafka提供了默认的分区策略，也支持自定义分区算法。</p>
+<p>自定义分区策略，需要配置生产者端的参数 - partitioner.class : 参数为实现类的full qualified name</p>
+<p>实现org.apache.kafka.clients.producer.Partitioner 接口</p>
+<h3 id="轮询策略"><a href="#轮询策略" class="headerlink" title="轮询策略"></a>轮询策略</h3><p>轮询策略有非常优秀的负载均衡表现，它总是能保证消息最大限度地被平均分配到所有分区上，故默认情况下它是最合理的分区策略，也是我们最常用的分区策略之一。<img src="https://cdn.nlark.com/yuque/0/2024/jpeg/26265874/1729826033997-732b5a79-f512-494e-876a-48bdab887675.jpeg" alt="img"></p>
+<h3 id="随机策略"><a href="#随机策略" class="headerlink" title="随机策略"></a>随机策略</h3><p><img src="https://cdn.nlark.com/yuque/0/2024/jpeg/26265874/1729826080044-8819f9a6-ca2e-4505-bab7-7aaee08842ff.jpeg" alt="img"></p>
+<h3 id="按消息键保序策略"><a href="#按消息键保序策略" class="headerlink" title="按消息键保序策略"></a><strong>按消息键保序策略</strong></h3><p>Key-ordering 策略。同一个Key的所有消息都进入到相同的分区里面，由于每个分区下的消息处理都是有顺序的，故这个策略被称为按消息键保序策略，如下图所示。</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2024/jpeg/26265874/1729826566637-bfda281e-26a3-4ffa-b7e0-8cc8a4d14c81.jpeg" alt="img"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">List&lt;PartitionInfo&gt; partitions = cluster.partitionsForTopic(topic);</span><br><span class="line"><span class="keyword">return</span> Math.abs(key.hashCode()) % partitions.size();</span><br></pre></td></tr></table></figure>
+
+<h2 id="Kafka控制器"><a href="#Kafka控制器" class="headerlink" title="Kafka控制器"></a>Kafka控制器</h2><p>Kafka集群运行过程中，只能有一台Broker充当控制器的角色。</p>
+<h3 id="主要职责"><a href="#主要职责" class="headerlink" title="主要职责"></a>主要职责</h3><p>负责管理和协调集群中的各类工作，比如分区的分配，副本的管理，主题的创建和删除等</p>
+<ol>
+<li><ol>
+<li>分区分配：主副本的分布，例如topic有两个分区，分区1的leader副本放置到broker1，从副本放置到broker2；分区2的leader副本放置到broker2，从副本放置到broker1。</li>
+</ol>
+</li>
+</ol>
+<p><img src="https://cdn.nlark.com/yuque/0/2024/png/26265874/1731847546326-2db13fcb-42d0-4871-bcb3-5fd03497be70.png" alt="img"></p>
+<ol>
+<li><ol>
+<li>leader副本选举：若leader副本所在broker节点宕机，控制器会启动副本选举过程</li>
+<li>主题创建和删除：接受来自脚本或API的请求</li>
+<li>集群监控和协调：与节点之间的心跳机制，来检测节点是否存活，若节点长时间无心跳，则认为出现问题，便会重新分配该节点上的分区和副本</li>
+</ol>
+</li>
+</ol>
+<h3 id="控制器如何被选出来的"><a href="#控制器如何被选出来的" class="headerlink" title="控制器如何被选出来的"></a>控制器如何被选出来的</h3><p>Broker在启动时，会尝试去ZooKeeper中创建&#x2F;controller节点。Kafka当前选举控制器的规则是：第一个成功创建&#x2F;controller节点的Broker会被指定为控制器。</p>
+<h3 id="控制节点宕机了怎么办"><a href="#控制节点宕机了怎么办" class="headerlink" title="控制节点宕机了怎么办"></a>控制节点宕机了怎么办</h3><p>Failover机制：Zookeeper通过watch机制，来检测当前的控制器所在节点是否存活，若出现问题，便会删除该控制器，存活的broker会重新竞选新的控制器。</p>
+<h2 id="消息交付可靠性保障"><a href="#消息交付可靠性保障" class="headerlink" title="消息交付可靠性保障"></a>消息交付可靠性保障</h2><p>所谓的消息交付可靠性保障，是指Kafka对Producer和Consumer要处理的消息提供什么样的承诺。常见的承诺有以下三种：</p>
+<ul>
+<li><strong>最多一次（at most once）：消息可能会丢失，但绝不会被重复发送。</strong></li>
+<li><strong>至少一次（at least once）：消息不会丢失，但有可能被重复发送。</strong></li>
+<li><strong>精确一次（exactly once）：消息不会丢失，也不会被重复发送。</strong></li>
+</ul>
+<p>目前，Kafka默认提供的交付可靠性保障是第二种，即至少一次。</p>
+<p>Kafka通过幂等性和事务性来实现精确一次的交付可靠性保障。</p>
+<h1 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h1><h2 id="1-为什么Kafka不像MySQL那样允许追随者副本对外提供读服务？"><a href="#1-为什么Kafka不像MySQL那样允许追随者副本对外提供读服务？" class="headerlink" title="1. 为什么Kafka不像MySQL那样允许追随者副本对外提供读服务？"></a>1. 为什么Kafka不像MySQL那样允许追随者副本对外提供读服务？</h2><ol>
+<li><strong>一致性模型差异</strong></li>
+</ol>
+<ul>
+<li><ul>
+<li><strong>Kafka</strong>：Kafka遵循的是一种分布式的、基于日志的消息传递模型。消息是顺序写入分区（Partition）的日志文件中的，消费者从分区的主副本（Leader Replica）读取消息是按照顺序进行的。如果允许追随者副本（Follower Replica）对外提供读服务，由于网络延迟、副本同步等因素，不同副本之间的数据可能存在微小的差异。在高吞吐量的消息流场景下，确保消息顺序的一致性和数据的实时性是非常重要的。</li>
+<li><strong>MySQL</strong>：MySQL主要用于事务处理和数据存储，它采用了ACID（原子性、一致性、隔离性、持久性）原则来保证数据的一致性。在主从复制（Master - Slave）模式下，从库（Slave）会通过二进制日志（Binlog）来同步主库（Master）的数据。从库在应用完主库的事务日志后，数据在一定程度上可以认为是与主库一致的，因此可以提供读服务。</li>
+</ul>
+</li>
+</ul>
+<ol>
+<li><strong>数据更新机制</strong></li>
+</ol>
+<ul>
+<li><ul>
+<li><strong>Kafka</strong>：Kafka的消息更新主要是生产者向主副本写入新消息。主副本负责管理消息的写入顺序和偏移量（Offset）等元数据。追随者副本通过从主副本拉取消息来进行同步。这个过程中，如果允许追随者副本同时对外提供读服务，当追随者副本还没有完全同步最新的消息时，就可能出现消费者读取到不一致的数据。</li>
+<li><strong>MySQL</strong>：MySQL的主从复制是基于事务日志的同步。主库在执行事务并写入数据的同时，会记录二进制日志。从库会不断地从主库获取并应用这些日志来更新自己的数据。一旦从库应用完相应的日志，其数据状态在逻辑上与主库是一致的，所以可以提供读服务。</li>
+</ul>
+</li>
+</ul>
+<ol>
+<li><strong>Kafka的设计目标</strong></li>
+</ol>
+<ul>
+<li><ul>
+<li>Kafka主要是为了高效地处理大规模的实时消息流。它的重点是确保消息的快速写入和顺序读取。如果允许追随者副本提供读服务，可能会引入额外的复杂性，如读取的负载均衡、数据一致性的验证等。</li>
+<li>相比之下，MySQL的设计目标包括支持复杂的事务处理和多种查询操作。允许从库提供读服务可以分担主库的负载，提高系统的整体性能，特别是在读写比例较高的应用场景中。</li>
+</ul>
+</li>
+</ul>
+<ol>
+<li><strong>故障恢复和数据同步的复杂性</strong></li>
+</ol>
+<ul>
+<li><ul>
+<li><strong>Kafka</strong>：在Kafka中，当主副本出现故障时，会从追随者副本中选举出一个新的主副本。如果追随者副本同时在提供读服务，那么在故障恢复过程中，需要考虑如何处理正在进行的读操作，以及如何保证新主副本的数据一致性。这会增加系统的复杂性和潜在的风险。</li>
+<li><strong>MySQL</strong>：MySQL在主从复制模式下，从库的故障恢复相对来说比较简单。从库可以重新从主库获取二进制日志来同步数据。而且在正常运行时，主从之间的数据同步机制比较成熟，能够保证从库在提供读服务时的数据质量。</li>
+</ul>
+</li>
+</ul>
+<h2 id="2-Kafka如何保证消息顺序性"><a href="#2-Kafka如何保证消息顺序性" class="headerlink" title="2. Kafka如何保证消息顺序性"></a>2. Kafka如何保证消息顺序性</h2><ol>
+<li><p>分区有序：Kafka的每个topic有多个分区，每个分区内的消息是有序的（按顺序追加写）。如需全局有序，需要把消息发布到指定单个分区中。</p>
+</li>
+<li><p>同步发送：配置消息发送确认模式acks&#x3D;all，保证消息被写入到ISR（In-Sync Replicas）之后，才会被认为消息发送成功。牺牲了吞吐量，保证了消息持久性和顺序性。</p>
+</li>
+<li><ol>
+<li>acks参数：</li>
+</ol>
+</li>
+<li><ol>
+<li><ol>
+<li>acks &#x3D; 0， 最不可靠的设置项，不会等待集群的确认，生产者会立即认为消息发送成功</li>
+<li>acks &#x3D; 1，等待分区的主副本（Leader Replica）的确认（成功接受并写入消息）。相对可靠，可能主副本成功接收消息后，还没来得及将消息同步到其他副本（Follower Replica）就发生故障，那么消息可能会丢失。</li>
+<li>acks &#x3D; all， 等待所有同步副本 - ISR 的确认。最可靠。</li>
+</ol>
+</li>
+</ol>
+</li>
+<li><p>消息偏移量（offsets）：kafka中的每个消息都有唯一的偏移量，其在分区内是连续递增的。消费者维护该偏移量来记录消费进度，并按照偏移量来消费，保证消费顺序。</p>
+</li>
+</ol>
+<h2 id="3-Kafka中的消息如何存储"><a href="#3-Kafka中的消息如何存储" class="headerlink" title="3. Kafka中的消息如何存储"></a>3. Kafka中的消息如何存储</h2><p>消息是以优化后的日志格式存储在磁盘上，主题由多个分区组成，分区是一个有序的，不可变的消息序列，使用Log Segments进行管理。</p>
+<ul>
+<li><p>每个分区由多个Log Segments组成</p>
+</li>
+<li><p>每个Log Segment包含一个.log文件用于存储消息数据，以及一个可选的.index文件用于快速查找消息</p>
+</li>
+<li><ul>
+<li>log文件存储消息内容</li>
+<li>index文件存储索引，方便快速查找消息</li>
+</ul>
+</li>
+</ul>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><h2 id="参数设置"><a href="#参数设置" class="headerlink" title="参数设置"></a>参数设置</h2><p><code>auto.create.topics.enable</code>参数我建议最好设置成false，即不允许自动创建Topic。在我们的线上环境里面有很多名字稀奇古怪的Topic，我想大概都是因为该参数被设置成了true的缘故。</p>
+<p>你可能有这样的经历，要为名为test的Topic发送事件，但是不小心拼写错误了，把test写成了tst，之后启动了生产者程序。恭喜你，一个名为tst的Topic就被自动创建了。</p>
+<p>所以我一直相信好的运维应该防止这种情形的发生，特别是对于那些大公司而言，每个部门被分配的Topic应该由运维严格把控，决不能允许自行创建任何Topic。</p>
+<p>第二个参数<code>unclean.leader.election.enable</code>是关闭Unclean Leader选举的。何谓Unclean？还记得Kafka有多个副本这件事吗？每个分区都有多个副本来提供高可用。在这些副本中只能有一个副本对外提供服务，即所谓的Leader副本。</p>
+<p>那么问题来了，这些副本都有资格竞争Leader吗？显然不是，只有保存数据比较多的那些副本才有资格竞选，那些落后进度太多的副本没资格做这件事。</p>
+<p>好了，现在出现这种情况了：假设那些保存数据比较多的副本都挂了怎么办？我们还要不要进行Leader选举了？此时这个参数就派上用场了。</p>
+<p>如果设置成false，那么就坚持之前的原则，坚决不能让那些落后太多的副本竞选Leader。这样做的后果是这个分区就不可用了，因为没有Leader了。反之如果是true，那么Kafka允许你从那些“跑得慢”的副本中选一个出来当Leader。这样做的后果是数据有可能就丢失了，因为这些副本保存的数据本来就不全，当了Leader之后它本人就变得膨胀了，认为自己的数据才是权威的。</p>
+<p>这个参数在最新版的Kafka中默认就是false，本来不需要我特意提的，但是比较搞笑的是社区对这个参数的默认值来来回回改了好几版了，鉴于我不知道你用的是哪个版本的Kafka，所以建议你还是显式地把它设置成false吧。</p>
+<p>第三个参数<code>auto.leader.rebalance.enable</code>的影响貌似没什么人提，但其实对生产环境影响非常大。设置它的值为true表示允许Kafka定期地对一些Topic分区进行Leader重选举，当然这个重选举不是无脑进行的，它要满足一定的条件才会发生。严格来说它与上一个参数中Leader选举的最大不同在于，它不是选Leader，而是换Leader！比如Leader A一直表现得很好，但若<code>auto.leader.rebalance.enable=true</code>，那么有可能一段时间后Leader A就要被强行卸任换成Leader B。</p>
+<p>你要知道换一次Leader代价很高的，原本向A发送请求的所有客户端都要切换成向B发送请求，而且这种换Leader本质上没有任何性能收益，因此我建议你在生产环境中把这个参数设置成false。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://supremes.github.io">Supremes</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://supremes.github.io/blog/message_queue/KafkaNotes/">https://supremes.github.io/blog/message_queue/KafkaNotes/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles on this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless otherwise stated.</span></div></div><div class="tag_share"><div class="post-share"><div class="social-share" data-image="/imgs/avatar.jpg" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%A4%E8%AF%81%E5%92%8C%E6%8E%88%E6%9D%83/" title="认证和授权"><img class="cover" src="/imgs/%E8%AE%A4%E8%AF%81%E5%92%8C%E6%8E%88%E6%9D%83%E5%B0%81%E9%9D%A2%E5%9B%BE.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">Previous</div><div class="info-item-2">认证和授权</div></div><div class="info-2"><div class="info-item-1">在认证（Authentication）和授权（Authorization）过程中，协议和Token是确保安全访问资源的基石。以下从协议和Token两个维度进行系统性阐述：  一、认证授权协议1. OAuth 2.0 用途：专注于授权（资源访问权限的委派），而非直接处理用户身份认证。 核心角色： 客户端（Client）：请求访问资源的应用。 资源所有者（Resource Owner）：用户。 授权服务器（Authorization Server）：颁发Token。 资源服务器（Resource Server）：存储受保护资源。   授权模式： 授权码模式（Authorization Code）：适用于Web应用（服务端安全）。 隐式模式（Implicit）：适用于SPA或原生App（客户端不安全）。 密码模式（Resource Owner Password Credentials）：用户直接提供密码（仅信任客户端时使用）。 客户端凭证模式（Client Credentials）：服务端间通信（无用户参与）。   场景：第三方应用访问用户资源（如微信登录后获取用户数据）。  2. O...</div></div></div></a><a class="pagination-related" href="/blog/hello-world/" title="Hello World"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">Next</div><div class="info-item-2">Hello World</div></div><div class="info-2"><div class="info-item-1">Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick StartCreate a new post1$ hexo new &quot;My New Post&quot;  More info: Writing Run server1$ hexo server  More info: Server Generate static files1$ hexo generate  More info: Generating Deploy to remote sites1$ hexo deploy  More info: Deployment </div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/imgs/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Supremes</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">4</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">5</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">1</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/Supremes"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%83%8C%E6%99%AF"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9C%AF%E8%AF%AD"><span class="toc-number">2.</span> <span class="toc-text">术语</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%83%A8%E7%BD%B2"><span class="toc-number">3.</span> <span class="toc-text">部署</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9B%86%E7%BE%A4%E5%8F%82%E6%95%B0%E8%AE%BE%E7%BD%AE"><span class="toc-number">3.1.</span> <span class="toc-text">集群参数设置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Broker%E5%8F%82%E6%95%B0"><span class="toc-number">3.1.1.</span> <span class="toc-text">Broker参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Topic%E5%8F%82%E6%95%B0"><span class="toc-number">3.1.2.</span> <span class="toc-text">Topic参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JVM-%E5%8F%82%E6%95%B0"><span class="toc-number">3.1.3.</span> <span class="toc-text">JVM 参数</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E5%8C%BA%E7%AD%96%E7%95%A5"><span class="toc-number">3.2.</span> <span class="toc-text">分区策略</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BD%AE%E8%AF%A2%E7%AD%96%E7%95%A5"><span class="toc-number">3.2.1.</span> <span class="toc-text">轮询策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9A%8F%E6%9C%BA%E7%AD%96%E7%95%A5"><span class="toc-number">3.2.2.</span> <span class="toc-text">随机策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8C%89%E6%B6%88%E6%81%AF%E9%94%AE%E4%BF%9D%E5%BA%8F%E7%AD%96%E7%95%A5"><span class="toc-number">3.2.3.</span> <span class="toc-text">按消息键保序策略</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Kafka%E6%8E%A7%E5%88%B6%E5%99%A8"><span class="toc-number">3.3.</span> <span class="toc-text">Kafka控制器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BB%E8%A6%81%E8%81%8C%E8%B4%A3"><span class="toc-number">3.3.1.</span> <span class="toc-text">主要职责</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8E%A7%E5%88%B6%E5%99%A8%E5%A6%82%E4%BD%95%E8%A2%AB%E9%80%89%E5%87%BA%E6%9D%A5%E7%9A%84"><span class="toc-number">3.3.2.</span> <span class="toc-text">控制器如何被选出来的</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8E%A7%E5%88%B6%E8%8A%82%E7%82%B9%E5%AE%95%E6%9C%BA%E4%BA%86%E6%80%8E%E4%B9%88%E5%8A%9E"><span class="toc-number">3.3.3.</span> <span class="toc-text">控制节点宕机了怎么办</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B6%88%E6%81%AF%E4%BA%A4%E4%BB%98%E5%8F%AF%E9%9D%A0%E6%80%A7%E4%BF%9D%E9%9A%9C"><span class="toc-number">3.4.</span> <span class="toc-text">消息交付可靠性保障</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%97%AE%E9%A2%98"><span class="toc-number">4.</span> <span class="toc-text">问题</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E4%B8%BA%E4%BB%80%E4%B9%88Kafka%E4%B8%8D%E5%83%8FMySQL%E9%82%A3%E6%A0%B7%E5%85%81%E8%AE%B8%E8%BF%BD%E9%9A%8F%E8%80%85%E5%89%AF%E6%9C%AC%E5%AF%B9%E5%A4%96%E6%8F%90%E4%BE%9B%E8%AF%BB%E6%9C%8D%E5%8A%A1%EF%BC%9F"><span class="toc-number">4.1.</span> <span class="toc-text">1. 为什么Kafka不像MySQL那样允许追随者副本对外提供读服务？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Kafka%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E6%B6%88%E6%81%AF%E9%A1%BA%E5%BA%8F%E6%80%A7"><span class="toc-number">4.2.</span> <span class="toc-text">2. Kafka如何保证消息顺序性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Kafka%E4%B8%AD%E7%9A%84%E6%B6%88%E6%81%AF%E5%A6%82%E4%BD%95%E5%AD%98%E5%82%A8"><span class="toc-number">4.3.</span> <span class="toc-text">3. Kafka中的消息如何存储</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-number">5.</span> <span class="toc-text">参考</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E6%95%B0%E8%AE%BE%E7%BD%AE"><span class="toc-number">5.1.</span> <span class="toc-text">参数设置</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Posts</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%A4%E8%AF%81%E5%92%8C%E6%8E%88%E6%9D%83/" title="认证和授权"><img src="/imgs/%E8%AE%A4%E8%AF%81%E5%92%8C%E6%8E%88%E6%9D%83%E5%B0%81%E9%9D%A2%E5%9B%BE.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="认证和授权"/></a><div class="content"><a class="title" href="/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%A4%E8%AF%81%E5%92%8C%E6%8E%88%E6%9D%83/" title="认证和授权">认证和授权</a><time datetime="2025-11-27T20:39:20.000Z" title="Created 2025-11-27 20:39:20">2025-11-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/blog/hello-world/" title="Hello World">Hello World</a><time datetime="2025-11-27T13:13:52.022Z" title="Created 2025-11-27 13:13:52">2025-11-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/blog/message_queue/KafkaNotes/" title="Untitled">Untitled</a><time datetime="2025-11-27T13:13:52.022Z" title="Created 2025-11-27 13:13:52">2025-11-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/spring/SpringAOP_%E4%BA%8B%E5%8A%A1%E5%A4%B1%E6%95%88%E4%B8%8E%E5%BA%95%E5%B1%82%E4%BB%A3%E7%90%86%E6%80%BB%E7%BB%93/" title="Spring AOP 事务失效与底层代理机制深度总结"><img src="/imgs/AOP-PROXY.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Spring AOP 事务失效与底层代理机制深度总结"/></a><div class="content"><a class="title" href="/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/spring/SpringAOP_%E4%BA%8B%E5%8A%A1%E5%A4%B1%E6%95%88%E4%B8%8E%E5%BA%95%E5%B1%82%E4%BB%A3%E7%90%86%E6%80%BB%E7%BB%93/" title="Spring AOP 事务失效与底层代理机制深度总结">Spring AOP 事务失效与底层代理机制深度总结</a><time datetime="2025-11-25T20:39:20.000Z" title="Created 2025-11-25 20:39:20">2025-11-25</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 By Supremes</span><span class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.1</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.2</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Reading Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light and Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle Between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Settings"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back to Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.2"></script><script src="/js/main.js?v=5.5.2"></script><div class="js-pjax"></div><script async data-pjax src="/"></script></div></body></html>
