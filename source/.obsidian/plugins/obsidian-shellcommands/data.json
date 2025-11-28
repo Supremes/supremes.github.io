@@ -28,7 +28,7 @@
     {
       "id": "riz7o466my",
       "platform_specific_commands": {
-        "default": "cd {{vault_path}}/.. && git add . && git commit -m \"{{_commit_message}}\" && git push -u origin develop"
+        "default": "cd {{vault_path}}/.. && git add . && git commit -m {{_commit_message}} && git push -u origin develop"
       },
       "shells": {},
       "alias": "Git Push and Deploy Site",
