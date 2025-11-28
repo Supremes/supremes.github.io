@@ -4,17 +4,31 @@
     "type": "split",
     "children": [
       {
-        "id": "439286dc8a2b410a",
+        "id": "6c6ccd63608c35d9",
         "type": "tabs",
         "children": [
           {
-            "id": "95abbdefbe4d3f90",
+            "id": "64bb1091370c58c1",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "_posts/diary/2025-11-28.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": true,
+                "backlinkOpts": {
+                  "collapseAll": false,
+                  "extraContext": false,
+                  "sortOrder": "alphabetical",
+                  "showSearch": false,
+                  "searchQuery": "",
+                  "backlinkCollapsed": false,
+                  "unlinkedCollapsed": true
+                }
+              },
               "icon": "lucide-file",
-              "title": "New tab"
+              "title": "2025-11-28"
             }
           }
         ]
@@ -152,12 +166,13 @@
             "state": {
               "type": "outline",
               "state": {
+                "file": "_posts/diary/2025-11-28.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline"
+              "title": "Outline of 2025-11-28"
             }
           },
           {
@@ -171,7 +186,7 @@
             }
           }
         ],
-        "currentTab": 5
+        "currentTab": 4
       }
     ],
     "direction": "horizontal",
@@ -179,61 +194,65 @@
   },
   "left-ribbon": {
     "hiddenItems": {
-      "switcher:Open quick switcher": false,
-      "graph:Open graph view": false,
-      "canvas:Create new canvas": false,
+      "switcher:Open quick switcher": true,
+      "graph:Open graph view": true,
+      "canvas:Create new canvas": true,
       "daily-notes:Open today's daily note": false,
       "templates:Insert template": true,
-      "command-palette:Open command palette": false,
-      "bases:Create new base": false,
+      "command-palette:Open command palette": true,
+      "bases:Create new base": true,
       "obsidian-excalidraw-plugin:New drawing": false,
       "templater-obsidian:Templater": false,
-      "obsidian-shellcommands:Shell commands: Custom variables": false
+      "obsidian-shellcommands:Shell commands: Custom variables": true
     }
   },
-  "active": "95abbdefbe4d3f90",
+  "active": "64bb1091370c58c1",
   "lastOpenFiles": [
-    "_posts/configs/Obsidian Configuration.md",
+    "Templates/Diary.md",
+    "imgs/credential证书.png",
+    "imgs/gz2.jpg",
+    "imgs/avatar.jpg",
+    "imgs/AOP-PROXY.png",
+    "imgs/认证和授权封面图.png",
     "_posts/cybersecurity/Credential 证书.md",
+    "_posts/diary/2025-11-28.md",
+    "_posts/spring/SpringAOP_事务失效与底层代理总结.md",
+    "_posts/diary",
+    "_posts/dairy/2025-11-28.md",
+    "_posts/dairy",
+    "_posts/message_queue/RabbitMQ.md",
+    "_posts/message_queue/KafkaNotes.md",
+    "_posts/front_end/objective-c.md",
     "_posts/objective-c/objective-c.md",
-    "_posts/objective-c",
+    "_posts/front_end",
     "_posts/database/Hibernate.md",
-    "_posts/database",
-    "_posts/cybersecurity/认证和授权_new.md",
+    "_posts/daily/2025-11-28.md",
     "_posts/cybersecurity/认证和授权.md",
-    "_posts/cybersecurity",
-    "_posts/configs",
+    "Templates/Hexo-Post.md",
+    "_posts/configs/Obsidian Configuration.md",
     "_posts/AI/MCP Introduction.md",
     "_posts/AI/AI Agent.md",
-    "_posts/AI",
-    "Templates/Hexo-Post.md",
-    "Templates",
+    "Untitled.canvas",
+    "Excalidraw/Drawing 2025-11-28 21.56.24.excalidraw.md",
+    "Excalidraw",
+    "_posts/daily",
+    "imgs/Gemini_Generated_Image_r82q0yr82q0yr82q.png.crdownload",
+    "_posts/objective-c",
+    "_posts/database",
+    "_posts/cybersecurity",
+    "_posts/configs",
     "_posts/认证和授权.md",
     "_posts/hello-world.md",
     "_posts/Obsidian Configuration.md",
-    "_posts/message_queue/KafkaNotes.md",
-    "_posts/message_queue/RabbitMQ.md",
     "_posts/Untitled.md",
     "_posts/测试.md",
     "homeDocs/Credential 证书.md",
     "homeDocs/认证和授权.md",
     "homeDocs/Obsidian Configuration.md",
-    "Daily/2025-11-28.md",
-    "homeDocs/AI/MCP Introduction.md",
-    "homeDocs/AI/AI Agent.md",
-    "officeDocs/URL Command between SH and MAM Applications.md",
-    "officeDocs/shell 配置.md",
-    "officeDocs/Secure Apps Build.md",
-    "homeDocs/AI",
-    "Daily",
-    "Draws",
     "Pics/image-20251126101915903.png",
     "Pics/ID-CARD-FRONT.png",
     "Pics/ID-CARD-BACK.png",
     "Pics/image-20251125101754435.png",
-    "Pics/class-scheduel.jpg",
-    "Pics/WX20251124-172727@2x.png",
-    "Pics/WX20251124-172550@2x.png",
-    "Pics/IDCARD.png"
+    "Pics/class-scheduel.jpg"
   ]
 }

@@ -2,9 +2,9 @@
 title: Obsidian Configuration
 date: 2025-11-28 14:47:35
 tags:
-  - 配置
-categories:
   - Obsidian
+categories:
+  - 工具效率
 cover:
 ---
 

@@ -23,12 +23,16 @@ menu:
   # 确保以下两行存在且未被注释
   Tags: /tags/ || fas fa-tags
   Categories || fas fa-folder-open:
-    后端开发: /categories/backend/ || fas fa-server
+    数据库: /categories/database/ || fas fa-database
+    消息队列: /categories/message-queue/ || fas fa-envelope
+    Spring: /categories/spring/ || fas fa-leaf
     网络安全: /categories/security/ || fas fa-shield-alt
-    人工智能: /categories/ai/ || fas fa-robot
+    AI: /categories/ai/ || fas fa-robot
     移动开发: /categories/mobile/ || fas fa-mobile-alt
     工具效率: /categories/tools/ || fas fa-tools
-    学习笔记: /categories/学习笔记/ || fas fa-book
+    日记: /categories/diary/ || fas fa-book
+    算法: /categories/algorithm/ || fas fa-code
+
   About: /about/ || fas fa-user
   
   # Home: / || fas fa-home
@@ -207,7 +211,7 @@ index_post_content:
 toc:
   post: true
   page: false
-  number: true
+  number: false
   expand: true
   # Only for post
   style_simple: false
@@ -406,7 +410,7 @@ darkmode:
   end:
 
 # Show scroll percent in scroll-to-top button
-rightside_scroll_percent: false
+rightside_scroll_percent: true
 
 # Don't modify the following settings unless you know how they work
 # Choose: readmode,translate,darkmode,hideAside,toc,chat,comment
@@ -427,9 +431,9 @@ rightside_config_animation: true
 
 anchor:
   # When you scroll, the URL will update according to header id.
-  auto_update: false
+  auto_update: true
   # Click the headline to scroll and update the anchor
-  click_to_scroll: false
+  click_to_scroll: true
 
 photofigcaption: false
 

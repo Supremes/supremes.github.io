@@ -2,10 +2,9 @@
 title: RabbitMQ
 date: 2025-11-27 22:34:16
 tags:
-    - RabbitMQ
+  - RabbitMQ
 categories:
-    - 学习笔记
-    - 消息队列
+  - 消息队列
 description:
 cover: /imgs/RabbitMQ封面.png
 ---
