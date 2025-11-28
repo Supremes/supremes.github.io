@@ -1,0 +1,202 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>AI Agent 技术核心概念学习路线 | Supremes</title><meta name="author" content="Supremes"><meta name="copyright" content="Supremes"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="深入解析AI Agent的核心技术概念，从Embedding、向量数据库到RAG、Function Calling和ReAct模式，构建完整的LLM应用技术学习路线">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AI Agent 技术核心概念学习路线">
+<meta property="og:url" content="https://supremes.github.io/AI/AI/AI%20Agent/index.html">
+<meta property="og:site_name" content="Supremes">
+<meta property="og:description" content="深入解析AI Agent的核心技术概念，从Embedding、向量数据库到RAG、Function Calling和ReAct模式，构建完整的LLM应用技术学习路线">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://supremes.github.io/imgs/avatar.jpg">
+<meta property="article:published_time" content="2025-11-28T14:47:28.000Z">
+<meta property="article:modified_time" content="2025-11-28T14:41:22.460Z">
+<meta property="article:author" content="Supremes">
+<meta property="article:tag" content="AI-Agent">
+<meta property="article:tag" content="Embedding">
+<meta property="article:tag" content="Function-Calling">
+<meta property="article:tag" content="LLM">
+<meta property="article:tag" content="RAG">
+<meta property="article:tag" content="ReAct">
+<meta property="article:tag" content="向量数据库">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://supremes.github.io/imgs/avatar.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "AI Agent 技术核心概念学习路线",
+  "url": "https://supremes.github.io/AI/AI/AI%20Agent/",
+  "image": "https://supremes.github.io/imgs/avatar.jpg",
+  "datePublished": "2025-11-28T14:47:28.000Z",
+  "dateModified": "2025-11-28T14:41:22.460Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Supremes",
+      "url": "https://supremes.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://supremes.github.io/AI/AI/AI%20Agent/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.2"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Failed',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: true,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'AI Agent 技术核心概念学习路线',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 8.1.1"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/imgs/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">11</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">47</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">8</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/backend/"><i class="fa-fw fas fa-server"></i><span> 后端开发</span></a></li><li><a class="site-page child" href="/categories/database/"><i class="fa-fw fas fa-database"></i><span> 数据库</span></a></li><li><a class="site-page child" href="/categories/message-queue/"><i class="fa-fw fas fa-envelope"></i><span> 消息队列</span></a></li><li><a class="site-page child" href="/categories/spring/"><i class="fa-fw fas fa-leaf"></i><span> Spring</span></a></li><li><a class="site-page child" href="/categories/security/"><i class="fa-fw fas fa-shield-alt"></i><span> 网络安全</span></a></li><li><a class="site-page child" href="/categories/ai/"><i class="fa-fw fas fa-robot"></i><span> AI</span></a></li><li><a class="site-page child" href="/categories/mobile/"><i class="fa-fw fas fa-mobile-alt"></i><span> 移动开发</span></a></li><li><a class="site-page child" href="/categories/tools/"><i class="fa-fw fas fa-tools"></i><span> 工具效率</span></a></li><li><a class="site-page child" href="/categories/diary/"><i class="fa-fw fas fa-book"></i><span> 日记</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Supremes</span></a><a class="nav-page-title" href="/"><span class="site-name">AI Agent 技术核心概念学习路线</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  Back to Home</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/backend/"><i class="fa-fw fas fa-server"></i><span> 后端开发</span></a></li><li><a class="site-page child" href="/categories/database/"><i class="fa-fw fas fa-database"></i><span> 数据库</span></a></li><li><a class="site-page child" href="/categories/message-queue/"><i class="fa-fw fas fa-envelope"></i><span> 消息队列</span></a></li><li><a class="site-page child" href="/categories/spring/"><i class="fa-fw fas fa-leaf"></i><span> Spring</span></a></li><li><a class="site-page child" href="/categories/security/"><i class="fa-fw fas fa-shield-alt"></i><span> 网络安全</span></a></li><li><a class="site-page child" href="/categories/ai/"><i class="fa-fw fas fa-robot"></i><span> AI</span></a></li><li><a class="site-page child" href="/categories/mobile/"><i class="fa-fw fas fa-mobile-alt"></i><span> 移动开发</span></a></li><li><a class="site-page child" href="/categories/tools/"><i class="fa-fw fas fa-tools"></i><span> 工具效率</span></a></li><li><a class="site-page child" href="/categories/diary/"><i class="fa-fw fas fa-book"></i><span> 日记</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> About</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">AI Agent 技术核心概念学习路线</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-11-28T14:47:28.000Z" title="Created 2025-11-28 14:47:28">2025-11-28</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-11-28T14:41:22.460Z" title="Updated 2025-11-28 14:41:22">2025-11-28</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/AI/">AI</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h3 id="LLM应用技术核心概念学习路线"><a href="#LLM应用技术核心概念学习路线" class="headerlink" title="LLM应用技术核心概念学习路线"></a><strong>LLM应用技术核心概念学习路线</strong></h3><p>这条路线遵循从“基础构件”到“核心能力”再到“高级模式”的逻辑。</p>
+<hr>
+<h4 id="第一阶段：理解基石——让计算机“懂得”含义（Embedding）"><a href="#第一阶段：理解基石——让计算机“懂得”含义（Embedding）" class="headerlink" title="第一阶段：理解基石——让计算机“懂得”含义（Embedding）"></a><strong>第一阶段：理解基石——让计算机“懂得”含义（Embedding）</strong></h4><ul>
+<li><strong>核心问题</strong>：计算机只认识数字，我们如何让它们理解文字、图片、视频的“意思”？</li>
+<li><strong>什么是 Embedding（嵌入）？</strong> <strong>比喻</strong>：想象一个“语义地图”。每个词（或句子、图片）都是这个地图上的一个点。含义相近的词（如“国王”和“皇帝”）在地图上的位置会非常接近；含义相反的词（如“国王”和“平民”）则相距甚远。 <strong>本质</strong>：Embedding 就是一套算法，将非结构化的数据（文字、图片等）转换成一串有意义的数字向量。这个向量就是数据点在“语义地图”上的<strong>坐标</strong>。 **为什么需要？**只有把数据变成数字坐标，计算机才能进行数学计算，从而比较相似性、进行分类、聚类等操作。<strong>这是后续所有技术的基础。</strong></li>
+</ul>
+<h4 id="第二阶段：实现检索——构建“外部记忆库”（向量数据库）"><a href="#第二阶段：实现检索——构建“外部记忆库”（向量数据库）" class="headerlink" title="第二阶段：实现检索——构建“外部记忆库”（向量数据库）"></a><strong>第二阶段：实现检索——构建“外部记忆库”（向量数据库）</strong></h4><ul>
+<li><strong>核心问题</strong>：有了“语义地图”，但当数据量极其庞大时（比如整个公司知识库），如何快速找到与问题最相关的信息？</li>
+<li><strong>为什么需要向量数据库？</strong> <strong>传统数据库的局限</strong>：它们擅长精确匹配（如“找到id&#x3D;1的用户”），但不擅长模糊查询（如“找到意思最接近‘可持续发展’的文档”）。 <strong>向量数据库的强项</strong>：它就是为“语义地图”量身定制的数据库。它专门做一件事——<strong>近似最近邻搜索</strong>。你给它一个问题的坐标（问题本身的向量），它能以极快的速度在整个海量向量库中，找到坐标最接近的几个点（即语义最相关的文本片段）。 <strong>本质</strong>：向量数据库是LLM的“外部记忆库”或“知识索引系统”，负责高效、精准地检索信息。</li>
+</ul>
+<h4 id="第三阶段：衡量相关性——定义“相似”的标准（Cosine-Similarity）"><a href="#第三阶段：衡量相关性——定义“相似”的标准（Cosine-Similarity）" class="headerlink" title="第三阶段：衡量相关性——定义“相似”的标准（Cosine Similarity）"></a><strong>第三阶段：衡量相关性——定义“相似”的标准（Cosine Similarity）</strong></h4><ul>
+<li><strong>核心问题</strong>：在“语义地图”上，如何数学地定义两个点“相似”？是看它们的直线距离吗？</li>
+<li><strong>Cosine Similarity（余弦相似度）到底在算个啥？</strong> <strong>比喻</strong>：不比“距离”，比“方向”。想象两个从原点出发的箭头。我们不关心箭头的长短（向量的绝对大小，比如文档的长短），只关心两个箭头指向的方向是否一致。 <strong>计算什么</strong>：它计算的是两个向量之间夹角的余弦值。夹角为0度（方向完全一致），余弦值为1，表示完全相似；夹角为90度（方向垂直），余弦值为0，表示不相关。 <strong>为什么在NLP中常用</strong>：因为它更关注语义上的方向性，而忽略文本长度的影响，这更符合我们判断“意思是否相似”的直觉。</li>
+</ul>
+<p><strong>👉 至此，你已经掌握了RAG的“检索”部分的核心技术栈：<code>文本 -&gt; Embedding -&gt; 向量数据库 -&gt; 余弦相似度检索</code>。</strong></p>
+<hr>
+<h4 id="第四阶段：构建应用——给LLM“开小灶”（RAG）"><a href="#第四阶段：构建应用——给LLM“开小灶”（RAG）" class="headerlink" title="第四阶段：构建应用——给LLM“开小灶”（RAG）"></a><strong>第四阶段：构建应用——给LLM“开小灶”（RAG）</strong></h4><ul>
+<li><strong>核心问题</strong>：LLM内部知识老旧、会产生幻觉（胡说八道），如何让它能回答未知的、专业领域的问题？</li>
+<li><strong>RAG（检索增强生成）的本质是什么？</strong> <strong>不只是“喂知识库”</strong>：你的理解非常到位。它的本质是<strong>将LLM的推理能力与外部知识源的动态检索能力相结合</strong>。 <strong>工作流程</strong>： <strong>检索</strong>：当用户提出问题时，<strong>不直接</strong>将问题扔给LLM。而是先用上面的技术栈（Embedding+向量数据库+相似度计算），从外部知识库中“精准地检索”出与问题最相关的几段信息（上下文）。 <strong>增强</strong>：将“<strong>原始问题 + 检索到的精准上下文</strong>”一起打包，作为一个新的、信息更丰富的提示词（Prompt）交给LLM。 <strong>生成</strong>：LLM基于这个包含了“标准答案”线索的Prompt来生成回答。 <strong>核心挑战与你的思考一致</strong>：如何“精准地检索”？如果检索到的信息不相关，LLM的回答就会跑偏。因此，检索器的质量（Embedding模型、向量数据库、排序算法）直接决定了RAG的天花板。 <strong>它解决了</strong>：知识更新问题（改知识库即可）、幻觉问题（答案有据可查）、溯源问题（可以注明答案来源）。</li>
+</ul>
+<hr>
+<h4 id="第五阶段：升级交互——让LLM“学会使用工具”（Function-Calling-ReAct）"><a href="#第五阶段：升级交互——让LLM“学会使用工具”（Function-Calling-ReAct）" class="headerlink" title="第五阶段：升级交互——让LLM“学会使用工具”（Function Calling &amp; ReAct）"></a><strong>第五阶段：升级交互——让LLM“学会使用工具”（Function Calling &amp; ReAct）</strong></h4><ul>
+<li><strong>核心问题</strong>：LLM无法感知实时信息（天气、股价），无法执行具体动作（发邮件、查数据库）。如何让它与外部世界互动？</li>
+<li><strong>Function Calling（函数调用）的工作流程是怎样的？</strong> <strong>比喻</strong>：给LLM一个“工具清单”，上面列出了每个工具的名称、功能和用法说明（这就是所谓的“函数模式”或“工具模式”）。 <strong>工作流程</strong>： <strong>用户请求</strong>：用户提出一个需要工具的请求，如“今天北京天气怎么样？” <strong>LLM分析</strong>：LLM不会直接回答，而是分析请求，然后<strong>从“工具清单”中选择最合适的工具</strong>（如 <code>get_weather(location)</code>）。 <strong>输出调用指令</strong>：LLM<strong>不执行</strong>，而是<strong>返回一个结构化的调用请求</strong>，如 <code>{&quot;name&quot;: &quot;get_weather&quot;, &quot;arguments&quot;: {&quot;location&quot;: &quot;北京&quot;}}</code>。 <strong>程序执行</strong>：你的外部程序收到这个结构化请求，<strong>代为执行</strong>真正的函数调用（比如调用天气API）。 <strong>返回结果</strong>：将执行结果（如<code>{&quot;city&quot;: &quot;北京&quot;, &quot;temperature&quot;: &quot;25°C&quot;}</code>）再交回给LLM。 <strong>LLM组织回答</strong>：LLM将API返回的原始数据组织成自然语言回答用户：“今天北京天气晴朗，气温25摄氏度。” <strong>本质</strong>：一个<strong>决策-执行</strong>的<strong>单次回合</strong>。LLM负责“思考”该用什么工具、传入什么参数，外部系统负责“执行”。</li>
+<li><strong>ReAct（Reasoning and Acting）模式是怎么让交互更进一步的？</strong> <strong>比喻</strong>：Function Calling 是LLM下达一个命令。而ReAct是LLM在<strong>模拟一个人解决复杂问题的完整思考过程</strong>，这个过程可能包含多个“思考-行动-观察”的循环。 <strong>工作流程</strong>：对于复杂问题（如“我们公司今年销售额最高的产品是什么，它的主要客户画像是什么？”）： <strong>Reason（思考）</strong>：LLM会<strong>先产生一段内部推理</strong>，例如：“要回答这个问题，我需要两步。首先，需要查询数据库找到销售额最高的产品ID。然后，再根据这个产品ID去查询客户画像数据。” <strong>Act（行动）</strong>：根据推理，LLM决定下一步行动，比如调用 <code>query_database(sql=&quot;SELECT ...&quot;)</code>函数。这一步类似Function Calling。 <strong>Observe（观察）</strong>：外部系统执行函数，返回结果（如产品ID是<code>P-1001</code>）。这个结果被反馈给LLM。 <strong>循环</strong>：LLM接收到观察结果，<strong>再次进行Reasoning</strong>：“好的，我已经拿到了产品ID是P-1001。接下来，我需要查询客户表…” 然后再次 <strong>Act</strong>，调用另一个函数… <strong>本质</strong>：一个<strong>多步推理的循环框架</strong>。它通过强制LLM展示“思维链”，使其规划能力更强，更能处理需要多步骤工具调用的复杂任务。</li>
+</ul>
+<h3 id="总结：你的学习路径图"><a href="#总结：你的学习路径图" class="headerlink" title="总结：你的学习路径图"></a><strong>总结：你的学习路径图</strong></h3><ol>
+<li><strong>从Embedding开始</strong>：理解一切是如何从“将信息转化为语义空间坐标”开始的。</li>
+<li><strong>学习向量数据库和相似度计算</strong>：理解如何在这个空间里进行高效、精准的检索。这是RAG的基石。</li>
+<li><strong>深入理解RAG</strong>：掌握如何通过检索外部知识来增强LLM，解决其核心痛点。</li>
+<li><strong>学习Function Calling</strong>：理解LLM与外部工具交互的基本单元。</li>
+<li><strong>最终掌握ReAct模式</strong>：理解如何利用LLM的推理能力，串联多个Function Calling来解决复杂问题。</li>
+</ol>
+<p>这条路线清晰地展示了现代LLM应用是如何一步步被构建起来的：<strong>从静态的知识检索（RAG），到动态的工具使用（Function Calling），再到复杂的任务分解与规划（ReAct）</strong>。祝你学习顺利！</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://supremes.github.io">Supremes</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://supremes.github.io/AI/AI/AI%20Agent/">https://supremes.github.io/AI/AI/AI%20Agent/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles on this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless otherwise stated.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/AI-Agent/">AI-Agent</a><a class="post-meta__tags" href="/tags/LLM/">LLM</a><a class="post-meta__tags" href="/tags/RAG/">RAG</a><a class="post-meta__tags" href="/tags/Function-Calling/">Function-Calling</a><a class="post-meta__tags" href="/tags/ReAct/">ReAct</a><a class="post-meta__tags" href="/tags/Embedding/">Embedding</a><a class="post-meta__tags" href="/tags/%E5%90%91%E9%87%8F%E6%95%B0%E6%8D%AE%E5%BA%93/">向量数据库</a></div><div class="post-share"><div class="social-share" data-image="/imgs/avatar.jpg" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/%E5%B7%A5%E5%85%B7%E6%95%88%E7%8E%87/configs/Obsidian%20Configuration/" title="Obsidian Configuration"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">Previous</div><div class="info-item-2">Obsidian Configuration</div></div><div class="info-2"><div class="info-item-1">Plugins Excalidraw Hexo Toolkit  Shell commands  为了让你找回 Typora 的感觉，请安装以下插件：    插件名称 作用 推荐配置    Editing Toolbar 核心推荐。在顶部增加类似 Word&#x2F;Typora 的格式工具栏。 必装，完美复刻 Typora 菜单。   Image Toolkit 点击图片全屏查看、缩放、滚轮放大。 解决 Obsidian 默认无法点击看大图的问题。   Easy Typing 优化中文输入体验，自动在中英文之间加空格。 强迫症福音。   Dataview 在首页生成一个“最近更新的文章”列表。 把 Obsidian 首页变成你的博客 Dashboard。   ThemeObsidian 的默认主题是给程序员看的，太素了。  操作： 设置 -&gt; 外观 (Appearance) -&gt; 主题 (Themes) -&gt; 管理 (Manage)。  推荐主题（专治简陋）：  Blue Topaz： （强烈推荐）这是国人开发的主题，功能极其强大，色彩丰富，默认就很漂亮，适合...</div></div></div></a><a class="pagination-related" href="/AI/AI/MCP%20Introduction/" title="MCP（Model Context Protocol）详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">Next</div><div class="info-item-2">MCP（Model Context Protocol）详解</div></div><div class="info-2"><div class="info-item-1">What is the MCP? MCP (Model Context Protocol) is an open-source standard for connecting AI applications to external systems. Using MCP, AI applications like Claude or ChatGPT can connect to data sources (e.g. local files, databases), tools (e.g. search engines, calculators) and workflows (e.g. specialized prompts)—enabling them to access key information and perform tasks. Think of MCP like a USB-C port for AI applications. Just as USB-C provides a standardized way to connect electronic device...</div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/imgs/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Supremes</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">11</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">47</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">8</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/Supremes"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#LLM%E5%BA%94%E7%94%A8%E6%8A%80%E6%9C%AF%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5%E5%AD%A6%E4%B9%A0%E8%B7%AF%E7%BA%BF"><span class="toc-text">LLM应用技术核心概念学习路线</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AC%AC%E4%B8%80%E9%98%B6%E6%AE%B5%EF%BC%9A%E7%90%86%E8%A7%A3%E5%9F%BA%E7%9F%B3%E2%80%94%E2%80%94%E8%AE%A9%E8%AE%A1%E7%AE%97%E6%9C%BA%E2%80%9C%E6%87%82%E5%BE%97%E2%80%9D%E5%90%AB%E4%B9%89%EF%BC%88Embedding%EF%BC%89"><span class="toc-text">第一阶段：理解基石——让计算机“懂得”含义（Embedding）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AC%AC%E4%BA%8C%E9%98%B6%E6%AE%B5%EF%BC%9A%E5%AE%9E%E7%8E%B0%E6%A3%80%E7%B4%A2%E2%80%94%E2%80%94%E6%9E%84%E5%BB%BA%E2%80%9C%E5%A4%96%E9%83%A8%E8%AE%B0%E5%BF%86%E5%BA%93%E2%80%9D%EF%BC%88%E5%90%91%E9%87%8F%E6%95%B0%E6%8D%AE%E5%BA%93%EF%BC%89"><span class="toc-text">第二阶段：实现检索——构建“外部记忆库”（向量数据库）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AC%AC%E4%B8%89%E9%98%B6%E6%AE%B5%EF%BC%9A%E8%A1%A1%E9%87%8F%E7%9B%B8%E5%85%B3%E6%80%A7%E2%80%94%E2%80%94%E5%AE%9A%E4%B9%89%E2%80%9C%E7%9B%B8%E4%BC%BC%E2%80%9D%E7%9A%84%E6%A0%87%E5%87%86%EF%BC%88Cosine-Similarity%EF%BC%89"><span class="toc-text">第三阶段：衡量相关性——定义“相似”的标准（Cosine Similarity）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AC%AC%E5%9B%9B%E9%98%B6%E6%AE%B5%EF%BC%9A%E6%9E%84%E5%BB%BA%E5%BA%94%E7%94%A8%E2%80%94%E2%80%94%E7%BB%99LLM%E2%80%9C%E5%BC%80%E5%B0%8F%E7%81%B6%E2%80%9D%EF%BC%88RAG%EF%BC%89"><span class="toc-text">第四阶段：构建应用——给LLM“开小灶”（RAG）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AC%AC%E4%BA%94%E9%98%B6%E6%AE%B5%EF%BC%9A%E5%8D%87%E7%BA%A7%E4%BA%A4%E4%BA%92%E2%80%94%E2%80%94%E8%AE%A9LLM%E2%80%9C%E5%AD%A6%E4%BC%9A%E4%BD%BF%E7%94%A8%E5%B7%A5%E5%85%B7%E2%80%9D%EF%BC%88Function-Calling-ReAct%EF%BC%89"><span class="toc-text">第五阶段：升级交互——让LLM“学会使用工具”（Function Calling &amp; ReAct）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93%EF%BC%9A%E4%BD%A0%E7%9A%84%E5%AD%A6%E4%B9%A0%E8%B7%AF%E5%BE%84%E5%9B%BE"><span class="toc-text">总结：你的学习路径图</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Posts</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/%E6%97%A5%E8%AE%B0/diary/2025-11-28/" title="Fri Nov 28 2025 00:00:00 GMT+0000 (Coordinated Universal Time)">Fri Nov 28 2025 00:00:00 GMT+0000 (Coordinated Universal Time)</a><time datetime="2025-11-28T21:57:58.000Z" title="Created 2025-11-28 21:57:58">2025-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/%E5%B7%A5%E5%85%B7%E6%95%88%E7%8E%87/configs/Obsidian%20Configuration/" title="Obsidian Configuration">Obsidian Configuration</a><time datetime="2025-11-28T14:47:35.000Z" title="Created 2025-11-28 14:47:35">2025-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/AI/AI/AI%20Agent/" title="AI Agent 技术核心概念学习路线">AI Agent 技术核心概念学习路线</a><time datetime="2025-11-28T14:47:28.000Z" title="Created 2025-11-28 14:47:28">2025-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/AI/AI/MCP%20Introduction/" title="MCP（Model Context Protocol）详解">MCP（Model Context Protocol）详解</a><time datetime="2025-11-28T14:47:21.000Z" title="Created 2025-11-28 14:47:21">2025-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/%E7%A7%BB%E5%8A%A8%E5%BC%80%E5%8F%91/front_end/objective-c/" title="Objective-C 面向对象编程详解">Objective-C 面向对象编程详解</a><time datetime="2025-11-28T14:30:00.000Z" title="Created 2025-11-28 14:30:00">2025-11-28</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 By Supremes</span><span class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.1</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.2</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Reading Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light and Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle Between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Settings"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back to Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.2"></script><script src="/js/main.js?v=5.5.2"></script><div class="js-pjax"></div><script async data-pjax src="/"></script></div></body></html>
