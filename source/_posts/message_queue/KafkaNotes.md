@@ -3,12 +3,10 @@ title: Kafka 深度学习笔记
 date: 2025-11-27 21:11:20
 updated: 2025-11-27 22:35:00
 tags:
-    - Kafka
-    - 消息队列
-    - 分布式系统
+  - Kafka
+  - 分布式系统
 categories:
-    - 学习笔记
-    - 消息队列
+  - 消息队列
 description: 深入学习 Apache Kafka 的核心概念、架构设计、部署配置和生产环境最佳实践
 cover: /imgs/KafkaNotes封面.png
 ---

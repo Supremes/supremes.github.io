@@ -1,4 +1,4 @@
 {
-  "folder": "Daily",
-  "template": "Templates/Hexo Post"
+  "folder": "_posts/daily",
+  "template": "Templates/Hexo-Post"
 }

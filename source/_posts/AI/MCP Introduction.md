@@ -9,7 +9,6 @@ tags:
   - 协议标准
   - 开发指南
 categories:
-  - 学习笔记
   - AI
 description: 详细介绍MCP（Model Context Protocol）开源标准，包括架构设计、开发指南和企业级应用策略，连接AI应用与外部系统的标准化解决方案
 ---

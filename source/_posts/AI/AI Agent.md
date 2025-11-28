@@ -10,7 +10,6 @@ tags:
   - Embedding
   - 向量数据库
 categories:
-  - 学习笔记
   - AI
 description: 深入解析AI Agent的核心技术概念，从Embedding、向量数据库到RAG、Function Calling和ReAct模式，构建完整的LLM应用技术学习路线
 ---
