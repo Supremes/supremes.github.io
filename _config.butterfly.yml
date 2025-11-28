@@ -22,8 +22,15 @@ menu:
   Archives: /archives/ || fas fa-archive
   # 确保以下两行存在且未被注释
   Tags: /tags/ || fas fa-tags
-  Categories: /categories/ || fas fa-folder-open
+  Categories || fas fa-folder-open:
+    后端开发: /categories/backend/ || fas fa-server
+    网络安全: /categories/security/ || fas fa-shield-alt
+    人工智能: /categories/ai/ || fas fa-robot
+    移动开发: /categories/mobile/ || fas fa-mobile-alt
+    工具效率: /categories/tools/ || fas fa-tools
+    学习笔记: /categories/学习笔记/ || fas fa-book
   About: /about/ || fas fa-user
+  
   # Home: / || fas fa-home
   # List||fas fa-list:
   #   Music: /music/ || fas fa-music
