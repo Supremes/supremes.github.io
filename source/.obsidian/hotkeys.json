@@ -5,6 +5,12 @@
         "Mod"
       ],
       "key": "Backspace"
+    },
+    {
+      "modifiers": [
+        "Ctrl"
+      ],
+      "key": "Backspace"
     }
   ],
   "editor:toggle-comments": [],
@@ -13,6 +19,12 @@
     {
       "modifiers": [
         "Mod"
+      ],
+      "key": "/"
+    },
+    {
+      "modifiers": [
+        "Ctrl"
       ],
       "key": "/"
     }
