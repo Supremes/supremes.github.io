@@ -1,4 +1,3 @@
- windows
 ---
 title: Obsidian Configuration
 date: 2025-11-28 14:47:35
