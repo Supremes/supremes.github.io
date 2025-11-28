@@ -1,0 +1,20 @@
+{
+  "app:delete-file": [
+    {
+      "modifiers": [
+        "Mod"
+      ],
+      "key": "Backspace"
+    }
+  ],
+  "editor:toggle-comments": [],
+  "easy-typing-obsidian:easy-typing-toggle-comment": [],
+  "editor:toggle-source": [
+    {
+      "modifiers": [
+        "Mod"
+      ],
+      "key": "/"
+    }
+  ]
+}
