@@ -1,0 +1,158 @@
+{
+  "settings_version": "0.23.0",
+  "debug": false,
+  "obsidian_command_palette_prefix": "Execute: ",
+  "preview_variables_in_command_palette": true,
+  "show_autocomplete_menu": true,
+  "working_directory": "",
+  "default_shells": {},
+  "environment_variable_path_augmentations": {},
+  "show_installation_warnings": true,
+  "error_message_duration": 20,
+  "notification_message_duration": 10,
+  "execution_notification_mode": "permanent",
+  "output_channel_clipboard_also_outputs_to_notification": true,
+  "output_channel_notification_decorates_output": true,
+  "enable_events": true,
+  "approve_modals_by_pressing_enter_key": true,
+  "command_palette": {
+    "re_execute_last_shell_command": {
+      "enabled": true,
+      "prefix": "Re-execute: "
+    }
+  },
+  "max_visible_lines_in_shell_command_fields": false,
+  "shell_commands": [
+    {
+      "id": "bg7lpoh5ag",
+      "platform_specific_commands": {
+        "default": "cd {{vault_path}} && ls -l"
+      },
+      "shells": {},
+      "alias": "testShellCommand",
+      "icon": null,
+      "confirm_execution": false,
+      "ignore_error_codes": [],
+      "input_contents": {
+        "stdin": null
+      },
+      "output_handlers": {
+        "stdout": {
+          "handler": "notification",
+          "convert_ansi_code": true
+        },
+        "stderr": {
+          "handler": "notification",
+          "convert_ansi_code": true
+        }
+      },
+      "output_wrappers": {
+        "stdout": null,
+        "stderr": null
+      },
+      "output_channel_order": "stdout-first",
+      "output_handling_mode": "buffered",
+      "execution_notification_mode": null,
+      "events": {},
+      "debounce": null,
+      "command_palette_availability": "enabled",
+      "preactions": [],
+      "variable_default_values": {}
+    },
+    {
+      "id": "6uj6ks9207",
+      "platform_specific_commands": {
+        "default": "ls -l {{_target_folder}}"
+      },
+      "shells": {},
+      "alias": "List Folder Contents",
+      "icon": null,
+      "confirm_execution": false,
+      "ignore_error_codes": [],
+      "input_contents": {
+        "stdin": null
+      },
+      "output_handlers": {
+        "stdout": {
+          "handler": "current-file-caret",
+          "convert_ansi_code": true
+        },
+        "stderr": {
+          "handler": "notification",
+          "convert_ansi_code": true
+        }
+      },
+      "output_wrappers": {
+        "stdout": "j2lzx1khmg",
+        "stderr": null
+      },
+      "output_channel_order": "stdout-first",
+      "output_handling_mode": "buffered",
+      "execution_notification_mode": null,
+      "events": {},
+      "debounce": null,
+      "command_palette_availability": "enabled",
+      "preactions": [
+        {
+          "type": "prompt",
+          "enabled": true,
+          "prompt_id": "uj46b912op"
+        }
+      ],
+      "variable_default_values": {}
+    }
+  ],
+  "prompts": [
+    {
+      "id": "z4c8s59oav",
+      "title": "",
+      "description": "",
+      "preview_shell_command": false,
+      "fields": [],
+      "execute_button_text": "Execute"
+    },
+    {
+      "id": "uj46b912op",
+      "title": "请输入要列出的文件夹名",
+      "description": "（相对于 Vault 根目录的路径）",
+      "preview_shell_command": false,
+      "fields": [
+        {
+          "type": "single-line-text",
+          "label": "filedl",
+          "description": "",
+          "default_value": "",
+          "target_variable_id": "dj7qfkbf6z",
+          "required": true
+        }
+      ],
+      "execute_button_text": "Execute"
+    }
+  ],
+  "builtin_variables": {},
+  "custom_variables": [
+    {
+      "id": "dj7qfkbf6z",
+      "name": "target_folder",
+      "description": "target folder",
+      "default_value": null
+    }
+  ],
+  "custom_variables_notify_changes_via": {
+    "obsidian_uri": true,
+    "output_assignment": true
+  },
+  "custom_shells": [],
+  "output_wrappers": [
+    {
+      "id": "qpxphlo80d",
+      "title": "test",
+      "content": "hahahhah"
+    },
+    {
+      "id": "j2lzx1khmg",
+      "title": "Code Block",
+      "content": "```shell_output\n{{output}}"
+    }
+  ]
+}

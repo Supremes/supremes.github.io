@@ -1,0 +1,246 @@
+{
+  "main": {
+    "id": "b8f072a1d9e9f1b6",
+    "type": "split",
+    "children": [
+      {
+        "id": "5c81247526e12b61",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "d19e0b2439a8d425",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "_posts/AI/MCP Introduction.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": true,
+                "backlinkOpts": {
+                  "collapseAll": false,
+                  "extraContext": false,
+                  "sortOrder": "alphabetical",
+                  "showSearch": false,
+                  "searchQuery": "",
+                  "backlinkCollapsed": false,
+                  "unlinkedCollapsed": true
+                }
+              },
+              "icon": "lucide-file",
+              "title": "MCP Introduction"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "149ce7b6fd48241e",
+    "type": "split",
+    "children": [
+      {
+        "id": "0ee8dbb3c9fce56c",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "40c49d5e2cb1fe50",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "5df6039860fdb082",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "7c99ec4f704f7587",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "书签"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "fae3724f8a9f620f",
+    "type": "split",
+    "children": [
+      {
+        "id": "2034b71e3e005dcf",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "1b667fbc34571f5b",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "homeDocs/认证和授权.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for 认证和授权"
+            }
+          },
+          {
+            "id": "c543d654796adaad",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "homeDocs/认证和授权.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from 认证和授权"
+            }
+          },
+          {
+            "id": "d0dfdb66ba4fc244",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "5da05c503711ab30",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "c80f84249093dba8",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "_posts/AI/MCP Introduction.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of MCP Introduction"
+            }
+          }
+        ],
+        "currentTab": 4
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": true,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false,
+      "obsidian-excalidraw-plugin:New drawing": false,
+      "templater-obsidian:Templater": false,
+      "obsidian-shellcommands:Shell commands: Custom variables": false
+    }
+  },
+  "active": "d19e0b2439a8d425",
+  "lastOpenFiles": [
+    "_posts/Obsidian Configuration.md",
+    "_posts/AI/MCP Introduction.md",
+    "_posts/AI/AI Agent.md",
+    "_posts/cybersecurity/Credential 证书.md",
+    "_posts/cybersecurity/认证和授权.md",
+    "_posts/cybersecurity/认证和授权_new.md",
+    "_posts/objective-c/objective-c.md",
+    "_posts/message_queue/KafkaNotes.md",
+    "_posts/message_queue/RabbitMQ.md",
+    "Templates/Hexo-Post.md",
+    "_posts/configs/Obsidian Configuration.md",
+    "_posts/database/Hibernate.md",
+    "_posts/Untitled.md",
+    "_posts/测试.md",
+    "_posts/configs",
+    "_posts/objective-c",
+    "_posts/database",
+    "_posts/AI",
+    "_posts/cybersecurity",
+    "_posts/hello-world.md",
+    "Templates",
+    "homeDocs/Credential 证书.md",
+    "homeDocs/认证和授权.md",
+    "homeDocs/Obsidian Configuration.md",
+    "Daily/2025-11-28.md",
+    "homeDocs/AI/MCP Introduction.md",
+    "homeDocs/AI/AI Agent.md",
+    "officeDocs/URL Command between SH and MAM Applications.md",
+    "officeDocs/shell 配置.md",
+    "officeDocs/Secure Apps Build.md",
+    "officeDocs/password.md",
+    "homeDocs/objective-c.md",
+    "homeDocs/AI",
+    "Daily",
+    "Templates",
+    "Draws",
+    "Pics/image-20251126101915903.png",
+    "Pics/ID-CARD-FRONT.png",
+    "Pics/ID-CARD-BACK.png",
+    "Pics/image-20251125101754435.png",
+    "Pics/class-scheduel.jpg",
+    "Pics/WX20251124-172727@2x.png",
+    "Pics/WX20251124-172550@2x.png",
+    "Pics/IDCARD.png"
+  ]
+}
