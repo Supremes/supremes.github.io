@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "_posts/AI/MCP Introduction.md",
+                "file": "_posts/configs/Obsidian Configuration.md",
                 "mode": "source",
                 "source": false,
                 "backlinks": true,
@@ -28,7 +28,7 @@
                 }
               },
               "icon": "lucide-file",
-              "title": "MCP Introduction"
+              "title": "Obsidian Configuration"
             }
           }
         ]
@@ -166,13 +166,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "_posts/AI/MCP Introduction.md",
+                "file": "_posts/configs/Obsidian Configuration.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of MCP Introduction"
+              "title": "Outline of Obsidian Configuration"
             }
           }
         ],
@@ -198,9 +198,9 @@
   },
   "active": "d19e0b2439a8d425",
   "lastOpenFiles": [
-    "_posts/Obsidian Configuration.md",
     "_posts/AI/MCP Introduction.md",
     "_posts/AI/AI Agent.md",
+    "_posts/Obsidian Configuration.md",
     "_posts/cybersecurity/Credential 证书.md",
     "_posts/cybersecurity/认证和授权.md",
     "_posts/cybersecurity/认证和授权_new.md",

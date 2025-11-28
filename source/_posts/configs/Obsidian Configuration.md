@@ -1,3 +1,4 @@
+ windows
 ---
 title: Obsidian Configuration
 date: 2025-11-28 14:47:35
@@ -10,7 +11,7 @@ cover:
 
 ## Plugins
 - **Excalidraw**
-- ==Hexo Toolkit==
+- `Hexo Toolkit `
 - *Shell commands*
 
 为了让你找回 Typora 的感觉，请安装以下插件：
