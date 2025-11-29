@@ -6,6 +6,7 @@ tags:
 categories:
   - 数据库
 cover:
+sticky: "9"
 ---
 # MySQL 架构
 ![img](/imgs/MySQL1.png)
