@@ -8,7 +8,7 @@ subtitle: ''
 description: ''
 keywords:
 author: Supremes
-language: en
+language: zh-CN
 timezone: ''
 
 # URL
@@ -71,7 +71,6 @@ category_map:
   消息队列: message-queue
   网络安全: security
   移动开发: mobile
-  人工智能: ai
   工具效率: tools
   日记: diary
   算法: algorithm

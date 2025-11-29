@@ -20,14 +20,14 @@ nav:
 menu:
   Home: / || fas fa-home
   Archives: /archives/ || fas fa-archive
-  # 确保以下两行存在且未被注释
-  Tags: /tags/ || fas fa-tags
+  # Tags: /tags/ || fas fa-tags
+  # 需要区分大小写
   Categories || fas fa-folder-open:
     数据库: /categories/database/ || fas fa-database
     消息队列: /categories/message-queue/ || fas fa-envelope
-    Spring: /categories/spring/ || fas fa-leaf
+    Spring: /categories/Spring/ || fas fa-leaf
     网络安全: /categories/security/ || fas fa-shield-alt
-    AI: /categories/ai/ || fas fa-robot
+    AI: /categories/AI/ || fas fa-robot
     移动开发: /categories/mobile/ || fas fa-mobile-alt
     工具效率: /categories/tools/ || fas fa-tools
     日记: /categories/diary/ || fas fa-book
@@ -950,9 +950,9 @@ abcjs:
 # Mermaid
 # https://github.com/mermaid-js/mermaid
 mermaid:
-  enable: false
+  enable: true
   # Write Mermaid diagrams using code blocks
-  code_write: false
+  code_write: true
   # built-in themes: default / forest / dark / neutral
   theme:
     light: default
