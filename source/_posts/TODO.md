@@ -5,6 +5,7 @@ tags: []
 categories:
   - 杂七杂八
 cover:
+sticky: "10"
 ---
 - [ ] Obsidian 双链转 hexo 链接
 - [ ] 本地测试经常性报 fontawesome failure
