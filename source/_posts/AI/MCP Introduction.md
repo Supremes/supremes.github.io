@@ -1,6 +1,5 @@
 ---
 title: MCP（Model Context Protocol）详解
-date: 2025-11-28 14:47:21
 tags:
   - MCP
   - Model Context Protocol
@@ -11,6 +10,8 @@ tags:
 categories:
   - AI
 description: 详细介绍MCP（Model Context Protocol）开源标准，包括架构设计、开发指南和企业级应用策略，连接AI应用与外部系统的标准化解决方案
+abbrlink: 27915
+date: 2025-11-28 14:47:21
 ---
 
 ## What is the MCP?

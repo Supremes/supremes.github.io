@@ -70,7 +70,23 @@ social:
 # Image Settings
 # --------------------------------------
 
-favicon: /img/favicon.png
+# ------------- FAVICON --------------
+# 将路径设置为您放置文件的目录
+# 注意：路径是相对于网站根目录，所以这里是 /favicon/
+favicon: /favicon/favicon.ico
+
+# ----------------- head 标签内容配置 -----------------
+# 重点：为了加载其余所有图标文件和配置，需要使用自定义 <head> 标签
+custom_head:
+  # 这一段是 Real Favicon Generator 提供的 HTML 代码
+  # 您需要将它们添加在这里
+  - <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+  - <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
+  - <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+  - <link rel="manifest" href="/favicon/site.webmanifest">
+  - <link rel="mask-icon" href="/favicon/safari-pinned-tab.svg" color="#5bbad5">
+  - <meta name="msapplication-TileColor" content="#da532c">
+  - <meta name="theme-color" content="#ffffff">
 
 avatar:
   img: /imgs/avatar.jpg
@@ -218,7 +234,7 @@ toc:
   scroll_percent: true
 
 post_copyright:
-  enable: true
+  enable: false
   decode: false
   author_href:
   license: CC BY-NC-SA 4.0
@@ -491,8 +507,8 @@ math:
 search:
   # Choose: algolia_search / local_search / docsearch
   # leave it empty if you don't need search
-  use:
-  placeholder:
+  use: local_search
+  placeholder: 搜索文章标题和内容...
 
   # Algolia Search
   algolia_search:
@@ -502,6 +518,7 @@ search:
   # Local Search
   local_search:
     # Preload the search data when the page loads.
+    # 配置为 true 时，会在页面加载时预加载搜索数据，可能会影响首屏加载速度，但能提升搜索体验。
     preload: false
     # Show top n results per article, show all results by setting to -1
     top_n_per_article: 1
@@ -509,9 +526,9 @@ search:
     unescape: false
     # Enable pagination for search results
     pagination:
-      enable: false
+      enable: true
       # Number of search results per page
-      hitsPerPage: 8
+      hitsPerPage: 10
     CDN:
 
   # Docsearch

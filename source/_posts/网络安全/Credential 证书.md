@@ -1,11 +1,9 @@
 ---
 title: 数字证书与 PKI 技术详解
-date: 2025-11-28 14:04:29
 tags:
   - PKI
   - 数字证书
   - CA
-  - 网络安全
   - 加密
   - PKCS
   - SCEP
@@ -14,6 +12,8 @@ tags:
 categories:
   - 网络安全
 cover: /imgs/credential证书.png
+abbrlink: 6104
+date: 2025-11-28 14:04:29
 ---
 
 # 数字证书与 PKI 技术详解

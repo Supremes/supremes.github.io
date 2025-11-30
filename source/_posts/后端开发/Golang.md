@@ -1,10 +1,11 @@
 ---
 title: Golang
-date: 2025-11-29 08:59:30
 tags:
   - golang
 categories:
   - 后端开发
+abbrlink: 31482
+date: 2025-11-29 08:59:30
 cover:
 ---
 # map

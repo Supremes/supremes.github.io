@@ -34,10 +34,11 @@
           {
             "id": "f5ab8e48a7f262ac",
             "type": "leaf",
+            "pinned": true,
             "state": {
               "type": "markdown",
               "state": {
-                "file": "_posts/AI/AI Agent.md",
+                "file": "_posts/TODO.md",
                 "mode": "source",
                 "source": false,
                 "backlinks": true,
@@ -51,8 +52,9 @@
                   "unlinkedCollapsed": true
                 }
               },
+              "pinned": true,
               "icon": "lucide-file",
-              "title": "AI Agent"
+              "title": "TODO"
             }
           },
           {
@@ -112,7 +114,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "descri",
+                "query": "",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -133,8 +135,7 @@
               "title": "书签"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "horizontal",
@@ -216,13 +217,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "_posts/AI/AI Agent.md",
+                "file": "_posts/TODO.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of AI Agent"
+              "title": "Outline of TODO"
             }
           },
           {
@@ -247,10 +248,10 @@
       "switcher:Open quick switcher": true,
       "graph:Open graph view": true,
       "canvas:Create new canvas": true,
-      "daily-notes:Open today's daily note": false,
       "templates:Insert template": true,
       "command-palette:Open command palette": true,
       "bases:Create new base": true,
+      "daily-notes:Open today's daily note": false,
       "obsidian-excalidraw-plugin:New drawing": false,
       "templater-obsidian:Templater": false,
       "obsidian-shellcommands:Shell commands: Custom variables": true
@@ -258,52 +259,51 @@
   },
   "active": "f5ab8e48a7f262ac",
   "lastOpenFiles": [
+    "_posts/网络安全/APNS.md",
+    "imgs/Pasted image 20251130111042.png",
+    "imgs/APNS.png",
+    "_posts/日记/2025-11-28.md",
+    "_posts/网络安全/Credential 证书.md",
+    "_posts/网络安全/认证和授权.md",
     "_posts/TODO.md",
+    "_posts/后端开发/分布式锁.md",
+    "favicon/site.webmanifest",
+    "favicon/web-app-manifest-512x512.png",
+    "favicon/favicon.svg",
+    "favicon/web-app-manifest-192x192.png",
+    "favicon/favicon-96x96.png",
+    "favicon/favicon.ico",
+    "favicon/apple-touch-icon.png",
+    "favicon",
+    "imgs/favicon.zip",
+    "imgs/未确认 438460.crdownload",
+    "_posts/后端开发/Golang.md",
+    "about/index.md",
+    "_posts/前端/objective-c.md",
+    "_posts/前端/Chromium.md",
+    "Templates/Hexo-Post.md",
+    "_posts/日记/2025-11-30.md",
+    "_posts/日记/2025-11-29.md",
+    "Templates/Diary.md",
+    "Pasted image 20251129082321.png.md",
+    "_posts/AI/AI Agent.md",
     "_posts/八股文.md",
     "_posts/数据库/MySQL.md",
-    "Templates/Hexo-Post.md",
-    "Templates/Diary.md",
-    "_posts/后端开发/Golang.md",
-    "_posts/网络安全/APNS.md",
-    "_posts/后端开发/分布式锁.md",
     "_posts/消息队列/KafkaNotes.md",
     "_posts/后端开发",
     "_posts/数据库/Redis.md",
     "imgs/MySQL1.png",
     "_posts/AI/MCP Introduction.md",
-    "_posts/网络安全/Credential 证书.md",
-    "_posts/网络安全/认证和授权.md",
-    "_posts/日记/2025-11-28.md",
     "imgs/MySQL2.png",
     "_posts/数据库/Hibernate.md",
-    "imgs/APNS.png",
-    "Pasted image 20251129082321.png.md",
     "Pasted image 20251129082321.png",
-    "_posts/前端/Chromium.md",
-    "_posts/前端/objective-c.md",
-    "imgs/credential证书.png",
-    "imgs/gz2.jpg",
-    "imgs/avatar.jpg",
-    "imgs/AOP-PROXY.png",
-    "imgs/认证和授权封面图.png",
     "_posts/spring/SpringAOP_事务失效与底层代理总结.md",
     "_posts/日记",
     "_posts/dairy/2025-11-28.md",
     "_posts/dairy",
     "_posts/消息队列/RabbitMQ.md",
-    "_posts/objective-c/objective-c.md",
     "_posts/前端",
-    "_posts/daily/2025-11-28.md",
-    "_posts/configs/Obsidian Configuration.md",
-    "_posts/AI/AI Agent.md",
     "Untitled.canvas",
-    "Excalidraw/Drawing 2025-11-28 21.56.24.excalidraw.md",
-    "Excalidraw",
-    "_posts/daily",
-    "imgs/Gemini_Generated_Image_r82q0yr82q0yr82q.png.crdownload",
-    "_posts/objective-c",
-    "_posts/数据库",
-    "_posts/网络安全",
-    "Pics/image-20251126101915903.png"
+    "Excalidraw"
   ]
 }

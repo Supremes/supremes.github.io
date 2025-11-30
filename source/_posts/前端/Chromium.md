@@ -1,10 +1,11 @@
 ---
 title: Chromium Knowledge
-date: 2025-11-29 08:18:49
 tags:
   - Chromium
 categories:
   - 移动开发
+abbrlink: 17101
+date: 2025-11-29 08:18:49
 cover:
 ---
 ## Architecture

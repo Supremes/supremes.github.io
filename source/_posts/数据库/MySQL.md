@@ -1,12 +1,13 @@
 ---
 title: MySQL 学习笔记
-date: 2025-11-29 08:45:05
 tags:
   - MySQL
 categories:
   - 数据库
+sticky: '9'
+abbrlink: 8508
+date: 2025-11-29 08:45:05
 cover:
-sticky: "9"
 ---
 # MySQL 架构
 ![img](/imgs/MySQL1.png)
