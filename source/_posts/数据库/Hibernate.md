@@ -1,15 +1,15 @@
 ---
 title: Hibernate ORM 框架详解
-date: 2025-11-28 14:00:00
 tags:
   - Hibernate
   - ORM
   - JPA
   - Java
-  - 数据库
 categories:
   - 数据库
 description: 详解 Hibernate 框架的核心概念，包括 Session、SessionFactory、XML 配置、注解映射以及缓存机制，从入门到精通的完整指南
+abbrlink: 22172
+date: 2025-11-28 14:00:00
 ---
 # Hibernate
 

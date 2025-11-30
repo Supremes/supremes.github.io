@@ -1,6 +1,5 @@
 ---
 title: Objective-C 面向对象编程详解
-date: 2025-11-28 14:30:00
 tags:
   - Objective-C
   - iOS
@@ -8,7 +7,11 @@ tags:
   - Category
   - Protocol
 categories: 移动开发
-description: 深入解析 Objective-C 的面向对象特性，包括 Category、Protocol、Extension 等核心概念，以及 UIViewController 和 UIApplication 的生命周期详解
+description: >-
+  深入解析 Objective-C 的面向对象特性，包括 Category、Protocol、Extension 等核心概念，以及
+  UIViewController 和 UIApplication 的生命周期详解
+abbrlink: 57222
+date: 2025-11-28 14:30:00
 ---
 
 # 面向对象

@@ -1,10 +1,11 @@
 ---
 title: Redis 学习笔记
-date: 2025-11-29 08:56:10
 tags:
   - Redis
 categories:
   - 数据库
+abbrlink: 16018
+date: 2025-11-29 08:56:10
 cover:
 ---
 ## 基础数据结构

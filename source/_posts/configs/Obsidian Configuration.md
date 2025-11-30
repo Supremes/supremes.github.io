@@ -1,10 +1,11 @@
 ---
 title: Obsidian Configuration
-date: 2025-11-28 14:47:35
 tags:
   - Obsidian
 categories:
   - 工具效率
+abbrlink: 54351
+date: 2025-11-28 14:47:35
 cover:
 ---
 

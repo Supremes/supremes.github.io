@@ -1,11 +1,12 @@
 ---
 title: APNS
-date: 2025-11-29 07:57:54
 tags:
   - APNS
 categories:
   - 网络安全
 cover: /imgs/APNS.png
+abbrlink: 45153
+date: 2025-11-29 07:57:54
 ---
 **APNS**、**iPhone**（设备）和 **后台服务器（Server）** 三者之间的关系和数据流。
 
@@ -46,6 +47,5 @@ sequenceDiagram
 
 > 可以在 [https://mermaid.live](https://mermaid.live) 在线编辑和渲染Mermaid图表
 
-![[APNS.png]]
 
-[[MySQL]]
+![img](/imgs/APNS.png)

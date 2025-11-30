@@ -1,5 +1,6 @@
 {
   "cssTheme": "Typora-Vue",
   "theme": "system",
-  "accentColor": "#b84242"
+  "accentColor": "#b84242",
+  "showRibbon": true
 }

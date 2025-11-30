@@ -1,4 +1,6 @@
 {
   "attachmentFolderPath": "imgs",
-  "alwaysUpdateLinks": true
+  "alwaysUpdateLinks": true,
+  "newLinkFormat": "shortest",
+  "useMarkdownLinks": false
 }
