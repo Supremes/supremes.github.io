@@ -1,176 +1,171 @@
-<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><title>AI Agent 技术核心概念学习路线 | Supremes</title><meta name="keywords" content="AI-Agent,LLM,RAG,Function-Calling,ReAct,Embedding,向量数据库"><meta name="author" content="Supremes"><meta name="copyright" content="Supremes"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-touch-fullscreen" content="yes"><meta name="apple-mobile-web-app-title" content="AI Agent 技术核心概念学习路线"><meta name="application-name" content="AI Agent 技术核心概念学习路线"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="#ffffff"><meta property="og:type" content="article"><meta property="og:title" content="AI Agent 技术核心概念学习路线"><meta property="og:url" content="https://supremes.github.io/posts/51504.html"><meta property="og:site_name" content="Supremes"><meta property="og:description" content="深入解析AI Agent的核心技术概念，从Embedding、向量数据库到RAG、Function Calling和ReAct模式，构建完整的LLM应用技术学习路线"><meta property="og:locale" content="zh-CN"><meta property="og:image" content="https://supremes.github.io/imgs/avatar.jpg"><meta property="article:author" content="Supremes"><meta property="article:tag"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://supremes.github.io/imgs/avatar.jpg"><meta name="description" content="深入解析AI Agent的核心技术概念，从Embedding、向量数据库到RAG、Function Calling和ReAct模式，构建完整的LLM应用技术学习路线"><link rel="shortcut icon" href="/favicon/favicon.ico"><link rel="canonical" href="https://supremes.github.io/posts/51504.html"><link rel="preconnect" href="//cdn.cbd.int"/><meta name="google-site-verification" content="xxx"/><meta name="baidu-site-verification" content="code-xxx"/><meta name="msvalidate.01" content="xxx"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.cbd.int/@fancyapps/ui@5.0.28/dist/fancybox/fancybox.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
-  linkPageTop: undefined,
-  peoplecanvas: {"enable":true,"img":"https://upload-bbs.miyoushe.com/upload/2024/07/27/125766904/ba62475f396df9de3316a08ed9e65d86_5680958632268053399..png"},
-  postHeadAiDescription: {"enable":true,"gptName":"AnZhiYu","mode":"local","switchBtn":false,"btnLink":"https://afdian.net/item/886a79d4db6711eda42a52540025c377","randomNum":3,"basicWordCount":1000,"key":"xxxx","Referer":"https://xx.xx/"},
-  diytitle: {"enable":true,"leaveTitle":"w(ﾟДﾟ)w 不要走！再看看嘛！","backTitle":"♪(^∇^*)欢迎肥来！"},
-  LA51: undefined,
-  greetingBox: undefined,
-  twikooEnvId: '',
-  commentBarrageConfig:undefined,
-  music_page_default: "nav_music",
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>AI Agent 技术核心概念学习路线 | Supremes</title><meta name="author" content="Supremes"><meta name="copyright" content="Supremes"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="深入解析AI Agent的核心技术概念，从Embedding、向量数据库到RAG、Function Calling和ReAct模式，构建完整的LLM应用技术学习路线">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AI Agent 技术核心概念学习路线">
+<meta property="og:url" content="https://supremes.github.io/posts/51504.html">
+<meta property="og:site_name" content="Supremes">
+<meta property="og:description" content="深入解析AI Agent的核心技术概念，从Embedding、向量数据库到RAG、Function Calling和ReAct模式，构建完整的LLM应用技术学习路线">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://supremes.github.io/imgs/avatar.jpg">
+<meta property="article:published_time" content="2025-11-28T14:47:28.000Z">
+<meta property="article:modified_time" content="2025-11-30T14:05:14.367Z">
+<meta property="article:author" content="Supremes">
+<meta property="article:tag" content="AI-Agent">
+<meta property="article:tag" content="Embedding">
+<meta property="article:tag" content="Function-Calling">
+<meta property="article:tag" content="LLM">
+<meta property="article:tag" content="RAG">
+<meta property="article:tag" content="ReAct">
+<meta property="article:tag" content="向量数据库">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://supremes.github.io/imgs/avatar.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "AI Agent 技术核心概念学习路线",
+  "url": "https://supremes.github.io/posts/51504.html",
+  "image": "https://supremes.github.io/imgs/avatar.jpg",
+  "datePublished": "2025-11-28T14:47:28.000Z",
+  "dateModified": "2025-11-30T14:05:14.367Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Supremes",
+      "url": "https://supremes.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/favicon/favicon.ico"><link rel="canonical" href="https://supremes.github.io/posts/51504.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.2"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
   root: '/',
-  preloader: undefined,
-  friends_vue_info: undefined,
-  navMusic: false,
-  mainTone: undefined,
-  authorStatus: undefined,
   algolia: undefined,
-  localSearch: {"path":"/search.xml","preload":false,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"pagination":{"enable":true,"hitsPerPage":10},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
   translate: undefined,
-  noticeOutdate: undefined,
-  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":330},
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
   copy: {
     success: '复制成功',
-    error: '复制错误',
+    error: '复制失败',
     noSupport: '浏览器不支持'
   },
   relativeDate: {
     homepage: false,
-    simplehomepage: false,
     post: false
   },
   runtime: '',
-  date_suffix: {
+  dateSuffix: {
     just: '刚刚',
     min: '分钟前',
     hour: '小时前',
     day: '天前',
     month: '个月前'
   },
-  copyright: {"copy":true,"copyrightEbable":false,"limitCount":50,"languages":{"author":"作者: Supremes","link":"链接: ","source":"来源: Supremes","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。","copySuccess":"复制成功，复制和转载请标注本文地址"}},
-  lightbox: 'fancybox',
-  Snackbar: {"chs_to_cht":"你已切换为繁体","cht_to_chs":"你已切换为简体","day_to_night":"你已切换为深色模式","night_to_day":"你已切换为浅色模式","bgLight":"#425AEF","bgDark":"#1f1f1f","position":"top-center"},
-  source: {
-    justifiedGallery: {
-      js: 'https://cdn.cbd.int/flickr-justified-gallery@2.1.2/dist/fjGallery.min.js',
-      css: 'https://cdn.cbd.int/flickr-justified-gallery@2.1.2/dist/fjGallery.css'
-    }
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
   },
   isPhotoFigcaption: false,
-  islazyload: true,
-  isAnchor: false,
-  shortcutKey: undefined,
+  islazyloadPlugin: false,
+  isAnchor: true,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
   autoDarkmode: false
 }</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
-  configTitle: 'Supremes',
   title: 'AI Agent 技术核心概念学习路线',
-  postAI: '',
-  pageFillDescription: 'LLM应用技术核心概念学习路线, 第一阶段：理解基石——让计算机懂得含义（Embedding）, 第二阶段：实现检索——构建外部记忆库（向量数据库）, 第三阶段：衡量相关性——定义相似的标准（Cosine Similarity）, 第四阶段：构建应用——给LLM开小灶（RAG）, 第五阶段：升级交互——让LLM学会使用工具（Function Calling amp ReAct）, 总结：你的学习路径图应用技术核心概念学习路线这条路线遵循从基础构件到核心能力再到高级模式的逻辑第一阶段理解基石让计算机懂得含义核心问题计算机只认识数字我们如何让它们理解文字图片视频的意思什么是嵌入比喻想象一个语义地图每个词或句子图片都是这个地图上的一个点含义相近的词如国王和皇帝在地图上的位置会非常接近含义相反的词如国王和平民则相距甚远本质就是一套算法将非结构化的数据文字图片等转换成一串有意义的数字向量这个向量就是数据点在语义地图上的坐标为什么需要只有把数据变成数字坐标计算机才能进行数学计算从而比较相似性进行分类聚类等操作这是后续所有技术的基础第二阶段实现检索构建外部记忆库向量数据库核心问题有了语义地图但当数据量极其庞大时比如整个公司知识库如何快速找到与问题最相关的信息为什么需要向量数据库传统数据库的局限它们擅长精确匹配如找到的用户但不擅长模糊查询如找到意思最接近可持续发展的文档向量数据库的强项它就是为语义地图量身定制的数据库它专门做一件事近似最近邻搜索你给它一个问题的坐标问题本身的向量它能以极快的速度在整个海量向量库中找到坐标最接近的几个点即语义最相关的文本片段本质向量数据库是的外部记忆库或知识索引系统负责高效精准地检索信息第三阶段衡量相关性定义相似的标准核心问题在语义地图上如何数学地定义两个点相似是看它们的直线距离吗余弦相似度到底在算个啥比喻不比距离比方向想象两个从原点出发的箭头我们不关心箭头的长短向量的绝对大小比如文档的长短只关心两个箭头指向的方向是否一致计算什么它计算的是两个向量之间夹角的余弦值夹角为度方向完全一致余弦值为表示完全相似夹角为度方向垂直余弦值为表示不相关为什么在中常用因为它更关注语义上的方向性而忽略文本长度的影响这更符合我们判断意思是否相似的直觉至此你已经掌握了的检索部分的核心技术栈文本向量数据库余弦相似度检索第四阶段构建应用给开小灶核心问题内部知识老旧会产生幻觉胡说八道如何让它能回答未知的专业领域的问题检索增强生成的本质是什么不只是喂知识库你的理解非常到位它的本质是将的推理能力与外部知识源的动态检索能力相结合工作流程检索当用户提出问题时不直接将问题扔给而是先用上面的技术栈向量数据库相似度计算从外部知识库中精准地检索出与问题最相关的几段信息上下文增强将原始问题检索到的精准上下文一起打包作为一个新的信息更丰富的提示词交给生成基于这个包含了标准答案线索的来生成回答核心挑战与你的思考一致如何精准地检索如果检索到的信息不相关的回答就会跑偏因此检索器的质量模型向量数据库排序算法直接决定了的天花板它解决了知识更新问题改知识库即可幻觉问题答案有据可查溯源问题可以注明答案来源第五阶段升级交互让学会使用工具核心问题无法感知实时信息天气股价无法执行具体动作发邮件查数据库如何让它与外部世界互动函数调用的工作流程是怎样的比喻给一个工具清单上面列出了每个工具的名称功能和用法说明这就是所谓的函数模式或工具模式工作流程用户请求用户提出一个需要工具的请求如今天北京天气怎么样分析不会直接回答而是分析请求然后从工具清单中选择最合适的工具如输出调用指令不执行而是返回一个结构化的调用请求如北京程序执行你的外部程序收到这个结构化请求代为执行真正的函数调用比如调用天气返回结果将执行结果如北京再交回给组织回答将返回的原始数据组织成自然语言回答用户今天北京天气晴朗气温摄氏度本质一个决策执行的单次回合负责思考该用什么工具传入什么参数外部系统负责执行模式是怎么让交互更进一步的比喻是下达一个命令而是在模拟一个人解决复杂问题的完整思考过程这个过程可能包含多个思考行动观察的循环工作流程对于复杂问题如我们公司今年销售额最高的产品是什么它的主要客户画像是什么思考会先产生一段内部推理例如要回答这个问题我需要两步首先需要查询数据库找到销售额最高的产品然后再根据这个产品去查询客户画像数据行动根据推理决定下一步行动比如调用函数这一步类似观察外部系统执行函数返回结果如产品是这个结果被反馈给循环接收到观察结果再次进行好的我已经拿到了产品是接下来我需要查询客户表然后再次调用另一个函数本质一个多步推理的循环框架它通过强制展示思维链使其规划能力更强更能处理需要多步骤工具调用的复杂任务总结你的学习路径图从开始理解一切是如何从将信息转化为语义空间坐标开始的学习向量数据库和相似度计算理解如何在这个空间里进行高效精准的检索这是的基石深入理解掌握如何通过检索外部知识来增强解决其核心痛点学习理解与外部工具交互的基本单元最终掌握模式理解如何利用的推理能力串联多个来解决复杂问题这条路线清晰地展示了现代应用是如何一步步被构建起来的从静态的知识检索到动态的工具使用再到复杂的任务分解与规划祝你学习顺利',
-  isPost: true,
-  isHome: false,
   isHighlightShrink: false,
   isToc: true,
-  postUpdate: '2025-11-30 14:02:36',
-  postMainColor: '',
-}</script><noscript><style type="text/css">
-  #nav {
-    opacity: 1
-  }
-  .justified-gallery img {
-    opacity: 1
-  }
-
-  #recent-posts time,
-  #post-meta time {
-    display: inline !important
-  }
-</style></noscript><script>(win=>{
-      win.saveToLocal = {
-        set: (key, value, ttl) => {
-          if (ttl === 0) return
-          const now = Date.now()
-          const expiry = now + ttl * 86400000
-          const item = {
-            value,
-            expiry
-          }
-          localStorage.setItem(key, JSON.stringify(item))
-        },
-      
-        get: key => {
-          const itemStr = localStorage.getItem(key)
-      
-          if (!itemStr) {
-            return undefined
-          }
-          const item = JSON.parse(itemStr)
-          const now = Date.now()
-      
-          if (now > item.expiry) {
-            localStorage.removeItem(key)
-            return undefined
-          }
-          return item.value
-        }
-      }
-    
-      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
-        const script = document.createElement('script')
-        script.src = url
-        script.async = true
-        script.onerror = reject
-        script.onload = script.onreadystatechange = function() {
-          const loadState = this.readyState
-          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
-          script.onload = script.onreadystatechange = null
-          resolve()
-        }
-
-        Object.keys(attr).forEach(key => {
-          script.setAttribute(key, attr[key])
-        })
-
-        document.head.appendChild(script)
-      })
-    
-      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
-        const link = document.createElement('link')
-        link.rel = 'stylesheet'
-        link.href = url
-        if (id) link.id = id
-        link.onerror = reject
-        link.onload = link.onreadystatechange = function() {
-          const loadState = this.readyState
-          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
-          link.onload = link.onreadystatechange = null
-          resolve()
-        }
-        document.head.appendChild(link)
-      })
-    
-      win.activateDarkMode = () => {
-        document.documentElement.setAttribute('data-theme', 'dark')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
-        }
-      }
-      win.activateLightMode = () => {
-        document.documentElement.setAttribute('data-theme', 'light')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
-        }
-      }
-      const t = saveToLocal.get('theme')
-    
-        if (t === 'dark') activateDarkMode()
-        else if (t === 'light') activateLightMode()
-      
-      const asideStatus = saveToLocal.get('aside-status')
-      if (asideStatus !== undefined) {
-        if (asideStatus === 'hide') {
-          document.documentElement.classList.add('hide-aside')
-        } else {
-          document.documentElement.classList.remove('hide-aside')
-        }
-      }
-    
-      const detectApple = () => {
-        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
-          document.documentElement.classList.add('apple')
-        }
-      }
-      detectApple()
-    })(window)</script><meta name="generator" content="Hexo 8.1.1"></head><body data-type="anzhiyu"><div id="web_bg"></div><div id="an_music_bg"></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><div id="nav-group"><span id="blog_name"><a id="site-name" href="/" accesskey="h"><div class="title">Supremes</div><i class="anzhiyufont anzhiyu-icon-house-chimney"></i></a></span><div class="mask-name-container"><div id="name-container"><a id="page-name" href="javascript:anzhiyu.scrollToDest(0, 500)">PAGE_NAME</a></div></div><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/"><i class="fas fa-home faa-tada"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/archives/"><i class="fas fa-archive faa-tada"></i><span> 时间线</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fas fa-folder-open faa-tada"></i><span> 分类</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/categories/database/"><i class="fas fa-database faa-tada"></i><span> 数据库</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/message-queue/"><i class="fas fa-envelope faa-tada"></i><span> 消息队列</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/Spring/"><i class="fas fa-leaf faa-tada"></i><span> Spring</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/security/"><i class="fas fa-shield-alt faa-tada"></i><span> 网络安全</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/AI/"><i class="fas fa-robot faa-tada"></i><span> AI</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/mobile/"><i class="fas fa-mobile-alt faa-tada"></i><span> 移动开发</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/tools/"><i class="fas fa-tools faa-tada"></i><span> 工具效率</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/diary/"><i class="fas fa-book faa-tada"></i><span> 日记</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fas fa-list faa-tada"></i><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/about_me"><i class="fas fa-user faa-tada"></i><span> 关于我</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/about/my_notes"><i class="fas fa-note-sticky faa-tada"></i><span> 备忘录</span></a></li></ul></div></div></div><div id="nav-right"><div class="nav-button" id="randomPost_button"><a class="site-page" onclick="toRandomPost()" title="随机前往一个文章" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-dice"></i></a></div><div class="nav-button" id="search-button"><a class="site-page social-icon search" href="javascript:void(0);" title="搜索🔍" accesskey="s"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span> 搜索</span></a></div><input id="center-console" type="checkbox"/><label class="widget" for="center-console" title="中控台" onclick="anzhiyu.switchConsole();"><i class="left"></i><i class="widget center"></i><i class="widget right"></i></label><div id="console"><div class="console-card-group-reward"><ul class="reward-all console-card"><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png" target="_blank"><img class="post-qr-code-img" alt="微信" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png" target="_blank"><img class="post-qr-code-img" alt="支付宝" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div><div class="console-card-group"><div class="console-card-group-left"><div class="console-card" id="card-newest-comments"><div class="card-content"><div class="author-content-item-tips">互动</div><span class="author-content-item-title"> 最新评论</span></div><div class="aside-list"><span>正在加载中...</span></div></div></div><div class="console-card-group-right"><div class="console-card tags"><div class="card-content"><div class="author-content-item-tips">兴趣点</div><span class="author-content-item-title">寻找你感兴趣的领域</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/ACME/" style="font-size: 1.05rem;">ACME<sup>1</sup></a><a href="/tags/AI/" style="font-size: 1.05rem;">AI<sup>1</sup></a><a href="/tags/AI-Agent/" style="font-size: 1.05rem;">AI-Agent<sup>1</sup></a><a href="/tags/AOP/" style="font-size: 1.05rem;">AOP<sup>1</sup></a><a href="/tags/APNS/" style="font-size: 1.05rem;">APNS<sup>1</sup></a><a href="/tags/CA/" style="font-size: 1.05rem;">CA<sup>1</sup></a><a href="/tags/Category/" style="font-size: 1.05rem;">Category<sup>1</sup></a><a href="/tags/Chromium/" style="font-size: 1.05rem;">Chromium<sup>1</sup></a><a href="/tags/Claude/" style="font-size: 1.05rem;">Claude<sup>1</sup></a><a href="/tags/Embedding/" style="font-size: 1.05rem;">Embedding<sup>1</sup></a><a href="/tags/Function-Calling/" style="font-size: 1.05rem;">Function-Calling<sup>1</sup></a><a href="/tags/Hibernate/" style="font-size: 1.05rem;">Hibernate<sup>1</sup></a><a href="/tags/JPA/" style="font-size: 1.05rem;">JPA<sup>1</sup></a><a href="/tags/Java/" style="font-size: 1.05rem;">Java<sup>2</sup></a><a href="/tags/Kafka/" style="font-size: 1.05rem;">Kafka<sup>1</sup></a><a href="/tags/LLM/" style="font-size: 1.05rem;">LLM<sup>1</sup></a><a href="/tags/MCP/" style="font-size: 1.05rem;">MCP<sup>1</sup></a><a href="/tags/Model-Context-Protocol/" style="font-size: 1.05rem;">Model Context Protocol<sup>1</sup></a><a href="/tags/MySQL/" style="font-size: 1.05rem;">MySQL<sup>1</sup></a><a href="/tags/ORM/" style="font-size: 1.05rem;">ORM<sup>1</sup></a><a href="/tags/Objective-C/" style="font-size: 1.05rem;">Objective-C<sup>1</sup></a><a href="/tags/Obsidian/" style="font-size: 1.05rem;">Obsidian<sup>1</sup></a><a href="/tags/PKCS/" style="font-size: 1.05rem;">PKCS<sup>1</sup></a><a href="/tags/PKI/" style="font-size: 1.05rem;">PKI<sup>1</sup></a><a href="/tags/Protocol/" style="font-size: 1.05rem;">Protocol<sup>1</sup></a><a href="/tags/RAG/" style="font-size: 1.05rem;">RAG<sup>1</sup></a><a href="/tags/RabbitMQ/" style="font-size: 1.05rem;">RabbitMQ<sup>1</sup></a><a href="/tags/ReAct/" style="font-size: 1.05rem;">ReAct<sup>1</sup></a><a href="/tags/Redis/" style="font-size: 1.05rem;">Redis<sup>1</sup></a><a href="/tags/SCEP/" style="font-size: 1.05rem;">SCEP<sup>1</sup></a><a href="/tags/Spring/" style="font-size: 1.05rem;">Spring<sup>1</sup></a><a href="/tags/golang/" style="font-size: 1.05rem;">golang<sup>1</sup></a><a href="/tags/iOS/" style="font-size: 1.05rem;">iOS<sup>1</sup></a><a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/" style="font-size: 1.05rem;">分布式系统<sup>2</sup></a><a href="/tags/%E5%8A%A0%E5%AF%86/" style="font-size: 1.05rem;">加密<sup>1</sup></a><a href="/tags/%E5%8D%8F%E8%AE%AE%E6%A0%87%E5%87%86/" style="font-size: 1.05rem;">协议标准<sup>1</sup></a><a href="/tags/%E5%90%91%E9%87%8F%E6%95%B0%E6%8D%AE%E5%BA%93/" style="font-size: 1.05rem;">向量数据库<sup>1</sup></a><a href="/tags/%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97/" style="font-size: 1.05rem;">开发指南<sup>1</sup></a><a href="/tags/%E6%95%B0%E5%AD%97%E8%AF%81%E4%B9%A6/" style="font-size: 1.05rem;">数字证书<sup>1</sup></a><a href="/tags/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/" style="font-size: 1.05rem;">面向对象<sup>1</sup></a></div></div><hr/></div></div><div class="console-card history"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-box-archiv"></i><span>文章</span></div><div class="card-archives"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-archive"></i><span>归档</span></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2025/11/"><span class="card-archive-list-date">十一月 2025</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">19</span><span>篇</span></div></a></li></ul></div><hr/></div></div></div><div class="button-group"><div class="console-btn-item"><a class="darkmode_switchbutton" title="显示模式切换" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-moon"></i></a></div><div class="console-btn-item" id="consoleHideAside" onclick="anzhiyu.hideAsideBtn()" title="边栏显示控制"><a class="asideSwitch"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></a></div></div><div class="console-mask" onclick="anzhiyu.hideConsole()" href="javascript:void(0);"></div></div><div class="nav-button" id="nav-totop"><a class="totopbtn" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i><span id="percent" onclick="anzhiyu.scrollToDest(0,500)">0</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);" title="切换"><i class="anzhiyufont anzhiyu-icon-bars"></i></a></div></div></div></nav><div id="post-info"><div id="post-firstinfo"><div class="meta-firstline"><a class="post-meta-original">原创</a><span class="post-meta-categories"><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-inbox post-meta-icon"></i><a class="post-meta-categories" href="/categories/AI/" itemprop="url">AI</a></span><span class="article-meta tags"><a class="article-meta__tags" href="/tags/AI-Agent/" tabindex="-1" itemprop="url"> <span> <i class="anzhiyufont anzhiyu-icon-hashtag"></i>AI-Agent</span></a><a class="article-meta__tags" href="/tags/LLM/" tabindex="-1" itemprop="url"> <span> <i class="anzhiyufont anzhiyu-icon-hashtag"></i>LLM</span></a><a class="article-meta__tags" href="/tags/RAG/" tabindex="-1" itemprop="url"> <span> <i class="anzhiyufont anzhiyu-icon-hashtag"></i>RAG</span></a><a class="article-meta__tags" href="/tags/Function-Calling/" tabindex="-1" itemprop="url"> <span> <i class="anzhiyufont anzhiyu-icon-hashtag"></i>Function-Calling</span></a><a class="article-meta__tags" href="/tags/ReAct/" tabindex="-1" itemprop="url"> <span> <i class="anzhiyufont anzhiyu-icon-hashtag"></i>ReAct</span></a><a class="article-meta__tags" href="/tags/Embedding/" tabindex="-1" itemprop="url"> <span> <i class="anzhiyufont anzhiyu-icon-hashtag"></i>Embedding</span></a><a class="article-meta__tags" href="/tags/%E5%90%91%E9%87%8F%E6%95%B0%E6%8D%AE%E5%BA%93/" tabindex="-1" itemprop="url"> <span> <i class="anzhiyufont anzhiyu-icon-hashtag"></i>向量数据库</span></a></span></div></div><h1 class="post-title" itemprop="name headline">AI Agent 技术核心概念学习路线</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="anzhiyufont anzhiyu-icon-calendar-days post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" itemprop="dateCreated datePublished" datetime="2025-11-28T14:47:28.000Z" title="发表于 2025-11-28 14:47:28">2025-11-28</time><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-history post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" itemprop="dateCreated datePublished" datetime="2025-11-30T14:02:36.511Z" title="更新于 2025-11-30 14:02:36">2025-11-30</time></span></div><div class="meta-secondline"></div></div></div><section class="main-hero-waves-area waves-area"><svg class="waves-svg" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto"><defs><path id="gentle-wave" d="M -160 44 c 30 0 58 -18 88 -18 s 58 18 88 18 s 58 -18 88 -18 s 58 18 88 18 v 44 h -352 Z"></path></defs><g class="parallax"><use href="#gentle-wave" x="48" y="0"></use><use href="#gentle-wave" x="48" y="3"></use><use href="#gentle-wave" x="48" y="5"></use><use href="#gentle-wave" x="48" y="7"></use></g></svg></section><div id="post-top-cover"><img class="nolazyload" id="post-top-bg" src=""></div></header><main id="blog-container"><div class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container" itemscope itemtype="https://supremes.github.io/posts/51504.html"><header><a class="post-meta-categories" href="/categories/AI/" itemprop="url">AI</a><a href="/tags/AI-Agent/" tabindex="-1" itemprop="url">AI-Agent</a><a href="/tags/LLM/" tabindex="-1" itemprop="url">LLM</a><a href="/tags/RAG/" tabindex="-1" itemprop="url">RAG</a><a href="/tags/Function-Calling/" tabindex="-1" itemprop="url">Function-Calling</a><a href="/tags/ReAct/" tabindex="-1" itemprop="url">ReAct</a><a href="/tags/Embedding/" tabindex="-1" itemprop="url">Embedding</a><a href="/tags/%E5%90%91%E9%87%8F%E6%95%B0%E6%8D%AE%E5%BA%93/" tabindex="-1" itemprop="url">向量数据库</a><h1 id="CrawlerTitle" itemprop="name headline">AI Agent 技术核心概念学习路线</h1><span itemprop="author" itemscope itemtype="http://schema.org/Person">Supremes</span><time itemprop="dateCreated datePublished" datetime="2025-11-28T14:47:28.000Z" title="发表于 2025-11-28 14:47:28">2025-11-28</time><time itemprop="dateCreated datePublished" datetime="2025-11-30T14:02:36.511Z" title="更新于 2025-11-30 14:02:36">2025-11-30</time></header><h3 id="LLM应用技术核心概念学习路线"><a href="#LLM应用技术核心概念学习路线" class="headerlink" title="LLM应用技术核心概念学习路线"></a><strong>LLM应用技术核心概念学习路线</strong></h3><p>这条路线遵循从“基础构件”到“核心能力”再到“高级模式”的逻辑。</p>
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 8.1.1"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/imgs/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">19</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">50</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">11</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/database/"><i class="fa-fw fas fa-database"></i><span> 数据库</span></a></li><li><a class="site-page child" href="/categories/message-queue/"><i class="fa-fw fas fa-envelope"></i><span> 消息队列</span></a></li><li><a class="site-page child" href="/categories/Spring/"><i class="fa-fw fas fa-leaf"></i><span> Spring</span></a></li><li><a class="site-page child" href="/categories/security/"><i class="fa-fw fas fa-shield-alt"></i><span> 网络安全</span></a></li><li><a class="site-page child" href="/categories/AI/"><i class="fa-fw fas fa-robot"></i><span> AI</span></a></li><li><a class="site-page child" href="/categories/mobile/"><i class="fa-fw fas fa-mobile-alt"></i><span> 移动开发</span></a></li><li><a class="site-page child" href="/categories/tools/"><i class="fa-fw fas fa-tools"></i><span> 工具效率</span></a></li><li><a class="site-page child" href="/categories/diary/"><i class="fa-fw fas fa-book"></i><span> 日记</span></a></li><li><a class="site-page child" href="/categories/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 关于</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/about/about_me"><i class="fa-fw fas fa-user"></i><span> 关于我</span></a></li><li><a class="site-page child" href="/about/my_notes"><i class="fa-fw fas fa-note-sticky"></i><span> 备忘录</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Supremes</span></a><a class="nav-page-title" href="/"><span class="site-name">AI Agent 技术核心概念学习路线</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/database/"><i class="fa-fw fas fa-database"></i><span> 数据库</span></a></li><li><a class="site-page child" href="/categories/message-queue/"><i class="fa-fw fas fa-envelope"></i><span> 消息队列</span></a></li><li><a class="site-page child" href="/categories/Spring/"><i class="fa-fw fas fa-leaf"></i><span> Spring</span></a></li><li><a class="site-page child" href="/categories/security/"><i class="fa-fw fas fa-shield-alt"></i><span> 网络安全</span></a></li><li><a class="site-page child" href="/categories/AI/"><i class="fa-fw fas fa-robot"></i><span> AI</span></a></li><li><a class="site-page child" href="/categories/mobile/"><i class="fa-fw fas fa-mobile-alt"></i><span> 移动开发</span></a></li><li><a class="site-page child" href="/categories/tools/"><i class="fa-fw fas fa-tools"></i><span> 工具效率</span></a></li><li><a class="site-page child" href="/categories/diary/"><i class="fa-fw fas fa-book"></i><span> 日记</span></a></li><li><a class="site-page child" href="/categories/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 关于</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/about/about_me"><i class="fa-fw fas fa-user"></i><span> 关于我</span></a></li><li><a class="site-page child" href="/about/my_notes"><i class="fa-fw fas fa-note-sticky"></i><span> 备忘录</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">AI Agent 技术核心概念学习路线</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-11-28T14:47:28.000Z" title="发表于 2025-11-28 14:47:28">2025-11-28</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-11-30T14:05:14.367Z" title="更新于 2025-11-30 14:05:14">2025-11-30</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/AI/">AI</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h3 id="LLM应用技术核心概念学习路线"><a href="#LLM应用技术核心概念学习路线" class="headerlink" title="LLM应用技术核心概念学习路线"></a><strong>LLM应用技术核心概念学习路线</strong></h3><p>这条路线遵循从“基础构件”到“核心能力”再到“高级模式”的逻辑。</p>
 <hr>
 <h4 id="第一阶段：理解基石——让计算机“懂得”含义（Embedding）"><a href="#第一阶段：理解基石——让计算机“懂得”含义（Embedding）" class="headerlink" title="第一阶段：理解基石——让计算机“懂得”含义（Embedding）"></a><strong>第一阶段：理解基石——让计算机“懂得”含义（Embedding）</strong></h4><ul>
 <li><strong>核心问题</strong>：计算机只认识数字，我们如何让它们理解文字、图片、视频的“意思”？</li>
@@ -204,205 +199,57 @@
 <li><strong>最终掌握ReAct模式</strong>：理解如何利用LLM的推理能力，串联多个Function Calling来解决复杂问题。</li>
 </ol>
 <p>这条路线清晰地展示了现代LLM应用是如何一步步被构建起来的：<strong>从静态的知识检索（RAG），到动态的工具使用（Function Calling），再到复杂的任务分解与规划（ReAct）</strong>。祝你学习顺利！</p>
-</article><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/54351.html"><img class="prev-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Obsidian Configuration</div></div></a></div><div class="next-post pull-right"><a href="/posts/27915.html"><img class="next-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">MCP（Model Context Protocol）详解</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-bars"></i><span>文章目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#LLM%E5%BA%94%E7%94%A8%E6%8A%80%E6%9C%AF%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5%E5%AD%A6%E4%B9%A0%E8%B7%AF%E7%BA%BF"><span class="toc-text">LLM应用技术核心概念学习路线</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AC%AC%E4%B8%80%E9%98%B6%E6%AE%B5%EF%BC%9A%E7%90%86%E8%A7%A3%E5%9F%BA%E7%9F%B3%E2%80%94%E2%80%94%E8%AE%A9%E8%AE%A1%E7%AE%97%E6%9C%BA%E2%80%9C%E6%87%82%E5%BE%97%E2%80%9D%E5%90%AB%E4%B9%89%EF%BC%88Embedding%EF%BC%89"><span class="toc-text">第一阶段：理解基石——让计算机“懂得”含义（Embedding）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AC%AC%E4%BA%8C%E9%98%B6%E6%AE%B5%EF%BC%9A%E5%AE%9E%E7%8E%B0%E6%A3%80%E7%B4%A2%E2%80%94%E2%80%94%E6%9E%84%E5%BB%BA%E2%80%9C%E5%A4%96%E9%83%A8%E8%AE%B0%E5%BF%86%E5%BA%93%E2%80%9D%EF%BC%88%E5%90%91%E9%87%8F%E6%95%B0%E6%8D%AE%E5%BA%93%EF%BC%89"><span class="toc-text">第二阶段：实现检索——构建“外部记忆库”（向量数据库）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AC%AC%E4%B8%89%E9%98%B6%E6%AE%B5%EF%BC%9A%E8%A1%A1%E9%87%8F%E7%9B%B8%E5%85%B3%E6%80%A7%E2%80%94%E2%80%94%E5%AE%9A%E4%B9%89%E2%80%9C%E7%9B%B8%E4%BC%BC%E2%80%9D%E7%9A%84%E6%A0%87%E5%87%86%EF%BC%88Cosine-Similarity%EF%BC%89"><span class="toc-text">第三阶段：衡量相关性——定义“相似”的标准（Cosine Similarity）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AC%AC%E5%9B%9B%E9%98%B6%E6%AE%B5%EF%BC%9A%E6%9E%84%E5%BB%BA%E5%BA%94%E7%94%A8%E2%80%94%E2%80%94%E7%BB%99LLM%E2%80%9C%E5%BC%80%E5%B0%8F%E7%81%B6%E2%80%9D%EF%BC%88RAG%EF%BC%89"><span class="toc-text">第四阶段：构建应用——给LLM“开小灶”（RAG）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AC%AC%E4%BA%94%E9%98%B6%E6%AE%B5%EF%BC%9A%E5%8D%87%E7%BA%A7%E4%BA%A4%E4%BA%92%E2%80%94%E2%80%94%E8%AE%A9LLM%E2%80%9C%E5%AD%A6%E4%BC%9A%E4%BD%BF%E7%94%A8%E5%B7%A5%E5%85%B7%E2%80%9D%EF%BC%88Function-Calling-ReAct%EF%BC%89"><span class="toc-text">第五阶段：升级交互——让LLM“学会使用工具”（Function Calling &amp; ReAct）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93%EF%BC%9A%E4%BD%A0%E7%9A%84%E5%AD%A6%E4%B9%A0%E8%B7%AF%E5%BE%84%E5%9B%BE"><span class="toc-text">总结：你的学习路径图</span></a></li></ol></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"></div><div id="footer-bar"><div class="footer-bar-links"><div class="footer-bar-left"><div id="footer-bar-tips"><div class="copyright">&copy;2025 By <a class="footer-bar-link" href="/" title="Supremes" target="_blank">Supremes</a></div></div><div id="footer-type-tips"></div><div class="js-pjax"><script>function subtitleType () {
-  fetch('https://v1.hitokoto.cn')
-    .then(response => response.json())
-    .then(data => {
-      if (true) {
-        const from = '出自 ' + data.from
-        const sub = []
-        sub.unshift(data.hitokoto, from)
-        window.typed = new Typed('#footer-type-tips', {
-          strings: sub,
-          startDelay: 300,
-          typeSpeed: 150,
-          loop: true,
-          backSpeed: 50,
-        })
-      } else {
-        document.getElementById('footer-type-tips').innerHTML = data.hitokoto
-      }
-    })
-}
-
-if (true) {
-  if (typeof Typed === 'function') {
-    subtitleType()
-  } else {
-    getScript('https://cdn.cbd.int/typed.js@2.1.0/dist/typed.umd.js').then(subtitleType)
-  }
-} else {
-  subtitleType()
-}
-</script></div></div><div class="footer-bar-right"><a class="footer-bar-link" target="_blank" rel="noopener" href="https://github.com/anzhiyu-c/hexo-theme-anzhiyu" title="主题">主题</a></div></div></div></footer></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="sidebar-site-data site-data is-center"><a href="/archives/" title="archive"><div class="headline">文章</div><div class="length-num">19</div></a><a href="/tags/" title="tag"><div class="headline">标签</div><div class="length-num">50</div></a><a href="/categories/" title="category"><div class="headline">分类</div><div class="length-num">11</div></a></div><span class="sidebar-menu-item-title">功能</span><div class="sidebar-menu-item"><a class="darkmode_switchbutton menu-child" href="javascript:void(0);" title="显示模式"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span>显示模式</span></a></div><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://hexo.anheyu.com/" title="博客"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/img/favicon.ico" alt="博客"/><span class="back-menu-item-text">博客</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">项目</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://image.anheyu.com/" title="安知鱼图床"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://image.anheyu.com/favicon.ico" alt="安知鱼图床"/><span class="back-menu-item-text">安知鱼图床</span></a></div></div></div><div class="menus_items"><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/"><i class="fas fa-home faa-tada"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/archives/"><i class="fas fa-archive faa-tada"></i><span> 时间线</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fas fa-folder-open faa-tada"></i><span> 分类</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/categories/database/"><i class="fas fa-database faa-tada"></i><span> 数据库</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/message-queue/"><i class="fas fa-envelope faa-tada"></i><span> 消息队列</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/Spring/"><i class="fas fa-leaf faa-tada"></i><span> Spring</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/security/"><i class="fas fa-shield-alt faa-tada"></i><span> 网络安全</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/AI/"><i class="fas fa-robot faa-tada"></i><span> AI</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/mobile/"><i class="fas fa-mobile-alt faa-tada"></i><span> 移动开发</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/tools/"><i class="fas fa-tools faa-tada"></i><span> 工具效率</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/diary/"><i class="fas fa-book faa-tada"></i><span> 日记</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fas fa-list faa-tada"></i><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/about_me"><i class="fas fa-user faa-tada"></i><span> 关于我</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/about/my_notes"><i class="fas fa-note-sticky faa-tada"></i><span> 备忘录</span></a></li></ul></div></div><span class="sidebar-menu-item-title">标签</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/ACME/" style="font-size: 0.88rem;">ACME<sup>1</sup></a><a href="/tags/AI/" style="font-size: 0.88rem;">AI<sup>1</sup></a><a href="/tags/AI-Agent/" style="font-size: 0.88rem;">AI-Agent<sup>1</sup></a><a href="/tags/AOP/" style="font-size: 0.88rem;">AOP<sup>1</sup></a><a href="/tags/APNS/" style="font-size: 0.88rem;">APNS<sup>1</sup></a><a href="/tags/CA/" style="font-size: 0.88rem;">CA<sup>1</sup></a><a href="/tags/Category/" style="font-size: 0.88rem;">Category<sup>1</sup></a><a href="/tags/Chromium/" style="font-size: 0.88rem;">Chromium<sup>1</sup></a><a href="/tags/Claude/" style="font-size: 0.88rem;">Claude<sup>1</sup></a><a href="/tags/Embedding/" style="font-size: 0.88rem;">Embedding<sup>1</sup></a><a href="/tags/Function-Calling/" style="font-size: 0.88rem;">Function-Calling<sup>1</sup></a><a href="/tags/Hibernate/" style="font-size: 0.88rem;">Hibernate<sup>1</sup></a><a href="/tags/JPA/" style="font-size: 0.88rem;">JPA<sup>1</sup></a><a href="/tags/Java/" style="font-size: 0.88rem;">Java<sup>2</sup></a><a href="/tags/Kafka/" style="font-size: 0.88rem;">Kafka<sup>1</sup></a><a href="/tags/LLM/" style="font-size: 0.88rem;">LLM<sup>1</sup></a><a href="/tags/MCP/" style="font-size: 0.88rem;">MCP<sup>1</sup></a><a href="/tags/Model-Context-Protocol/" style="font-size: 0.88rem;">Model Context Protocol<sup>1</sup></a><a href="/tags/MySQL/" style="font-size: 0.88rem;">MySQL<sup>1</sup></a><a href="/tags/ORM/" style="font-size: 0.88rem;">ORM<sup>1</sup></a><a href="/tags/Objective-C/" style="font-size: 0.88rem;">Objective-C<sup>1</sup></a><a href="/tags/Obsidian/" style="font-size: 0.88rem;">Obsidian<sup>1</sup></a><a href="/tags/PKCS/" style="font-size: 0.88rem;">PKCS<sup>1</sup></a><a href="/tags/PKI/" style="font-size: 0.88rem;">PKI<sup>1</sup></a><a href="/tags/Protocol/" style="font-size: 0.88rem;">Protocol<sup>1</sup></a><a href="/tags/RAG/" style="font-size: 0.88rem;">RAG<sup>1</sup></a><a href="/tags/RabbitMQ/" style="font-size: 0.88rem;">RabbitMQ<sup>1</sup></a><a href="/tags/ReAct/" style="font-size: 0.88rem;">ReAct<sup>1</sup></a><a href="/tags/Redis/" style="font-size: 0.88rem;">Redis<sup>1</sup></a><a href="/tags/SCEP/" style="font-size: 0.88rem;">SCEP<sup>1</sup></a><a href="/tags/Spring/" style="font-size: 0.88rem;">Spring<sup>1</sup></a><a href="/tags/golang/" style="font-size: 0.88rem;">golang<sup>1</sup></a><a href="/tags/iOS/" style="font-size: 0.88rem;">iOS<sup>1</sup></a><a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/" style="font-size: 0.88rem;">分布式系统<sup>2</sup></a><a href="/tags/%E5%8A%A0%E5%AF%86/" style="font-size: 0.88rem;">加密<sup>1</sup></a><a href="/tags/%E5%8D%8F%E8%AE%AE%E6%A0%87%E5%87%86/" style="font-size: 0.88rem;">协议标准<sup>1</sup></a><a href="/tags/%E5%90%91%E9%87%8F%E6%95%B0%E6%8D%AE%E5%BA%93/" style="font-size: 0.88rem;">向量数据库<sup>1</sup></a><a href="/tags/%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97/" style="font-size: 0.88rem;">开发指南<sup>1</sup></a><a href="/tags/%E6%95%B0%E5%AD%97%E8%AF%81%E4%B9%A6/" style="font-size: 0.88rem;">数字证书<sup>1</sup></a><a href="/tags/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/" style="font-size: 0.88rem;">面向对象<sup>1</sup></a></div></div><hr/></div></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="anzhiyufont anzhiyu-icon-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="anzhiyufont anzhiyu-icon-gear"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="anzhiyufont anzhiyu-icon-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="anzhiyufont anzhiyu-icon-xmark"></i></button></nav><div class="is-center" id="loading-database"><i class="anzhiyufont anzhiyu-icon-spinner anzhiyu-pulse-icon"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div id="rightMenu"><div class="rightMenu-group rightMenu-small"><div class="rightMenu-item" id="menu-backward"><i class="anzhiyufont anzhiyu-icon-arrow-left"></i></div><div class="rightMenu-item" id="menu-forward"><i class="anzhiyufont anzhiyu-icon-arrow-right"></i></div><div class="rightMenu-item" id="menu-refresh"><i class="anzhiyufont anzhiyu-icon-arrow-rotate-right" style="font-size: 1rem;"></i></div><div class="rightMenu-item" id="menu-top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></div></div><div class="rightMenu-group rightMenu-line rightMenuPlugin"><div class="rightMenu-item" id="menu-copytext"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制选中文本</span></div><div class="rightMenu-item" id="menu-pastetext"><i class="anzhiyufont anzhiyu-icon-paste"></i><span>粘贴文本</span></div><a class="rightMenu-item" id="menu-commenttext"><i class="anzhiyufont anzhiyu-icon-comment-medical"></i><span>引用到评论</span></a><div class="rightMenu-item" id="menu-newwindow"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开</span></div><div class="rightMenu-item" id="menu-copylink"><i class="anzhiyufont anzhiyu-icon-link"></i><span>复制链接地址</span></div><div class="rightMenu-item" id="menu-copyimg"><i class="anzhiyufont anzhiyu-icon-images"></i><span>复制此图片</span></div><div class="rightMenu-item" id="menu-downloadimg"><i class="anzhiyufont anzhiyu-icon-download"></i><span>下载此图片</span></div><div class="rightMenu-item" id="menu-newwindowimg"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开图片</span></div><div class="rightMenu-item" id="menu-search"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>站内搜索</span></div><div class="rightMenu-item" id="menu-searchBaidu"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>百度搜索</span></div><div class="rightMenu-item" id="menu-music-toggle"><i class="anzhiyufont anzhiyu-icon-play"></i><span>播放音乐</span></div><div class="rightMenu-item" id="menu-music-back"><i class="anzhiyufont anzhiyu-icon-backward"></i><span>切换到上一首</span></div><div class="rightMenu-item" id="menu-music-forward"><i class="anzhiyufont anzhiyu-icon-forward"></i><span>切换到下一首</span></div><div class="rightMenu-item" id="menu-music-playlist" onclick="window.open(&quot;https://y.qq.com/n/ryqq/playlist/8802438608&quot;, &quot;_blank&quot;);" style="display: none;"><i class="anzhiyufont anzhiyu-icon-radio"></i><span>查看所有歌曲</span></div><div class="rightMenu-item" id="menu-music-copyMusicName"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制歌名</span></div></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item menu-link" id="menu-randomPost"><i class="anzhiyufont anzhiyu-icon-shuffle"></i><span>随便逛逛</span></a><a class="rightMenu-item menu-link" href="/categories/"><i class="anzhiyufont anzhiyu-icon-cube"></i><span>博客分类</span></a><a class="rightMenu-item menu-link" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags"></i><span>文章标签</span></a></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item" id="menu-copy" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制地址</span></a><a class="rightMenu-item" id="menu-commentBarrage" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-message"></i><span class="menu-commentBarrage-text">关闭热评</span></a><a class="rightMenu-item" id="menu-darkmode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span class="menu-darkmode-text">深色模式</span></a><a class="rightMenu-item" id="menu-translate" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-language"></i><span>轉為繁體</span></a></div></div><div id="rightmenu-mask"></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.cbd.int/@fancyapps/ui@5.0.28/dist/fancybox/fancybox.umd.js"></script><script src="https://cdn.cbd.int/instant.page@5.2.0/instantpage.js" type="module"></script><script src="https://cdn.cbd.int/vanilla-lazyload@17.8.5/dist/lazyload.iife.min.js"></script><script src="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.js"></script><canvas id="universe"></canvas><script async src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/dark/dark.js"></script><script>// 消除控制台打印
-var HoldLog = console.log;
-console.log = function () {};
-let now1 = new Date();
-queueMicrotask(() => {
-  const Log = function () {
-    HoldLog.apply(console, arguments);
-  }; //在恢复前输出日志
-  const grt = new Date(""); //此处修改你的建站时间或者网站上线时间
-  now1.setTime(now1.getTime() + 250);
-  const days = (now1 - grt) / 1000 / 60 / 60 / 24;
-  const dnum = Math.floor(days);
-  const ascll = [
-    `欢迎使用安知鱼!`,
-    `生活明朗, 万物可爱`,
-    `
-        
-       █████╗ ███╗   ██╗███████╗██╗  ██╗██╗██╗   ██╗██╗   ██╗
-      ██╔══██╗████╗  ██║╚══███╔╝██║  ██║██║╚██╗ ██╔╝██║   ██║
-      ███████║██╔██╗ ██║  ███╔╝ ███████║██║ ╚████╔╝ ██║   ██║
-      ██╔══██║██║╚██╗██║ ███╔╝  ██╔══██║██║  ╚██╔╝  ██║   ██║
-      ██║  ██║██║ ╚████║███████╗██║  ██║██║   ██║   ╚██████╔╝
-      ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝╚═╝   ╚═╝    ╚═════╝
-        
-        `,
-    "已上线",
-    dnum,
-    "天",
-    "©2025 By 安知鱼 V1.6.15",
-  ];
-  const ascll2 = [`NCC2-036`, `调用前置摄像头拍照成功，识别为【小笨蛋】.`, `Photo captured: `, `🤪`];
-
-  setTimeout(
-    Log.bind(
-      console,
-      `\n%c${ascll[0]} %c ${ascll[1]} %c ${ascll[2]} %c${ascll[3]}%c ${ascll[4]}%c ${ascll[5]}\n\n%c ${ascll[6]}\n`,
-      "color:#425AEF",
-      "",
-      "color:#425AEF",
-      "color:#425AEF",
-      "",
-      "color:#425AEF",
-      ""
-    )
-  );
-  setTimeout(
-    Log.bind(
-      console,
-      `%c ${ascll2[0]} %c ${ascll2[1]} %c \n${ascll2[2]} %c\n${ascll2[3]}\n`,
-      "color:white; background-color:#4fd953",
-      "",
-      "",
-      'background:url("https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/tinggge.gif") no-repeat;font-size:450%'
-    )
-  );
-
-  setTimeout(Log.bind(console, "%c WELCOME %c 你好，小笨蛋.", "color:white; background-color:#4f90d9", ""));
-
-  setTimeout(
-    console.warn.bind(
-      console,
-      "%c ⚡ Powered by 安知鱼 %c 你正在访问 Supremes 的博客.",
-      "color:white; background-color:#f0ad4e",
-      ""
-    )
-  );
-
-  setTimeout(Log.bind(console, "%c W23-12 %c 你已打开控制台.", "color:white; background-color:#4f90d9", ""));
-
-  setTimeout(
-    console.warn.bind(console, "%c S013-782 %c 你现在正处于监控中.", "color:white; background-color:#d9534f", "")
-  );
-});</script><script async src="/anzhiyu/random.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>(() => {
-  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
-  if ($mermaid.length === 0) return
-  const runMermaid = () => {
+</article><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/AI-Agent/">AI-Agent</a><a class="post-meta__tags" href="/tags/LLM/">LLM</a><a class="post-meta__tags" href="/tags/RAG/">RAG</a><a class="post-meta__tags" href="/tags/Function-Calling/">Function-Calling</a><a class="post-meta__tags" href="/tags/ReAct/">ReAct</a><a class="post-meta__tags" href="/tags/Embedding/">Embedding</a><a class="post-meta__tags" href="/tags/%E5%90%91%E9%87%8F%E6%95%B0%E6%8D%AE%E5%BA%93/">向量数据库</a></div><div class="post-share"><div class="social-share" data-image="/imgs/avatar.jpg" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/posts/54351.html" title="Obsidian Configuration"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">Obsidian Configuration</div></div><div class="info-2"><div class="info-item-1">Plugins Excalidraw Hexo Toolkit  Shell commands  为了让你找回 Typora 的感觉，请安装以下插件：    插件名称 作用 推荐配置    Editing Toolbar 核心推荐。在顶部增加类似 Word&#x2F;Typora 的格式工具栏。 必装，完美复刻 Typora 菜单。   Image Toolkit 点击图片全屏查看、缩放、滚轮放大。 解决 Obsidian 默认无法点击看大图的问题。   Easy Typing 优化中文输入体验，自动在中英文之间加空格。 强迫症福音。   Dataview 在首页生成一个“最近更新的文章”列表。 把 Obsidian 首页变成你的博客 Dashboard。   ThemeObsidian 的默认主题是给程序员看的，太素了。  操作： 设置 -&gt; 外观 (Appearance) -&gt; 主题 (Themes) -&gt; 管理 (Manage)。  推荐主题（专治简陋）：  Blue Topaz： （强烈推荐）这是国人开发的主题，功能极其强大，色彩丰富，默认就很漂亮，适合...</div></div></div></a><a class="pagination-related" href="/posts/27915.html" title="MCP（Model Context Protocol）详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">MCP（Model Context Protocol）详解</div></div><div class="info-2"><div class="info-item-1">What is the MCP? MCP (Model Context Protocol) is an open-source standard for connecting AI applications to external systems. Using MCP, AI applications like Claude or ChatGPT can connect to data sources (e.g. local files, databases), tools (e.g. search engines, calculators) and workflows (e.g. specialized prompts)—enabling them to access key information and perform tasks. Think of MCP like a USB-C port for AI applications. Just as USB-C provides a standardized way to connect electronic device...</div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/imgs/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Supremes</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">19</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">50</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">11</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/Supremes"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#LLM%E5%BA%94%E7%94%A8%E6%8A%80%E6%9C%AF%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5%E5%AD%A6%E4%B9%A0%E8%B7%AF%E7%BA%BF"><span class="toc-text">LLM应用技术核心概念学习路线</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AC%AC%E4%B8%80%E9%98%B6%E6%AE%B5%EF%BC%9A%E7%90%86%E8%A7%A3%E5%9F%BA%E7%9F%B3%E2%80%94%E2%80%94%E8%AE%A9%E8%AE%A1%E7%AE%97%E6%9C%BA%E2%80%9C%E6%87%82%E5%BE%97%E2%80%9D%E5%90%AB%E4%B9%89%EF%BC%88Embedding%EF%BC%89"><span class="toc-text">第一阶段：理解基石——让计算机“懂得”含义（Embedding）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AC%AC%E4%BA%8C%E9%98%B6%E6%AE%B5%EF%BC%9A%E5%AE%9E%E7%8E%B0%E6%A3%80%E7%B4%A2%E2%80%94%E2%80%94%E6%9E%84%E5%BB%BA%E2%80%9C%E5%A4%96%E9%83%A8%E8%AE%B0%E5%BF%86%E5%BA%93%E2%80%9D%EF%BC%88%E5%90%91%E9%87%8F%E6%95%B0%E6%8D%AE%E5%BA%93%EF%BC%89"><span class="toc-text">第二阶段：实现检索——构建“外部记忆库”（向量数据库）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AC%AC%E4%B8%89%E9%98%B6%E6%AE%B5%EF%BC%9A%E8%A1%A1%E9%87%8F%E7%9B%B8%E5%85%B3%E6%80%A7%E2%80%94%E2%80%94%E5%AE%9A%E4%B9%89%E2%80%9C%E7%9B%B8%E4%BC%BC%E2%80%9D%E7%9A%84%E6%A0%87%E5%87%86%EF%BC%88Cosine-Similarity%EF%BC%89"><span class="toc-text">第三阶段：衡量相关性——定义“相似”的标准（Cosine Similarity）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AC%AC%E5%9B%9B%E9%98%B6%E6%AE%B5%EF%BC%9A%E6%9E%84%E5%BB%BA%E5%BA%94%E7%94%A8%E2%80%94%E2%80%94%E7%BB%99LLM%E2%80%9C%E5%BC%80%E5%B0%8F%E7%81%B6%E2%80%9D%EF%BC%88RAG%EF%BC%89"><span class="toc-text">第四阶段：构建应用——给LLM“开小灶”（RAG）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AC%AC%E4%BA%94%E9%98%B6%E6%AE%B5%EF%BC%9A%E5%8D%87%E7%BA%A7%E4%BA%A4%E4%BA%92%E2%80%94%E2%80%94%E8%AE%A9LLM%E2%80%9C%E5%AD%A6%E4%BC%9A%E4%BD%BF%E7%94%A8%E5%B7%A5%E5%85%B7%E2%80%9D%EF%BC%88Function-Calling-ReAct%EF%BC%89"><span class="toc-text">第五阶段：升级交互——让LLM“学会使用工具”（Function Calling &amp; ReAct）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93%EF%BC%9A%E4%BD%A0%E7%9A%84%E5%AD%A6%E4%B9%A0%E8%B7%AF%E5%BE%84%E5%9B%BE"><span class="toc-text">总结：你的学习路径图</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/65190.html" title="八股文">八股文</a><time datetime="2025-11-29T09:00:27.000Z" title="发表于 2025-11-29 09:00:27">2025-11-29</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/31482.html" title="Golang">Golang</a><time datetime="2025-11-29T08:59:30.000Z" title="发表于 2025-11-29 08:59:30">2025-11-29</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/18358.html" title="分布式锁">分布式锁</a><time datetime="2025-11-29T08:57:26.000Z" title="发表于 2025-11-29 08:57:26">2025-11-29</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/16018.html" title="Redis 学习笔记">Redis 学习笔记</a><time datetime="2025-11-29T08:56:10.000Z" title="发表于 2025-11-29 08:56:10">2025-11-29</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/4947.html" title="TODO">TODO</a><time datetime="2025-11-29T08:50:05.000Z" title="发表于 2025-11-29 08:50:05">2025-11-29</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 By Supremes</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.1</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.2</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.2"></script><script src="/js/main.js?v=5.5.2"></script><div class="js-pjax"><script>(() => {
+  const runMermaid = ele => {
     window.loadMermaid = true
     const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
 
-    Array.from($mermaid).forEach((item, index) => {
+    ele.forEach((item, index) => {
       const mermaidSrc = item.firstElementChild
-      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
-      const mermaidID = 'mermaid-' + index
+      const config = mermaidSrc.dataset.config ? JSON.parse(mermaidSrc.dataset.config) : {}
+      if (!config.theme) {
+        config.theme = theme
+      }
+      const mermaidThemeConfig = `%%{init: ${JSON.stringify(config)}}%%\n`
+      const mermaidID = `mermaid-${index}`
       const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
 
       const renderFn = mermaid.render(mermaidID, mermaidDefinition)
-
-      const renderV10 = () => {
-        renderFn.then(({svg}) => {
-          mermaidSrc.insertAdjacentHTML('afterend', svg)
-        })
-      }
-
-      const renderV9 = svg => {
+      const renderMermaid = svg => {
         mermaidSrc.insertAdjacentHTML('afterend', svg)
       }
 
-      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+      // mermaid v9 and v10 compatibility
+      typeof renderFn === 'string' ? renderMermaid(renderFn) : renderFn.then(({ svg }) => renderMermaid(svg))
+    })
+  }
+
+  const codeToMermaid = () => {
+    const codeMermaidEle = document.querySelectorAll('pre > code.mermaid')
+    if (codeMermaidEle.length === 0) return
+
+    codeMermaidEle.forEach(ele => {
+      const preEle = document.createElement('pre')
+      preEle.className = 'mermaid-src'
+      preEle.hidden = true
+      preEle.textContent = ele.textContent
+      const newEle = document.createElement('div')
+      newEle.className = 'mermaid-wrap'
+      newEle.appendChild(preEle)
+      ele.parentNode.replaceWith(newEle)
     })
   }
 
   const loadMermaid = () => {
-    window.loadMermaid ? runMermaid() : getScript('https://cdn.cbd.int/mermaid@10.2.4/dist/mermaid.min.js').then(runMermaid)
+    if (true) codeToMermaid()
+    const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+    if ($mermaid.length === 0) return
+
+    const runMermaidFn = () => runMermaid($mermaid)
+    btf.addGlobalFn('themeChange', runMermaidFn, 'mermaid')
+    window.loadMermaid ? runMermaidFn() : btf.getScript('https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.min.js').then(runMermaidFn)
   }
 
-  anzhiyu.addGlobalFn('themeChange', runMermaid, 'mermaid')
-
+  btf.addGlobalFn('encrypt', loadMermaid, 'mermaid')
   window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
-})()</script><input type="hidden" name="page-type" id="page-type" value="post"></div><script>var visitorMail = "";
-</script><script async data-pjax src="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/waterfall/waterfall.js"></script><script src="https://cdn.cbd.int/qrcodejs@1.0.0/qrcode.min.js"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.9/icon/ali_iconfont_css.css"><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/aplayer/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.cbd.int/anzhiyu-blog-static@1.0.1/js/APlayer.min.js"></script><script src="https://cdn.cbd.int/hexo-anzhiyu-music@1.0.1/assets/js/Meting2.min.js"></script><script src="https://cdn.cbd.int/pjax@0.2.8/pjax.min.js"></script><script>let pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
-var pjax = new Pjax({
-  elements: 'a:not([target="_blank"])',
-  selectors: pjaxSelectors,
-  cacheBust: false,
-  analytics: false,
-  scrollRestoration: false
-})
-
-document.addEventListener('pjax:send', function () {
-  // removeEventListener scroll 
-  anzhiyu.removeGlobalFnEvent('pjax')
-  anzhiyu.removeGlobalFnEvent('themeChange')
-
-  document.getElementById('rightside').classList.remove('rightside-show')
-  
-  if (window.aplayers) {
-    for (let i = 0; i < window.aplayers.length; i++) {
-      if (!window.aplayers[i].options.fixed) {
-        window.aplayers[i].destroy()
-      }
-    }
-  }
-
-  typeof typed === 'object' && typed.destroy()
-
-  //reset readmode
-  const $bodyClassList = document.body.classList
-  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
-})
-
-document.addEventListener('pjax:complete', function () {
-  window.refreshFn()
-
-  document.querySelectorAll('script[data-pjax]').forEach(item => {
-    const newScript = document.createElement('script')
-    const content = item.text || item.textContent || item.innerHTML || ""
-    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
-    newScript.appendChild(document.createTextNode(content))
-    item.parentNode.replaceChild(newScript, item)
-  })
-
-  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
-
-  typeof panguInit === 'function' && panguInit()
-
-  // google analytics
-  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
-
-  // baidu analytics
-  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
-
-  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
-
-  // prismjs
-  typeof Prism === 'object' && Prism.highlightAll()
-})
-
-document.addEventListener('pjax:error', e => {
-  if (e.request.status === 404) {
-    pjax.loadUrl('/404.html')
-  }
-})</script><script charset="UTF-8" src="https://cdn.cbd.int/anzhiyu-theme-static@1.1.5/accesskey/accesskey.js"></script></div><div id="popup-window"><div class="popup-window-title">通知</div><div class="popup-window-divider"></div><div class="popup-window-content"><div class="popup-tip">你好呀</div><div class="popup-link"><i class="anzhiyufont anzhiyu-icon-arrow-circle-right"></i></div></div></div></body></html>
+})()</script></div><script async data-pjax src="/"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章标题和内容..." type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.5.2"></script></div></div></body></html>

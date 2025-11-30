@@ -1,176 +1,166 @@
-<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><title>Kafka 深度学习笔记 | Supremes</title><meta name="keywords" content="分布式系统,Kafka"><meta name="author" content="Supremes"><meta name="copyright" content="Supremes"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-touch-fullscreen" content="yes"><meta name="apple-mobile-web-app-title" content="Kafka 深度学习笔记"><meta name="application-name" content="Kafka 深度学习笔记"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="#ffffff"><meta property="og:type" content="article"><meta property="og:title" content="Kafka 深度学习笔记"><meta property="og:url" content="https://supremes.github.io/posts/1562.html"><meta property="og:site_name" content="Supremes"><meta property="og:description" content="深入学习 Apache Kafka 的核心概念、架构设计、部署配置和生产环境最佳实践"><meta property="og:locale" content="zh-CN"><meta property="og:image" content="https://supremes.github.io/imgs/KafkaNotes%E5%B0%81%E9%9D%A2.png"><meta property="article:author" content="Supremes"><meta property="article:tag"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://supremes.github.io/imgs/KafkaNotes%E5%B0%81%E9%9D%A2.png"><meta name="description" content="深入学习 Apache Kafka 的核心概念、架构设计、部署配置和生产环境最佳实践"><link rel="shortcut icon" href="/favicon/favicon.ico"><link rel="canonical" href="https://supremes.github.io/posts/1562.html"><link rel="preconnect" href="//cdn.cbd.int"/><meta name="google-site-verification" content="xxx"/><meta name="baidu-site-verification" content="code-xxx"/><meta name="msvalidate.01" content="xxx"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.cbd.int/@fancyapps/ui@5.0.28/dist/fancybox/fancybox.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
-  linkPageTop: undefined,
-  peoplecanvas: {"enable":true,"img":"https://upload-bbs.miyoushe.com/upload/2024/07/27/125766904/ba62475f396df9de3316a08ed9e65d86_5680958632268053399..png"},
-  postHeadAiDescription: {"enable":true,"gptName":"AnZhiYu","mode":"local","switchBtn":false,"btnLink":"https://afdian.net/item/886a79d4db6711eda42a52540025c377","randomNum":3,"basicWordCount":1000,"key":"xxxx","Referer":"https://xx.xx/"},
-  diytitle: {"enable":true,"leaveTitle":"w(ﾟДﾟ)w 不要走！再看看嘛！","backTitle":"♪(^∇^*)欢迎肥来！"},
-  LA51: undefined,
-  greetingBox: undefined,
-  twikooEnvId: '',
-  commentBarrageConfig:undefined,
-  music_page_default: "nav_music",
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Kafka 深度学习笔记 | Supremes</title><meta name="author" content="Supremes"><meta name="copyright" content="Supremes"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="深入学习 Apache Kafka 的核心概念、架构设计、部署配置和生产环境最佳实践">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kafka 深度学习笔记">
+<meta property="og:url" content="https://supremes.github.io/posts/1562.html">
+<meta property="og:site_name" content="Supremes">
+<meta property="og:description" content="深入学习 Apache Kafka 的核心概念、架构设计、部署配置和生产环境最佳实践">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://supremes.github.io/imgs/KafkaNotes%E5%B0%81%E9%9D%A2.png">
+<meta property="article:published_time" content="2025-11-27T21:11:20.000Z">
+<meta property="article:modified_time" content="2025-11-27T22:35:00.000Z">
+<meta property="article:author" content="Supremes">
+<meta property="article:tag" content="Kafka">
+<meta property="article:tag" content="分布式系统">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://supremes.github.io/imgs/KafkaNotes%E5%B0%81%E9%9D%A2.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Kafka 深度学习笔记",
+  "url": "https://supremes.github.io/posts/1562.html",
+  "image": "https://supremes.github.io/imgs/KafkaNotes%E5%B0%81%E9%9D%A2.png",
+  "datePublished": "2025-11-27T21:11:20.000Z",
+  "dateModified": "2025-11-27T22:35:00.000Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Supremes",
+      "url": "https://supremes.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/favicon/favicon.ico"><link rel="canonical" href="https://supremes.github.io/posts/1562.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.2"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
   root: '/',
-  preloader: undefined,
-  friends_vue_info: undefined,
-  navMusic: false,
-  mainTone: undefined,
-  authorStatus: undefined,
   algolia: undefined,
-  localSearch: {"path":"/search.xml","preload":false,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"pagination":{"enable":true,"hitsPerPage":10},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
   translate: undefined,
-  noticeOutdate: undefined,
-  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":330},
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
   copy: {
     success: '复制成功',
-    error: '复制错误',
+    error: '复制失败',
     noSupport: '浏览器不支持'
   },
   relativeDate: {
     homepage: false,
-    simplehomepage: false,
     post: false
   },
   runtime: '',
-  date_suffix: {
+  dateSuffix: {
     just: '刚刚',
     min: '分钟前',
     hour: '小时前',
     day: '天前',
     month: '个月前'
   },
-  copyright: {"copy":true,"copyrightEbable":false,"limitCount":50,"languages":{"author":"作者: Supremes","link":"链接: ","source":"来源: Supremes","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。","copySuccess":"复制成功，复制和转载请标注本文地址"}},
-  lightbox: 'fancybox',
-  Snackbar: {"chs_to_cht":"你已切换为繁体","cht_to_chs":"你已切换为简体","day_to_night":"你已切换为深色模式","night_to_day":"你已切换为浅色模式","bgLight":"#425AEF","bgDark":"#1f1f1f","position":"top-center"},
-  source: {
-    justifiedGallery: {
-      js: 'https://cdn.cbd.int/flickr-justified-gallery@2.1.2/dist/fjGallery.min.js',
-      css: 'https://cdn.cbd.int/flickr-justified-gallery@2.1.2/dist/fjGallery.css'
-    }
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
   },
   isPhotoFigcaption: false,
-  islazyload: true,
-  isAnchor: false,
-  shortcutKey: undefined,
+  islazyloadPlugin: false,
+  isAnchor: true,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
   autoDarkmode: false
 }</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
-  configTitle: 'Supremes',
   title: 'Kafka 深度学习笔记',
-  postAI: '',
-  pageFillDescription: '📖 简介, 🔑 核心概念, 副本机制, 持久化机制, 📚 核心术语, 高级概念, 🚀 部署配置, Broker 参数配置, 存储配置, 网络配置, Topic 管理, 数据管理, Topic 级别参数, JVM 参数调优, 🎯 分区策略, 自定义分区策略, 内置分区策略, 1. 轮询策略（Round-Robin）, 2. 随机策略（Random）, 3. 按键保序策略（Key-Ordering）, 🎮 Kafka 控制器, 角色定位, 主要职责, 1. 分区分配, 2. Leader 副本选举, 3. 主题管理, 4. 集群监控与协调, 控制器选举, 🔒 消息交付可靠性, 1. 最多一次（At Most Once）, 2. 至少一次（At Least Once）, 3. 精确一次（Exactly Once）, ❓ 常见问题, Q1 为什么 Kafka 不允许从副本读取数据？, 1. 一致性模型差异, 2. 设计目标不同, 3. 故障恢复复杂性, Q2 Kafka 如何保证消息顺序性？, 1. 分区有序, 2. 同步发送, 3. 消息偏移量, Q3 Kafka 消息如何存储？, 存储结构, 存储特性, 💡 生产环境最佳实践, 关键参数配置, auto.create.topics.enable x3D false, unclean.leader.election.enable x3D false, auto.leader.rebalance.enable x3D false, 📚 参考资料简介是一个分布式流处理平台最初由开发早期版本使用编写并运行在上后续版本逐渐迁移至实现核心概念副本机制主副本负责处理所有客户端的读写请求维护消息的写入顺序和偏移量等元数据从副本从同步最新数据提供数据冗余和高可用保障不对外提供读写服务持久化机制使用高效的日志存储机制来持久化消息顺序追加写入消息以追加方式顺序写入日志文件充分利用磁盘顺序读写的高性能特性分段管理将日志按照进行分段定时清理过期的来释放磁盘空间核心术语术语英文说明消息处理的主要对象主题承载消息的逻辑容器用于区分不同的业务分区一个有序不变的消息序列每个主题可以有多个分区消息位移分区中每条消息的位置信息单调递增且不变副本消息的多个拷贝分为和副本生产者向主题发布新消息的应用程序消费者从主题订阅消息的应用程序消费者位移表征消费者消费进度消费者组多个消费者实例组成的组同时消费多个分区以实现高吞吐重平衡消费者组内某个实例挂掉后其他实例自动重新分配订阅分区的过程高级概念刷盘将内存中的数据持久化到磁盘的过程消息先写入内存缓冲区再根据策略刷写到磁盘保证数据持久性即使服务器重启也不会丢失副本因子定义每个分区有多少个副本例如副本因子为意味着个个炼狱用于处理延迟操作的内部机制处理不能立即完成需要等待条件满足的操作例如事务相关操作部署配置参数配置存储配置推荐建议将各个目录挂载到不同的物理磁盘优势提升读写性能实现故障转移单个路径配置补充使用网络配置告诉外部连接者使用什么协议连接格式示例对外发布的监听器地址客户端实际连接的地址自定义协议配置管理参数推荐值说明禁止自动创建避免线上未知问题禁止不干净的选举防止数据丢失禁止定期选举避免频繁切换数据管理消息保留时间天优先级最高消息大小限制无限制级别参数参数优先级高于全局参数消息保留时间天磁盘空间配额无限制最大消息大小参数调优堆内存配置推荐配置分区策略决定生产者将消息发送到哪个分区的算法自定义分区策略实现接口自定义分区逻辑配置参数内置分区策略轮询策略特点默认策略消息均匀分配到所有分区最佳负载均衡表现适用场景无需保证消息顺序追求负载均衡随机策略特点随机选择分区理论上也能实现负载均衡但效果不如轮询策略按键保序策略特点相同的消息进入同一分区保证相同的消息顺序实现适用场景需要保证相同的消息顺序例如同一用户的操作日志控制器角色定位集群中只能有一台充当控制器角色主要职责分区分配控制器负责决定每个分区的副本分布示例有个分区副本因子为分区分区副本选举当副本所在宕机时控制器从中选举新的主题管理接受来自管理工具或的请求处理主题的创建和删除操作集群监控与协调通过心跳机制检测存活状态节点失联时重新分配分区和副本控制器选举选举机制启动时尝试在中创建节点第一个成功创建节点的成为控制器其他通过机制监控控制器状态机制检测到控制器节点失效删除节点存活的重新竞选新的控制器消息交付可靠性提供三种消息交付可靠性保障最多一次特征消息可能丢失但绝不重复场景日志收集等对数据完整性要求不高的场景至少一次特征消息不会丢失但可能重复默认默认提供此级别保障场景大多数业务场景精确一次特征消息不丢失也不重复实现通过幂等性事务机制场景金融交易等对数据准确性要求极高的场景常见问题为什么不允许从副本读取数据与主从复制不同的从副本不对外提供读服务原因如下一致性模型差异基于日志的消息传递模型强调消息顺序和实时性从副本可能存在同步延迟导致数据不一致事务模型从库应用完后数据一致可以安全地提供读服务设计目标不同专注于高吞吐量的消息写入和顺序读取允许从副本读取会增加复杂性支持复杂查询和事务处理读写分离可以分担主库压力故障恢复复杂性从副本提供读服务时故障切换更复杂需要处理正在进行的读操作从库故障恢复相对简单重新同步即可如何保证消息顺序性分区有序每个分区内的消息严格有序全局有序需要使用单分区牺牲并发性同步发送配置保证消息持久性值说明可靠性性能不等待确认立即返回最低最高等待确认中等中等等待所有确认最高最低消息偏移量每个消息有唯一的消费者按顺序消费保证消费顺序与生产顺序一致消息如何存储存储结构消息数据索引文件存储特性格式优化的日志格式不可变消息一旦写入不可修改顺序追加新消息追加到日志末尾分段管理便于管理和清理生产环境最佳实践关键参数配置理由避免因拼写错误自动创建例如误写为会自动创建大公司应由运维统一管理场景所有高质量副本都挂掉了怎么办选择坚持原则分区不可用保证数据完整性降级服务允许落后副本成为可能丢数据推荐生产环境设置为问题定期换的代价很高所有客户端需要切换连接没有实质性能收益可能影响服务稳定性推荐生产环境设置为参考资料官方文档核心技术与实战',
-  isPost: true,
-  isHome: false,
   isHighlightShrink: false,
   isToc: true,
-  postUpdate: '2025-11-27 22:35:00',
-  postMainColor: '',
-}</script><noscript><style type="text/css">
-  #nav {
-    opacity: 1
-  }
-  .justified-gallery img {
-    opacity: 1
-  }
-
-  #recent-posts time,
-  #post-meta time {
-    display: inline !important
-  }
-</style></noscript><script>(win=>{
-      win.saveToLocal = {
-        set: (key, value, ttl) => {
-          if (ttl === 0) return
-          const now = Date.now()
-          const expiry = now + ttl * 86400000
-          const item = {
-            value,
-            expiry
-          }
-          localStorage.setItem(key, JSON.stringify(item))
-        },
-      
-        get: key => {
-          const itemStr = localStorage.getItem(key)
-      
-          if (!itemStr) {
-            return undefined
-          }
-          const item = JSON.parse(itemStr)
-          const now = Date.now()
-      
-          if (now > item.expiry) {
-            localStorage.removeItem(key)
-            return undefined
-          }
-          return item.value
-        }
-      }
-    
-      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
-        const script = document.createElement('script')
-        script.src = url
-        script.async = true
-        script.onerror = reject
-        script.onload = script.onreadystatechange = function() {
-          const loadState = this.readyState
-          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
-          script.onload = script.onreadystatechange = null
-          resolve()
-        }
-
-        Object.keys(attr).forEach(key => {
-          script.setAttribute(key, attr[key])
-        })
-
-        document.head.appendChild(script)
-      })
-    
-      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
-        const link = document.createElement('link')
-        link.rel = 'stylesheet'
-        link.href = url
-        if (id) link.id = id
-        link.onerror = reject
-        link.onload = link.onreadystatechange = function() {
-          const loadState = this.readyState
-          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
-          link.onload = link.onreadystatechange = null
-          resolve()
-        }
-        document.head.appendChild(link)
-      })
-    
-      win.activateDarkMode = () => {
-        document.documentElement.setAttribute('data-theme', 'dark')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
-        }
-      }
-      win.activateLightMode = () => {
-        document.documentElement.setAttribute('data-theme', 'light')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
-        }
-      }
-      const t = saveToLocal.get('theme')
-    
-        if (t === 'dark') activateDarkMode()
-        else if (t === 'light') activateLightMode()
-      
-      const asideStatus = saveToLocal.get('aside-status')
-      if (asideStatus !== undefined) {
-        if (asideStatus === 'hide') {
-          document.documentElement.classList.add('hide-aside')
-        } else {
-          document.documentElement.classList.remove('hide-aside')
-        }
-      }
-    
-      const detectApple = () => {
-        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
-          document.documentElement.classList.add('apple')
-        }
-      }
-      detectApple()
-    })(window)</script><meta name="generator" content="Hexo 8.1.1"></head><body data-type="anzhiyu"><div id="web_bg"></div><div id="an_music_bg"></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><div id="nav-group"><span id="blog_name"><a id="site-name" href="/" accesskey="h"><div class="title">Supremes</div><i class="anzhiyufont anzhiyu-icon-house-chimney"></i></a></span><div class="mask-name-container"><div id="name-container"><a id="page-name" href="javascript:anzhiyu.scrollToDest(0, 500)">PAGE_NAME</a></div></div><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/"><i class="fas fa-home faa-tada"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/archives/"><i class="fas fa-archive faa-tada"></i><span> 时间线</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fas fa-folder-open faa-tada"></i><span> 分类</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/categories/database/"><i class="fas fa-database faa-tada"></i><span> 数据库</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/message-queue/"><i class="fas fa-envelope faa-tada"></i><span> 消息队列</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/Spring/"><i class="fas fa-leaf faa-tada"></i><span> Spring</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/security/"><i class="fas fa-shield-alt faa-tada"></i><span> 网络安全</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/AI/"><i class="fas fa-robot faa-tada"></i><span> AI</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/mobile/"><i class="fas fa-mobile-alt faa-tada"></i><span> 移动开发</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/tools/"><i class="fas fa-tools faa-tada"></i><span> 工具效率</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/diary/"><i class="fas fa-book faa-tada"></i><span> 日记</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fas fa-list faa-tada"></i><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/about_me"><i class="fas fa-user faa-tada"></i><span> 关于我</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/about/my_notes"><i class="fas fa-note-sticky faa-tada"></i><span> 备忘录</span></a></li></ul></div></div></div><div id="nav-right"><div class="nav-button" id="randomPost_button"><a class="site-page" onclick="toRandomPost()" title="随机前往一个文章" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-dice"></i></a></div><div class="nav-button" id="search-button"><a class="site-page social-icon search" href="javascript:void(0);" title="搜索🔍" accesskey="s"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span> 搜索</span></a></div><input id="center-console" type="checkbox"/><label class="widget" for="center-console" title="中控台" onclick="anzhiyu.switchConsole();"><i class="left"></i><i class="widget center"></i><i class="widget right"></i></label><div id="console"><div class="console-card-group-reward"><ul class="reward-all console-card"><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png" target="_blank"><img class="post-qr-code-img" alt="微信" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png" target="_blank"><img class="post-qr-code-img" alt="支付宝" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div><div class="console-card-group"><div class="console-card-group-left"><div class="console-card" id="card-newest-comments"><div class="card-content"><div class="author-content-item-tips">互动</div><span class="author-content-item-title"> 最新评论</span></div><div class="aside-list"><span>正在加载中...</span></div></div></div><div class="console-card-group-right"><div class="console-card tags"><div class="card-content"><div class="author-content-item-tips">兴趣点</div><span class="author-content-item-title">寻找你感兴趣的领域</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/ACME/" style="font-size: 1.05rem;">ACME<sup>1</sup></a><a href="/tags/AI/" style="font-size: 1.05rem;">AI<sup>1</sup></a><a href="/tags/AI-Agent/" style="font-size: 1.05rem;">AI-Agent<sup>1</sup></a><a href="/tags/AOP/" style="font-size: 1.05rem;">AOP<sup>1</sup></a><a href="/tags/APNS/" style="font-size: 1.05rem;">APNS<sup>1</sup></a><a href="/tags/CA/" style="font-size: 1.05rem;">CA<sup>1</sup></a><a href="/tags/Category/" style="font-size: 1.05rem;">Category<sup>1</sup></a><a href="/tags/Chromium/" style="font-size: 1.05rem;">Chromium<sup>1</sup></a><a href="/tags/Claude/" style="font-size: 1.05rem;">Claude<sup>1</sup></a><a href="/tags/Embedding/" style="font-size: 1.05rem;">Embedding<sup>1</sup></a><a href="/tags/Function-Calling/" style="font-size: 1.05rem;">Function-Calling<sup>1</sup></a><a href="/tags/Hibernate/" style="font-size: 1.05rem;">Hibernate<sup>1</sup></a><a href="/tags/JPA/" style="font-size: 1.05rem;">JPA<sup>1</sup></a><a href="/tags/Java/" style="font-size: 1.05rem;">Java<sup>2</sup></a><a href="/tags/Kafka/" style="font-size: 1.05rem;">Kafka<sup>1</sup></a><a href="/tags/LLM/" style="font-size: 1.05rem;">LLM<sup>1</sup></a><a href="/tags/MCP/" style="font-size: 1.05rem;">MCP<sup>1</sup></a><a href="/tags/Model-Context-Protocol/" style="font-size: 1.05rem;">Model Context Protocol<sup>1</sup></a><a href="/tags/MySQL/" style="font-size: 1.05rem;">MySQL<sup>1</sup></a><a href="/tags/ORM/" style="font-size: 1.05rem;">ORM<sup>1</sup></a><a href="/tags/Objective-C/" style="font-size: 1.05rem;">Objective-C<sup>1</sup></a><a href="/tags/Obsidian/" style="font-size: 1.05rem;">Obsidian<sup>1</sup></a><a href="/tags/PKCS/" style="font-size: 1.05rem;">PKCS<sup>1</sup></a><a href="/tags/PKI/" style="font-size: 1.05rem;">PKI<sup>1</sup></a><a href="/tags/Protocol/" style="font-size: 1.05rem;">Protocol<sup>1</sup></a><a href="/tags/RAG/" style="font-size: 1.05rem;">RAG<sup>1</sup></a><a href="/tags/RabbitMQ/" style="font-size: 1.05rem;">RabbitMQ<sup>1</sup></a><a href="/tags/ReAct/" style="font-size: 1.05rem;">ReAct<sup>1</sup></a><a href="/tags/Redis/" style="font-size: 1.05rem;">Redis<sup>1</sup></a><a href="/tags/SCEP/" style="font-size: 1.05rem;">SCEP<sup>1</sup></a><a href="/tags/Spring/" style="font-size: 1.05rem;">Spring<sup>1</sup></a><a href="/tags/golang/" style="font-size: 1.05rem;">golang<sup>1</sup></a><a href="/tags/iOS/" style="font-size: 1.05rem;">iOS<sup>1</sup></a><a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/" style="font-size: 1.05rem;">分布式系统<sup>2</sup></a><a href="/tags/%E5%8A%A0%E5%AF%86/" style="font-size: 1.05rem;">加密<sup>1</sup></a><a href="/tags/%E5%8D%8F%E8%AE%AE%E6%A0%87%E5%87%86/" style="font-size: 1.05rem;">协议标准<sup>1</sup></a><a href="/tags/%E5%90%91%E9%87%8F%E6%95%B0%E6%8D%AE%E5%BA%93/" style="font-size: 1.05rem;">向量数据库<sup>1</sup></a><a href="/tags/%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97/" style="font-size: 1.05rem;">开发指南<sup>1</sup></a><a href="/tags/%E6%95%B0%E5%AD%97%E8%AF%81%E4%B9%A6/" style="font-size: 1.05rem;">数字证书<sup>1</sup></a><a href="/tags/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/" style="font-size: 1.05rem;">面向对象<sup>1</sup></a></div></div><hr/></div></div><div class="console-card history"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-box-archiv"></i><span>文章</span></div><div class="card-archives"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-archive"></i><span>归档</span></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2025/11/"><span class="card-archive-list-date">十一月 2025</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">19</span><span>篇</span></div></a></li></ul></div><hr/></div></div></div><div class="button-group"><div class="console-btn-item"><a class="darkmode_switchbutton" title="显示模式切换" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-moon"></i></a></div><div class="console-btn-item" id="consoleHideAside" onclick="anzhiyu.hideAsideBtn()" title="边栏显示控制"><a class="asideSwitch"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></a></div></div><div class="console-mask" onclick="anzhiyu.hideConsole()" href="javascript:void(0);"></div></div><div class="nav-button" id="nav-totop"><a class="totopbtn" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i><span id="percent" onclick="anzhiyu.scrollToDest(0,500)">0</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);" title="切换"><i class="anzhiyufont anzhiyu-icon-bars"></i></a></div></div></div></nav><div id="post-info"><div id="post-firstinfo"><div class="meta-firstline"><a class="post-meta-original">原创</a><span class="post-meta-categories"><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-inbox post-meta-icon"></i><a class="post-meta-categories" href="/categories/message-queue/" itemprop="url">消息队列</a></span><span class="article-meta tags"><a class="article-meta__tags" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/" tabindex="-1" itemprop="url"> <span> <i class="anzhiyufont anzhiyu-icon-hashtag"></i>分布式系统</span></a><a class="article-meta__tags" href="/tags/Kafka/" tabindex="-1" itemprop="url"> <span> <i class="anzhiyufont anzhiyu-icon-hashtag"></i>Kafka</span></a></span></div></div><h1 class="post-title" itemprop="name headline">Kafka 深度学习笔记</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="anzhiyufont anzhiyu-icon-calendar-days post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" itemprop="dateCreated datePublished" datetime="2025-11-27T21:11:20.000Z" title="发表于 2025-11-27 21:11:20">2025-11-27</time><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-history post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" itemprop="dateCreated datePublished" datetime="2025-11-27T22:35:00.000Z" title="更新于 2025-11-27 22:35:00">2025-11-27</time></span></div><div class="meta-secondline"></div></div></div><section class="main-hero-waves-area waves-area"><svg class="waves-svg" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto"><defs><path id="gentle-wave" d="M -160 44 c 30 0 58 -18 88 -18 s 58 18 88 18 s 58 -18 88 -18 s 58 18 88 18 v 44 h -352 Z"></path></defs><g class="parallax"><use href="#gentle-wave" x="48" y="0"></use><use href="#gentle-wave" x="48" y="3"></use><use href="#gentle-wave" x="48" y="5"></use><use href="#gentle-wave" x="48" y="7"></use></g></svg></section><div id="post-top-cover"><img class="nolazyload" id="post-top-bg" src="/imgs/KafkaNotes%E5%B0%81%E9%9D%A2.png"></div></header><main id="blog-container"><div class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container" itemscope itemtype="https://supremes.github.io/posts/1562.html"><header><a class="post-meta-categories" href="/categories/message-queue/" itemprop="url">消息队列</a><a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/" tabindex="-1" itemprop="url">分布式系统</a><a href="/tags/Kafka/" tabindex="-1" itemprop="url">Kafka</a><h1 id="CrawlerTitle" itemprop="name headline">Kafka 深度学习笔记</h1><span itemprop="author" itemscope itemtype="http://schema.org/Person">Supremes</span><time itemprop="dateCreated datePublished" datetime="2025-11-27T21:11:20.000Z" title="发表于 2025-11-27 21:11:20">2025-11-27</time><time itemprop="dateCreated datePublished" datetime="2025-11-27T22:35:00.000Z" title="更新于 2025-11-27 22:35:00">2025-11-27</time></header><h2 id="📖-简介"><a href="#📖-简介" class="headerlink" title="📖 简介"></a>📖 简介</h2><p>Apache Kafka 是一个分布式流处理平台,最初由 LinkedIn 开发。早期版本使用 Scala 编写并运行在 JVM 上,后续版本逐渐迁移至 Java 实现。</p>
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 8.1.1"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/imgs/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">19</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">50</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">11</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/database/"><i class="fa-fw fas fa-database"></i><span> 数据库</span></a></li><li><a class="site-page child" href="/categories/message-queue/"><i class="fa-fw fas fa-envelope"></i><span> 消息队列</span></a></li><li><a class="site-page child" href="/categories/Spring/"><i class="fa-fw fas fa-leaf"></i><span> Spring</span></a></li><li><a class="site-page child" href="/categories/security/"><i class="fa-fw fas fa-shield-alt"></i><span> 网络安全</span></a></li><li><a class="site-page child" href="/categories/AI/"><i class="fa-fw fas fa-robot"></i><span> AI</span></a></li><li><a class="site-page child" href="/categories/mobile/"><i class="fa-fw fas fa-mobile-alt"></i><span> 移动开发</span></a></li><li><a class="site-page child" href="/categories/tools/"><i class="fa-fw fas fa-tools"></i><span> 工具效率</span></a></li><li><a class="site-page child" href="/categories/diary/"><i class="fa-fw fas fa-book"></i><span> 日记</span></a></li><li><a class="site-page child" href="/categories/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 关于</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/about/about_me"><i class="fa-fw fas fa-user"></i><span> 关于我</span></a></li><li><a class="site-page child" href="/about/my_notes"><i class="fa-fw fas fa-note-sticky"></i><span> 备忘录</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/imgs/KafkaNotes%E5%B0%81%E9%9D%A2.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Supremes</span></a><a class="nav-page-title" href="/"><span class="site-name">Kafka 深度学习笔记</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/database/"><i class="fa-fw fas fa-database"></i><span> 数据库</span></a></li><li><a class="site-page child" href="/categories/message-queue/"><i class="fa-fw fas fa-envelope"></i><span> 消息队列</span></a></li><li><a class="site-page child" href="/categories/Spring/"><i class="fa-fw fas fa-leaf"></i><span> Spring</span></a></li><li><a class="site-page child" href="/categories/security/"><i class="fa-fw fas fa-shield-alt"></i><span> 网络安全</span></a></li><li><a class="site-page child" href="/categories/AI/"><i class="fa-fw fas fa-robot"></i><span> AI</span></a></li><li><a class="site-page child" href="/categories/mobile/"><i class="fa-fw fas fa-mobile-alt"></i><span> 移动开发</span></a></li><li><a class="site-page child" href="/categories/tools/"><i class="fa-fw fas fa-tools"></i><span> 工具效率</span></a></li><li><a class="site-page child" href="/categories/diary/"><i class="fa-fw fas fa-book"></i><span> 日记</span></a></li><li><a class="site-page child" href="/categories/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 关于</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/about/about_me"><i class="fa-fw fas fa-user"></i><span> 关于我</span></a></li><li><a class="site-page child" href="/about/my_notes"><i class="fa-fw fas fa-note-sticky"></i><span> 备忘录</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">Kafka 深度学习笔记</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-11-27T21:11:20.000Z" title="发表于 2025-11-27 21:11:20">2025-11-27</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-11-27T22:35:00.000Z" title="更新于 2025-11-27 22:35:00">2025-11-27</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/message-queue/">消息队列</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2 id="📖-简介"><a href="#📖-简介" class="headerlink" title="📖 简介"></a>📖 简介</h2><p>Apache Kafka 是一个分布式流处理平台,最初由 LinkedIn 开发。早期版本使用 Scala 编写并运行在 JVM 上,后续版本逐渐迁移至 Java 实现。</p>
 <h2 id="🔑-核心概念"><a href="#🔑-核心概念" class="headerlink" title="🔑 核心概念"></a>🔑 核心概念</h2><h3 id="副本机制"><a href="#副本机制" class="headerlink" title="副本机制"></a>副本机制</h3><ul>
 <li><p><strong>Leader Replica（主副本）</strong></p>
 <ul>
@@ -532,205 +522,57 @@
 <li><a target="_blank" rel="noopener" href="https://www.confluent.io/resources/kafka-the-definitive-guide/">Kafka: The Definitive Guide</a></li>
 <li><a target="_blank" rel="noopener" href="https://time.geekbang.org/column/intro/100029201">Kafka 核心技术与实战</a></li>
 </ul>
-</article><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/33708.html"><img class="prev-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/imgs/RabbitMQ%E5%B0%81%E9%9D%A2.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">RabbitMQ</div></div></a></div><div class="next-post pull-right"><a href="/posts/60441.html"><img class="next-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/imgs/AOP-PROXY.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Spring AOP 事务失效与底层代理机制深度总结</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="anzhiyufont anzhiyu-icon-thumbs-up fa-fw" style="font-size: 1.5rem; margin-right: 4px"></i><span>喜欢这篇文章的人也看了</span></div><div class="relatedPosts-list"><div><a href="/posts/18358.html" title="分布式锁"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/" alt="cover"><div class="content is-center"><div class="date"><i class="anzhiyufont anzhiyu-icon-calendar-days fa-fw"></i> 2025-11-29</div><div class="title">分布式锁</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-bars"></i><span>文章目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%93%96-%E7%AE%80%E4%BB%8B"><span class="toc-text">📖 简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%94%91-%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5"><span class="toc-text">🔑 核心概念</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%89%AF%E6%9C%AC%E6%9C%BA%E5%88%B6"><span class="toc-text">副本机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8C%81%E4%B9%85%E5%8C%96%E6%9C%BA%E5%88%B6"><span class="toc-text">持久化机制</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%93%9A-%E6%A0%B8%E5%BF%83%E6%9C%AF%E8%AF%AD"><span class="toc-text">📚 核心术语</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%AB%98%E7%BA%A7%E6%A6%82%E5%BF%B5"><span class="toc-text">高级概念</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%9A%80-%E9%83%A8%E7%BD%B2%E9%85%8D%E7%BD%AE"><span class="toc-text">🚀 部署配置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Broker-%E5%8F%82%E6%95%B0%E9%85%8D%E7%BD%AE"><span class="toc-text">Broker 参数配置</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AD%98%E5%82%A8%E9%85%8D%E7%BD%AE"><span class="toc-text">存储配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BD%91%E7%BB%9C%E9%85%8D%E7%BD%AE"><span class="toc-text">网络配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Topic-%E7%AE%A1%E7%90%86"><span class="toc-text">Topic 管理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86"><span class="toc-text">数据管理</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Topic-%E7%BA%A7%E5%88%AB%E5%8F%82%E6%95%B0"><span class="toc-text">Topic 级别参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JVM-%E5%8F%82%E6%95%B0%E8%B0%83%E4%BC%98"><span class="toc-text">JVM 参数调优</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%8E%AF-%E5%88%86%E5%8C%BA%E7%AD%96%E7%95%A5"><span class="toc-text">🎯 分区策略</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E5%88%86%E5%8C%BA%E7%AD%96%E7%95%A5"><span class="toc-text">自定义分区策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%85%E7%BD%AE%E5%88%86%E5%8C%BA%E7%AD%96%E7%95%A5"><span class="toc-text">内置分区策略</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E8%BD%AE%E8%AF%A2%E7%AD%96%E7%95%A5%EF%BC%88Round-Robin%EF%BC%89"><span class="toc-text">1. 轮询策略（Round-Robin）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E9%9A%8F%E6%9C%BA%E7%AD%96%E7%95%A5%EF%BC%88Random%EF%BC%89"><span class="toc-text">2. 随机策略（Random）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E6%8C%89%E9%94%AE%E4%BF%9D%E5%BA%8F%E7%AD%96%E7%95%A5%EF%BC%88Key-Ordering%EF%BC%89"><span class="toc-text">3. 按键保序策略（Key-Ordering）</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%8E%AE-Kafka-%E6%8E%A7%E5%88%B6%E5%99%A8"><span class="toc-text">🎮 Kafka 控制器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%92%E8%89%B2%E5%AE%9A%E4%BD%8D"><span class="toc-text">角色定位</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BB%E8%A6%81%E8%81%8C%E8%B4%A3"><span class="toc-text">主要职责</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%88%86%E5%8C%BA%E5%88%86%E9%85%8D"><span class="toc-text">1. 分区分配</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-Leader-%E5%89%AF%E6%9C%AC%E9%80%89%E4%B8%BE"><span class="toc-text">2. Leader 副本选举</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E4%B8%BB%E9%A2%98%E7%AE%A1%E7%90%86"><span class="toc-text">3. 主题管理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-%E9%9B%86%E7%BE%A4%E7%9B%91%E6%8E%A7%E4%B8%8E%E5%8D%8F%E8%B0%83"><span class="toc-text">4. 集群监控与协调</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8E%A7%E5%88%B6%E5%99%A8%E9%80%89%E4%B8%BE"><span class="toc-text">控制器选举</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%94%92-%E6%B6%88%E6%81%AF%E4%BA%A4%E4%BB%98%E5%8F%AF%E9%9D%A0%E6%80%A7"><span class="toc-text">🔒 消息交付可靠性</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%9C%80%E5%A4%9A%E4%B8%80%E6%AC%A1%EF%BC%88At-Most-Once%EF%BC%89"><span class="toc-text">1. 最多一次（At Most Once）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E8%87%B3%E5%B0%91%E4%B8%80%E6%AC%A1%EF%BC%88At-Least-Once%EF%BC%89"><span class="toc-text">2. 至少一次（At Least Once）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E7%B2%BE%E7%A1%AE%E4%B8%80%E6%AC%A1%EF%BC%88Exactly-Once%EF%BC%89"><span class="toc-text">3. 精确一次（Exactly Once）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%93-%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98"><span class="toc-text">❓ 常见问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Q1-%E4%B8%BA%E4%BB%80%E4%B9%88-Kafka-%E4%B8%8D%E5%85%81%E8%AE%B8%E4%BB%8E%E5%89%AF%E6%9C%AC%E8%AF%BB%E5%8F%96%E6%95%B0%E6%8D%AE%EF%BC%9F"><span class="toc-text">Q1: 为什么 Kafka 不允许从副本读取数据？</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E4%B8%80%E8%87%B4%E6%80%A7%E6%A8%A1%E5%9E%8B%E5%B7%AE%E5%BC%82"><span class="toc-text">1. 一致性模型差异</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E8%AE%BE%E8%AE%A1%E7%9B%AE%E6%A0%87%E4%B8%8D%E5%90%8C"><span class="toc-text">2. 设计目标不同</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E6%95%85%E9%9A%9C%E6%81%A2%E5%A4%8D%E5%A4%8D%E6%9D%82%E6%80%A7"><span class="toc-text">3. 故障恢复复杂性</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Q2-Kafka-%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E6%B6%88%E6%81%AF%E9%A1%BA%E5%BA%8F%E6%80%A7%EF%BC%9F"><span class="toc-text">Q2: Kafka 如何保证消息顺序性？</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%88%86%E5%8C%BA%E6%9C%89%E5%BA%8F"><span class="toc-text">1. 分区有序</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E5%90%8C%E6%AD%A5%E5%8F%91%E9%80%81"><span class="toc-text">2. 同步发送</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E6%B6%88%E6%81%AF%E5%81%8F%E7%A7%BB%E9%87%8F"><span class="toc-text">3. 消息偏移量</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Q3-Kafka-%E6%B6%88%E6%81%AF%E5%A6%82%E4%BD%95%E5%AD%98%E5%82%A8%EF%BC%9F"><span class="toc-text">Q3: Kafka 消息如何存储？</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84"><span class="toc-text">存储结构</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AD%98%E5%82%A8%E7%89%B9%E6%80%A7"><span class="toc-text">存储特性</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%92%A1-%E7%94%9F%E4%BA%A7%E7%8E%AF%E5%A2%83%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="toc-text">💡 生产环境最佳实践</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E5%8F%82%E6%95%B0%E9%85%8D%E7%BD%AE"><span class="toc-text">关键参数配置</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#auto-create-topics-enable-false"><span class="toc-text">auto.create.topics.enable &#x3D; false</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#unclean-leader-election-enable-false"><span class="toc-text">unclean.leader.election.enable &#x3D; false</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#auto-leader-rebalance-enable-false"><span class="toc-text">auto.leader.rebalance.enable &#x3D; false</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%93%9A-%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="toc-text">📚 参考资料</span></a></li></ol></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"></div><div id="footer-bar"><div class="footer-bar-links"><div class="footer-bar-left"><div id="footer-bar-tips"><div class="copyright">&copy;2025 By <a class="footer-bar-link" href="/" title="Supremes" target="_blank">Supremes</a></div></div><div id="footer-type-tips"></div><div class="js-pjax"><script>function subtitleType () {
-  fetch('https://v1.hitokoto.cn')
-    .then(response => response.json())
-    .then(data => {
-      if (true) {
-        const from = '出自 ' + data.from
-        const sub = []
-        sub.unshift(data.hitokoto, from)
-        window.typed = new Typed('#footer-type-tips', {
-          strings: sub,
-          startDelay: 300,
-          typeSpeed: 150,
-          loop: true,
-          backSpeed: 50,
-        })
-      } else {
-        document.getElementById('footer-type-tips').innerHTML = data.hitokoto
-      }
-    })
-}
-
-if (true) {
-  if (typeof Typed === 'function') {
-    subtitleType()
-  } else {
-    getScript('https://cdn.cbd.int/typed.js@2.1.0/dist/typed.umd.js').then(subtitleType)
-  }
-} else {
-  subtitleType()
-}
-</script></div></div><div class="footer-bar-right"><a class="footer-bar-link" target="_blank" rel="noopener" href="https://github.com/anzhiyu-c/hexo-theme-anzhiyu" title="主题">主题</a></div></div></div></footer></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="sidebar-site-data site-data is-center"><a href="/archives/" title="archive"><div class="headline">文章</div><div class="length-num">19</div></a><a href="/tags/" title="tag"><div class="headline">标签</div><div class="length-num">50</div></a><a href="/categories/" title="category"><div class="headline">分类</div><div class="length-num">11</div></a></div><span class="sidebar-menu-item-title">功能</span><div class="sidebar-menu-item"><a class="darkmode_switchbutton menu-child" href="javascript:void(0);" title="显示模式"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span>显示模式</span></a></div><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://hexo.anheyu.com/" title="博客"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/img/favicon.ico" alt="博客"/><span class="back-menu-item-text">博客</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">项目</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://image.anheyu.com/" title="安知鱼图床"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://image.anheyu.com/favicon.ico" alt="安知鱼图床"/><span class="back-menu-item-text">安知鱼图床</span></a></div></div></div><div class="menus_items"><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/"><i class="fas fa-home faa-tada"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/archives/"><i class="fas fa-archive faa-tada"></i><span> 时间线</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fas fa-folder-open faa-tada"></i><span> 分类</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/categories/database/"><i class="fas fa-database faa-tada"></i><span> 数据库</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/message-queue/"><i class="fas fa-envelope faa-tada"></i><span> 消息队列</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/Spring/"><i class="fas fa-leaf faa-tada"></i><span> Spring</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/security/"><i class="fas fa-shield-alt faa-tada"></i><span> 网络安全</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/AI/"><i class="fas fa-robot faa-tada"></i><span> AI</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/mobile/"><i class="fas fa-mobile-alt faa-tada"></i><span> 移动开发</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/tools/"><i class="fas fa-tools faa-tada"></i><span> 工具效率</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/diary/"><i class="fas fa-book faa-tada"></i><span> 日记</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fas fa-list faa-tada"></i><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/about_me"><i class="fas fa-user faa-tada"></i><span> 关于我</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/about/my_notes"><i class="fas fa-note-sticky faa-tada"></i><span> 备忘录</span></a></li></ul></div></div><span class="sidebar-menu-item-title">标签</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/ACME/" style="font-size: 0.88rem;">ACME<sup>1</sup></a><a href="/tags/AI/" style="font-size: 0.88rem;">AI<sup>1</sup></a><a href="/tags/AI-Agent/" style="font-size: 0.88rem;">AI-Agent<sup>1</sup></a><a href="/tags/AOP/" style="font-size: 0.88rem;">AOP<sup>1</sup></a><a href="/tags/APNS/" style="font-size: 0.88rem;">APNS<sup>1</sup></a><a href="/tags/CA/" style="font-size: 0.88rem;">CA<sup>1</sup></a><a href="/tags/Category/" style="font-size: 0.88rem;">Category<sup>1</sup></a><a href="/tags/Chromium/" style="font-size: 0.88rem;">Chromium<sup>1</sup></a><a href="/tags/Claude/" style="font-size: 0.88rem;">Claude<sup>1</sup></a><a href="/tags/Embedding/" style="font-size: 0.88rem;">Embedding<sup>1</sup></a><a href="/tags/Function-Calling/" style="font-size: 0.88rem;">Function-Calling<sup>1</sup></a><a href="/tags/Hibernate/" style="font-size: 0.88rem;">Hibernate<sup>1</sup></a><a href="/tags/JPA/" style="font-size: 0.88rem;">JPA<sup>1</sup></a><a href="/tags/Java/" style="font-size: 0.88rem;">Java<sup>2</sup></a><a href="/tags/Kafka/" style="font-size: 0.88rem;">Kafka<sup>1</sup></a><a href="/tags/LLM/" style="font-size: 0.88rem;">LLM<sup>1</sup></a><a href="/tags/MCP/" style="font-size: 0.88rem;">MCP<sup>1</sup></a><a href="/tags/Model-Context-Protocol/" style="font-size: 0.88rem;">Model Context Protocol<sup>1</sup></a><a href="/tags/MySQL/" style="font-size: 0.88rem;">MySQL<sup>1</sup></a><a href="/tags/ORM/" style="font-size: 0.88rem;">ORM<sup>1</sup></a><a href="/tags/Objective-C/" style="font-size: 0.88rem;">Objective-C<sup>1</sup></a><a href="/tags/Obsidian/" style="font-size: 0.88rem;">Obsidian<sup>1</sup></a><a href="/tags/PKCS/" style="font-size: 0.88rem;">PKCS<sup>1</sup></a><a href="/tags/PKI/" style="font-size: 0.88rem;">PKI<sup>1</sup></a><a href="/tags/Protocol/" style="font-size: 0.88rem;">Protocol<sup>1</sup></a><a href="/tags/RAG/" style="font-size: 0.88rem;">RAG<sup>1</sup></a><a href="/tags/RabbitMQ/" style="font-size: 0.88rem;">RabbitMQ<sup>1</sup></a><a href="/tags/ReAct/" style="font-size: 0.88rem;">ReAct<sup>1</sup></a><a href="/tags/Redis/" style="font-size: 0.88rem;">Redis<sup>1</sup></a><a href="/tags/SCEP/" style="font-size: 0.88rem;">SCEP<sup>1</sup></a><a href="/tags/Spring/" style="font-size: 0.88rem;">Spring<sup>1</sup></a><a href="/tags/golang/" style="font-size: 0.88rem;">golang<sup>1</sup></a><a href="/tags/iOS/" style="font-size: 0.88rem;">iOS<sup>1</sup></a><a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/" style="font-size: 0.88rem;">分布式系统<sup>2</sup></a><a href="/tags/%E5%8A%A0%E5%AF%86/" style="font-size: 0.88rem;">加密<sup>1</sup></a><a href="/tags/%E5%8D%8F%E8%AE%AE%E6%A0%87%E5%87%86/" style="font-size: 0.88rem;">协议标准<sup>1</sup></a><a href="/tags/%E5%90%91%E9%87%8F%E6%95%B0%E6%8D%AE%E5%BA%93/" style="font-size: 0.88rem;">向量数据库<sup>1</sup></a><a href="/tags/%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97/" style="font-size: 0.88rem;">开发指南<sup>1</sup></a><a href="/tags/%E6%95%B0%E5%AD%97%E8%AF%81%E4%B9%A6/" style="font-size: 0.88rem;">数字证书<sup>1</sup></a><a href="/tags/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/" style="font-size: 0.88rem;">面向对象<sup>1</sup></a></div></div><hr/></div></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="anzhiyufont anzhiyu-icon-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="anzhiyufont anzhiyu-icon-gear"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="anzhiyufont anzhiyu-icon-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="anzhiyufont anzhiyu-icon-xmark"></i></button></nav><div class="is-center" id="loading-database"><i class="anzhiyufont anzhiyu-icon-spinner anzhiyu-pulse-icon"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div id="rightMenu"><div class="rightMenu-group rightMenu-small"><div class="rightMenu-item" id="menu-backward"><i class="anzhiyufont anzhiyu-icon-arrow-left"></i></div><div class="rightMenu-item" id="menu-forward"><i class="anzhiyufont anzhiyu-icon-arrow-right"></i></div><div class="rightMenu-item" id="menu-refresh"><i class="anzhiyufont anzhiyu-icon-arrow-rotate-right" style="font-size: 1rem;"></i></div><div class="rightMenu-item" id="menu-top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></div></div><div class="rightMenu-group rightMenu-line rightMenuPlugin"><div class="rightMenu-item" id="menu-copytext"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制选中文本</span></div><div class="rightMenu-item" id="menu-pastetext"><i class="anzhiyufont anzhiyu-icon-paste"></i><span>粘贴文本</span></div><a class="rightMenu-item" id="menu-commenttext"><i class="anzhiyufont anzhiyu-icon-comment-medical"></i><span>引用到评论</span></a><div class="rightMenu-item" id="menu-newwindow"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开</span></div><div class="rightMenu-item" id="menu-copylink"><i class="anzhiyufont anzhiyu-icon-link"></i><span>复制链接地址</span></div><div class="rightMenu-item" id="menu-copyimg"><i class="anzhiyufont anzhiyu-icon-images"></i><span>复制此图片</span></div><div class="rightMenu-item" id="menu-downloadimg"><i class="anzhiyufont anzhiyu-icon-download"></i><span>下载此图片</span></div><div class="rightMenu-item" id="menu-newwindowimg"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开图片</span></div><div class="rightMenu-item" id="menu-search"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>站内搜索</span></div><div class="rightMenu-item" id="menu-searchBaidu"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>百度搜索</span></div><div class="rightMenu-item" id="menu-music-toggle"><i class="anzhiyufont anzhiyu-icon-play"></i><span>播放音乐</span></div><div class="rightMenu-item" id="menu-music-back"><i class="anzhiyufont anzhiyu-icon-backward"></i><span>切换到上一首</span></div><div class="rightMenu-item" id="menu-music-forward"><i class="anzhiyufont anzhiyu-icon-forward"></i><span>切换到下一首</span></div><div class="rightMenu-item" id="menu-music-playlist" onclick="window.open(&quot;https://y.qq.com/n/ryqq/playlist/8802438608&quot;, &quot;_blank&quot;);" style="display: none;"><i class="anzhiyufont anzhiyu-icon-radio"></i><span>查看所有歌曲</span></div><div class="rightMenu-item" id="menu-music-copyMusicName"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制歌名</span></div></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item menu-link" id="menu-randomPost"><i class="anzhiyufont anzhiyu-icon-shuffle"></i><span>随便逛逛</span></a><a class="rightMenu-item menu-link" href="/categories/"><i class="anzhiyufont anzhiyu-icon-cube"></i><span>博客分类</span></a><a class="rightMenu-item menu-link" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags"></i><span>文章标签</span></a></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item" id="menu-copy" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制地址</span></a><a class="rightMenu-item" id="menu-commentBarrage" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-message"></i><span class="menu-commentBarrage-text">关闭热评</span></a><a class="rightMenu-item" id="menu-darkmode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span class="menu-darkmode-text">深色模式</span></a><a class="rightMenu-item" id="menu-translate" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-language"></i><span>轉為繁體</span></a></div></div><div id="rightmenu-mask"></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.cbd.int/@fancyapps/ui@5.0.28/dist/fancybox/fancybox.umd.js"></script><script src="https://cdn.cbd.int/instant.page@5.2.0/instantpage.js" type="module"></script><script src="https://cdn.cbd.int/vanilla-lazyload@17.8.5/dist/lazyload.iife.min.js"></script><script src="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.js"></script><canvas id="universe"></canvas><script async src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/dark/dark.js"></script><script>// 消除控制台打印
-var HoldLog = console.log;
-console.log = function () {};
-let now1 = new Date();
-queueMicrotask(() => {
-  const Log = function () {
-    HoldLog.apply(console, arguments);
-  }; //在恢复前输出日志
-  const grt = new Date(""); //此处修改你的建站时间或者网站上线时间
-  now1.setTime(now1.getTime() + 250);
-  const days = (now1 - grt) / 1000 / 60 / 60 / 24;
-  const dnum = Math.floor(days);
-  const ascll = [
-    `欢迎使用安知鱼!`,
-    `生活明朗, 万物可爱`,
-    `
-        
-       █████╗ ███╗   ██╗███████╗██╗  ██╗██╗██╗   ██╗██╗   ██╗
-      ██╔══██╗████╗  ██║╚══███╔╝██║  ██║██║╚██╗ ██╔╝██║   ██║
-      ███████║██╔██╗ ██║  ███╔╝ ███████║██║ ╚████╔╝ ██║   ██║
-      ██╔══██║██║╚██╗██║ ███╔╝  ██╔══██║██║  ╚██╔╝  ██║   ██║
-      ██║  ██║██║ ╚████║███████╗██║  ██║██║   ██║   ╚██████╔╝
-      ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝╚═╝   ╚═╝    ╚═════╝
-        
-        `,
-    "已上线",
-    dnum,
-    "天",
-    "©2025 By 安知鱼 V1.6.15",
-  ];
-  const ascll2 = [`NCC2-036`, `调用前置摄像头拍照成功，识别为【小笨蛋】.`, `Photo captured: `, `🤪`];
-
-  setTimeout(
-    Log.bind(
-      console,
-      `\n%c${ascll[0]} %c ${ascll[1]} %c ${ascll[2]} %c${ascll[3]}%c ${ascll[4]}%c ${ascll[5]}\n\n%c ${ascll[6]}\n`,
-      "color:#425AEF",
-      "",
-      "color:#425AEF",
-      "color:#425AEF",
-      "",
-      "color:#425AEF",
-      ""
-    )
-  );
-  setTimeout(
-    Log.bind(
-      console,
-      `%c ${ascll2[0]} %c ${ascll2[1]} %c \n${ascll2[2]} %c\n${ascll2[3]}\n`,
-      "color:white; background-color:#4fd953",
-      "",
-      "",
-      'background:url("https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/tinggge.gif") no-repeat;font-size:450%'
-    )
-  );
-
-  setTimeout(Log.bind(console, "%c WELCOME %c 你好，小笨蛋.", "color:white; background-color:#4f90d9", ""));
-
-  setTimeout(
-    console.warn.bind(
-      console,
-      "%c ⚡ Powered by 安知鱼 %c 你正在访问 Supremes 的博客.",
-      "color:white; background-color:#f0ad4e",
-      ""
-    )
-  );
-
-  setTimeout(Log.bind(console, "%c W23-12 %c 你已打开控制台.", "color:white; background-color:#4f90d9", ""));
-
-  setTimeout(
-    console.warn.bind(console, "%c S013-782 %c 你现在正处于监控中.", "color:white; background-color:#d9534f", "")
-  );
-});</script><script async src="/anzhiyu/random.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>(() => {
-  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
-  if ($mermaid.length === 0) return
-  const runMermaid = () => {
+</article><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/">分布式系统</a><a class="post-meta__tags" href="/tags/Kafka/">Kafka</a></div><div class="post-share"><div class="social-share" data-image="/imgs/KafkaNotes%E5%B0%81%E9%9D%A2.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related  no-desc" href="/posts/33708.html" title="RabbitMQ"><img class="cover" src="/imgs/RabbitMQ%E5%B0%81%E9%9D%A2.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">RabbitMQ</div></div></div></a><a class="pagination-related" href="/posts/60441.html" title="Spring AOP 事务失效与底层代理机制深度总结"><img class="cover" src="/imgs/AOP-PROXY.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">Spring AOP 事务失效与底层代理机制深度总结</div></div><div class="info-2"><div class="info-item-1">Spring AOP 事务失效与底层代理机制深度总结1. 核心问题：为什么自调用导致事务失效？现象在同一个类中，方法 A 调用方法 B（this.methodB()），即使方法 B 上加了 @Transactional 注解，事务依然不生效。 根本原因Spring AOP 的默认实现基于 代理模式 (Proxy Pattern)。Spring 容器中注入的 Bean 实际上是一个 代理对象 (Proxy)，它持有你编写的 目标对象 (Target)。  生效路径：外部调用 $\rightarrow$ Proxy $\rightarrow$ 事务拦截器 (Interceptor) $\rightarrow$ Target。 失效路径：Target 内部调用 $\rightarrow$ this.methodB() $\rightarrow$ Target。  此时，this 指针指向的是目标对象本身。代码执行流直接在目标对象内部流转，完全绕过了外层的代理对象及其持有的事务拦截器。 形象比喻 Proxy (代理)：大楼门口的安检员。 Target (目标)：大楼里的员工。 外部访问：...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/posts/18358.html" title="分布式锁"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-11-29</div><div class="info-item-2">分布式锁</div></div><div class="info-2"><div class="info-item-1"> Zookeeper的分布式锁是客户端基于创建临时节点实现的，对于排他锁，每个客户端都尝试创建临时节点，但是只有一个客户端能成功创建，创建成功则相当于获取了锁。对于共享锁，则会按照一定的顺序队列创建带序号的临时节点并尝试获取锁（可以有多个客户端获取共享锁）。Redis的分布式锁则是通过创建一个从未创建过的key并设置其过期时间实现的，创建成功则获得了锁，并且客户端会在一定时间内循环获取锁，比较消耗服务器性能。 Zookeeper释放锁时，要么正常执行完业务逻辑后，事务主动释放，要么是检测到与客户端的会话失效后释放。Redis释放锁时，要么正常执行完业务逻辑后，事务主动释放，要么是键超时后释放锁。 对于Redis的主从结构中出现的主服务器宕机情况（单点故障），客户端A已经获取到锁了，但是主服务器还没来得及将键复制到从服务器，并且从服务器晋升为了主服务器，这时客户端B也可以获取锁，锁互斥效果就失效了。可以使用RedLock解决，但是不建议，可以使用Zookeeper。 Redis性能更高。  </div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/imgs/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Supremes</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">19</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">50</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">11</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/Supremes"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%93%96-%E7%AE%80%E4%BB%8B"><span class="toc-text">📖 简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%94%91-%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5"><span class="toc-text">🔑 核心概念</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%89%AF%E6%9C%AC%E6%9C%BA%E5%88%B6"><span class="toc-text">副本机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8C%81%E4%B9%85%E5%8C%96%E6%9C%BA%E5%88%B6"><span class="toc-text">持久化机制</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%93%9A-%E6%A0%B8%E5%BF%83%E6%9C%AF%E8%AF%AD"><span class="toc-text">📚 核心术语</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%AB%98%E7%BA%A7%E6%A6%82%E5%BF%B5"><span class="toc-text">高级概念</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%9A%80-%E9%83%A8%E7%BD%B2%E9%85%8D%E7%BD%AE"><span class="toc-text">🚀 部署配置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Broker-%E5%8F%82%E6%95%B0%E9%85%8D%E7%BD%AE"><span class="toc-text">Broker 参数配置</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AD%98%E5%82%A8%E9%85%8D%E7%BD%AE"><span class="toc-text">存储配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BD%91%E7%BB%9C%E9%85%8D%E7%BD%AE"><span class="toc-text">网络配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Topic-%E7%AE%A1%E7%90%86"><span class="toc-text">Topic 管理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86"><span class="toc-text">数据管理</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Topic-%E7%BA%A7%E5%88%AB%E5%8F%82%E6%95%B0"><span class="toc-text">Topic 级别参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JVM-%E5%8F%82%E6%95%B0%E8%B0%83%E4%BC%98"><span class="toc-text">JVM 参数调优</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%8E%AF-%E5%88%86%E5%8C%BA%E7%AD%96%E7%95%A5"><span class="toc-text">🎯 分区策略</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E5%88%86%E5%8C%BA%E7%AD%96%E7%95%A5"><span class="toc-text">自定义分区策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%85%E7%BD%AE%E5%88%86%E5%8C%BA%E7%AD%96%E7%95%A5"><span class="toc-text">内置分区策略</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E8%BD%AE%E8%AF%A2%E7%AD%96%E7%95%A5%EF%BC%88Round-Robin%EF%BC%89"><span class="toc-text">1. 轮询策略（Round-Robin）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E9%9A%8F%E6%9C%BA%E7%AD%96%E7%95%A5%EF%BC%88Random%EF%BC%89"><span class="toc-text">2. 随机策略（Random）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E6%8C%89%E9%94%AE%E4%BF%9D%E5%BA%8F%E7%AD%96%E7%95%A5%EF%BC%88Key-Ordering%EF%BC%89"><span class="toc-text">3. 按键保序策略（Key-Ordering）</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%8E%AE-Kafka-%E6%8E%A7%E5%88%B6%E5%99%A8"><span class="toc-text">🎮 Kafka 控制器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%92%E8%89%B2%E5%AE%9A%E4%BD%8D"><span class="toc-text">角色定位</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BB%E8%A6%81%E8%81%8C%E8%B4%A3"><span class="toc-text">主要职责</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%88%86%E5%8C%BA%E5%88%86%E9%85%8D"><span class="toc-text">1. 分区分配</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-Leader-%E5%89%AF%E6%9C%AC%E9%80%89%E4%B8%BE"><span class="toc-text">2. Leader 副本选举</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E4%B8%BB%E9%A2%98%E7%AE%A1%E7%90%86"><span class="toc-text">3. 主题管理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-%E9%9B%86%E7%BE%A4%E7%9B%91%E6%8E%A7%E4%B8%8E%E5%8D%8F%E8%B0%83"><span class="toc-text">4. 集群监控与协调</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8E%A7%E5%88%B6%E5%99%A8%E9%80%89%E4%B8%BE"><span class="toc-text">控制器选举</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%94%92-%E6%B6%88%E6%81%AF%E4%BA%A4%E4%BB%98%E5%8F%AF%E9%9D%A0%E6%80%A7"><span class="toc-text">🔒 消息交付可靠性</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%9C%80%E5%A4%9A%E4%B8%80%E6%AC%A1%EF%BC%88At-Most-Once%EF%BC%89"><span class="toc-text">1. 最多一次（At Most Once）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E8%87%B3%E5%B0%91%E4%B8%80%E6%AC%A1%EF%BC%88At-Least-Once%EF%BC%89"><span class="toc-text">2. 至少一次（At Least Once）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E7%B2%BE%E7%A1%AE%E4%B8%80%E6%AC%A1%EF%BC%88Exactly-Once%EF%BC%89"><span class="toc-text">3. 精确一次（Exactly Once）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%93-%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98"><span class="toc-text">❓ 常见问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Q1-%E4%B8%BA%E4%BB%80%E4%B9%88-Kafka-%E4%B8%8D%E5%85%81%E8%AE%B8%E4%BB%8E%E5%89%AF%E6%9C%AC%E8%AF%BB%E5%8F%96%E6%95%B0%E6%8D%AE%EF%BC%9F"><span class="toc-text">Q1: 为什么 Kafka 不允许从副本读取数据？</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E4%B8%80%E8%87%B4%E6%80%A7%E6%A8%A1%E5%9E%8B%E5%B7%AE%E5%BC%82"><span class="toc-text">1. 一致性模型差异</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E8%AE%BE%E8%AE%A1%E7%9B%AE%E6%A0%87%E4%B8%8D%E5%90%8C"><span class="toc-text">2. 设计目标不同</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E6%95%85%E9%9A%9C%E6%81%A2%E5%A4%8D%E5%A4%8D%E6%9D%82%E6%80%A7"><span class="toc-text">3. 故障恢复复杂性</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Q2-Kafka-%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E6%B6%88%E6%81%AF%E9%A1%BA%E5%BA%8F%E6%80%A7%EF%BC%9F"><span class="toc-text">Q2: Kafka 如何保证消息顺序性？</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%88%86%E5%8C%BA%E6%9C%89%E5%BA%8F"><span class="toc-text">1. 分区有序</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E5%90%8C%E6%AD%A5%E5%8F%91%E9%80%81"><span class="toc-text">2. 同步发送</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E6%B6%88%E6%81%AF%E5%81%8F%E7%A7%BB%E9%87%8F"><span class="toc-text">3. 消息偏移量</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Q3-Kafka-%E6%B6%88%E6%81%AF%E5%A6%82%E4%BD%95%E5%AD%98%E5%82%A8%EF%BC%9F"><span class="toc-text">Q3: Kafka 消息如何存储？</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84"><span class="toc-text">存储结构</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AD%98%E5%82%A8%E7%89%B9%E6%80%A7"><span class="toc-text">存储特性</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%92%A1-%E7%94%9F%E4%BA%A7%E7%8E%AF%E5%A2%83%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="toc-text">💡 生产环境最佳实践</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E5%8F%82%E6%95%B0%E9%85%8D%E7%BD%AE"><span class="toc-text">关键参数配置</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#auto-create-topics-enable-false"><span class="toc-text">auto.create.topics.enable &#x3D; false</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#unclean-leader-election-enable-false"><span class="toc-text">unclean.leader.election.enable &#x3D; false</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#auto-leader-rebalance-enable-false"><span class="toc-text">auto.leader.rebalance.enable &#x3D; false</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%93%9A-%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="toc-text">📚 参考资料</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/65190.html" title="八股文">八股文</a><time datetime="2025-11-29T09:00:27.000Z" title="发表于 2025-11-29 09:00:27">2025-11-29</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/31482.html" title="Golang">Golang</a><time datetime="2025-11-29T08:59:30.000Z" title="发表于 2025-11-29 08:59:30">2025-11-29</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/18358.html" title="分布式锁">分布式锁</a><time datetime="2025-11-29T08:57:26.000Z" title="发表于 2025-11-29 08:57:26">2025-11-29</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/16018.html" title="Redis 学习笔记">Redis 学习笔记</a><time datetime="2025-11-29T08:56:10.000Z" title="发表于 2025-11-29 08:56:10">2025-11-29</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/4947.html" title="TODO">TODO</a><time datetime="2025-11-29T08:50:05.000Z" title="发表于 2025-11-29 08:50:05">2025-11-29</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 By Supremes</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.1</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.2</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.2"></script><script src="/js/main.js?v=5.5.2"></script><div class="js-pjax"><script>(() => {
+  const runMermaid = ele => {
     window.loadMermaid = true
     const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
 
-    Array.from($mermaid).forEach((item, index) => {
+    ele.forEach((item, index) => {
       const mermaidSrc = item.firstElementChild
-      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
-      const mermaidID = 'mermaid-' + index
+      const config = mermaidSrc.dataset.config ? JSON.parse(mermaidSrc.dataset.config) : {}
+      if (!config.theme) {
+        config.theme = theme
+      }
+      const mermaidThemeConfig = `%%{init: ${JSON.stringify(config)}}%%\n`
+      const mermaidID = `mermaid-${index}`
       const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
 
       const renderFn = mermaid.render(mermaidID, mermaidDefinition)
-
-      const renderV10 = () => {
-        renderFn.then(({svg}) => {
-          mermaidSrc.insertAdjacentHTML('afterend', svg)
-        })
-      }
-
-      const renderV9 = svg => {
+      const renderMermaid = svg => {
         mermaidSrc.insertAdjacentHTML('afterend', svg)
       }
 
-      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+      // mermaid v9 and v10 compatibility
+      typeof renderFn === 'string' ? renderMermaid(renderFn) : renderFn.then(({ svg }) => renderMermaid(svg))
+    })
+  }
+
+  const codeToMermaid = () => {
+    const codeMermaidEle = document.querySelectorAll('pre > code.mermaid')
+    if (codeMermaidEle.length === 0) return
+
+    codeMermaidEle.forEach(ele => {
+      const preEle = document.createElement('pre')
+      preEle.className = 'mermaid-src'
+      preEle.hidden = true
+      preEle.textContent = ele.textContent
+      const newEle = document.createElement('div')
+      newEle.className = 'mermaid-wrap'
+      newEle.appendChild(preEle)
+      ele.parentNode.replaceWith(newEle)
     })
   }
 
   const loadMermaid = () => {
-    window.loadMermaid ? runMermaid() : getScript('https://cdn.cbd.int/mermaid@10.2.4/dist/mermaid.min.js').then(runMermaid)
+    if (true) codeToMermaid()
+    const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+    if ($mermaid.length === 0) return
+
+    const runMermaidFn = () => runMermaid($mermaid)
+    btf.addGlobalFn('themeChange', runMermaidFn, 'mermaid')
+    window.loadMermaid ? runMermaidFn() : btf.getScript('https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.min.js').then(runMermaidFn)
   }
 
-  anzhiyu.addGlobalFn('themeChange', runMermaid, 'mermaid')
-
+  btf.addGlobalFn('encrypt', loadMermaid, 'mermaid')
   window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
-})()</script><input type="hidden" name="page-type" id="page-type" value="post"></div><script>var visitorMail = "";
-</script><script async data-pjax src="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/waterfall/waterfall.js"></script><script src="https://cdn.cbd.int/qrcodejs@1.0.0/qrcode.min.js"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.9/icon/ali_iconfont_css.css"><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/aplayer/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.cbd.int/anzhiyu-blog-static@1.0.1/js/APlayer.min.js"></script><script src="https://cdn.cbd.int/hexo-anzhiyu-music@1.0.1/assets/js/Meting2.min.js"></script><script src="https://cdn.cbd.int/pjax@0.2.8/pjax.min.js"></script><script>let pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
-var pjax = new Pjax({
-  elements: 'a:not([target="_blank"])',
-  selectors: pjaxSelectors,
-  cacheBust: false,
-  analytics: false,
-  scrollRestoration: false
-})
-
-document.addEventListener('pjax:send', function () {
-  // removeEventListener scroll 
-  anzhiyu.removeGlobalFnEvent('pjax')
-  anzhiyu.removeGlobalFnEvent('themeChange')
-
-  document.getElementById('rightside').classList.remove('rightside-show')
-  
-  if (window.aplayers) {
-    for (let i = 0; i < window.aplayers.length; i++) {
-      if (!window.aplayers[i].options.fixed) {
-        window.aplayers[i].destroy()
-      }
-    }
-  }
-
-  typeof typed === 'object' && typed.destroy()
-
-  //reset readmode
-  const $bodyClassList = document.body.classList
-  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
-})
-
-document.addEventListener('pjax:complete', function () {
-  window.refreshFn()
-
-  document.querySelectorAll('script[data-pjax]').forEach(item => {
-    const newScript = document.createElement('script')
-    const content = item.text || item.textContent || item.innerHTML || ""
-    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
-    newScript.appendChild(document.createTextNode(content))
-    item.parentNode.replaceChild(newScript, item)
-  })
-
-  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
-
-  typeof panguInit === 'function' && panguInit()
-
-  // google analytics
-  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
-
-  // baidu analytics
-  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
-
-  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
-
-  // prismjs
-  typeof Prism === 'object' && Prism.highlightAll()
-})
-
-document.addEventListener('pjax:error', e => {
-  if (e.request.status === 404) {
-    pjax.loadUrl('/404.html')
-  }
-})</script><script charset="UTF-8" src="https://cdn.cbd.int/anzhiyu-theme-static@1.1.5/accesskey/accesskey.js"></script></div><div id="popup-window"><div class="popup-window-title">通知</div><div class="popup-window-divider"></div><div class="popup-window-content"><div class="popup-tip">你好呀</div><div class="popup-link"><i class="anzhiyufont anzhiyu-icon-arrow-circle-right"></i></div></div></div></body></html>
+})()</script></div><script async data-pjax src="/"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章标题和内容..." type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.5.2"></script></div></div></body></html>
