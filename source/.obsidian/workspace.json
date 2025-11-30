@@ -111,7 +111,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "about/my_notes.md",
+                "file": "_posts/数据库/MySQL.md",
                 "mode": "source",
                 "source": false,
                 "backlinks": true,
@@ -126,7 +126,7 @@
                 }
               },
               "icon": "lucide-file",
-              "title": "my_notes"
+              "title": "MySQL"
             }
           }
         ],
@@ -265,13 +265,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "about/my_notes.md",
+                "file": "_posts/数据库/MySQL.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of my_notes"
+              "title": "Outline of MySQL"
             }
           },
           {
@@ -289,8 +289,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -306,26 +305,44 @@
       "obsidian-shellcommands:Shell commands: Custom variables": true
     }
   },
-  "active": "40c49d5e2cb1fe50",
+  "active": "a98a7c7d7488a217",
   "lastOpenFiles": [
-    "about/about_me.md",
-    "about/my_notes.md",
-    "_posts/TODO.md",
+    "_posts/八股文.md",
+    "_posts/消息队列/RabbitMQ.md",
+    "Templates/Hexo-Post.md",
+    "_posts/后端开发/分布式锁.md",
+    "_posts/后端开发/Golang.md",
+    "_posts/前端/Chromium.md",
+    "_posts/前端/objective-c.md",
+    "_posts/日记/2025-11-28.md",
+    "_posts/数据库/Hibernate.md",
     "_posts/数据库/MySQL.md",
+    "_posts/网络安全/认证和授权.md",
     "_posts/网络安全/APNS.md",
+    "_posts/网络安全/Credential 证书.md",
+    "_posts/消息队列/KafkaNotes.md",
+    "_posts/AI/AI Agent.md",
+    "_posts/AI/MCP Introduction.md",
+    "_posts/数据库/Redis.md",
+    "about/my_notes.md",
+    "images",
+    "_discarded/1764492521038/_drafts/123.md",
+    "_discarded/1764492521038/_drafts",
+    "_discarded/1764492521038",
+    "_discarded",
+    "_drafts/123.md",
+    "_drafts",
+    "about/about_me.md",
+    "_posts/TODO.md",
     "_posts/备忘录/Notes.md",
     "_posts/Notes.md",
     "Notes/index.md",
     "Notes",
-    "_posts/日记/2025-11-28.md",
     "_posts/备忘录",
-    "_posts/后端开发/分布式锁.md",
     "snippets/mermaid-scroll.css.md",
     "snippets",
     "imgs/Pasted image 20251130111042.png",
     "imgs/APNS.png",
-    "_posts/网络安全/Credential 证书.md",
-    "_posts/网络安全/认证和授权.md",
     "favicon/site.webmanifest",
     "favicon/web-app-manifest-512x512.png",
     "favicon/favicon.svg",
@@ -333,27 +350,9 @@
     "favicon/favicon-96x96.png",
     "favicon/favicon.ico",
     "favicon/apple-touch-icon.png",
-    "favicon",
-    "imgs/favicon.zip",
-    "imgs/未确认 438460.crdownload",
-    "_posts/后端开发/Golang.md",
-    "about/index.md",
-    "_posts/前端/objective-c.md",
-    "_posts/前端/Chromium.md",
-    "Templates/Hexo-Post.md",
-    "_posts/日记/2025-11-30.md",
-    "_posts/日记/2025-11-29.md",
-    "Templates/Diary.md",
-    "Pasted image 20251129082321.png.md",
-    "_posts/AI/AI Agent.md",
-    "_posts/八股文.md",
-    "_posts/消息队列/KafkaNotes.md",
-    "_posts/后端开发",
-    "_posts/数据库/Redis.md",
     "imgs/MySQL1.png",
     "imgs/MySQL2.png",
     "Pasted image 20251129082321.png",
-    "_posts/日记",
     "Untitled.canvas"
   ]
 }

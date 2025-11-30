@@ -8,4 +8,5 @@ cover: /imgs/RabbitMQ封面.png
 abbrlink: 33708
 date: 2025-11-27 22:34:16
 description:
+hidden: true
 ---
