@@ -3,7 +3,7 @@ name: Deploy Hexo Site
 on:
   push:
     branches:
-      - develop  # 触发部署的分支，如果你用的是 master，请改为 master
+      - develop_anzhiyun  # 触发部署的分支，如果你用的是 master，请改为 master
 
 jobs:
   build-and-deploy:

@@ -128,7 +128,12 @@ ignore:
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: butterfly
+# 当前使用的主题，可以在 anzhiyu 和 butterfly 之间切换
+# 切换方法：修改下面的 theme 值为 anzhiyu 或 butterfly
+# 两个主题的配置文件分别是：
+#   - _config.anzhiyu.yml (AnZhiYu 主题配置)
+#   - _config.butterfly.yml (Butterfly 主题配置)
+theme: anzhiyu
 
 # Search
 search:
