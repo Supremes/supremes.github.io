@@ -1,176 +1,168 @@
-<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><title>Hibernate ORM 框架详解 | Supremes</title><meta name="keywords" content="Java,Hibernate,ORM,JPA"><meta name="author" content="Supremes"><meta name="copyright" content="Supremes"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-touch-fullscreen" content="yes"><meta name="apple-mobile-web-app-title" content="Hibernate ORM 框架详解"><meta name="application-name" content="Hibernate ORM 框架详解"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="#ffffff"><meta property="og:type" content="article"><meta property="og:title" content="Hibernate ORM 框架详解"><meta property="og:url" content="https://supremes.github.io/posts/22172.html"><meta property="og:site_name" content="Supremes"><meta property="og:description" content="详解 Hibernate 框架的核心概念，包括 Session、SessionFactory、XML 配置、注解映射以及缓存机制，从入门到精通的完整指南"><meta property="og:locale" content="zh-CN"><meta property="og:image" content="https://supremes.github.io/imgs/avatar.jpg"><meta property="article:author" content="Supremes"><meta property="article:tag"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://supremes.github.io/imgs/avatar.jpg"><meta name="description" content="详解 Hibernate 框架的核心概念，包括 Session、SessionFactory、XML 配置、注解映射以及缓存机制，从入门到精通的完整指南"><link rel="shortcut icon" href="/favicon/favicon.ico"><link rel="canonical" href="https://supremes.github.io/posts/22172.html"><link rel="preconnect" href="//cdn.cbd.int"/><meta name="google-site-verification" content="xxx"/><meta name="baidu-site-verification" content="code-xxx"/><meta name="msvalidate.01" content="xxx"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.cbd.int/@fancyapps/ui@5.0.28/dist/fancybox/fancybox.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
-  linkPageTop: undefined,
-  peoplecanvas: {"enable":true,"img":"https://upload-bbs.miyoushe.com/upload/2024/07/27/125766904/ba62475f396df9de3316a08ed9e65d86_5680958632268053399..png"},
-  postHeadAiDescription: {"enable":true,"gptName":"AnZhiYu","mode":"local","switchBtn":false,"btnLink":"https://afdian.net/item/886a79d4db6711eda42a52540025c377","randomNum":3,"basicWordCount":1000,"key":"xxxx","Referer":"https://xx.xx/"},
-  diytitle: {"enable":true,"leaveTitle":"w(ﾟДﾟ)w 不要走！再看看嘛！","backTitle":"♪(^∇^*)欢迎肥来！"},
-  LA51: undefined,
-  greetingBox: undefined,
-  twikooEnvId: '',
-  commentBarrageConfig:undefined,
-  music_page_default: "nav_music",
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Hibernate ORM 框架详解 | Supremes</title><meta name="author" content="Supremes"><meta name="copyright" content="Supremes"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="详解 Hibernate 框架的核心概念，包括 Session、SessionFactory、XML 配置、注解映射以及缓存机制，从入门到精通的完整指南">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hibernate ORM 框架详解">
+<meta property="og:url" content="https://supremes.github.io/posts/22172.html">
+<meta property="og:site_name" content="Supremes">
+<meta property="og:description" content="详解 Hibernate 框架的核心概念，包括 Session、SessionFactory、XML 配置、注解映射以及缓存机制，从入门到精通的完整指南">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://supremes.github.io/imgs/avatar.jpg">
+<meta property="article:published_time" content="2025-11-28T14:00:00.000Z">
+<meta property="article:modified_time" content="2025-11-30T14:05:14.372Z">
+<meta property="article:author" content="Supremes">
+<meta property="article:tag" content="Hibernate">
+<meta property="article:tag" content="JPA">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="ORM">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://supremes.github.io/imgs/avatar.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Hibernate ORM 框架详解",
+  "url": "https://supremes.github.io/posts/22172.html",
+  "image": "https://supremes.github.io/imgs/avatar.jpg",
+  "datePublished": "2025-11-28T14:00:00.000Z",
+  "dateModified": "2025-11-30T14:05:14.372Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Supremes",
+      "url": "https://supremes.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/favicon/favicon.ico"><link rel="canonical" href="https://supremes.github.io/posts/22172.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.2"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
   root: '/',
-  preloader: undefined,
-  friends_vue_info: undefined,
-  navMusic: false,
-  mainTone: undefined,
-  authorStatus: undefined,
   algolia: undefined,
-  localSearch: {"path":"/search.xml","preload":false,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"pagination":{"enable":true,"hitsPerPage":10},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
   translate: undefined,
-  noticeOutdate: undefined,
-  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":330},
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
   copy: {
     success: '复制成功',
-    error: '复制错误',
+    error: '复制失败',
     noSupport: '浏览器不支持'
   },
   relativeDate: {
     homepage: false,
-    simplehomepage: false,
     post: false
   },
   runtime: '',
-  date_suffix: {
+  dateSuffix: {
     just: '刚刚',
     min: '分钟前',
     hour: '小时前',
     day: '天前',
     month: '个月前'
   },
-  copyright: {"copy":true,"copyrightEbable":false,"limitCount":50,"languages":{"author":"作者: Supremes","link":"链接: ","source":"来源: Supremes","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。","copySuccess":"复制成功，复制和转载请标注本文地址"}},
-  lightbox: 'fancybox',
-  Snackbar: {"chs_to_cht":"你已切换为繁体","cht_to_chs":"你已切换为简体","day_to_night":"你已切换为深色模式","night_to_day":"你已切换为浅色模式","bgLight":"#425AEF","bgDark":"#1f1f1f","position":"top-center"},
-  source: {
-    justifiedGallery: {
-      js: 'https://cdn.cbd.int/flickr-justified-gallery@2.1.2/dist/fjGallery.min.js',
-      css: 'https://cdn.cbd.int/flickr-justified-gallery@2.1.2/dist/fjGallery.css'
-    }
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
   },
   isPhotoFigcaption: false,
-  islazyload: true,
-  isAnchor: false,
-  shortcutKey: undefined,
+  islazyloadPlugin: false,
+  isAnchor: true,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
   autoDarkmode: false
 }</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
-  configTitle: 'Supremes',
   title: 'Hibernate ORM 框架详解',
-  postAI: '',
-  pageFillDescription: 'Hibernate, 环境配置, 1. 核心依赖, Hibernate Core, Spring ORM, 2. 数据库驱动, 3. 可选依赖, 连接池（推荐）, 如果使用 Spring Boot, 4. 版本注意事项, 5. 典型配置示例（非 Spring Boot）, 6. Spring Boot 配置, 总结, XML 配置文件, lthibernate-mappinggt, ltclassgt, ltidgt, ltgeneratorgt, ltpropertygt, ltmany-to-onegt, ltone-to-manygt, ltsetgt, ltBaggt, 基本用法, 常用属性, ltdiscriminatorgt, 基本使用场景, 基本语法, 常用属性, 工作原理, 优势, 注意事项, ltkeygt, 注解, Session 和 SessionFactory, 1. Session, 定义, 特点, 主要功能, 常用方法, 生命周期, 2. SessionFactory, 定义, 特点, 主要功能, 常用方法, 生命周期, 3. Hibernate 缓存机制, 一级缓存（First-Level Cache）, 二级缓存（Second-Level Cache）, 查询缓存（Query Cache）, 4. Session、SessionFactory 和缓存机制的相关性, Session 和 SessionFactory, Session 和一级缓存, SessionFactory 和二级缓存, Session、SessionFactory 和查询缓存, 整体工作流程, 5. 实践中的注意事项, 6. 示例代码：展示 Session、SessionFactory 和缓存, 7. 总结, 进一步学习建议, Reference, 学习路径：如何入手 Hibernate, 常用类、接口和方法, 1. Hibernate 核心（Session 模式）, 常用类和接口, 常用方法, 示例代码, 2. JPA 模式（EntityManager 模式）, 常用类和接口, 常用方法, Spring Boot 示例（JPA）, 3. 常用注解, 实践建议：掌握 Hibernate 的步骤, 推荐练习项目, 注意事项, 总结是一个用于环境的开源对象关系映射框架映射文件是配置实体类和数据库表之间映射关系的重要方式以下是映射文件中常见标签的介绍环境配置在框架中使用作为框架时需要导入以下相关库依赖项以下是基于或的依赖配置具体依赖取决于你使用的版本版本以及是否使用核心依赖的核心库提供基本的功能替换为最新稳定版本提供的模块集成并简化配置如管理与你的版本保持一致数据库驱动需要根据你使用的数据库如等添加对应的驱动例如驱动替换为最新版本驱动示例可选依赖连接池推荐为了提高性能通常使用数据库连接池如或默认使用如果使用提供了依赖简化配置与你的版本一致说明已经包含了和相关依赖并默认配置你还需要单独添加数据库驱动如版本注意事项版本推荐使用最新稳定版截至年月或系列要求并有重大变更如去掉包版本确保和版本兼容例如通常与搭配与更兼容如果使用会自动管理兼容的版本典型配置示例非在配置文件如中配置配置如果使用只需在或中配置总结最小依赖数据库驱动推荐数据库驱动场景添加连接池建议使用如果使用是最简便的方式如果是传统项目需手动添加和依赖确保版本兼容并根据数据库类型选择合适的驱动如果你有具体场景例如版本数据库类型或遇到配置问题请提供更多细节我可以进一步优化答案配置文件这是映射文件的根标签用于标识一个映射文档的开始和结束它可以包含多个标签其他标签标签用于定义类和数据库表之间的映射关系属性指定类的全限定名属性指定对应的数据库表名其他标签标签用于映射类中的主键属性到数据库表的主键列属性指定类中的主键属性名属性指定数据库表中的主键列名属性指定属性的数据类型主键生成策略标签用于指定主键的生成策略通常嵌套在标签内常见的生成策略有根据数据库的支持自动选择合适的主键生成策略如自增序列等由自动生成一个递增的主键值生成一个作为主键值标签用于映射类中的普通属性到数据库表的列属性指定类中的属性名属性指定数据库表中的列名属性指定属性的数据类型标签用于映射多对一的关联关系例如多个用户属于一个部门属性指定类中关联对象的属性名属性指定数据库表中用于关联的外键列名属性指定关联对象的类全限定名标签用于映射一对多的关联关系例如一个部门有多个用户属性指定类中关联对象集合的属性名属性指定关联对象的类全限定名标签用于映射类中的集合属性通常与或关联使用属性指定类中的集合属性名属性指定关联表名在多对多关系中使用在映射文件里标签用于映射类中的集合属性它表示无序且可重复的集合类似于里的下面为你详细介绍其用法和相关属性基本用法标签常被用于映射一对多或者多对多的关联关系它一般和或者标签搭配使用以下是个简单示例在这个例子中类有一个属性它是一个无序且可重复的对象集合标签定义了这个集合属性的映射标签指明了关联表中的外键列标签表明了一对多的关联关系常用属性指定类中的集合属性名就像上面例子中的指定关联表名在一对多或者多对多关系里使用比如在多对多关系中需要一个中间表来存储关联信息属性就指定了这个中间表的名称定义级联操作它确定了在对父对象执行某些操作如保存更新删除时是否要对关联对象也执行相同操作常见的值有等示例如下是一个布尔值用来指定关联关系的控制权在哪一方若设为则表示关联关系的维护由另一方负责若设为默认值则当前对象负责维护关联关系与标签对比和标签不同允许集合中有重复元素而要求元素唯一所以当你需要一个可包含重复元素的集合时就可以使用标签在的配置文件里标签主要用于实现继承映射当类存在继承关系时该标签能够把这些具有继承关系的类映射到数据库的同一张表中借助一个特定的列来区分不同的子类下面为你详细介绍其使用方式和相关属性基本使用场景在实际开发中可能会有多个子类继承自同一个父类的情况若把这些子类分别映射到不同的数据库表会使数据库结构变得复杂通过标签可将所有子类的数据存储在同一张表中再用一个特殊的列来辨别不同的子类基本语法类特有的属性映射类特有的属性映射在上述示例中是父类和是它的子类标签指定了一个名为的列数据类型为字符串用于区分不同的子类标签定义了子类的映射属性指定了该子类在列中对应的值常用属性指定数据库表中用于区分不同子类的列名在上面的例子中表示使用列来存储子类的区分信息指定区分列的数据类型例如等工作原理当从数据库中查询数据时会依据标签指定的列的值来判断应该将数据实例化为哪个子类的对象比如若列的值为就会把数据实例化为类的对象若值为则实例化为类的对象优势简化数据库结构避免为每个子类创建单独的表减少了数据库表的数量使数据库结构更加简洁提高数据查询效率因为所有子类的数据都存储在同一张表中查询时无需进行复杂的表连接操作提高了查询效率注意事项区分列的唯一性属性的值必须唯一否则会导致在实例化对象时出现混淆数据一致性在插入数据时要确保区分列的值与标签中属性的值一致以保证数据的一致性标签用于指定关联表中的外键列通常在或标签中使用属性指定外键列名这些标签是映射文件中最常用的部分通过合理使用它们可以实现类和数据库表之间的灵活映射注解是一个流行的持久层框架它允许你通过对象关系映射的方式来操作数据库以下是中一些常用的注解用于标注实体类表示该类对应数据库中的一张表与一起使用指定实体类所对应的数据库表名如果不指定默认使用类名作为表名标记属性为主键定义主键的生成策略常见的生成策略有和用于描述实体类中的字段如何映射到数据库表中的列可以指定列名是否允许为空等属性表示某个属性不会被持久化到数据库中用于定义实体之间的关系例如表示多对一的关系用于指定连接列外键通常在定义关联关系时使用用于组合模式标记的类可以在其他实体中嵌入使用而用来嵌入这些可嵌入的对象用于定义基于公式或子查询的虚拟属性以上仅是部分常用的注解根据实际需要可能还会涉及到更多高级特性和注解使用这些注解可以大大简化应用程序与数据库交互的代码和在中和是核心组件负责管理与数据库的交互以及对象持久化它们与的缓存机制密切相关共同影响应用的性能和数据一致性下面详细解释缓存机制及其相关性定义是的核心接口用于执行数据库操作如增删改查是应用程序与数据库交互的主要入口它封装了连接管理实体对象的生命周期并维护一个一级缓存特点非线程安全设计为单线程使用不应在多个线程间共享每个线程或请求通常需要独立的短生命周期通常在一次数据库操作或事务中创建用完后关闭避免资源泄漏一级缓存内部维护一个缓存存储当前会话中的实体对象减少数据库访问代理连接通过底层的连接与数据库通信但开发者无需直接操作主要功能操作保存更新删除查询查询执行支持原生事务管理通过开启事务管理数据库操作缓存管理维护一级缓存自动处理脏检查常用方法保存实体返回标识符更新实体合并状态的实体删除实体根据立即加载实体延迟加载实体创建查询同步持久化上下文到数据库清空一级缓存开启事务生命周期创建通过或获取使用执行数据库操作管理实体关闭调用释放资源可自动管理定义是的工厂接口负责创建实例它是一个线程安全的全局对象初始化时加载配置和映射元数据特点线程安全可以在多个线程间共享通常在应用启动时创建单一实例重量级对象创建开销大因为它需要解析配置文件映射元数据并建立数据库连接池全局单例整个应用通常只有一个除非使用多个数据库配置中心存储配置如数据库连接方言缓存设置和实体映射信息主要功能创建实例管理配置和元数据提供对二级缓存如果启用的访问常用方法创建新的需手动关闭获取当前线程绑定的需配置事务上下文常用关闭工厂释放资源通常在应用关闭时调用生命周期初始化应用启动时通过或配置创建使用提供实例服务整个应用销毁应用关闭时调用释放资源缓存机制提供两级缓存机制用于减少数据库访问提高性能一级缓存与相关和二级缓存与相关一级缓存定义一级缓存是级别的缓存自动启用存储当前内的实体对象也被称为持久化上下文作用缓存实体对象避免重复查询数据库实现脏检查自动检测实体变化并同步到数据库管理实体状态生命周期与绑定关闭或调用时缓存清空特点强制启用无法禁用仅在同一内有效不跨共享缓存的是实体对象的完整状态包括关联对象工作原理当通过或查询加载实体时将实体放入一级缓存同一内重复查询相同实体时直接从缓存返回避免数据库访问在事务提交或时对比缓存中的实体与数据库状态执行必要的更新脏检查二级缓存定义二级缓存是级别的缓存可选启用存储跨的实体数据或查询结果作用提高跨的查询性能减少数据库访问适合频繁读取不常修改的数据如配置表字典表生命周期与绑定应用运行期间持续存在特点默认禁用需显式配置如可缓存实体查询结果或集合跨和线程共享需考虑并发一致性配置启用二级缓存设置指定缓存提供者如在实体上使用注解查询缓存定义查询缓存是二级缓存的子集用于缓存查询的结果仅缓存实体和简单数据作用避免重复执行相同的查询启用方式设置在查询时调用注意查询缓存通常与二级缓存一起使用因为查询结果的实体仍需从二级缓存加载和缓存机制的相关性和缓存机制在中紧密协作共同管理数据访问和性能优化以下是它们之间的关系和创建关系是工厂负责创建实例每个都与关联共享其配置如数据库连接方言配置共享持有的全局配置包括映射元数据缓存设置使用这些配置执行具体操作生命周期差异是应用级别的单例生命周期长是请求或事务级别的生命周期短创建和销毁频繁集成在中由容器管理通过或的自动管理和一级缓存直接关联一级缓存是的内置功能存储在的持久化上下文中缓存作用同一内重复查询相同实体如直接从一级缓存返回脏检查依赖一级缓存在或事务提交时对比缓存中的实体状态管理方式调用清空一级缓存调用移除特定实体关闭时一级缓存自动失效示例查询数据库放入一级缓存直接从一级缓存返回一级缓存失效和二级缓存管理关系二级缓存由管理跨共享负责初始化缓存提供者如并维护缓存区域缓存访问当查询实体时先检查一级缓存若未命中再检查二级缓存若启用如果二级缓存命中从缓存加载实体减少数据库访问配置依赖二级缓存的配置如缓存策略提供者在初始化时设置影响所有示例查询数据库放入二级缓存从二级缓存加载和查询缓存协作机制查询缓存存储查询结果的元数据如实体由管理实际实体数据仍需从二级缓存或数据库加载通过启用查询缓存查询结果与的缓存区域关联依赖关系查询缓存依赖二级缓存必须同时启用二级缓存才能生效整体工作流程初始化在应用启动时创建加载配置映射和缓存设置包括二级缓存创建应用通过创建每个维护独立的一级缓存查询操作首先检查一级缓存如果一级缓存未命中检查二级缓存若启用如果二级缓存未命中查询数据库并将结果存入一级缓存和二级缓存若启用事务提交执行脏检查同步一级缓存中的变化到数据库二级缓存根据策略如更新关闭关闭一级缓存失效和二级缓存保持有效直到应用关闭实践中的注意事项管理避免长时间持有防止内存泄漏在中使用自动管理通过总是关闭或依赖管理配置确保单例避免重复创建合理配置数据库连接池如和属性如缓存优化一级缓存避免在单一内加载过多实体防止内存溢出二级缓存仅缓存不常修改的数据配置合适的并发策略如或查询缓存谨慎使用适合高频参数固定的查询性能调试开启和查看生成的使用检查缓存命中率常见问题因关闭后访问延迟加载的关联对象解决方法是提前加载或使用的查询问题因一级缓存未命中或关联对象逐个加载解决方法是使用或批量加载示例代码展示和缓存配置使用和一级缓存查询数据库放入一级缓存从一级缓存返回同一对象一级缓存失效二级缓存示例需配置和从二级缓存加载若命中关闭二级缓存失效总结作用管理数据库操作和一级缓存非线程安全短生命周期核心方法作用创建管理全局配置和二级缓存线程安全单例核心方法缓存机制一级缓存级别自动启用存储当前会话实体负责脏检查二级缓存级别可选启用跨共享适合只读数据查询缓存缓存查询结果依赖二级缓存相关性创建提供配置和二级缓存维护一级缓存执行操作可能访问二级缓存缓存机制通过减少数据库访问优化性能与和的生命周期紧密相关进一步学习建议实践搭建一个项目测试一级缓存和二级缓存的效果调试使用的监控缓存命中率优化查询深入学习关联映射如和策略结合缓存优化性能资源参考官方文档的缓存章节如果你有具体场景如缓存配置性能问题代码调试请提供细节我可以进一步提供定制化指导要熟悉使用作为框架建议从理解其核心概念开始逐步通过实践掌握常用类接口和方法以下是一个系统化的学习路径以及中常用的类接口和方法的详细说明帮助你快速上手学习路径如何入手理解核心概念原理了解对象关系映射如何将对象映射到数据库表和掌握的核心工作单元事务管理理解事务在中的作用一级缓存和查询学习如何缓存对象和执行查询搭建开发环境依赖配置使用或引入依赖参考之前的回答数据库准备选择一个数据库如创建表结构集成推荐结合或简化配置的是快速入门的首选实践基础操作创建实体类使用注解如定义类与数据库表的映射配置设置或实现通过或的实现增删改查练习查询使用或编写查询深入高级功能关联映射学习等关联关系延迟加载理解策略如事务管理结合的管理事务性能优化探索一级缓存二级缓存批量操作通过项目巩固构建一个简单的应用如用户管理系统包含实体服务层和控制器使用实现涵盖和关联查询调试常见问题如查询问题查阅官方资源文档参考官方文档教程和社区学习等网站的教程参与讨论源码和示例查看的仓库或官方示例项目常用类接口和方法以下是中最常用的类接口及其核心方法分为核心模式和模式常用核心模式这些类和接口用于传统的操作基于和常用类和接口作用核心接口管理实体对象的持久化操作维护一级缓存非线程安全每个线程应有独立的获取方式通过获取作用线程安全的工厂类负责创建初始化配置特点全局单例创建开销大应用启动时初始化作用管理数据库事务确保操作的原子性获取方式通过获取作用执行或查询返回结果集获取方式通过创建常用方法方法保存实体返回标识符更新实体合并状态的实体删除实体根据立即加载实体延迟加载实体创建查询同步持久化上下文到数据库清空一级缓存开启事务方法创建新的获取当前线程绑定的需配置事务上下文关闭工厂释放资源方法提交事务回滚事务方法返回查询结果列表返回单个结果设置查询参数限制结果数量示例代码保存查询模式模式在或现代项目中通常使用作为实现基于常用类和接口或作用的核心接口类似管理实体的持久化操作获取方式通过注入或创建作用创建类似特点线程安全全局单例作用执行类似或原生查询获取方式通过创建作用管理事务获取方式通过获取常用方法方法将实体设为持久化状态合并状态的实体删除实体根据查找实体创建查询创建原生查询同步持久化上下文将实体从持久化上下文中分离获取事务对象方法创建关闭工厂方法类似的方法如示例常用注解依赖注解定义实体和映射关系常用注解包括标记类为实体指定数据库表名标记主键定义主键生成策略如映射字段到列指定属性如定义关联关系指定外键列设置加载策略或管理事务实践建议掌握的步骤从简单实体开始创建一个简单的实体类如使用等注解配置或的实现基本的操作熟悉或学习和编写简单的查询如使用设置参数和分页探索关联映射创建两个实体如和使用建立关系测试级联操作如和延迟加载集成使用的和管理或尝试简化层代码调试和优化开启和查看生成的解决常见问题如或查询学习使用或二级缓存优化性能推荐练习项目用户管理系统实体姓名邮箱名称功能用户增删改查角色分配多对多关系技术博客系统实体标题内容内容功能发布帖子添加评论一对多关系技术数据库注意事项版本兼容确保和数据库驱动版本兼容如搭配事务管理始终在事务中执行写操作避免非事务性错误资源释放手动管理时确保关闭自动管理性能监控关注生成的避免查询问题总结入手方式从配置环境创建简单实体开始逐步学习和关联映射结合实践核心类接口模式或模式核心方法或实践重点搭建小项目熟悉注解查询和事务管理如果你有具体问题如配置示例某个方法的用法调试错误请提供更多细节我可以进一步指导',
-  isPost: true,
-  isHome: false,
   isHighlightShrink: false,
   isToc: true,
-  postUpdate: '2025-11-30 14:02:36',
-  postMainColor: '',
-}</script><noscript><style type="text/css">
-  #nav {
-    opacity: 1
-  }
-  .justified-gallery img {
-    opacity: 1
-  }
-
-  #recent-posts time,
-  #post-meta time {
-    display: inline !important
-  }
-</style></noscript><script>(win=>{
-      win.saveToLocal = {
-        set: (key, value, ttl) => {
-          if (ttl === 0) return
-          const now = Date.now()
-          const expiry = now + ttl * 86400000
-          const item = {
-            value,
-            expiry
-          }
-          localStorage.setItem(key, JSON.stringify(item))
-        },
-      
-        get: key => {
-          const itemStr = localStorage.getItem(key)
-      
-          if (!itemStr) {
-            return undefined
-          }
-          const item = JSON.parse(itemStr)
-          const now = Date.now()
-      
-          if (now > item.expiry) {
-            localStorage.removeItem(key)
-            return undefined
-          }
-          return item.value
-        }
-      }
-    
-      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
-        const script = document.createElement('script')
-        script.src = url
-        script.async = true
-        script.onerror = reject
-        script.onload = script.onreadystatechange = function() {
-          const loadState = this.readyState
-          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
-          script.onload = script.onreadystatechange = null
-          resolve()
-        }
-
-        Object.keys(attr).forEach(key => {
-          script.setAttribute(key, attr[key])
-        })
-
-        document.head.appendChild(script)
-      })
-    
-      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
-        const link = document.createElement('link')
-        link.rel = 'stylesheet'
-        link.href = url
-        if (id) link.id = id
-        link.onerror = reject
-        link.onload = link.onreadystatechange = function() {
-          const loadState = this.readyState
-          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
-          link.onload = link.onreadystatechange = null
-          resolve()
-        }
-        document.head.appendChild(link)
-      })
-    
-      win.activateDarkMode = () => {
-        document.documentElement.setAttribute('data-theme', 'dark')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
-        }
-      }
-      win.activateLightMode = () => {
-        document.documentElement.setAttribute('data-theme', 'light')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
-        }
-      }
-      const t = saveToLocal.get('theme')
-    
-        if (t === 'dark') activateDarkMode()
-        else if (t === 'light') activateLightMode()
-      
-      const asideStatus = saveToLocal.get('aside-status')
-      if (asideStatus !== undefined) {
-        if (asideStatus === 'hide') {
-          document.documentElement.classList.add('hide-aside')
-        } else {
-          document.documentElement.classList.remove('hide-aside')
-        }
-      }
-    
-      const detectApple = () => {
-        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
-          document.documentElement.classList.add('apple')
-        }
-      }
-      detectApple()
-    })(window)</script><meta name="generator" content="Hexo 8.1.1"></head><body data-type="anzhiyu"><div id="web_bg"></div><div id="an_music_bg"></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><div id="nav-group"><span id="blog_name"><a id="site-name" href="/" accesskey="h"><div class="title">Supremes</div><i class="anzhiyufont anzhiyu-icon-house-chimney"></i></a></span><div class="mask-name-container"><div id="name-container"><a id="page-name" href="javascript:anzhiyu.scrollToDest(0, 500)">PAGE_NAME</a></div></div><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/"><i class="fas fa-home faa-tada"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/archives/"><i class="fas fa-archive faa-tada"></i><span> 时间线</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fas fa-folder-open faa-tada"></i><span> 分类</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/categories/database/"><i class="fas fa-database faa-tada"></i><span> 数据库</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/message-queue/"><i class="fas fa-envelope faa-tada"></i><span> 消息队列</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/Spring/"><i class="fas fa-leaf faa-tada"></i><span> Spring</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/security/"><i class="fas fa-shield-alt faa-tada"></i><span> 网络安全</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/AI/"><i class="fas fa-robot faa-tada"></i><span> AI</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/mobile/"><i class="fas fa-mobile-alt faa-tada"></i><span> 移动开发</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/tools/"><i class="fas fa-tools faa-tada"></i><span> 工具效率</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/diary/"><i class="fas fa-book faa-tada"></i><span> 日记</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fas fa-list faa-tada"></i><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/about_me"><i class="fas fa-user faa-tada"></i><span> 关于我</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/about/my_notes"><i class="fas fa-note-sticky faa-tada"></i><span> 备忘录</span></a></li></ul></div></div></div><div id="nav-right"><div class="nav-button" id="randomPost_button"><a class="site-page" onclick="toRandomPost()" title="随机前往一个文章" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-dice"></i></a></div><div class="nav-button" id="search-button"><a class="site-page social-icon search" href="javascript:void(0);" title="搜索🔍" accesskey="s"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span> 搜索</span></a></div><input id="center-console" type="checkbox"/><label class="widget" for="center-console" title="中控台" onclick="anzhiyu.switchConsole();"><i class="left"></i><i class="widget center"></i><i class="widget right"></i></label><div id="console"><div class="console-card-group-reward"><ul class="reward-all console-card"><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png" target="_blank"><img class="post-qr-code-img" alt="微信" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png" target="_blank"><img class="post-qr-code-img" alt="支付宝" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div><div class="console-card-group"><div class="console-card-group-left"><div class="console-card" id="card-newest-comments"><div class="card-content"><div class="author-content-item-tips">互动</div><span class="author-content-item-title"> 最新评论</span></div><div class="aside-list"><span>正在加载中...</span></div></div></div><div class="console-card-group-right"><div class="console-card tags"><div class="card-content"><div class="author-content-item-tips">兴趣点</div><span class="author-content-item-title">寻找你感兴趣的领域</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/ACME/" style="font-size: 1.05rem;">ACME<sup>1</sup></a><a href="/tags/AI/" style="font-size: 1.05rem;">AI<sup>1</sup></a><a href="/tags/AI-Agent/" style="font-size: 1.05rem;">AI-Agent<sup>1</sup></a><a href="/tags/AOP/" style="font-size: 1.05rem;">AOP<sup>1</sup></a><a href="/tags/APNS/" style="font-size: 1.05rem;">APNS<sup>1</sup></a><a href="/tags/CA/" style="font-size: 1.05rem;">CA<sup>1</sup></a><a href="/tags/Category/" style="font-size: 1.05rem;">Category<sup>1</sup></a><a href="/tags/Chromium/" style="font-size: 1.05rem;">Chromium<sup>1</sup></a><a href="/tags/Claude/" style="font-size: 1.05rem;">Claude<sup>1</sup></a><a href="/tags/Embedding/" style="font-size: 1.05rem;">Embedding<sup>1</sup></a><a href="/tags/Function-Calling/" style="font-size: 1.05rem;">Function-Calling<sup>1</sup></a><a href="/tags/Hibernate/" style="font-size: 1.05rem;">Hibernate<sup>1</sup></a><a href="/tags/JPA/" style="font-size: 1.05rem;">JPA<sup>1</sup></a><a href="/tags/Java/" style="font-size: 1.05rem;">Java<sup>2</sup></a><a href="/tags/Kafka/" style="font-size: 1.05rem;">Kafka<sup>1</sup></a><a href="/tags/LLM/" style="font-size: 1.05rem;">LLM<sup>1</sup></a><a href="/tags/MCP/" style="font-size: 1.05rem;">MCP<sup>1</sup></a><a href="/tags/Model-Context-Protocol/" style="font-size: 1.05rem;">Model Context Protocol<sup>1</sup></a><a href="/tags/MySQL/" style="font-size: 1.05rem;">MySQL<sup>1</sup></a><a href="/tags/ORM/" style="font-size: 1.05rem;">ORM<sup>1</sup></a><a href="/tags/Objective-C/" style="font-size: 1.05rem;">Objective-C<sup>1</sup></a><a href="/tags/Obsidian/" style="font-size: 1.05rem;">Obsidian<sup>1</sup></a><a href="/tags/PKCS/" style="font-size: 1.05rem;">PKCS<sup>1</sup></a><a href="/tags/PKI/" style="font-size: 1.05rem;">PKI<sup>1</sup></a><a href="/tags/Protocol/" style="font-size: 1.05rem;">Protocol<sup>1</sup></a><a href="/tags/RAG/" style="font-size: 1.05rem;">RAG<sup>1</sup></a><a href="/tags/RabbitMQ/" style="font-size: 1.05rem;">RabbitMQ<sup>1</sup></a><a href="/tags/ReAct/" style="font-size: 1.05rem;">ReAct<sup>1</sup></a><a href="/tags/Redis/" style="font-size: 1.05rem;">Redis<sup>1</sup></a><a href="/tags/SCEP/" style="font-size: 1.05rem;">SCEP<sup>1</sup></a><a href="/tags/Spring/" style="font-size: 1.05rem;">Spring<sup>1</sup></a><a href="/tags/golang/" style="font-size: 1.05rem;">golang<sup>1</sup></a><a href="/tags/iOS/" style="font-size: 1.05rem;">iOS<sup>1</sup></a><a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/" style="font-size: 1.05rem;">分布式系统<sup>2</sup></a><a href="/tags/%E5%8A%A0%E5%AF%86/" style="font-size: 1.05rem;">加密<sup>1</sup></a><a href="/tags/%E5%8D%8F%E8%AE%AE%E6%A0%87%E5%87%86/" style="font-size: 1.05rem;">协议标准<sup>1</sup></a><a href="/tags/%E5%90%91%E9%87%8F%E6%95%B0%E6%8D%AE%E5%BA%93/" style="font-size: 1.05rem;">向量数据库<sup>1</sup></a><a href="/tags/%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97/" style="font-size: 1.05rem;">开发指南<sup>1</sup></a><a href="/tags/%E6%95%B0%E5%AD%97%E8%AF%81%E4%B9%A6/" style="font-size: 1.05rem;">数字证书<sup>1</sup></a><a href="/tags/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/" style="font-size: 1.05rem;">面向对象<sup>1</sup></a></div></div><hr/></div></div><div class="console-card history"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-box-archiv"></i><span>文章</span></div><div class="card-archives"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-archive"></i><span>归档</span></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2025/11/"><span class="card-archive-list-date">十一月 2025</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">19</span><span>篇</span></div></a></li></ul></div><hr/></div></div></div><div class="button-group"><div class="console-btn-item"><a class="darkmode_switchbutton" title="显示模式切换" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-moon"></i></a></div><div class="console-btn-item" id="consoleHideAside" onclick="anzhiyu.hideAsideBtn()" title="边栏显示控制"><a class="asideSwitch"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></a></div></div><div class="console-mask" onclick="anzhiyu.hideConsole()" href="javascript:void(0);"></div></div><div class="nav-button" id="nav-totop"><a class="totopbtn" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i><span id="percent" onclick="anzhiyu.scrollToDest(0,500)">0</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);" title="切换"><i class="anzhiyufont anzhiyu-icon-bars"></i></a></div></div></div></nav><div id="post-info"><div id="post-firstinfo"><div class="meta-firstline"><a class="post-meta-original">原创</a><span class="post-meta-categories"><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-inbox post-meta-icon"></i><a class="post-meta-categories" href="/categories/database/" itemprop="url">数据库</a></span><span class="article-meta tags"><a class="article-meta__tags" href="/tags/Java/" tabindex="-1" itemprop="url"> <span> <i class="anzhiyufont anzhiyu-icon-hashtag"></i>Java</span></a><a class="article-meta__tags" href="/tags/Hibernate/" tabindex="-1" itemprop="url"> <span> <i class="anzhiyufont anzhiyu-icon-hashtag"></i>Hibernate</span></a><a class="article-meta__tags" href="/tags/ORM/" tabindex="-1" itemprop="url"> <span> <i class="anzhiyufont anzhiyu-icon-hashtag"></i>ORM</span></a><a class="article-meta__tags" href="/tags/JPA/" tabindex="-1" itemprop="url"> <span> <i class="anzhiyufont anzhiyu-icon-hashtag"></i>JPA</span></a></span></div></div><h1 class="post-title" itemprop="name headline">Hibernate ORM 框架详解</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="anzhiyufont anzhiyu-icon-calendar-days post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" itemprop="dateCreated datePublished" datetime="2025-11-28T14:00:00.000Z" title="发表于 2025-11-28 14:00:00">2025-11-28</time><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-history post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" itemprop="dateCreated datePublished" datetime="2025-11-30T14:02:36.516Z" title="更新于 2025-11-30 14:02:36">2025-11-30</time></span></div><div class="meta-secondline"></div></div></div><section class="main-hero-waves-area waves-area"><svg class="waves-svg" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto"><defs><path id="gentle-wave" d="M -160 44 c 30 0 58 -18 88 -18 s 58 18 88 18 s 58 -18 88 -18 s 58 18 88 18 v 44 h -352 Z"></path></defs><g class="parallax"><use href="#gentle-wave" x="48" y="0"></use><use href="#gentle-wave" x="48" y="3"></use><use href="#gentle-wave" x="48" y="5"></use><use href="#gentle-wave" x="48" y="7"></use></g></svg></section><div id="post-top-cover"><img class="nolazyload" id="post-top-bg" src=""></div></header><main id="blog-container"><div class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container" itemscope itemtype="https://supremes.github.io/posts/22172.html"><header><a class="post-meta-categories" href="/categories/database/" itemprop="url">数据库</a><a href="/tags/Java/" tabindex="-1" itemprop="url">Java</a><a href="/tags/Hibernate/" tabindex="-1" itemprop="url">Hibernate</a><a href="/tags/ORM/" tabindex="-1" itemprop="url">ORM</a><a href="/tags/JPA/" tabindex="-1" itemprop="url">JPA</a><h1 id="CrawlerTitle" itemprop="name headline">Hibernate ORM 框架详解</h1><span itemprop="author" itemscope itemtype="http://schema.org/Person">Supremes</span><time itemprop="dateCreated datePublished" datetime="2025-11-28T14:00:00.000Z" title="发表于 2025-11-28 14:00:00">2025-11-28</time><time itemprop="dateCreated datePublished" datetime="2025-11-30T14:02:36.516Z" title="更新于 2025-11-30 14:02:36">2025-11-30</time></header><h1 id="Hibernate"><a href="#Hibernate" class="headerlink" title="Hibernate"></a>Hibernate</h1><p>Hibernate 是一个用于 Java 环境的开源对象关系映射（ORM）框架，XML 映射文件是 Hibernate 配置实体类和数据库表之间映射关系的重要方式。以下是 Hibernate XML 映射文件中常见标签的介绍：</p>
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 8.1.1"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/imgs/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">19</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">50</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">11</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/database/"><i class="fa-fw fas fa-database"></i><span> 数据库</span></a></li><li><a class="site-page child" href="/categories/message-queue/"><i class="fa-fw fas fa-envelope"></i><span> 消息队列</span></a></li><li><a class="site-page child" href="/categories/Spring/"><i class="fa-fw fas fa-leaf"></i><span> Spring</span></a></li><li><a class="site-page child" href="/categories/security/"><i class="fa-fw fas fa-shield-alt"></i><span> 网络安全</span></a></li><li><a class="site-page child" href="/categories/AI/"><i class="fa-fw fas fa-robot"></i><span> AI</span></a></li><li><a class="site-page child" href="/categories/mobile/"><i class="fa-fw fas fa-mobile-alt"></i><span> 移动开发</span></a></li><li><a class="site-page child" href="/categories/tools/"><i class="fa-fw fas fa-tools"></i><span> 工具效率</span></a></li><li><a class="site-page child" href="/categories/diary/"><i class="fa-fw fas fa-book"></i><span> 日记</span></a></li><li><a class="site-page child" href="/categories/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 关于</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/about/about_me"><i class="fa-fw fas fa-user"></i><span> 关于我</span></a></li><li><a class="site-page child" href="/about/my_notes"><i class="fa-fw fas fa-note-sticky"></i><span> 备忘录</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Supremes</span></a><a class="nav-page-title" href="/"><span class="site-name">Hibernate ORM 框架详解</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/database/"><i class="fa-fw fas fa-database"></i><span> 数据库</span></a></li><li><a class="site-page child" href="/categories/message-queue/"><i class="fa-fw fas fa-envelope"></i><span> 消息队列</span></a></li><li><a class="site-page child" href="/categories/Spring/"><i class="fa-fw fas fa-leaf"></i><span> Spring</span></a></li><li><a class="site-page child" href="/categories/security/"><i class="fa-fw fas fa-shield-alt"></i><span> 网络安全</span></a></li><li><a class="site-page child" href="/categories/AI/"><i class="fa-fw fas fa-robot"></i><span> AI</span></a></li><li><a class="site-page child" href="/categories/mobile/"><i class="fa-fw fas fa-mobile-alt"></i><span> 移动开发</span></a></li><li><a class="site-page child" href="/categories/tools/"><i class="fa-fw fas fa-tools"></i><span> 工具效率</span></a></li><li><a class="site-page child" href="/categories/diary/"><i class="fa-fw fas fa-book"></i><span> 日记</span></a></li><li><a class="site-page child" href="/categories/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 关于</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/about/about_me"><i class="fa-fw fas fa-user"></i><span> 关于我</span></a></li><li><a class="site-page child" href="/about/my_notes"><i class="fa-fw fas fa-note-sticky"></i><span> 备忘录</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">Hibernate ORM 框架详解</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-11-28T14:00:00.000Z" title="发表于 2025-11-28 14:00:00">2025-11-28</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-11-30T14:05:14.372Z" title="更新于 2025-11-30 14:05:14">2025-11-30</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/database/">数据库</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="Hibernate"><a href="#Hibernate" class="headerlink" title="Hibernate"></a>Hibernate</h1><p>Hibernate 是一个用于 Java 环境的开源对象关系映射（ORM）框架，XML 映射文件是 Hibernate 配置实体类和数据库表之间映射关系的重要方式。以下是 Hibernate XML 映射文件中常见标签的介绍：</p>
 <h2 id="环境配置"><a href="#环境配置" class="headerlink" title="环境配置"></a>环境配置</h2><p>在 Spring 框架中使用 Hibernate 作为 ORM 框架时，需要导入以下相关库（依赖项）。以下是基于 Maven 或 Gradle 的依赖配置，具体依赖取决于你使用的 Spring 版本、Hibernate 版本以及是否使用 JPA。</p>
 <h3 id="1-核心依赖"><a href="#1-核心依赖" class="headerlink" title="1. 核心依赖"></a>1. <strong>核心依赖</strong></h3><h4 id="Hibernate-Core"><a href="#Hibernate-Core" class="headerlink" title="Hibernate Core"></a>Hibernate Core</h4><p>Hibernate 的核心库，提供基本的 ORM 功能。</p>
 <ul>
@@ -863,205 +855,57 @@
 <li><strong>实践重点</strong>：搭建小项目，熟悉注解、查询和事务管理。</li>
 </ul>
 <p>如果你有具体问题（如配置示例、某个方法的用法、调试错误），请提供更多细节，我可以进一步指导！</p>
-</article><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/6104.html"><img class="prev-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/imgs/credential%E8%AF%81%E4%B9%A6.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">数字证书与 PKI 技术详解</div></div></a></div><div class="next-post pull-right"><a href="/posts/33708.html"><img class="next-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/imgs/RabbitMQ%E5%B0%81%E9%9D%A2.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">RabbitMQ</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="anzhiyufont anzhiyu-icon-thumbs-up fa-fw" style="font-size: 1.5rem; margin-right: 4px"></i><span>喜欢这篇文章的人也看了</span></div><div class="relatedPosts-list"><div><a href="/posts/60441.html" title="Spring AOP 事务失效与底层代理机制深度总结"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/imgs/AOP-PROXY.png" alt="cover"><div class="content is-center"><div class="date"><i class="anzhiyufont anzhiyu-icon-calendar-days fa-fw"></i> 2025-11-25</div><div class="title">Spring AOP 事务失效与底层代理机制深度总结</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-bars"></i><span>文章目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Hibernate"><span class="toc-text">Hibernate</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE"><span class="toc-text">环境配置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%A0%B8%E5%BF%83%E4%BE%9D%E8%B5%96"><span class="toc-text">1. 核心依赖</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Hibernate-Core"><span class="toc-text">Hibernate Core</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Spring-ORM"><span class="toc-text">Spring ORM</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%95%B0%E6%8D%AE%E5%BA%93%E9%A9%B1%E5%8A%A8"><span class="toc-text">2. 数据库驱动</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%8F%AF%E9%80%89%E4%BE%9D%E8%B5%96"><span class="toc-text">3. 可选依赖</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%9E%E6%8E%A5%E6%B1%A0%EF%BC%88%E6%8E%A8%E8%8D%90%EF%BC%89"><span class="toc-text">连接池（推荐）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A6%82%E6%9E%9C%E4%BD%BF%E7%94%A8-Spring-Boot"><span class="toc-text">如果使用 Spring Boot</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E7%89%88%E6%9C%AC%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">4. 版本注意事项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E5%85%B8%E5%9E%8B%E9%85%8D%E7%BD%AE%E7%A4%BA%E4%BE%8B%EF%BC%88%E9%9D%9E-Spring-Boot%EF%BC%89"><span class="toc-text">5. 典型配置示例（非 Spring Boot）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-Spring-Boot-%E9%85%8D%E7%BD%AE"><span class="toc-text">6. Spring Boot 配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#XML-%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-text">XML 配置文件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-text">&lt;hibernate-mapping&gt;</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#-1"><span class="toc-text">&lt;class&gt;</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#-2"><span class="toc-text">&lt;id&gt;</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#-3"><span class="toc-text">&lt;generator&gt;</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#-4"><span class="toc-text">&lt;property&gt;</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#-5"><span class="toc-text">&lt;many-to-one&gt;</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#-6"><span class="toc-text">&lt;one-to-many&gt;</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#-7"><span class="toc-text">&lt;set&gt;</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#-8"><span class="toc-text">&lt;Bag&gt;</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95"><span class="toc-text">基本用法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E5%B1%9E%E6%80%A7"><span class="toc-text">常用属性</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#-9"><span class="toc-text">&lt;discriminator&gt;</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-text">基本使用场景</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E8%AF%AD%E6%B3%95"><span class="toc-text">基本语法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E5%B1%9E%E6%80%A7-1"><span class="toc-text">常用属性</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="toc-text">工作原理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BC%98%E5%8A%BF"><span class="toc-text">优势</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">注意事项</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#-10"><span class="toc-text">&lt;key&gt;</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%A8%E8%A7%A3"><span class="toc-text">注解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Session-%E5%92%8C-SessionFactory"><span class="toc-text">Session 和 SessionFactory</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-Session"><span class="toc-text">1. Session</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%9A%E4%B9%89"><span class="toc-text">定义</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%89%B9%E7%82%B9"><span class="toc-text">特点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BB%E8%A6%81%E5%8A%9F%E8%83%BD"><span class="toc-text">主要功能</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E6%96%B9%E6%B3%95"><span class="toc-text">常用方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="toc-text">生命周期</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-SessionFactory"><span class="toc-text">2. SessionFactory</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%9A%E4%B9%89-1"><span class="toc-text">定义</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%89%B9%E7%82%B9-1"><span class="toc-text">特点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BB%E8%A6%81%E5%8A%9F%E8%83%BD-1"><span class="toc-text">主要功能</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E6%96%B9%E6%B3%95-1"><span class="toc-text">常用方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F-1"><span class="toc-text">生命周期</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-Hibernate-%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6"><span class="toc-text">3. Hibernate 缓存机制</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%80%E7%BA%A7%E7%BC%93%E5%AD%98%EF%BC%88First-Level-Cache%EF%BC%89"><span class="toc-text">一级缓存（First-Level Cache）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%E7%BA%A7%E7%BC%93%E5%AD%98%EF%BC%88Second-Level-Cache%EF%BC%89"><span class="toc-text">二级缓存（Second-Level Cache）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E7%BC%93%E5%AD%98%EF%BC%88Query-Cache%EF%BC%89"><span class="toc-text">查询缓存（Query Cache）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-Session%E3%80%81SessionFactory-%E5%92%8C%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6%E7%9A%84%E7%9B%B8%E5%85%B3%E6%80%A7"><span class="toc-text">4. Session、SessionFactory 和缓存机制的相关性</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Session-%E5%92%8C-SessionFactory-1"><span class="toc-text">Session 和 SessionFactory</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Session-%E5%92%8C%E4%B8%80%E7%BA%A7%E7%BC%93%E5%AD%98"><span class="toc-text">Session 和一级缓存</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SessionFactory-%E5%92%8C%E4%BA%8C%E7%BA%A7%E7%BC%93%E5%AD%98"><span class="toc-text">SessionFactory 和二级缓存</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Session%E3%80%81SessionFactory-%E5%92%8C%E6%9F%A5%E8%AF%A2%E7%BC%93%E5%AD%98"><span class="toc-text">Session、SessionFactory 和查询缓存</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%95%B4%E4%BD%93%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="toc-text">整体工作流程</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E5%AE%9E%E8%B7%B5%E4%B8%AD%E7%9A%84%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">5. 实践中的注意事项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81%EF%BC%9A%E5%B1%95%E7%A4%BA-Session%E3%80%81SessionFactory-%E5%92%8C%E7%BC%93%E5%AD%98"><span class="toc-text">6. 示例代码：展示 Session、SessionFactory 和缓存</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-%E6%80%BB%E7%BB%93"><span class="toc-text">7. 总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9B%E4%B8%80%E6%AD%A5%E5%AD%A6%E4%B9%A0%E5%BB%BA%E8%AE%AE"><span class="toc-text">进一步学习建议</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AD%A6%E4%B9%A0%E8%B7%AF%E5%BE%84%EF%BC%9A%E5%A6%82%E4%BD%95%E5%85%A5%E6%89%8B-Hibernate"><span class="toc-text">学习路径：如何入手 Hibernate</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E7%B1%BB%E3%80%81%E6%8E%A5%E5%8F%A3%E5%92%8C%E6%96%B9%E6%B3%95"><span class="toc-text">常用类、接口和方法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-Hibernate-%E6%A0%B8%E5%BF%83%EF%BC%88Session-%E6%A8%A1%E5%BC%8F%EF%BC%89"><span class="toc-text">1. Hibernate 核心（Session 模式）</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E7%B1%BB%E5%92%8C%E6%8E%A5%E5%8F%A3"><span class="toc-text">常用类和接口</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E6%96%B9%E6%B3%95-2"><span class="toc-text">常用方法</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81"><span class="toc-text">示例代码</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-JPA-%E6%A8%A1%E5%BC%8F%EF%BC%88EntityManager-%E6%A8%A1%E5%BC%8F%EF%BC%89"><span class="toc-text">2. JPA 模式（EntityManager 模式）</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E7%B1%BB%E5%92%8C%E6%8E%A5%E5%8F%A3-1"><span class="toc-text">常用类和接口</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E6%96%B9%E6%B3%95-3"><span class="toc-text">常用方法</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Spring-Boot-%E7%A4%BA%E4%BE%8B%EF%BC%88JPA%EF%BC%89"><span class="toc-text">Spring Boot 示例（JPA）</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E5%B8%B8%E7%94%A8%E6%B3%A8%E8%A7%A3"><span class="toc-text">3. 常用注解</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E8%B7%B5%E5%BB%BA%E8%AE%AE%EF%BC%9A%E6%8E%8C%E6%8F%A1-Hibernate-%E7%9A%84%E6%AD%A5%E9%AA%A4"><span class="toc-text">实践建议：掌握 Hibernate 的步骤</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8E%A8%E8%8D%90%E7%BB%83%E4%B9%A0%E9%A1%B9%E7%9B%AE"><span class="toc-text">推荐练习项目</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9-1"><span class="toc-text">注意事项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-1"><span class="toc-text">总结</span></a></li></ol></li></ol></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"></div><div id="footer-bar"><div class="footer-bar-links"><div class="footer-bar-left"><div id="footer-bar-tips"><div class="copyright">&copy;2025 By <a class="footer-bar-link" href="/" title="Supremes" target="_blank">Supremes</a></div></div><div id="footer-type-tips"></div><div class="js-pjax"><script>function subtitleType () {
-  fetch('https://v1.hitokoto.cn')
-    .then(response => response.json())
-    .then(data => {
-      if (true) {
-        const from = '出自 ' + data.from
-        const sub = []
-        sub.unshift(data.hitokoto, from)
-        window.typed = new Typed('#footer-type-tips', {
-          strings: sub,
-          startDelay: 300,
-          typeSpeed: 150,
-          loop: true,
-          backSpeed: 50,
-        })
-      } else {
-        document.getElementById('footer-type-tips').innerHTML = data.hitokoto
-      }
-    })
-}
-
-if (true) {
-  if (typeof Typed === 'function') {
-    subtitleType()
-  } else {
-    getScript('https://cdn.cbd.int/typed.js@2.1.0/dist/typed.umd.js').then(subtitleType)
-  }
-} else {
-  subtitleType()
-}
-</script></div></div><div class="footer-bar-right"><a class="footer-bar-link" target="_blank" rel="noopener" href="https://github.com/anzhiyu-c/hexo-theme-anzhiyu" title="主题">主题</a></div></div></div></footer></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="sidebar-site-data site-data is-center"><a href="/archives/" title="archive"><div class="headline">文章</div><div class="length-num">19</div></a><a href="/tags/" title="tag"><div class="headline">标签</div><div class="length-num">50</div></a><a href="/categories/" title="category"><div class="headline">分类</div><div class="length-num">11</div></a></div><span class="sidebar-menu-item-title">功能</span><div class="sidebar-menu-item"><a class="darkmode_switchbutton menu-child" href="javascript:void(0);" title="显示模式"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span>显示模式</span></a></div><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://hexo.anheyu.com/" title="博客"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/img/favicon.ico" alt="博客"/><span class="back-menu-item-text">博客</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">项目</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://image.anheyu.com/" title="安知鱼图床"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://image.anheyu.com/favicon.ico" alt="安知鱼图床"/><span class="back-menu-item-text">安知鱼图床</span></a></div></div></div><div class="menus_items"><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/"><i class="fas fa-home faa-tada"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/archives/"><i class="fas fa-archive faa-tada"></i><span> 时间线</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fas fa-folder-open faa-tada"></i><span> 分类</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/categories/database/"><i class="fas fa-database faa-tada"></i><span> 数据库</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/message-queue/"><i class="fas fa-envelope faa-tada"></i><span> 消息队列</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/Spring/"><i class="fas fa-leaf faa-tada"></i><span> Spring</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/security/"><i class="fas fa-shield-alt faa-tada"></i><span> 网络安全</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/AI/"><i class="fas fa-robot faa-tada"></i><span> AI</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/mobile/"><i class="fas fa-mobile-alt faa-tada"></i><span> 移动开发</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/tools/"><i class="fas fa-tools faa-tada"></i><span> 工具效率</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/diary/"><i class="fas fa-book faa-tada"></i><span> 日记</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fas fa-list faa-tada"></i><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/about_me"><i class="fas fa-user faa-tada"></i><span> 关于我</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/about/my_notes"><i class="fas fa-note-sticky faa-tada"></i><span> 备忘录</span></a></li></ul></div></div><span class="sidebar-menu-item-title">标签</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/ACME/" style="font-size: 0.88rem;">ACME<sup>1</sup></a><a href="/tags/AI/" style="font-size: 0.88rem;">AI<sup>1</sup></a><a href="/tags/AI-Agent/" style="font-size: 0.88rem;">AI-Agent<sup>1</sup></a><a href="/tags/AOP/" style="font-size: 0.88rem;">AOP<sup>1</sup></a><a href="/tags/APNS/" style="font-size: 0.88rem;">APNS<sup>1</sup></a><a href="/tags/CA/" style="font-size: 0.88rem;">CA<sup>1</sup></a><a href="/tags/Category/" style="font-size: 0.88rem;">Category<sup>1</sup></a><a href="/tags/Chromium/" style="font-size: 0.88rem;">Chromium<sup>1</sup></a><a href="/tags/Claude/" style="font-size: 0.88rem;">Claude<sup>1</sup></a><a href="/tags/Embedding/" style="font-size: 0.88rem;">Embedding<sup>1</sup></a><a href="/tags/Function-Calling/" style="font-size: 0.88rem;">Function-Calling<sup>1</sup></a><a href="/tags/Hibernate/" style="font-size: 0.88rem;">Hibernate<sup>1</sup></a><a href="/tags/JPA/" style="font-size: 0.88rem;">JPA<sup>1</sup></a><a href="/tags/Java/" style="font-size: 0.88rem;">Java<sup>2</sup></a><a href="/tags/Kafka/" style="font-size: 0.88rem;">Kafka<sup>1</sup></a><a href="/tags/LLM/" style="font-size: 0.88rem;">LLM<sup>1</sup></a><a href="/tags/MCP/" style="font-size: 0.88rem;">MCP<sup>1</sup></a><a href="/tags/Model-Context-Protocol/" style="font-size: 0.88rem;">Model Context Protocol<sup>1</sup></a><a href="/tags/MySQL/" style="font-size: 0.88rem;">MySQL<sup>1</sup></a><a href="/tags/ORM/" style="font-size: 0.88rem;">ORM<sup>1</sup></a><a href="/tags/Objective-C/" style="font-size: 0.88rem;">Objective-C<sup>1</sup></a><a href="/tags/Obsidian/" style="font-size: 0.88rem;">Obsidian<sup>1</sup></a><a href="/tags/PKCS/" style="font-size: 0.88rem;">PKCS<sup>1</sup></a><a href="/tags/PKI/" style="font-size: 0.88rem;">PKI<sup>1</sup></a><a href="/tags/Protocol/" style="font-size: 0.88rem;">Protocol<sup>1</sup></a><a href="/tags/RAG/" style="font-size: 0.88rem;">RAG<sup>1</sup></a><a href="/tags/RabbitMQ/" style="font-size: 0.88rem;">RabbitMQ<sup>1</sup></a><a href="/tags/ReAct/" style="font-size: 0.88rem;">ReAct<sup>1</sup></a><a href="/tags/Redis/" style="font-size: 0.88rem;">Redis<sup>1</sup></a><a href="/tags/SCEP/" style="font-size: 0.88rem;">SCEP<sup>1</sup></a><a href="/tags/Spring/" style="font-size: 0.88rem;">Spring<sup>1</sup></a><a href="/tags/golang/" style="font-size: 0.88rem;">golang<sup>1</sup></a><a href="/tags/iOS/" style="font-size: 0.88rem;">iOS<sup>1</sup></a><a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/" style="font-size: 0.88rem;">分布式系统<sup>2</sup></a><a href="/tags/%E5%8A%A0%E5%AF%86/" style="font-size: 0.88rem;">加密<sup>1</sup></a><a href="/tags/%E5%8D%8F%E8%AE%AE%E6%A0%87%E5%87%86/" style="font-size: 0.88rem;">协议标准<sup>1</sup></a><a href="/tags/%E5%90%91%E9%87%8F%E6%95%B0%E6%8D%AE%E5%BA%93/" style="font-size: 0.88rem;">向量数据库<sup>1</sup></a><a href="/tags/%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97/" style="font-size: 0.88rem;">开发指南<sup>1</sup></a><a href="/tags/%E6%95%B0%E5%AD%97%E8%AF%81%E4%B9%A6/" style="font-size: 0.88rem;">数字证书<sup>1</sup></a><a href="/tags/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/" style="font-size: 0.88rem;">面向对象<sup>1</sup></a></div></div><hr/></div></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="anzhiyufont anzhiyu-icon-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="anzhiyufont anzhiyu-icon-gear"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="anzhiyufont anzhiyu-icon-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="anzhiyufont anzhiyu-icon-xmark"></i></button></nav><div class="is-center" id="loading-database"><i class="anzhiyufont anzhiyu-icon-spinner anzhiyu-pulse-icon"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div id="rightMenu"><div class="rightMenu-group rightMenu-small"><div class="rightMenu-item" id="menu-backward"><i class="anzhiyufont anzhiyu-icon-arrow-left"></i></div><div class="rightMenu-item" id="menu-forward"><i class="anzhiyufont anzhiyu-icon-arrow-right"></i></div><div class="rightMenu-item" id="menu-refresh"><i class="anzhiyufont anzhiyu-icon-arrow-rotate-right" style="font-size: 1rem;"></i></div><div class="rightMenu-item" id="menu-top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></div></div><div class="rightMenu-group rightMenu-line rightMenuPlugin"><div class="rightMenu-item" id="menu-copytext"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制选中文本</span></div><div class="rightMenu-item" id="menu-pastetext"><i class="anzhiyufont anzhiyu-icon-paste"></i><span>粘贴文本</span></div><a class="rightMenu-item" id="menu-commenttext"><i class="anzhiyufont anzhiyu-icon-comment-medical"></i><span>引用到评论</span></a><div class="rightMenu-item" id="menu-newwindow"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开</span></div><div class="rightMenu-item" id="menu-copylink"><i class="anzhiyufont anzhiyu-icon-link"></i><span>复制链接地址</span></div><div class="rightMenu-item" id="menu-copyimg"><i class="anzhiyufont anzhiyu-icon-images"></i><span>复制此图片</span></div><div class="rightMenu-item" id="menu-downloadimg"><i class="anzhiyufont anzhiyu-icon-download"></i><span>下载此图片</span></div><div class="rightMenu-item" id="menu-newwindowimg"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开图片</span></div><div class="rightMenu-item" id="menu-search"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>站内搜索</span></div><div class="rightMenu-item" id="menu-searchBaidu"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>百度搜索</span></div><div class="rightMenu-item" id="menu-music-toggle"><i class="anzhiyufont anzhiyu-icon-play"></i><span>播放音乐</span></div><div class="rightMenu-item" id="menu-music-back"><i class="anzhiyufont anzhiyu-icon-backward"></i><span>切换到上一首</span></div><div class="rightMenu-item" id="menu-music-forward"><i class="anzhiyufont anzhiyu-icon-forward"></i><span>切换到下一首</span></div><div class="rightMenu-item" id="menu-music-playlist" onclick="window.open(&quot;https://y.qq.com/n/ryqq/playlist/8802438608&quot;, &quot;_blank&quot;);" style="display: none;"><i class="anzhiyufont anzhiyu-icon-radio"></i><span>查看所有歌曲</span></div><div class="rightMenu-item" id="menu-music-copyMusicName"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制歌名</span></div></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item menu-link" id="menu-randomPost"><i class="anzhiyufont anzhiyu-icon-shuffle"></i><span>随便逛逛</span></a><a class="rightMenu-item menu-link" href="/categories/"><i class="anzhiyufont anzhiyu-icon-cube"></i><span>博客分类</span></a><a class="rightMenu-item menu-link" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags"></i><span>文章标签</span></a></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item" id="menu-copy" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制地址</span></a><a class="rightMenu-item" id="menu-commentBarrage" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-message"></i><span class="menu-commentBarrage-text">关闭热评</span></a><a class="rightMenu-item" id="menu-darkmode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span class="menu-darkmode-text">深色模式</span></a><a class="rightMenu-item" id="menu-translate" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-language"></i><span>轉為繁體</span></a></div></div><div id="rightmenu-mask"></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.cbd.int/@fancyapps/ui@5.0.28/dist/fancybox/fancybox.umd.js"></script><script src="https://cdn.cbd.int/instant.page@5.2.0/instantpage.js" type="module"></script><script src="https://cdn.cbd.int/vanilla-lazyload@17.8.5/dist/lazyload.iife.min.js"></script><script src="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.js"></script><canvas id="universe"></canvas><script async src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/dark/dark.js"></script><script>// 消除控制台打印
-var HoldLog = console.log;
-console.log = function () {};
-let now1 = new Date();
-queueMicrotask(() => {
-  const Log = function () {
-    HoldLog.apply(console, arguments);
-  }; //在恢复前输出日志
-  const grt = new Date(""); //此处修改你的建站时间或者网站上线时间
-  now1.setTime(now1.getTime() + 250);
-  const days = (now1 - grt) / 1000 / 60 / 60 / 24;
-  const dnum = Math.floor(days);
-  const ascll = [
-    `欢迎使用安知鱼!`,
-    `生活明朗, 万物可爱`,
-    `
-        
-       █████╗ ███╗   ██╗███████╗██╗  ██╗██╗██╗   ██╗██╗   ██╗
-      ██╔══██╗████╗  ██║╚══███╔╝██║  ██║██║╚██╗ ██╔╝██║   ██║
-      ███████║██╔██╗ ██║  ███╔╝ ███████║██║ ╚████╔╝ ██║   ██║
-      ██╔══██║██║╚██╗██║ ███╔╝  ██╔══██║██║  ╚██╔╝  ██║   ██║
-      ██║  ██║██║ ╚████║███████╗██║  ██║██║   ██║   ╚██████╔╝
-      ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝╚═╝   ╚═╝    ╚═════╝
-        
-        `,
-    "已上线",
-    dnum,
-    "天",
-    "©2025 By 安知鱼 V1.6.15",
-  ];
-  const ascll2 = [`NCC2-036`, `调用前置摄像头拍照成功，识别为【小笨蛋】.`, `Photo captured: `, `🤪`];
-
-  setTimeout(
-    Log.bind(
-      console,
-      `\n%c${ascll[0]} %c ${ascll[1]} %c ${ascll[2]} %c${ascll[3]}%c ${ascll[4]}%c ${ascll[5]}\n\n%c ${ascll[6]}\n`,
-      "color:#425AEF",
-      "",
-      "color:#425AEF",
-      "color:#425AEF",
-      "",
-      "color:#425AEF",
-      ""
-    )
-  );
-  setTimeout(
-    Log.bind(
-      console,
-      `%c ${ascll2[0]} %c ${ascll2[1]} %c \n${ascll2[2]} %c\n${ascll2[3]}\n`,
-      "color:white; background-color:#4fd953",
-      "",
-      "",
-      'background:url("https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/tinggge.gif") no-repeat;font-size:450%'
-    )
-  );
-
-  setTimeout(Log.bind(console, "%c WELCOME %c 你好，小笨蛋.", "color:white; background-color:#4f90d9", ""));
-
-  setTimeout(
-    console.warn.bind(
-      console,
-      "%c ⚡ Powered by 安知鱼 %c 你正在访问 Supremes 的博客.",
-      "color:white; background-color:#f0ad4e",
-      ""
-    )
-  );
-
-  setTimeout(Log.bind(console, "%c W23-12 %c 你已打开控制台.", "color:white; background-color:#4f90d9", ""));
-
-  setTimeout(
-    console.warn.bind(console, "%c S013-782 %c 你现在正处于监控中.", "color:white; background-color:#d9534f", "")
-  );
-});</script><script async src="/anzhiyu/random.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>(() => {
-  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
-  if ($mermaid.length === 0) return
-  const runMermaid = () => {
+</article><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Java/">Java</a><a class="post-meta__tags" href="/tags/Hibernate/">Hibernate</a><a class="post-meta__tags" href="/tags/ORM/">ORM</a><a class="post-meta__tags" href="/tags/JPA/">JPA</a></div><div class="post-share"><div class="social-share" data-image="/imgs/avatar.jpg" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/posts/6104.html" title="数字证书与 PKI 技术详解"><img class="cover" src="/imgs/credential%E8%AF%81%E4%B9%A6.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">数字证书与 PKI 技术详解</div></div><div class="info-2"><div class="info-item-1">数字证书与 PKI 技术详解概述数字证书是现代网络安全的基石，PKI (Public Key Infrastructure) 公钥基础设施则是管理这些证书的完整框架。本文将深入探讨 PKI 的核心概念、组件架构、证书格式标准以及自动化管理协议。 PKI (Public Key Infrastructure) 公钥基础设施定义与核心价值PKI 是一个综合性的安全框架，专门用于管理数字证书和公钥加密的完整生命周期。它通过建立可信的数字身份体系，为现代网络通信提供身份验证、数据完整性和机密性保障。 核心组件架构1. CA (Certificate Authority) - 证书颁发机构1234567核心职能: PKI 的信任根节点，负责数字证书的全生命周期管理主要职责:  - 严格验证申请者身份和资质  - 颁发符合标准的数字证书  - 实时维护证书状态信息  - 及时发布证书撤销列表 (CRL)  - 管理证书有效期和续期流程  2. RA (Registration Authority) - 注册机构123456定位: CA 的授权代理，专注于证书申请前端处理核心功能:  - 执行...</div></div></div></a><a class="pagination-related  no-desc" href="/posts/33708.html" title="RabbitMQ"><img class="cover" src="/imgs/RabbitMQ%E5%B0%81%E9%9D%A2.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">RabbitMQ</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/posts/60441.html" title="Spring AOP 事务失效与底层代理机制深度总结"><img class="cover" src="/imgs/AOP-PROXY.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-11-25</div><div class="info-item-2">Spring AOP 事务失效与底层代理机制深度总结</div></div><div class="info-2"><div class="info-item-1">Spring AOP 事务失效与底层代理机制深度总结1. 核心问题：为什么自调用导致事务失效？现象在同一个类中，方法 A 调用方法 B（this.methodB()），即使方法 B 上加了 @Transactional 注解，事务依然不生效。 根本原因Spring AOP 的默认实现基于 代理模式 (Proxy Pattern)。Spring 容器中注入的 Bean 实际上是一个 代理对象 (Proxy)，它持有你编写的 目标对象 (Target)。  生效路径：外部调用 $\rightarrow$ Proxy $\rightarrow$ 事务拦截器 (Interceptor) $\rightarrow$ Target。 失效路径：Target 内部调用 $\rightarrow$ this.methodB() $\rightarrow$ Target。  此时，this 指针指向的是目标对象本身。代码执行流直接在目标对象内部流转，完全绕过了外层的代理对象及其持有的事务拦截器。 形象比喻 Proxy (代理)：大楼门口的安检员。 Target (目标)：大楼里的员工。 外部访问：...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/imgs/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Supremes</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">19</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">50</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">11</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/Supremes"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Hibernate"><span class="toc-text">Hibernate</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE"><span class="toc-text">环境配置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%A0%B8%E5%BF%83%E4%BE%9D%E8%B5%96"><span class="toc-text">1. 核心依赖</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Hibernate-Core"><span class="toc-text">Hibernate Core</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Spring-ORM"><span class="toc-text">Spring ORM</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%95%B0%E6%8D%AE%E5%BA%93%E9%A9%B1%E5%8A%A8"><span class="toc-text">2. 数据库驱动</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%8F%AF%E9%80%89%E4%BE%9D%E8%B5%96"><span class="toc-text">3. 可选依赖</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%9E%E6%8E%A5%E6%B1%A0%EF%BC%88%E6%8E%A8%E8%8D%90%EF%BC%89"><span class="toc-text">连接池（推荐）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A6%82%E6%9E%9C%E4%BD%BF%E7%94%A8-Spring-Boot"><span class="toc-text">如果使用 Spring Boot</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E7%89%88%E6%9C%AC%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">4. 版本注意事项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E5%85%B8%E5%9E%8B%E9%85%8D%E7%BD%AE%E7%A4%BA%E4%BE%8B%EF%BC%88%E9%9D%9E-Spring-Boot%EF%BC%89"><span class="toc-text">5. 典型配置示例（非 Spring Boot）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-Spring-Boot-%E9%85%8D%E7%BD%AE"><span class="toc-text">6. Spring Boot 配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#XML-%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-text">XML 配置文件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-text">&lt;hibernate-mapping&gt;</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#-1"><span class="toc-text">&lt;class&gt;</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#-2"><span class="toc-text">&lt;id&gt;</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#-3"><span class="toc-text">&lt;generator&gt;</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#-4"><span class="toc-text">&lt;property&gt;</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#-5"><span class="toc-text">&lt;many-to-one&gt;</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#-6"><span class="toc-text">&lt;one-to-many&gt;</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#-7"><span class="toc-text">&lt;set&gt;</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#-8"><span class="toc-text">&lt;Bag&gt;</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95"><span class="toc-text">基本用法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E5%B1%9E%E6%80%A7"><span class="toc-text">常用属性</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#-9"><span class="toc-text">&lt;discriminator&gt;</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-text">基本使用场景</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E8%AF%AD%E6%B3%95"><span class="toc-text">基本语法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E5%B1%9E%E6%80%A7-1"><span class="toc-text">常用属性</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="toc-text">工作原理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BC%98%E5%8A%BF"><span class="toc-text">优势</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">注意事项</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#-10"><span class="toc-text">&lt;key&gt;</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%A8%E8%A7%A3"><span class="toc-text">注解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Session-%E5%92%8C-SessionFactory"><span class="toc-text">Session 和 SessionFactory</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-Session"><span class="toc-text">1. Session</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%9A%E4%B9%89"><span class="toc-text">定义</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%89%B9%E7%82%B9"><span class="toc-text">特点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BB%E8%A6%81%E5%8A%9F%E8%83%BD"><span class="toc-text">主要功能</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E6%96%B9%E6%B3%95"><span class="toc-text">常用方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="toc-text">生命周期</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-SessionFactory"><span class="toc-text">2. SessionFactory</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%9A%E4%B9%89-1"><span class="toc-text">定义</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%89%B9%E7%82%B9-1"><span class="toc-text">特点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BB%E8%A6%81%E5%8A%9F%E8%83%BD-1"><span class="toc-text">主要功能</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E6%96%B9%E6%B3%95-1"><span class="toc-text">常用方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F-1"><span class="toc-text">生命周期</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-Hibernate-%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6"><span class="toc-text">3. Hibernate 缓存机制</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%80%E7%BA%A7%E7%BC%93%E5%AD%98%EF%BC%88First-Level-Cache%EF%BC%89"><span class="toc-text">一级缓存（First-Level Cache）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%E7%BA%A7%E7%BC%93%E5%AD%98%EF%BC%88Second-Level-Cache%EF%BC%89"><span class="toc-text">二级缓存（Second-Level Cache）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E7%BC%93%E5%AD%98%EF%BC%88Query-Cache%EF%BC%89"><span class="toc-text">查询缓存（Query Cache）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-Session%E3%80%81SessionFactory-%E5%92%8C%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6%E7%9A%84%E7%9B%B8%E5%85%B3%E6%80%A7"><span class="toc-text">4. Session、SessionFactory 和缓存机制的相关性</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Session-%E5%92%8C-SessionFactory-1"><span class="toc-text">Session 和 SessionFactory</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Session-%E5%92%8C%E4%B8%80%E7%BA%A7%E7%BC%93%E5%AD%98"><span class="toc-text">Session 和一级缓存</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SessionFactory-%E5%92%8C%E4%BA%8C%E7%BA%A7%E7%BC%93%E5%AD%98"><span class="toc-text">SessionFactory 和二级缓存</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Session%E3%80%81SessionFactory-%E5%92%8C%E6%9F%A5%E8%AF%A2%E7%BC%93%E5%AD%98"><span class="toc-text">Session、SessionFactory 和查询缓存</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%95%B4%E4%BD%93%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="toc-text">整体工作流程</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E5%AE%9E%E8%B7%B5%E4%B8%AD%E7%9A%84%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">5. 实践中的注意事项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81%EF%BC%9A%E5%B1%95%E7%A4%BA-Session%E3%80%81SessionFactory-%E5%92%8C%E7%BC%93%E5%AD%98"><span class="toc-text">6. 示例代码：展示 Session、SessionFactory 和缓存</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-%E6%80%BB%E7%BB%93"><span class="toc-text">7. 总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9B%E4%B8%80%E6%AD%A5%E5%AD%A6%E4%B9%A0%E5%BB%BA%E8%AE%AE"><span class="toc-text">进一步学习建议</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AD%A6%E4%B9%A0%E8%B7%AF%E5%BE%84%EF%BC%9A%E5%A6%82%E4%BD%95%E5%85%A5%E6%89%8B-Hibernate"><span class="toc-text">学习路径：如何入手 Hibernate</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E7%B1%BB%E3%80%81%E6%8E%A5%E5%8F%A3%E5%92%8C%E6%96%B9%E6%B3%95"><span class="toc-text">常用类、接口和方法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-Hibernate-%E6%A0%B8%E5%BF%83%EF%BC%88Session-%E6%A8%A1%E5%BC%8F%EF%BC%89"><span class="toc-text">1. Hibernate 核心（Session 模式）</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E7%B1%BB%E5%92%8C%E6%8E%A5%E5%8F%A3"><span class="toc-text">常用类和接口</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E6%96%B9%E6%B3%95-2"><span class="toc-text">常用方法</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81"><span class="toc-text">示例代码</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-JPA-%E6%A8%A1%E5%BC%8F%EF%BC%88EntityManager-%E6%A8%A1%E5%BC%8F%EF%BC%89"><span class="toc-text">2. JPA 模式（EntityManager 模式）</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E7%B1%BB%E5%92%8C%E6%8E%A5%E5%8F%A3-1"><span class="toc-text">常用类和接口</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E6%96%B9%E6%B3%95-3"><span class="toc-text">常用方法</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Spring-Boot-%E7%A4%BA%E4%BE%8B%EF%BC%88JPA%EF%BC%89"><span class="toc-text">Spring Boot 示例（JPA）</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E5%B8%B8%E7%94%A8%E6%B3%A8%E8%A7%A3"><span class="toc-text">3. 常用注解</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E8%B7%B5%E5%BB%BA%E8%AE%AE%EF%BC%9A%E6%8E%8C%E6%8F%A1-Hibernate-%E7%9A%84%E6%AD%A5%E9%AA%A4"><span class="toc-text">实践建议：掌握 Hibernate 的步骤</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8E%A8%E8%8D%90%E7%BB%83%E4%B9%A0%E9%A1%B9%E7%9B%AE"><span class="toc-text">推荐练习项目</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9-1"><span class="toc-text">注意事项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-1"><span class="toc-text">总结</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/65190.html" title="八股文">八股文</a><time datetime="2025-11-29T09:00:27.000Z" title="发表于 2025-11-29 09:00:27">2025-11-29</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/31482.html" title="Golang">Golang</a><time datetime="2025-11-29T08:59:30.000Z" title="发表于 2025-11-29 08:59:30">2025-11-29</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/18358.html" title="分布式锁">分布式锁</a><time datetime="2025-11-29T08:57:26.000Z" title="发表于 2025-11-29 08:57:26">2025-11-29</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/16018.html" title="Redis 学习笔记">Redis 学习笔记</a><time datetime="2025-11-29T08:56:10.000Z" title="发表于 2025-11-29 08:56:10">2025-11-29</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/4947.html" title="TODO">TODO</a><time datetime="2025-11-29T08:50:05.000Z" title="发表于 2025-11-29 08:50:05">2025-11-29</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 By Supremes</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.1</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.2</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.2"></script><script src="/js/main.js?v=5.5.2"></script><div class="js-pjax"><script>(() => {
+  const runMermaid = ele => {
     window.loadMermaid = true
     const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
 
-    Array.from($mermaid).forEach((item, index) => {
+    ele.forEach((item, index) => {
       const mermaidSrc = item.firstElementChild
-      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
-      const mermaidID = 'mermaid-' + index
+      const config = mermaidSrc.dataset.config ? JSON.parse(mermaidSrc.dataset.config) : {}
+      if (!config.theme) {
+        config.theme = theme
+      }
+      const mermaidThemeConfig = `%%{init: ${JSON.stringify(config)}}%%\n`
+      const mermaidID = `mermaid-${index}`
       const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
 
       const renderFn = mermaid.render(mermaidID, mermaidDefinition)
-
-      const renderV10 = () => {
-        renderFn.then(({svg}) => {
-          mermaidSrc.insertAdjacentHTML('afterend', svg)
-        })
-      }
-
-      const renderV9 = svg => {
+      const renderMermaid = svg => {
         mermaidSrc.insertAdjacentHTML('afterend', svg)
       }
 
-      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+      // mermaid v9 and v10 compatibility
+      typeof renderFn === 'string' ? renderMermaid(renderFn) : renderFn.then(({ svg }) => renderMermaid(svg))
+    })
+  }
+
+  const codeToMermaid = () => {
+    const codeMermaidEle = document.querySelectorAll('pre > code.mermaid')
+    if (codeMermaidEle.length === 0) return
+
+    codeMermaidEle.forEach(ele => {
+      const preEle = document.createElement('pre')
+      preEle.className = 'mermaid-src'
+      preEle.hidden = true
+      preEle.textContent = ele.textContent
+      const newEle = document.createElement('div')
+      newEle.className = 'mermaid-wrap'
+      newEle.appendChild(preEle)
+      ele.parentNode.replaceWith(newEle)
     })
   }
 
   const loadMermaid = () => {
-    window.loadMermaid ? runMermaid() : getScript('https://cdn.cbd.int/mermaid@10.2.4/dist/mermaid.min.js').then(runMermaid)
+    if (true) codeToMermaid()
+    const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+    if ($mermaid.length === 0) return
+
+    const runMermaidFn = () => runMermaid($mermaid)
+    btf.addGlobalFn('themeChange', runMermaidFn, 'mermaid')
+    window.loadMermaid ? runMermaidFn() : btf.getScript('https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.min.js').then(runMermaidFn)
   }
 
-  anzhiyu.addGlobalFn('themeChange', runMermaid, 'mermaid')
-
+  btf.addGlobalFn('encrypt', loadMermaid, 'mermaid')
   window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
-})()</script><input type="hidden" name="page-type" id="page-type" value="post"></div><script>var visitorMail = "";
-</script><script async data-pjax src="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/waterfall/waterfall.js"></script><script src="https://cdn.cbd.int/qrcodejs@1.0.0/qrcode.min.js"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.9/icon/ali_iconfont_css.css"><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/aplayer/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.cbd.int/anzhiyu-blog-static@1.0.1/js/APlayer.min.js"></script><script src="https://cdn.cbd.int/hexo-anzhiyu-music@1.0.1/assets/js/Meting2.min.js"></script><script src="https://cdn.cbd.int/pjax@0.2.8/pjax.min.js"></script><script>let pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
-var pjax = new Pjax({
-  elements: 'a:not([target="_blank"])',
-  selectors: pjaxSelectors,
-  cacheBust: false,
-  analytics: false,
-  scrollRestoration: false
-})
-
-document.addEventListener('pjax:send', function () {
-  // removeEventListener scroll 
-  anzhiyu.removeGlobalFnEvent('pjax')
-  anzhiyu.removeGlobalFnEvent('themeChange')
-
-  document.getElementById('rightside').classList.remove('rightside-show')
-  
-  if (window.aplayers) {
-    for (let i = 0; i < window.aplayers.length; i++) {
-      if (!window.aplayers[i].options.fixed) {
-        window.aplayers[i].destroy()
-      }
-    }
-  }
-
-  typeof typed === 'object' && typed.destroy()
-
-  //reset readmode
-  const $bodyClassList = document.body.classList
-  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
-})
-
-document.addEventListener('pjax:complete', function () {
-  window.refreshFn()
-
-  document.querySelectorAll('script[data-pjax]').forEach(item => {
-    const newScript = document.createElement('script')
-    const content = item.text || item.textContent || item.innerHTML || ""
-    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
-    newScript.appendChild(document.createTextNode(content))
-    item.parentNode.replaceChild(newScript, item)
-  })
-
-  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
-
-  typeof panguInit === 'function' && panguInit()
-
-  // google analytics
-  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
-
-  // baidu analytics
-  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
-
-  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
-
-  // prismjs
-  typeof Prism === 'object' && Prism.highlightAll()
-})
-
-document.addEventListener('pjax:error', e => {
-  if (e.request.status === 404) {
-    pjax.loadUrl('/404.html')
-  }
-})</script><script charset="UTF-8" src="https://cdn.cbd.int/anzhiyu-theme-static@1.1.5/accesskey/accesskey.js"></script></div><div id="popup-window"><div class="popup-window-title">通知</div><div class="popup-window-divider"></div><div class="popup-window-content"><div class="popup-tip">你好呀</div><div class="popup-link"><i class="anzhiyufont anzhiyu-icon-arrow-circle-right"></i></div></div></div></body></html>
+})()</script></div><script async data-pjax src="/"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章标题和内容..." type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.5.2"></script></div></div></body></html>
