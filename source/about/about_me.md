@@ -1,7 +1,6 @@
 ---
 title: 关于我
 date: 2025-11-27 22:15:32
-type: about
 comments: false
 ---
 

@@ -111,7 +111,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "about/my_notes.md",
+                "file": "_posts/数据库/Redis.md",
                 "mode": "source",
                 "source": false,
                 "backlinks": true,
@@ -126,7 +126,7 @@
                 }
               },
               "icon": "lucide-file",
-              "title": "my_notes"
+              "title": "Redis"
             }
           }
         ],
@@ -265,13 +265,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "about/my_notes.md",
+                "file": "_posts/数据库/Redis.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of my_notes"
+              "title": "Outline of Redis"
             }
           },
           {
@@ -289,8 +289,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -306,10 +305,17 @@
       "obsidian-shellcommands:Shell commands: Custom variables": true
     }
   },
-  "active": "40c49d5e2cb1fe50",
+  "active": "a98a7c7d7488a217",
   "lastOpenFiles": [
-    "about/about_me.md",
     "about/my_notes.md",
+    "images",
+    "_discarded/1764492521038/_drafts/123.md",
+    "_discarded/1764492521038/_drafts",
+    "_discarded/1764492521038",
+    "_discarded",
+    "_drafts/123.md",
+    "_drafts",
+    "about/about_me.md",
     "_posts/TODO.md",
     "_posts/数据库/MySQL.md",
     "_posts/网络安全/APNS.md",
@@ -333,9 +339,6 @@
     "favicon/favicon-96x96.png",
     "favicon/favicon.ico",
     "favicon/apple-touch-icon.png",
-    "favicon",
-    "imgs/favicon.zip",
-    "imgs/未确认 438460.crdownload",
     "_posts/后端开发/Golang.md",
     "about/index.md",
     "_posts/前端/objective-c.md",
@@ -346,14 +349,9 @@
     "Templates/Diary.md",
     "Pasted image 20251129082321.png.md",
     "_posts/AI/AI Agent.md",
-    "_posts/八股文.md",
-    "_posts/消息队列/KafkaNotes.md",
-    "_posts/后端开发",
-    "_posts/数据库/Redis.md",
     "imgs/MySQL1.png",
     "imgs/MySQL2.png",
     "Pasted image 20251129082321.png",
-    "_posts/日记",
     "Untitled.canvas"
   ]
 }
