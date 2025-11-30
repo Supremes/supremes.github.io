@@ -85,6 +85,15 @@ category_map:
   工具效率: tools
   日记: diary
   算法: algorithm
+  备忘录: my_notes
+  关于我: about_me
+
+  主页: home
+  时间线: archive 
+  分类: category
+  标签: tag
+  关于: about
+  
 # tag_map:
 #   前端: frontend
 #   后端: backend

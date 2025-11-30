@@ -11,8 +11,9 @@ date: 2025-11-29 07:57:54
 **APNS**、**iPhone**（设备）和 **后台服务器（Server）** 三者之间的关系和数据流。
 
 以下是APNS的时序图，展示了设备、APNS和服务器之间的交互流程：
+使用 code block - mermaid
 
-{% mermaid %}
+{%mermaid%}
 sequenceDiagram
     participant I as iPhone (设备)
     participant A as APNS
@@ -43,9 +44,8 @@ sequenceDiagram
     %% 再次推送
     S->>A: 发送新的推送请求
     A->>I: 通过新连接推送通知
-{% endmermaid %}
+{%endmermaid%}
+
 
 > 可以在 [https://mermaid.live](https://mermaid.live) 在线编辑和渲染Mermaid图表
 
-
-![img](/imgs/APNS.png)

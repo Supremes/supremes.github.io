@@ -18,11 +18,11 @@ nav:
   fixed: false
 
 menu:
-  Home: / || fas fa-home
-  Archives: /archives/ || fas fa-archive
+  主页: / || fas fa-home
+  时间线: /archives/ || fas fa-archive
   # Tags: /tags/ || fas fa-tags
   # 需要区分大小写
-  Categories || fas fa-folder-open:
+  分类 || fas fa-folder-open:
     数据库: /categories/database/ || fas fa-database
     消息队列: /categories/message-queue/ || fas fa-envelope
     Spring: /categories/Spring/ || fas fa-leaf
@@ -33,7 +33,9 @@ menu:
     日记: /categories/diary/ || fas fa-book
     算法: /categories/algorithm/ || fas fa-code
 
-  About: /about/ || fas fa-user
+  关于 || fas fa-list: 
+    关于我: /about/about_me || fas fa-user
+    备忘录: /about/my_notes || fas fa-note-sticky
   
   # Home: / || fas fa-home
   # List||fas fa-list:

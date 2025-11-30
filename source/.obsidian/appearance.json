@@ -2,5 +2,8 @@
   "cssTheme": "Typora-Vue",
   "theme": "system",
   "accentColor": "#b84242",
-  "showRibbon": true
+  "showRibbon": true,
+  "enabledCssSnippets": [
+    "mermaid-scroll"
+  ]
 }
