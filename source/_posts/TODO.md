@@ -11,8 +11,6 @@ cover:
 
 ### Pending Issues
 
-- [ ] Mermaid 代码块渲染失败，需要引用 JS 语法
-- [ ] 本地测试经常性报 fontawesome failure
 
 
 ### Fixed
@@ -20,4 +18,9 @@ cover:
 	- 目录名一致，但是层级关系不一致，不会被视为同一目录，建议不要这样设置
 - [x] Obsidian 双链转 hexo 链接
 	- 引用hexo-filter-titlebased-link 库，添加配置项解决该问题
-
+- [x] Mermaid 代码块渲染失败，需要引用 JS 语法
+	- 引用hexo-filter-mermaid-diagrams 库，但是间歇性还是会渲染不出来，推荐还是使用**标签插件 (Tag Plugin)** 语法
+		> {% mermaid %}
+		> {% endmermaid %}
+- [x] 本地测试经常性报 fontawesome failure
+> 	使用隐私模式访问，大概率没问题

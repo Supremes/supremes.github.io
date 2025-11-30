@@ -58,12 +58,12 @@
             }
           },
           {
-            "id": "794f3f3dfd26a473",
+            "id": "7330466f0eff1ba9",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "_posts/后端开发/分布式锁.md",
+                "file": "_posts/TODO.md",
                 "mode": "source",
                 "source": false,
                 "backlinks": true,
@@ -78,11 +78,59 @@
                 }
               },
               "icon": "lucide-file",
-              "title": "分布式锁"
+              "title": "TODO"
+            }
+          },
+          {
+            "id": "51d0161a4d14fc29",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "_posts/网络安全/APNS.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": true,
+                "backlinkOpts": {
+                  "collapseAll": false,
+                  "extraContext": false,
+                  "sortOrder": "alphabetical",
+                  "showSearch": false,
+                  "searchQuery": "",
+                  "backlinkCollapsed": false,
+                  "unlinkedCollapsed": true
+                }
+              },
+              "icon": "lucide-file",
+              "title": "APNS"
+            }
+          },
+          {
+            "id": "a98a7c7d7488a217",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "about/my_notes.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": true,
+                "backlinkOpts": {
+                  "collapseAll": false,
+                  "extraContext": false,
+                  "sortOrder": "alphabetical",
+                  "showSearch": false,
+                  "searchQuery": "",
+                  "backlinkCollapsed": false,
+                  "unlinkedCollapsed": true
+                }
+              },
+              "icon": "lucide-file",
+              "title": "my_notes"
             }
           }
         ],
-        "currentTab": 1
+        "currentTab": 4
       }
     ],
     "direction": "vertical"
@@ -217,13 +265,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "_posts/TODO.md",
+                "file": "about/my_notes.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of TODO"
+              "title": "Outline of my_notes"
             }
           },
           {
@@ -241,7 +289,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -257,16 +306,26 @@
       "obsidian-shellcommands:Shell commands: Custom variables": true
     }
   },
-  "active": "f5ab8e48a7f262ac",
+  "active": "40c49d5e2cb1fe50",
   "lastOpenFiles": [
+    "about/about_me.md",
+    "about/my_notes.md",
+    "_posts/TODO.md",
+    "_posts/数据库/MySQL.md",
     "_posts/网络安全/APNS.md",
+    "_posts/备忘录/Notes.md",
+    "_posts/Notes.md",
+    "Notes/index.md",
+    "Notes",
+    "_posts/日记/2025-11-28.md",
+    "_posts/备忘录",
+    "_posts/后端开发/分布式锁.md",
+    "snippets/mermaid-scroll.css.md",
+    "snippets",
     "imgs/Pasted image 20251130111042.png",
     "imgs/APNS.png",
-    "_posts/日记/2025-11-28.md",
     "_posts/网络安全/Credential 证书.md",
     "_posts/网络安全/认证和授权.md",
-    "_posts/TODO.md",
-    "_posts/后端开发/分布式锁.md",
     "favicon/site.webmanifest",
     "favicon/web-app-manifest-512x512.png",
     "favicon/favicon.svg",
@@ -288,22 +347,13 @@
     "Pasted image 20251129082321.png.md",
     "_posts/AI/AI Agent.md",
     "_posts/八股文.md",
-    "_posts/数据库/MySQL.md",
     "_posts/消息队列/KafkaNotes.md",
     "_posts/后端开发",
     "_posts/数据库/Redis.md",
     "imgs/MySQL1.png",
-    "_posts/AI/MCP Introduction.md",
     "imgs/MySQL2.png",
-    "_posts/数据库/Hibernate.md",
     "Pasted image 20251129082321.png",
-    "_posts/spring/SpringAOP_事务失效与底层代理总结.md",
     "_posts/日记",
-    "_posts/dairy/2025-11-28.md",
-    "_posts/dairy",
-    "_posts/消息队列/RabbitMQ.md",
-    "_posts/前端",
-    "Untitled.canvas",
-    "Excalidraw"
+    "Untitled.canvas"
   ]
 }
