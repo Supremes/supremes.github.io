@@ -7,10 +7,10 @@ categories:
 sticky: "9"
 abbrlink: 8508
 date: 2025-11-29 08:45:05
-cover: /imgs/cover/MySQL_learning_note.png
+cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover/MySQL_learning_note.png
 ---
 # MySQL 架构
-![img](/imgs/MySQL1.png)
+![img](https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/MySQL1.png)
 
 ## 连接器
 
@@ -72,7 +72,7 @@ mysql> select * from t1 join t2 using(ID)  where t1.c=10 and t2.d=20;
 
 假设一个值从 1 被按顺序改成了 2、3、4，在**回滚日志**里面就会有类似下面的记录：
 
-![img](/imgs/MySQL2.png)
+![img](https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/MySQL2.png)
 
 ## 区别
 

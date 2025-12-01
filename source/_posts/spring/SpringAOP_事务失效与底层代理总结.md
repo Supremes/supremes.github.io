@@ -6,7 +6,7 @@ tags:
   - Spring
 categories:
   - Spring
-cover: /imgs/cover/AOP-PROXY.png
+cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover/AOP-PROXY.png
 abbrlink: 60441
 date: 2025-11-25 20:39:20
 description:
@@ -51,7 +51,7 @@ Spring AOP 的默认实现基于 **代理模式 (Proxy Pattern)**。Spring 容�
 
 ## 3. 深度辨析：JDK 动态代理 vs CGLIB
 
-![image-20251126101915903](/imgs/image-20251126101915903.png)
+![image-20251126101915903](https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/image-20251126101915903.png)
 
 ### 常见误区
 

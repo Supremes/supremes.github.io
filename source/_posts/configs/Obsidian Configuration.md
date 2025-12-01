@@ -6,7 +6,7 @@ categories:
   - 工具效率
 abbrlink: 54351
 date: 2025-11-28 14:47:35
-cover: /imgs/cover/obsidian_config.png
+cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover/obsidian_config.png
 ---
 
 ## Plugins
