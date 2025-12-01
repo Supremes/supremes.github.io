@@ -6,7 +6,7 @@ tags:
   - Spring
 categories:
   - Spring
-cover: /imgs/AOP-PROXY.png
+cover: /imgs/cover/AOP-PROXY.png
 abbrlink: 60441
 date: 2025-11-25 20:39:20
 description:

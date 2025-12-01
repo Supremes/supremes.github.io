@@ -3,14 +3,14 @@ title: TODO
 tags: []
 categories:
   - 杂七杂八
-sticky: '10'
+sticky: "10"
 abbrlink: 4947
 date: 2025-11-29 08:50:05
-cover:
+cover: /imgs/cover/TODO.png
 ---
 
 ### Pending Issues
-
+- [ ] 图片多大太大，导致加载缓慢的问题。参考: https://gemini.google.com/share/320865e42713
 
 
 ### Fixed

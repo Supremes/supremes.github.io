@@ -4,10 +4,10 @@ tags:
   - MySQL
 categories:
   - 数据库
-sticky: '9'
+sticky: "9"
 abbrlink: 8508
 date: 2025-11-29 08:45:05
-cover:
+cover: /imgs/cover/MySQL_learning_note.png
 ---
 # MySQL 架构
 ![img](/imgs/MySQL1.png)
