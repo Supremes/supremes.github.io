@@ -1,7 +1,7 @@
 {
   "cssTheme": "Blue Topaz",
-  "theme": "system",
-  "accentColor": "#b84242",
+  "theme": "moonstone",
+  "accentColor": "#4275b8",
   "showRibbon": true,
   "enabledCssSnippets": [
     "mermaid-scroll"

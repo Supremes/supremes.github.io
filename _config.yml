@@ -149,3 +149,42 @@ deploy:
 
 titlebased_link:
   enable: true
+
+
+# hexo-all-minifier 压缩优化配置
+all_minifier: true
+
+# # HTML 压缩
+# html_minifier:
+#   enable: true
+#   ignore_error: false
+#   silent: false
+#   exclude:
+
+# # CSS 压缩
+# css_minifier:
+#   enable: true
+#   silent: false
+#   exclude:
+#     - '*.min.css'
+
+# # JS 压缩
+# js_minifier:
+#   enable: true
+#   mangle: true
+#   silent: false
+#   output:
+#   compress:
+#   exclude:
+#     - '*.min.js'
+
+# 图片压缩
+image_minifier:
+  enable: true
+  interlaced: false
+  multipass: false
+  optimizationLevel: 2
+  pngquant: false
+  progressive: false
+  silent: false
+  svgo: false

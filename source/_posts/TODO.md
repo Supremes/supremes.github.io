@@ -6,11 +6,13 @@ categories:
 sticky: "10"
 abbrlink: 4947
 date: 2025-11-29 08:50:05
-cover: /imgs/cover/TODO.png
+cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover/TODO.png
 ---
 
 ### Pending Issues
 - [ ] 图片多大太大，导致加载缓慢的问题。参考: https://gemini.google.com/share/320865e42713
+	- [x] 配置图床(github repo: [blog-images]([Supremes/blog-images](https://github.com/Supremes/blog-images)))，并使用CDN - `cdn.jsdelivr.net ` 加速访问
+	- [ ] 压缩图片大小
 
 
 ### Fixed

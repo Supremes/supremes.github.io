@@ -4,7 +4,7 @@ tags:
   - APNS
 categories:
   - 网络安全
-cover: /imgs/cover/APNS.png
+cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover/APNS.png
 abbrlink: 45153
 date: 2025-11-29 07:57:54
 ---

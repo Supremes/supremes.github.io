@@ -11,7 +11,7 @@ tags:
   - X.509
 categories:
   - 网络安全
-cover: /imgs/cover/credential证书.png
+cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover/credential证书.png
 abbrlink: 6104
 date: 2025-11-28 14:04:29
 ---
