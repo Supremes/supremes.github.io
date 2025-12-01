@@ -2,5 +2,7 @@
   "attachmentFolderPath": "imgs",
   "alwaysUpdateLinks": true,
   "newLinkFormat": "shortest",
-  "useMarkdownLinks": false
+  "useMarkdownLinks": false,
+  "showLineNumber": true,
+  "spellcheck": false
 }
