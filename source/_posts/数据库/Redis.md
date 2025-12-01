@@ -6,7 +6,7 @@ categories:
   - 数据库
 abbrlink: 16018
 date: 2025-11-29 08:56:10
-cover:
+cover: /imgs/cover/Redis.png
 ---
 ## 基础数据结构
 

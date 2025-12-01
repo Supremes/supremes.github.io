@@ -39,7 +39,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "_posts/网络安全/认证和授权.md",
+                "file": "_posts/数据库/MySQL.md",
                 "mode": "source",
                 "source": false,
                 "backlinks": true,
@@ -54,11 +54,26 @@
                 }
               },
               "icon": "lucide-file",
-              "title": "认证和授权"
+              "title": "MySQL"
+            }
+          },
+          {
+            "id": "b3fd3697709d6afc",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "_posts/configs/Obsidian Configuration.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "Obsidian Configuration"
             }
           }
         ],
-        "currentTab": 1
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -193,13 +208,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "_posts/网络安全/认证和授权.md",
+                "file": "_posts/configs/Obsidian Configuration.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of 认证和授权"
+              "title": "Outline of Obsidian Configuration"
             }
           },
           {
@@ -233,31 +248,45 @@
       "obsidian-shellcommands:Shell commands: Custom variables": true
     }
   },
-  "active": "a98a7c7d7488a217",
+  "active": "b3fd3697709d6afc",
   "lastOpenFiles": [
-    "imgs/Kerberos.png",
-    "imgs/SAML.png",
-    "imgs/OAuth.png",
-    "imgs/OIDC.png",
-    "imgs/Pasted image 20251201141208.png",
-    "_posts/网络安全/认证和授权.md",
-    "_posts/日记/2025-12-01.md",
-    "_posts/日记/2025-11-28.md",
+    "imgs/cover/obsidian_config.png",
+    "_posts/AI/AI Agent.md",
+    "imgs/cover/ai_agent.png",
     "_posts/数据库/MySQL.md",
     "_posts/八股文.md",
-    "_posts/消息队列/RabbitMQ.md",
-    "Templates/Hexo-Post.md",
-    "_posts/后端开发/分布式锁.md",
     "_posts/后端开发/Golang.md",
-    "_posts/前端/Chromium.md",
-    "_posts/前端/objective-c.md",
+    "_posts/configs/Obsidian Configuration.md",
+    "imgs/cover/golang.png",
+    "imgs/cover/mianshi.png",
+    "imgs/golang.png",
+    "imgs/Gemini_Generated_Image_p050qbp050qbp050.png.crdownload",
+    "imgs/mianshi.png",
+    "_posts/后端开发/分布式锁.md",
     "_posts/数据库/Hibernate.md",
+    "_posts/数据库/Redis.md",
+    "_posts/日记/2025-11-28.md",
+    "_posts/日记/2025-12-01.md",
+    "_posts/消息队列/KafkaNotes.md",
+    "_posts/消息队列/RabbitMQ.md",
     "_posts/网络安全/APNS.md",
     "_posts/网络安全/Credential 证书.md",
-    "_posts/消息队列/KafkaNotes.md",
-    "_posts/AI/AI Agent.md",
+    "_posts/网络安全/认证和授权.md",
+    "_posts/TODO.md",
+    "Templates/Diary.md",
+    "imgs/cover.jpg",
+    "imgs/cover/Distributed_lock.png",
+    "imgs/cover/Gemini_Generated_Image_4tyrej4tyrej4tyr.png.crdownload",
+    "imgs/cover/Gemini_Generated_Image_db01v4db01v4db01.png",
     "_posts/AI/MCP Introduction.md",
-    "_posts/数据库/Redis.md",
+    "_posts/spring/SpringAOP_事务失效与底层代理总结.md",
+    "imgs/cover/TODO.png",
+    "imgs/cover/Redis.png",
+    "imgs/cover",
+    "imgs/untitled folder",
+    "Templates/Hexo-Post.md",
+    "_posts/前端/Chromium.md",
+    "_posts/前端/objective-c.md",
     "about/my_notes.md",
     "images",
     "_discarded/1764492521038/_drafts/123.md",
@@ -266,21 +295,7 @@
     "_discarded",
     "_drafts/123.md",
     "_drafts",
-    "about/about_me.md",
-    "_posts/TODO.md",
-    "_posts/备忘录/Notes.md",
-    "_posts/Notes.md",
     "Notes",
-    "_posts/备忘录",
-    "snippets",
-    "imgs/Pasted image 20251130111042.png",
-    "imgs/APNS.png",
-    "favicon/site.webmanifest",
-    "favicon/web-app-manifest-512x512.png",
-    "favicon/favicon.svg",
-    "favicon/web-app-manifest-192x192.png",
-    "favicon/favicon-96x96.png",
-    "favicon/favicon.ico",
     "Untitled.canvas"
   ]
 }
