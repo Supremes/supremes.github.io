@@ -6,7 +6,7 @@ tags:
 categories:
   - 消息队列
 description: 深入学习 Apache Kafka 的核心概念、架构设计、部署配置和生产环境最佳实践
-cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover/KafkaNotes封面.png
+cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/KafkaNotes封面.webp
 abbrlink: 1562
 date: 2025-11-27 21:11:20
 updated: 2025-11-27 22:35:00

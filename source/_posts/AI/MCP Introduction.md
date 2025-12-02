@@ -12,7 +12,7 @@ categories:
 description: 详细介绍MCP（Model Context Protocol）开源标准，包括架构设计、开发指南和企业级应用策略，连接AI应用与外部系统的标准化解决方案
 abbrlink: 27915
 date: 2025-11-28 14:47:21
-cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover/MCP.png
+cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/MCP.webp
 ---
 
 ## What is the MCP?
@@ -74,46 +74,6 @@ Defines the communication mechanisms and channels that enable data exchange betw
 2. Develop tools/resources/prompts as your business needs
 3. Debug it with MCP Inspector
 
-
-
-## Company Policy for MCP Usage
-
-#### Data
-
-- **Customer Data**  You may not use customer data in AI systems without confirming that we are
-  contractually and legally allowed to do so. In the absence of such contractual or other legal rights,
-  you must secure customer instruction to use their data in AI systems.
-- **Company Data:** Company data is classified according to the Company’s Information Classification &
-  Handling Policy.
-  - Public / Non-Confidential Information. You may use public Company data in AI systems.
-  - Confidential Information. You may not use Confidential Information to train any AI model. In
-    addition, the following rules regarding the different tiers of Confidential Information apply:
-    - Confidential: Low. You may use confidential: low Company data with an articulated
-      legitimate business need.
-    - Confidential: Restricted. You may not use restricted Company data in AI systems
-      without your ELT member’s approval.
-    - Confidential: Highly Restricted. You may not use highly restricted Company data in AI
-      systems without your ELT member’s sign-off and the CLAO’s review and approval.
-- **Third Party Data**: For other third party (e.g., partner, vendor, public) data, you may be able to leverage
-  such data for use in AI systems, provided that you have an appropriate contractual agreement in
-  place with the third party data owner that affords the Company rights to use such data sets. If you are
-  unsure as to whether we have such contractual rights, you may contact the Legal-Commercial team
-  via AskLegal@cloud.com.
-- **Synthetic Data:** You may use synthetic/fake data in AI systems/model training, POCs, and testing.
-
-
-
-CSG Approved MCPs
-
-![img](../Pics/WX20251124-172550@2x.png)
-
-Guideline for using MCP in CSG
-
-https://docs.google.com/document/d/10x2_jw_C3MCK9m62C3LcSGPflhqiByf4rNf2y_9kvIw/edit?tab=t.0
-
-1. **CSG Hosted MCP Servers (Internal):** Must be internal, have RBAC, not send CSG data to third parties, and use a CSG-approved AI model (Contact Adam Mongiovi).
-2. **Third-Party Hosted MCP Servers (External):** Must use a vendor with an existing CSG trust relationship (verified with Adam Mongiovi), have RBAC, and access only approved context.
-3. **MCP Servers for Customer Usage (Customer-Facing):** Must be reviewed by the ProdSec team (Contact Mohan Sekar), prevent customers from accessing private CSG data, be multi-tenant aware, and support RBAC controls.
 
 
 
