@@ -34,7 +34,7 @@
             }
           },
           {
-            "id": "a29acc6561ec35cb",
+            "id": "d63621a75b254ebd",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -81,7 +81,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "mermaid",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -122,7 +122,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "_posts/AI/AI Agent.md",
+                "file": "_posts/数据库/MySQL.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -132,7 +132,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for AI Agent"
+              "title": "Backlinks for MySQL"
             }
           },
           {
@@ -203,8 +203,7 @@
               "title": "Shell commands: Custom variables"
             }
           }
-        ],
-        "currentTab": 4
+        ]
       }
     ],
     "direction": "horizontal",
@@ -224,17 +223,22 @@
       "obsidian-shellcommands:Shell commands: Custom variables": true
     }
   },
-  "active": "a29acc6561ec35cb",
+  "active": "d63621a75b254ebd",
   "lastOpenFiles": [
-    "_posts/数据库/Hibernate.md",
+    "_posts/数据库/MySQL-日志.md",
+    "attachments/Pasted image 20251202211125.png",
+    "attachments",
+    "_posts/TODO.md",
+    "_posts/日记/2025-12-02.md",
     "_posts/数据库/MySQL.md",
+    "_posts/前端/Chromium.md",
+    "_posts/数据库/Hibernate.md",
     "_posts/数据库/Redis.md",
     "_posts/网络安全/APNS.md",
     "_posts/AI/MCP Introduction.md",
     "_posts/AI/AI Agent.md",
     "_posts/spring/SpringAOP_事务失效与底层代理总结.md",
     "Templates/Diary.md",
-    "_posts/TODO.md",
     "_posts/网络安全/认证和授权.md",
     "_posts/日记/2025-11-28.md",
     "about/my_notes.md",
@@ -258,20 +262,14 @@
     "imgs/cover/Distributed_lock.png",
     "imgs/cover/Gemini_Generated_Image_4tyrej4tyrej4tyr.png.crdownload",
     "imgs/cover/Gemini_Generated_Image_db01v4db01v4db01.png",
-    "imgs/cover/TODO.png",
     "imgs/cover",
     "imgs/untitled folder",
     "Templates/Hexo-Post.md",
-    "_posts/前端/Chromium.md",
-    "_posts/前端/objective-c.md",
     "images",
-    "_discarded/1764492521038/_drafts/123.md",
     "_discarded/1764492521038/_drafts",
     "_discarded/1764492521038",
     "_discarded",
-    "_drafts/123.md",
     "_drafts",
-    "Notes",
     "Untitled.canvas"
   ]
 }
