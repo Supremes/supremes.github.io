@@ -10,9 +10,6 @@ cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/TODO.
 ---
 
 ### Pending Issues
-- [ ] 图片多大太大，导致加载缓慢的问题。参考: https://gemini.google.com/share/320865e42713
-	- [x] 配置图床(github repo: [blog-images]([Supremes/blog-images](https://github.com/Supremes/blog-images)))，并使用CDN - `cdn.jsdelivr.net ` 加速访问
-	- [ ] 压缩图片大小
 
 
 ### Fixed
@@ -26,3 +23,7 @@ cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/TODO.
 		> {% endmermaid %}
 - [x] 本地测试经常性报 fontawesome failure
 > 	使用隐私模式访问，大概率没问题
+
+- [x] 图片多大太大，导致加载缓慢的问题。参考: https://gemini.google.com/share/320865e42713
+	- [x] 配置图床(github repo: [blog-images]([Supremes/blog-images](https://github.com/Supremes/blog-images)))，并使用CDN - `cdn.jsdelivr.net ` 加速访问
+	- [x] 压缩图片大小

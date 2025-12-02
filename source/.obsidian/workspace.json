@@ -32,24 +32,8 @@
               "icon": "lucide-file",
               "title": "TODO"
             }
-          },
-          {
-            "id": "d63621a75b254ebd",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "_posts/数据库/MySQL.md",
-                "mode": "source",
-                "source": false,
-                "backlinks": false
-              },
-              "icon": "lucide-file",
-              "title": "MySQL"
-            }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -122,8 +106,8 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "_posts/数据库/MySQL.md",
-                "collapseAll": false,
+                "file": "_posts/TODO.md",
+                "collapseAll": true,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
                 "showSearch": false,
@@ -132,7 +116,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for MySQL"
+              "title": "Backlinks for TODO"
             }
           },
           {
@@ -184,13 +168,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "_posts/数据库/MySQL.md",
+                "file": "_posts/TODO.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of MySQL"
+              "title": "Outline of TODO"
             }
           },
           {
@@ -203,7 +187,8 @@
               "title": "Shell commands: Custom variables"
             }
           }
-        ]
+        ],
+        "currentTab": 4
       }
     ],
     "direction": "horizontal",
@@ -223,14 +208,19 @@
       "obsidian-shellcommands:Shell commands: Custom variables": true
     }
   },
-  "active": "d63621a75b254ebd",
+  "active": "f5ab8e48a7f262ac",
   "lastOpenFiles": [
-    "_posts/数据库/MySQL-日志.md",
+    "_posts/数据库/MySQL/MySQL-日志.md",
+    "_posts/日记/2025-12-01.md",
+    "Templates/Diary.md",
+    "Templates/Hexo-Post.md",
+    "_posts/数据库/MySQL/MySQL.md",
+    "imgs/cover/TODO.png",
+    "_posts/数据库/MySQL",
     "attachments/Pasted image 20251202211125.png",
     "attachments",
     "_posts/TODO.md",
     "_posts/日记/2025-12-02.md",
-    "_posts/数据库/MySQL.md",
     "_posts/前端/Chromium.md",
     "_posts/数据库/Hibernate.md",
     "_posts/数据库/Redis.md",
@@ -238,12 +228,10 @@
     "_posts/AI/MCP Introduction.md",
     "_posts/AI/AI Agent.md",
     "_posts/spring/SpringAOP_事务失效与底层代理总结.md",
-    "Templates/Diary.md",
     "_posts/网络安全/认证和授权.md",
     "_posts/日记/2025-11-28.md",
     "about/my_notes.md",
     "about/about_me.md",
-    "_posts/日记/2025-12-01.md",
     "_posts/configs/Obsidian Configuration.md",
     "imgs/cover/obsidian_config.png",
     "imgs/cover/ai_agent.png",
@@ -261,15 +249,12 @@
     "imgs/cover.jpg",
     "imgs/cover/Distributed_lock.png",
     "imgs/cover/Gemini_Generated_Image_4tyrej4tyrej4tyr.png.crdownload",
-    "imgs/cover/Gemini_Generated_Image_db01v4db01v4db01.png",
     "imgs/cover",
     "imgs/untitled folder",
-    "Templates/Hexo-Post.md",
     "images",
     "_discarded/1764492521038/_drafts",
     "_discarded/1764492521038",
     "_discarded",
-    "_drafts",
     "Untitled.canvas"
   ]
 }

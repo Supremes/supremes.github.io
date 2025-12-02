@@ -91,7 +91,7 @@ custom_head:
   - <meta name="theme-color" content="#ffffff">
 
 avatar:
-  img: /imgs/avatar.jpg
+  img: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/avatar.jpg
   effect: false
 
 # Disable all banner images
