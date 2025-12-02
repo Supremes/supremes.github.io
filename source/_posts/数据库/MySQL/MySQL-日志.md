@@ -4,14 +4,13 @@ tags: []
 categories:
   - 数据库
   - MySQL
-cover: 'https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg'
+cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/articles/MySQL_Log.webp
 hidden: false
 abbrlink: 356a30bc
 date: 2025-12-02 17:26:11
 sticky:
 ---
 # Redo Log
-
 ![img](https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/articles/MySQL_RedoLog.webp)
 
 这张图被一条中间的虚线分为左右两部分，代表了计算机系统中两种截然不同的存储介质属性。
@@ -19,28 +18,18 @@ sticky:
 ## 1. 左侧区域：IN-MEMORY (内存区域) - Volatile (易失性)
 
 - **特点：**
-    
     - **速度极快：** CPU 对内存的读写速度远远高于磁盘。为了高性能，数据库必须尽可能在内存中处理数据。
-        
     - **易失性 (Volatile)：** 这是最大的弱点。一旦断电、系统崩溃或进程被强制终止，内存中的所有数据瞬间消失。图中的气泡对话框形象地说明了这一点：“Fast access, but data lost on power failure.”（访问快，但断电丢数据）。
         
 - **关键组件：**
-    
     - **BUFFER POOL (缓冲池)：**
-        
         - 这是 InnoDB 在内存中最大的保留区域。它缓存了从磁盘读取的数据页 (Data Pages)。
-            
         - 当我们要修改数据时，不是直接去改磁盘文件，而是先在 Buffer Pool 中找到对应的数据页进行修改。
-            
         - **Dirty Page (脏页)：** 图中高亮的橙色方块。当一个数据页在内存中被修改了，但还没有写回到磁盘的数据文件中时，它就和磁盘上的版本不一致了，我们称之为“脏页”。
-            
     - **LOG BUFFER (日志缓冲)：**
-        
         - 这是一个相对较小的内存区域，专门用来暂存即将写入磁盘的 Redo Log 记录。
-            
         - 每当 Buffer Pool 中的数据发生修改，InnoDB 就会生成一条对应的、非常紧凑的日志记录（比如：“第10号数据页偏移量500的位置，值从A改成了B”），先暂存在这里。
             
-
 ## 2. 右侧区域：ON-DISK (磁盘区域) - Persistent (持久性)
 
 - **特点：**

@@ -4,5 +4,5 @@ date: <% tp.date.now("YYYY-MM-DD HH:mm:ss") %>
 Tags: []
 Categories:
   - 日记
-Cover: /imgs/cover.jpg
+Cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg
 ---
