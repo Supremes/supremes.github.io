@@ -155,7 +155,7 @@ post_meta:
   # Home Page
   page:
     # Choose: created / updated / both
-    date_type: created
+    date_type: updated
     # Choose: date / relative
     date_format: date
     categories: true
@@ -221,6 +221,12 @@ index_post_content:
   method: 3
   # If you set method to 2 or 3, the length need to config
   length: 500
+
+# Posts order on homepage
+# Options: -1: descending; 1: ascending
+# Choose: created / updated
+index_generator:
+  order_by: -updated
 
 # --------------------------------------
 # Post Settings

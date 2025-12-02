@@ -16,8 +16,8 @@ cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/MySQL
 
 负责和客户端建立连接、获取权限、维持和管理连接。连接命令如下：
 
-```
-mysql -h$ip -P$port -u$user -p
+```shell
+mysql -h $ip -P $port -u $user -p
 ```
 
 ## 查询缓存

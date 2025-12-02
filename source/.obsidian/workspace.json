@@ -39,13 +39,13 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "_posts/AI/MCP Introduction.md",
+                "file": "_posts/数据库/MySQL.md",
                 "mode": "source",
                 "source": false,
                 "backlinks": false
               },
               "icon": "lucide-file",
-              "title": "MCP Introduction"
+              "title": "MySQL"
             }
           }
         ],
@@ -184,13 +184,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "_posts/AI/MCP Introduction.md",
+                "file": "_posts/数据库/MySQL.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of MCP Introduction"
+              "title": "Outline of MySQL"
             }
           },
           {
@@ -226,13 +226,15 @@
   },
   "active": "a29acc6561ec35cb",
   "lastOpenFiles": [
+    "_posts/数据库/Hibernate.md",
+    "_posts/数据库/MySQL.md",
+    "_posts/数据库/Redis.md",
+    "_posts/网络安全/APNS.md",
+    "_posts/AI/MCP Introduction.md",
     "_posts/AI/AI Agent.md",
     "_posts/spring/SpringAOP_事务失效与底层代理总结.md",
-    "_posts/AI/MCP Introduction.md",
     "Templates/Diary.md",
-    "_posts/数据库/MySQL.md",
     "_posts/TODO.md",
-    "_posts/数据库/Hibernate.md",
     "_posts/网络安全/认证和授权.md",
     "_posts/日记/2025-11-28.md",
     "about/my_notes.md",
@@ -249,10 +251,8 @@
     "imgs/Gemini_Generated_Image_p050qbp050qbp050.png.crdownload",
     "imgs/mianshi.png",
     "_posts/后端开发/分布式锁.md",
-    "_posts/数据库/Redis.md",
     "_posts/消息队列/KafkaNotes.md",
     "_posts/消息队列/RabbitMQ.md",
-    "_posts/网络安全/APNS.md",
     "_posts/网络安全/Credential 证书.md",
     "imgs/cover.jpg",
     "imgs/cover/Distributed_lock.png",
