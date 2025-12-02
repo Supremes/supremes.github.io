@@ -62,7 +62,11 @@ mysql> select * from t1 join t2 using(ID)  where t1.c=10 and t2.d=20;
 - [https://www.cnblogs.com/zlia/p/14508366.html](https://www.cnblogs.com/zlia/p/14508366.html)
 - [https://learn.lianglianglee.com/%e4%b8%93%e6%a0%8f/MySQL%e5%ae%9e%e6%88%9845%e8%ae%b2/02%20%20%e6%97%a5%e5%bf%97%e7%b3%bb%e7%bb%9f%ef%bc%9a%e4%b8%80%e6%9d%a1SQL%e6%9b%b4%e6%96%b0%e8%af%ad%e5%8f%a5%e6%98%af%e5%a6%82%e4%bd%95%e6%89%a7%e8%a1%8c%e7%9a%84%ef%bc%9f.md](https://learn.lianglianglee.com/%e4%b8%93%e6%a0%8f/MySQL%e5%ae%9e%e6%88%9845%e8%ae%b2/02%20%20%e6%97%a5%e5%bf%97%e7%b3%bb%e7%bb%9f%ef%bc%9a%e4%b8%80%e6%9d%a1SQL%e6%9b%b4%e6%96%b0%e8%af%ad%e5%8f%a5%e6%98%af%e5%a6%82%e4%bd%95%e6%89%a7%e8%a1%8c%e7%9a%84%ef%bc%9f.md)
 
-![img](https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/articles/MySQL_RedoLog.webp))
+>  工作流程详见 - [[MySQL-日志]]
+
+![img](https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/articles/MySQL_RedoLog.webp)
+
+
 
 ## bin log
 
@@ -81,6 +85,15 @@ mysql> select * from t1 join t2 using(ID)  where t1.c=10 and t2.d=20;
 - redo log是存储引擎特有的，bin log是在Server层实现的，也就是说所有引擎都可以使用。
 - redo log是物理日志，举个例子，比如你将某个值由1改成2，又将2改成3，那么最终物理日志呈现的只有3（而没有记录3的由来），只不过不是直接将3写入，可能是采用偏移量之类的操作方式（无奈我看不懂），bin log是逻辑日志，逻辑日志表示记录从1-2-3这样子的一个过程。
 - redo log是循环写的，大小是固定的，bin log是追加的方式写的，不会覆盖以前的日志。
+
+| **特性**    | **Redo Log (重做日志)**                               | **Bin Log (归档日志)**                 | **Undo Log (回滚日志)**                                     |
+| --------- | ------------------------------------------------- | ---------------------------------- | ------------------------------------------------------- |
+| **核心关键词** | **“恢复”**                                          | **“复制”**                           | **“撤销”**                                                |
+| **比喻**    | 记账本的草稿 (防止断电忘事)                                   | 完整的账单明细 (给别人看)                     | **橡皮擦 / Ctrl+Z**                                        |
+| **侧重点**   | 物理偏向 (页修改)                                        | 逻辑偏向 (SQL语义)                       | **逻辑反向** (逆操作)                                          |
+| **主要作用**  | 崩溃恢复 (Crash Safe)<br><br>  <br><br>保证 **D** (持久性) | 主从复制、数据恢复<br><br>  <br><br>保证数据一致性 | 事务回滚、MVCC<br><br>  <br><br>保证 **A** (原子性) 和 **I** (隔离性) |
+| **写入时机**  | 事务进行中不断写                                          | 事务提交时一次性写                          | 事务开始前/修改前写                                              |
+| **释放时机**  | 落盘后覆盖 (循环写)                                       | 不删除 (追加写)                          | 事务提交后，若无 MVCC 需求则标记删除 (Purge)                           |
 
 # 事务隔离
 

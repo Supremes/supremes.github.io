@@ -17,7 +17,6 @@
   "dependencies": {
     "hexo": "^8.1.1",
     "hexo-abbrlink": "^2.2.1",
-    "hexo-all-minifier": "^0.5.7",
     "hexo-backlink": "^0.1.4",
     "hexo-deployer-git": "^4.0.0",
     "hexo-filter-mermaid-diagrams": "^1.0.5",
