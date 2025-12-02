@@ -178,13 +178,13 @@ all_minifier: true
 #   exclude:
 #     - '*.min.js'
 
-# 图片压缩
-image_minifier:
-  enable: true
-  interlaced: false
-  multipass: false
-  optimizationLevel: 2
-  pngquant: false
-  progressive: false
-  silent: false
-  svgo: false
+# # 图片压缩
+# image_minifier:
+#   enable: true
+#   interlaced: false
+#   multipass: false
+#   optimizationLevel: 2
+#   pngquant: false
+#   progressive: false
+#   silent: false
+#   svgo: false
