@@ -6,7 +6,7 @@ categories:
   - 后端开发
 abbrlink: 31482
 date: 2025-11-29 08:59:30
-cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover/golang.png
+cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/golang.webp
 ---
 # map
 

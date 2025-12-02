@@ -6,7 +6,7 @@ categories:
 sticky: "10"
 abbrlink: 4947
 date: 2025-11-29 08:50:05
-cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover/TODO.png
+cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/TODO.webp
 ---
 
 ### Pending Issues

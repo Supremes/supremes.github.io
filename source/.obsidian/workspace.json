@@ -34,46 +34,22 @@
             }
           },
           {
-            "id": "a98a7c7d7488a217",
+            "id": "a29acc6561ec35cb",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "_posts/数据库/MySQL.md",
-                "mode": "source",
-                "source": false,
-                "backlinks": true,
-                "backlinkOpts": {
-                  "collapseAll": false,
-                  "extraContext": false,
-                  "sortOrder": "alphabetical",
-                  "showSearch": false,
-                  "searchQuery": "",
-                  "backlinkCollapsed": false,
-                  "unlinkedCollapsed": true
-                }
-              },
-              "icon": "lucide-file",
-              "title": "MySQL"
-            }
-          },
-          {
-            "id": "b3fd3697709d6afc",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "_posts/TODO.md",
+                "file": "_posts/AI/MCP Introduction.md",
                 "mode": "source",
                 "source": false,
                 "backlinks": false
               },
               "icon": "lucide-file",
-              "title": "TODO"
+              "title": "MCP Introduction"
             }
           }
         ],
-        "currentTab": 2
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -123,7 +99,7 @@
               "type": "bookmarks",
               "state": {},
               "icon": "lucide-bookmark",
-              "title": "书签"
+              "title": "Bookmarks"
             }
           }
         ]
@@ -208,13 +184,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "_posts/TODO.md",
+                "file": "_posts/AI/MCP Introduction.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of TODO"
+              "title": "Outline of MCP Introduction"
             }
           },
           {
@@ -248,17 +224,22 @@
       "obsidian-shellcommands:Shell commands: Custom variables": true
     }
   },
-  "active": "b3fd3697709d6afc",
+  "active": "a29acc6561ec35cb",
   "lastOpenFiles": [
+    "_posts/AI/AI Agent.md",
+    "_posts/spring/SpringAOP_事务失效与底层代理总结.md",
+    "_posts/AI/MCP Introduction.md",
+    "Templates/Diary.md",
+    "_posts/数据库/MySQL.md",
+    "_posts/TODO.md",
+    "_posts/数据库/Hibernate.md",
     "_posts/网络安全/认证和授权.md",
     "_posts/日记/2025-11-28.md",
     "about/my_notes.md",
     "about/about_me.md",
-    "_posts/数据库/MySQL.md",
     "_posts/日记/2025-12-01.md",
     "_posts/configs/Obsidian Configuration.md",
     "imgs/cover/obsidian_config.png",
-    "_posts/AI/AI Agent.md",
     "imgs/cover/ai_agent.png",
     "_posts/八股文.md",
     "_posts/后端开发/Golang.md",
@@ -268,20 +249,15 @@
     "imgs/Gemini_Generated_Image_p050qbp050qbp050.png.crdownload",
     "imgs/mianshi.png",
     "_posts/后端开发/分布式锁.md",
-    "_posts/数据库/Hibernate.md",
     "_posts/数据库/Redis.md",
     "_posts/消息队列/KafkaNotes.md",
     "_posts/消息队列/RabbitMQ.md",
     "_posts/网络安全/APNS.md",
     "_posts/网络安全/Credential 证书.md",
-    "_posts/TODO.md",
-    "Templates/Diary.md",
     "imgs/cover.jpg",
     "imgs/cover/Distributed_lock.png",
     "imgs/cover/Gemini_Generated_Image_4tyrej4tyrej4tyr.png.crdownload",
     "imgs/cover/Gemini_Generated_Image_db01v4db01v4db01.png",
-    "_posts/AI/MCP Introduction.md",
-    "_posts/spring/SpringAOP_事务失效与底层代理总结.md",
     "imgs/cover/TODO.png",
     "imgs/cover",
     "imgs/untitled folder",

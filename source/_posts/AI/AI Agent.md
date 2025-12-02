@@ -13,7 +13,7 @@ categories:
 description: 深入解析AI Agent的核心技术概念，从Embedding、向量数据库到RAG、Function Calling和ReAct模式，构建完整的LLM应用技术学习路线
 abbrlink: 51504
 date: 2025-11-28 14:47:28
-cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover/ai_agent.png
+cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/ai_agent.webp
 ---
 
 

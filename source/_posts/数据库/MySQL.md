@@ -7,10 +7,10 @@ categories:
 sticky: "9"
 abbrlink: 8508
 date: 2025-11-29 08:45:05
-cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover/MySQL_learning_note.png
+cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/MySQL_learning_note.webp
 ---
 # MySQL 架构
-![img](https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/MySQL1.png)
+![img](https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/articles/MySQL1.png)
 
 ## 连接器
 
@@ -62,6 +62,8 @@ mysql> select * from t1 join t2 using(ID)  where t1.c=10 and t2.d=20;
 - [https://www.cnblogs.com/zlia/p/14508366.html](https://www.cnblogs.com/zlia/p/14508366.html)
 - [https://learn.lianglianglee.com/%e4%b8%93%e6%a0%8f/MySQL%e5%ae%9e%e6%88%9845%e8%ae%b2/02%20%20%e6%97%a5%e5%bf%97%e7%b3%bb%e7%bb%9f%ef%bc%9a%e4%b8%80%e6%9d%a1SQL%e6%9b%b4%e6%96%b0%e8%af%ad%e5%8f%a5%e6%98%af%e5%a6%82%e4%bd%95%e6%89%a7%e8%a1%8c%e7%9a%84%ef%bc%9f.md](https://learn.lianglianglee.com/%e4%b8%93%e6%a0%8f/MySQL%e5%ae%9e%e6%88%9845%e8%ae%b2/02%20%20%e6%97%a5%e5%bf%97%e7%b3%bb%e7%bb%9f%ef%bc%9a%e4%b8%80%e6%9d%a1SQL%e6%9b%b4%e6%96%b0%e8%af%ad%e5%8f%a5%e6%98%af%e5%a6%82%e4%bd%95%e6%89%a7%e8%a1%8c%e7%9a%84%ef%bc%9f.md)
 
+![img](https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/articles/MySQL_RedoLog.webp))
+
 ## bin log
 
 存在于Server层。
@@ -72,7 +74,7 @@ mysql> select * from t1 join t2 using(ID)  where t1.c=10 and t2.d=20;
 
 假设一个值从 1 被按顺序改成了 2、3、4，在**回滚日志**里面就会有类似下面的记录：
 
-![img](https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/MySQL2.png)
+![img](https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/articles/MySQL2.png)
 
 ## 区别
 
