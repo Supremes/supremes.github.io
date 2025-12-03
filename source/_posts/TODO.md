@@ -21,10 +21,10 @@ cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/TODO.
 	- 引用hexo-filter-titlebased-link 库，添加配置项解决该问题
 - [x] Mermaid 代码块渲染失败，需要引用 JS 语法
 	- 引用hexo-filter-mermaid-diagrams 库，但是间歇性还是会渲染不出来，推荐还是使用**标签插件 (Tag Plugin)** 语法
-		```
-		{% mermaid %}
-		{% endmermaid %}
-		```
+```
+{% mermaid %}
+{% endmermaid %}
+```
 - [x] 本地测试经常性报 fontawesome failure
 > 	使用隐私模式访问，大概率没问题
 

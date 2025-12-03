@@ -9,5 +9,6 @@
   "dataview",
   "obsidian-style-settings",
   "obsidian-minimal-settings",
-  "obsidian-editor-shortcuts"
+  "obsidian-editor-shortcuts",
+  "obsidian-linter"
 ]

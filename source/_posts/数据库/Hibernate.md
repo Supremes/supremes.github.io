@@ -11,16 +11,16 @@ description: 详解 Hibernate 框架的核心概念，包括 Session、SessionFa
 abbrlink: 22172
 date: 2025-11-28 14:00:00
 cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/hibernate.webp
+updated: 2025-12-03 21:36
 ---
 # Hibernate
-
 Hibernate 是一个用于 Java 环境的开源对象关系映射（ORM）框架，XML 映射文件是 Hibernate 配置实体类和数据库表之间映射关系的重要方式。以下是 Hibernate XML 映射文件中常见标签的介绍：
 
 ## 环境配置
 
 在 Spring 框架中使用 Hibernate 作为 ORM 框架时，需要导入以下相关库（依赖项）。以下是基于 Maven 或 Gradle 的依赖配置，具体依赖取决于你使用的 Spring 版本、Hibernate 版本以及是否使用 JPA。
 
-### 1. **核心依赖**
+### 1. **核心 D**ependencies
 #### Hibernate Core
 Hibernate 的核心库，提供基本的 ORM 功能。
 - **Maven**:
