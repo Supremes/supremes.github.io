@@ -39,13 +39,13 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "_posts/八股文.md",
+                "file": "_posts/算法/算法.md",
                 "mode": "source",
                 "source": false,
                 "backlinks": false
               },
               "icon": "lucide-file",
-              "title": "八股文"
+              "title": "算法"
             }
           }
         ],
@@ -184,13 +184,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "_posts/八股文.md",
+                "file": "_posts/算法/算法.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of 八股文"
+              "title": "Outline of 算法"
             }
           },
           {
@@ -226,6 +226,11 @@
   },
   "active": "a1213c0a03419ca8",
   "lastOpenFiles": [
+    "_posts/spring/Spring 过滤器.md",
+    "_posts/spring/SpringAOP_事务失效与底层代理总结.md",
+    "_posts/算法/算法.md",
+    "_posts/八股文.md",
+    "_posts/算法",
     "_posts/TODO.md",
     "_posts/后端开发/分布式锁.md",
     "_posts/后端开发/Golang.md",
@@ -242,7 +247,6 @@
     "_posts/消息队列/RabbitMQ.md",
     "_posts/configs/Obsidian Configuration.md",
     "_posts/AI/MCP Introduction.md",
-    "_posts/spring/SpringAOP_事务失效与底层代理总结.md",
     "Templates/Hexo-Post.md",
     "Templates/Diary.md",
     "_posts/数据库/MySQL/MySQL-日志.md",
@@ -253,11 +257,8 @@
     "attachments",
     "_posts/日记/2025-12-02.md",
     "_posts/AI/AI Agent.md",
-    "about/my_notes.md",
-    "about/about_me.md",
     "imgs/cover/obsidian_config.png",
     "imgs/cover/ai_agent.png",
-    "_posts/八股文.md",
     "imgs/cover/golang.png",
     "imgs/cover/mianshi.png",
     "imgs/golang.png",
@@ -271,7 +272,6 @@
     "images",
     "_discarded/1764492521038/_drafts",
     "_discarded/1764492521038",
-    "_discarded",
     "Untitled.canvas"
   ]
 }
