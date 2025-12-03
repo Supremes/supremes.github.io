@@ -7,11 +7,11 @@ tags:
   - Category
   - Protocol
 categories: 移动开发
-description: >-
-  深入解析 Objective-C 的面向对象特性，包括 Category、Protocol、Extension 等核心概念，以及
-  UIViewController 和 UIApplication 的生命周期详解
+description: 深入解析 Objective-C 的面向对象特性，包括 Category、Protocol、Extension 等核心概念，以及 UIViewController 和 UIApplication 的生命周期详解
 abbrlink: 57222
 date: 2025-11-28 14:30:00
+hidden: true
+updated: 2025-12-03 21:44
 ---
 
 # 面向对象

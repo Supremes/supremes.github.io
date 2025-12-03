@@ -7,6 +7,7 @@ categories:
 abbrlink: 54351
 date: 2025-11-28 14:47:35
 cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/obsidian_config.webp
+hidden: true
 ---
 
 ## Plugins
