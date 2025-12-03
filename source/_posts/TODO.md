@@ -7,12 +7,10 @@ sticky: "10"
 abbrlink: 4947
 date: 2025-11-29 08:50:05
 cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/TODO.webp
+updated: 2025-12-03 21:48
 ---
 
 ### Pending Issues
-- [ ] 首页按照更新时间展示文章列表
-	- [ ] 更新时间显示有误，导致列表展示乱序
-	- [ ] 配置更新时间具体到分钟
 
 ### Fixed
 - [x] 多级目录时，通过目录定位会出问题
@@ -31,3 +29,6 @@ cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/TODO.
 - [x] 图片多大太大，导致加载缓慢的问题。参考: https://gemini.google.com/share/320865e42713
 	- [x] 配置图床(github repo: [blog-images]([Supremes/blog-images](https://github.com/Supremes/blog-images)))，并使用CDN - `cdn.jsdelivr.net ` 加速访问
 	- [x] 压缩图片大小
+- [x] 首页按照更新时间展示文章列表
+	- 更新时间显示有误，导致列表展示乱序：由于是 github action 编译部署，会导致把所有文章统一更新到编译时间，因此选择使用 Obsidian 的 Linter 插件应用更新时间。
+	- 配置更新时间具体到分钟: 更新 date format 即可 - 'YYYY MM DD HH:MM'
