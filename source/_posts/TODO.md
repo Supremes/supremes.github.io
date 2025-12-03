@@ -10,7 +10,9 @@ cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/TODO.
 ---
 
 ### Pending Issues
-
+- [ ] 首页按照更新时间展示文章列表
+	- [ ] 更新时间显示有误，导致列表展示乱序
+	- [ ] 配置更新时间具体到分钟
 
 ### Fixed
 - [x] 多级目录时，通过目录定位会出问题
