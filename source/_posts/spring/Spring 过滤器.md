@@ -1,13 +1,16 @@
 ---
 title: Spring 过滤器
-date: 2025-12-03 22:37:18
-tags: []
+tags:
+  - 面试
 categories:
   - Spring
-cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg
-sticky:
+cover: >-
+  https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/Spring%E8%BF%87%E6%BB%A4%E5%99%A8.webp
 hidden: false
-updated: 2025-12-03 22:43
+updated: '2025-12-03 22:43'
+abbrlink: fed01c2
+date: 2025-12-03 22:37:18
+sticky:
 ---
 ## Filter 和 Interceptor
 
