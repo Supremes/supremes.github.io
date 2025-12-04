@@ -1,0 +1,588 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>JUC并发编程 | Supremes</title><meta name="author" content="Supremes"><meta name="copyright" content="Supremes"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="好的，阅读 JUC（Java Util Concurrent）源码是一项非常棒的学习任务，它能让你深入理解 Java 并发编程的精髓，以及 JVM 和操作系统层面的一些知识。JUC 包是 Java 并发编程的基石，包含了线程池、锁、原子操作、并发集合等核心组件。 下面为你列一个 JUC 源码学习的大纲，并提供一些学习建议：  JUC 源码学习大纲第一阶段：基础知识回顾与工具准备  并发基础理论：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JUC并发编程">
+<meta property="og:url" content="https://supremes.github.io/posts/eb9166f8.html">
+<meta property="og:site_name" content="Supremes">
+<meta property="og:description" content="好的，阅读 JUC（Java Util Concurrent）源码是一项非常棒的学习任务，它能让你深入理解 Java 并发编程的精髓，以及 JVM 和操作系统层面的一些知识。JUC 包是 Java 并发编程的基石，包含了线程池、锁、原子操作、并发集合等核心组件。 下面为你列一个 JUC 源码学习的大纲，并提供一些学习建议：  JUC 源码学习大纲第一阶段：基础知识回顾与工具准备  并发基础理论：">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/JUC.webp">
+<meta property="article:published_time" content="2025-12-04T21:00:06.000Z">
+<meta property="article:modified_time" content="2025-12-04T21:11:00.000Z">
+<meta property="article:author" content="Supremes">
+<meta property="article:tag" content="面试">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/JUC.webp"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "JUC并发编程",
+  "url": "https://supremes.github.io/posts/eb9166f8.html",
+  "image": "https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/JUC.webp",
+  "datePublished": "2025-12-04T21:00:06.000Z",
+  "dateModified": "2025-12-04T21:11:00.000Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Supremes",
+      "url": "https://supremes.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/favicon/favicon.ico"><link rel="canonical" href="https://supremes.github.io/posts/eb9166f8.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.2"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"pagination":{"enable":true,"hitsPerPage":10},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: true,
+  isAnchor: true,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'JUC并发编程',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 8.1.1"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">19</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">51</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/Spring/"><i class="fa-fw fas fa-leaf"></i><span> Spring</span></a></li><li><a class="site-page child" href="/categories/Interview/"><i class="fa-fw fas fa-book"></i><span> 面试</span></a></li><li><a class="site-page child" href="/categories/database/"><i class="fa-fw fas fa-database"></i><span> 数据库</span></a></li><li><a class="site-page child" href="/categories/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法</span></a></li><li><a class="site-page child" href="/categories/security/"><i class="fa-fw fas fa-shield-alt"></i><span> 网络安全</span></a></li><li><a class="site-page child" href="/categories/message-queue/"><i class="fa-fw fas fa-envelope"></i><span> 消息队列</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 关于</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/about/about_me"><i class="fa-fw fas fa-user"></i><span> 关于我</span></a></li><li><a class="site-page child" href="/about/my_notes"><i class="fa-fw fas fa-note-sticky"></i><span> 备忘录</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/JUC.webp);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Supremes</span></a><a class="nav-page-title" href="/"><span class="site-name">JUC并发编程</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/Spring/"><i class="fa-fw fas fa-leaf"></i><span> Spring</span></a></li><li><a class="site-page child" href="/categories/Interview/"><i class="fa-fw fas fa-book"></i><span> 面试</span></a></li><li><a class="site-page child" href="/categories/database/"><i class="fa-fw fas fa-database"></i><span> 数据库</span></a></li><li><a class="site-page child" href="/categories/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法</span></a></li><li><a class="site-page child" href="/categories/security/"><i class="fa-fw fas fa-shield-alt"></i><span> 网络安全</span></a></li><li><a class="site-page child" href="/categories/message-queue/"><i class="fa-fw fas fa-envelope"></i><span> 消息队列</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 关于</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/about/about_me"><i class="fa-fw fas fa-user"></i><span> 关于我</span></a></li><li><a class="site-page child" href="/about/my_notes"><i class="fa-fw fas fa-note-sticky"></i><span> 备忘录</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">JUC并发编程</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-12-04T21:00:06.000Z" title="发表于 2025-12-04 21:00 21:00:06">2025-12-04 21:00</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-12-04T21:11:00.000Z" title="更新于 2025-12-04 21:11 21:11:00">2025-12-04 21:11</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Interview/">面试</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>好的，阅读 JUC（Java Util Concurrent）源码是一项非常棒的学习任务，它能让你深入理解 Java 并发编程的精髓，以及 JVM 和操作系统层面的一些知识。JUC 包是 Java 并发编程的基石，包含了线程池、锁、原子操作、并发集合等核心组件。</p>
+<p>下面为你列一个 JUC 源码学习的大纲，并提供一些学习建议：</p>
+<hr>
+<h3 id="JUC-源码学习大纲"><a href="#JUC-源码学习大纲" class="headerlink" title="JUC 源码学习大纲"></a>JUC 源码学习大纲</h3><p><strong>第一阶段：基础知识回顾与工具准备</strong></p>
+<ol>
+<li><strong>并发基础理论：</strong><ul>
+<li><strong>可见性、原子性、有序性：</strong> 深入理解这三大特性及其在并发中的重要性。</li>
+<li><strong>JMM (Java Memory Model)：</strong> 了解 Java 内存模型如何保证并发的正确性。</li>
+<li><strong>Happens-Before 原则：</strong> 理解它如何定义操作之间的顺序。</li>
+<li><strong>锁的原理：</strong> 了解悲观锁、乐观锁，以及自旋锁等概念。</li>
+<li><strong>AQS (AbstractQueuedSynchronizer) 概述：</strong> 对 AQS 有一个初步的认识，它是 JUC 许多高级同步器的基石。</li>
+<li><strong>CAS (Compare-And-Swap) 原理：</strong> 理解其三步操作和 ABA 问题。</li>
+</ul>
+</li>
+<li><strong>Lombok 与 <code>@SneakyThrows</code>：</strong><ul>
+<li>Lombok 在 JUC 源码中不常用，但如果你在其他项目中大量使用 Lombok，可以了解其原理。</li>
+<li><code>@SneakyThrows</code>：理解其作用、优缺点及何时使用。</li>
+</ul>
+</li>
+<li><strong>工具准备：</strong><ul>
+<li><strong>IntelliJ IDEA：</strong> 最推荐的 IDE，其源码导航和调试功能非常强大。</li>
+<li><strong>JAD 或 JD-GUI：</strong> 反编译工具，用于查看字节码（如果需要）。</li>
+<li><strong>VisualVM 或 JProfiler：</strong> 性能分析工具，用于观察线程状态、锁竞争等（可选）。</li>
+<li><strong>画图工具：</strong> 如 draw. Io, XMind, Excalidraw 等，用于绘制类图、状态转换图。</li>
+</ul>
+</li>
+</ol>
+<p><strong>第二阶段：核心原子操作与 CAS 深入</strong></p>
+<ol>
+<li><code>java.util.concurrent.atomic</code> 包：<ul>
+<li><code>AtomicInteger</code>：<ul>
+<li><strong>源码分析：</strong> 关注其核心方法 <code>compareAndSet()</code>。</li>
+<li><strong>底层机制：</strong> 了解它如何利用 <code>Unsafe</code> 类的 CAS 操作（<code>compareAndSwapInt</code>）。</li>
+<li><strong><code>volatile</code> 关键字：</strong> 理解它在这里的作用（保证可见性）。</li>
+</ul>
+</li>
+<li><code>AtomicLong</code> &#x2F; <code>AtomicBoolean</code> &#x2F; <code>AtomicReference</code>：<ul>
+<li>与 <code>AtomicInteger</code> 类似，重点理解 <code>AtomicReference</code> 如何实现对象引用的原子更新。</li>
+</ul>
+</li>
+<li><code>AtomicStampedReference</code> &#x2F; <code>AtomicMarkableReference</code>：<ul>
+<li><strong>源码分析：</strong> 重点理解它们如何通过版本号（或标记）解决 CAS 的 ABA 问题。</li>
+<li><strong>使用场景：</strong> 何时需要考虑 ABA 问题。</li>
+</ul>
+</li>
+<li><code>AtomicIntegerFieldUpdater</code> &#x2F; <code>AtomicLongFieldUpdater</code> &#x2F; <code>AtomicReferenceFieldUpdater</code>：<ul>
+<li><strong>源码分析：</strong> 了解其工作原理（通过反射实现对指定对象的特定字段的原子更新）。</li>
+<li><strong>使用限制：</strong> 为什么字段必须是 <code>volatile</code> 且不能是 <code>static</code> 或 <code>final</code>。</li>
+</ul>
+</li>
+<li><code>LongAdder</code> &#x2F; <code>DoubleAdder</code> &#x2F; <code>LongAccumulator</code> &#x2F; <code>DoubleAccumulator</code> (Java 8+):<ul>
+<li><strong>源码分析：</strong> 理解它们如何通过分段（cells）技术，将热点 CAS 竞争分散，提高高并发下的性能。</li>
+<li><strong>与 <code>AtomicLong</code> 的对比：</strong> 性能优势和适用场景。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<p><strong>第三阶段：锁的实现基石 - AQS (AbstractQueuedSynchronizer)</strong></p>
+<ol>
+<li><p><strong>AQS 核心原理：</strong></p>
+<ul>
+<li><strong>内部状态（<code>state</code>）：</strong> 如何通过 <code>volatile int state</code> 表示同步状态。</li>
+<li><strong>FIFO 双向队列：</strong> 理解等待线程如何封装成 <code>Node</code> 节点，并排队等待锁。</li>
+<li>独占模式与共享模式：<ul>
+<li><p>独占模式：</p>
+<p> 如 </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ReentrantLock</span><br></pre></td></tr></table></figure>
+
+<p>。</p>
+<ul>
+<li><code>acquire()</code> &#x2F; <code>release()</code>：如何获取和释放锁。</li>
+<li><code>tryAcquire()</code> &#x2F; <code>tryRelease()</code>：尝试获取&#x2F;释放，由子类实现。</li>
+</ul>
+</li>
+<li><p>共享模式：</p>
+<p> 如 </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Semaphore</span><br></pre></td></tr></table></figure>
+
+<p>、</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CountDownLatch</span><br></pre></td></tr></table></figure>
+
+<p>。</p>
+<ul>
+<li><code>acquireShared()</code> &#x2F; <code>releaseShared()</code>：如何获取和释放共享锁。</li>
+<li><code>tryAcquireShared()</code> &#x2F; <code>tryReleaseShared()</code>：尝试获取&#x2F;释放，由子类实现。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>条件变量 (<code>ConditionObject</code>)：<ul>
+<li>理解 AQS 内部的条件队列，以及 <code>await()</code> &#x2F; <code>signal()</code> &#x2F; <code>signalAll()</code> 的实现。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>AQS 典型实现类：</strong></p>
+<ul>
+<li><code>ReentrantLock</code>：<ul>
+<li><strong>源码分析：</strong> 重点看 <code>Sync</code> 抽象类 (<code>NonfairSync</code> 和 <code>FairSync</code>) 的实现。</li>
+<li><strong>公平锁与非公平锁：</strong> 它们的区别和实现方式（AQS <code>tryAcquire</code> 的差异）。</li>
+<li><strong>可重入性：</strong> 如何通过 <code>state</code> 计数和当前持有线程来管理。</li>
+</ul>
+</li>
+<li><code>Semaphore</code> (信号量)：<ul>
+<li><strong>源码分析：</strong> 理解它如何基于 AQS 的共享模式实现许可证计数。</li>
+<li><strong><code>acquire()</code> &#x2F; <code>release()</code>：</strong> 它们如何与 AQS 的 <code>acquireShared</code> &#x2F; <code>releaseShared</code> 交互。</li>
+</ul>
+</li>
+<li><code>CountDownLatch</code> (倒计时门闩)：<ul>
+<li><strong>源码分析：</strong> 理解其 <code>count</code> 如何基于 AQS 的共享模式实现计数和等待。</li>
+<li><strong><code>await()</code> &#x2F; <code>countDown()</code>：</strong> 它们如何与 AQS 的 <code>acquireShared</code> &#x2F; <code>releaseShared</code> 交互。</li>
+</ul>
+</li>
+<li><code>CyclicBarrier</code> (循环屏障)：<ul>
+<li><strong>源码分析：</strong> 它的实现相对复杂，结合了 ReentrantLock 和 Condition。</li>
+<li><strong>与 <code>CountDownLatch</code> 的区别：</strong> 可重用性和等待所有线程到达。</li>
+</ul>
+</li>
+<li><code>ReentrantReadWriteLock</code> (读写锁)：<ul>
+<li><strong>源码分析：</strong> 核心是 <code>Sync</code> 类，如何利用一个 <code>state</code> 变量同时表示读锁和写锁（高 16 位和低 16 位）。</li>
+<li><strong>读写分离：</strong> 读锁共享，写锁独占的实现细节。</li>
+<li><strong>锁降级：</strong> 什么是锁降级，如何实现。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<p><strong>第四阶段：线程池 (Executor 框架)</strong></p>
+<ol>
+<li><strong><code>Executor</code> 接口层级：</strong><ul>
+<li><code>Executor</code> -&gt; <code>ExecutorService</code> -&gt; <code>AbstractExecutorService</code> -&gt; <code>ThreadPoolExecutor</code>。</li>
+<li><strong><code>Callable</code> 和 <code>Future</code>：</strong> 回顾它们与 <code>ExecutorService</code> 的关系。</li>
+</ul>
+</li>
+<li><strong><code>ThreadPoolExecutor</code>：</strong><ul>
+<li><strong>源码分析：</strong> JUC 中最复杂的类之一。</li>
+<li><strong>核心参数：</strong> <code>corePoolSize</code>, <code>maximumPoolSize</code>, <code>keepAliveTime</code>, <code>TimeUnit</code>, <code>workQueue</code>, <code>ThreadFactory</code>, <code>RejectedExecutionHandler</code>。深入理解每个参数的作用。</li>
+<li><strong>线程池状态：</strong> <code>RUNNING</code>, <code>SHUTDOWN</code>, <code>STOP</code>, <code>TIDYING</code>, <code>TERMINATED</code>。理解它们的转换。</li>
+<li>任务提交流程 (<code>execute()</code> 方法)：<ul>
+<li>如何根据核心线程数、阻塞队列、最大线程数来决定任务的处理方式（直接执行、入队、新建线程）。</li>
+</ul>
+</li>
+<li>工作线程 (<code>Worker</code> 类)：<ul>
+<li>如何复用线程，如何从队列中获取任务。</li>
+<li>线程池的生命周期管理。</li>
+</ul>
+</li>
+<li><strong>拒绝策略 (<code>RejectedExecutionHandler</code>)：</strong> 理解四种默认策略和自定义策略。</li>
+<li><strong>常用的工厂方法 (<code>Executors</code>)：</strong> 理解 <code>newFixedThreadPool</code>, <code>newSingleThreadExecutor</code>, <code>newCachedThreadPool</code>, <code>newScheduledThreadPool</code> 的底层实现。</li>
+</ul>
+</li>
+</ol>
+<p><strong>第五阶段：并发集合</strong></p>
+<ol>
+<li><strong><code>ConcurrentHashMap</code>：</strong><ul>
+<li><strong>源码分析：</strong> Java 7 (分段锁) 和 Java 8 (CAS + synchronized + 数组 + 链表&#x2F;红黑树) 的实现差异。重点关注 Java 8。</li>
+<li>Java 8 实现：<ul>
+<li><strong><code>Node</code> 数组 + 链表&#x2F;红黑树：</strong> 数据结构。</li>
+<li><strong><code>volatile</code> + CAS：</strong> 如何保证读写可见性和原子性。</li>
+<li><strong><code>synchronized</code>：</strong> 内部何时使用 <code>synchronized</code> (如 <code>put</code> 时的链表&#x2F;红黑树操作，<code>resize</code> 时的扩容)。</li>
+<li><strong>扩容机制 (<code>transfer()</code> &#x2F; <code>helpTransfer()</code>):</strong> 多线程下的扩容如何实现。</li>
+</ul>
+</li>
+<li><strong>与 <code>Hashtable</code> 和 <code>Collections.synchronizedMap</code> 的对比。</strong></li>
+</ul>
+</li>
+<li><strong><code>ConcurrentLinkedQueue</code> (非阻塞队列)：</strong><ul>
+<li><strong>源码分析：</strong> 重点理解其非阻塞的入队 (<code>offer()</code>) 和出队 (<code>poll()</code>) 操作如何基于 CAS 实现。</li>
+<li><strong><code>head</code> 和 <code>tail</code> 指针：</strong> 如何维护。</li>
+<li><strong>使用场景：</strong> 为什么它比基于锁的队列在高并发下性能更好。</li>
+</ul>
+</li>
+<li><strong><code>BlockingQueue</code> 接口：</strong><ul>
+<li><strong>理解其阻塞特性：</strong> <code>put()</code> 和 <code>take()</code> 方法。</li>
+<li>典型实现类：<ul>
+<li><strong><code>ArrayBlockingQueue</code>：</strong> 基于数组，有界，ReentrantLock + Condition 实现。</li>
+<li><strong><code>LinkedBlockingQueue</code>：</strong> 基于链表，可选有界，两个 ReentrantLock + 两个 Condition 实现。</li>
+<li><strong><code>SynchronousQueue</code>：</strong> 不存储元素的队列，直接将生产者和消费者配对。</li>
+<li><strong><code>PriorityBlockingQueue</code>：</strong> 支持优先级的无界阻塞队列。</li>
+<li><strong><code>DelayQueue</code>：</strong> 延迟队列。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<p><strong>第六阶段：CompletableFuture (Java 8)</strong></p>
+<ol>
+<li><code>CompletionStage</code> 接口：<ul>
+<li><strong>理解其设计思想：</strong> 异步计算阶段，链式调用，非阻塞回调。</li>
+<li><strong>核心方法分类：</strong> 转换、组合、异常处理等。</li>
+</ul>
+</li>
+<li><code>CompletableFuture</code>：<ul>
+<li><strong>源码分析：</strong> 理解它如何作为 <code>Future</code> 和 <code>CompletionStage</code> 的实现。</li>
+<li><strong>异步工厂方法：</strong> <code>supplyAsync()</code>, <code>runAsync()</code>, <code>completedFuture()</code>, <code>failedFuture()</code>。</li>
+<li><strong>回调方法：</strong> <code>thenApply()</code>, <code>thenAccept()</code>, <code>thenRun()</code>, <code>whenComplete()</code>。</li>
+<li><strong>组合方法：</strong> <code>thenCompose()</code>, <code>thenCombine()</code>, <code>allOf()</code>, <code>anyOf()</code>。</li>
+<li><strong>异常处理：</strong> <code>exceptionally()</code>, <code>handle()</code>。</li>
+<li><strong>执行器 (Executor)：</strong> 理解其异步方法如何使用默认线程池或指定线程池。</li>
+<li><strong>内部 <code>Completion</code> 链：</strong> 理解其回调如何通过内部 <code>Completion</code> 链表实现任务的级联执行。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="学习建议"><a href="#学习建议" class="headerlink" title="学习建议"></a>学习建议</h3><ol>
+<li><strong>从宏观到微观：</strong><ul>
+<li>首先理解整个 JUC 模块的架构和每个组件的职责。</li>
+<li>然后选择一个模块（如 <code>atomic</code> 包）深入，接着是 <code>AQS</code>，再到其实现类。</li>
+<li>不要一开始就钻入细节，否则容易迷失。</li>
+</ul>
+</li>
+<li><strong>带着问题去阅读：</strong><ul>
+<li>这个类解决了什么问题？</li>
+<li>它是如何保证线程安全的？</li>
+<li>它是如何利用 CAS 或锁的？</li>
+<li>它的核心数据结构是什么？</li>
+<li>它的关键方法是如何实现的？</li>
+<li>是否存在性能瓶颈，以及如何优化？</li>
+</ul>
+</li>
+<li><strong>调试是最好的老师：</strong><ul>
+<li>不要只看代码，要多使用 IntelliJ IDEA 的调试器。</li>
+<li>设置断点，单步执行，观察变量（特别是 <code>state</code> 值、队列结构）的变化，这对于理解 AQS 等复杂机制至关重要。</li>
+</ul>
+</li>
+<li><strong>画图辅助理解：</strong><ul>
+<li>对于复杂的类（如 AQS、ConcurrentHashMap、ThreadPoolExecutor），尝试绘制它们的内部数据结构图（队列、数组、Node）和状态转换图。</li>
+<li>UML 类图功能在 IntelliJ IDEA Ultimate 中非常有用。</li>
+</ul>
+</li>
+<li><strong>对照官方文档和相关博客：</strong><ul>
+<li>Java Doc 是最好的参考资料，它描述了每个类和方法的行为。</li>
+<li>网上有很多优秀的 JUC 源码分析文章和视频，可以作为补充材料，但要带着批判性思维去阅读，以官方源码为准。</li>
+</ul>
+</li>
+<li><strong>逐步实践：</strong><ul>
+<li>阅读完一个模块后，尝试编写一些简单的示例代码来验证你的理解。</li>
+<li>尝试重现一些并发问题，然后观察 JUC 组件如何解决它们。</li>
+</ul>
+</li>
+<li><strong>循序渐进，持之以恒：</strong><ul>
+<li>JUC 源码内容庞大且复杂，不要期望一口吃成胖子。</li>
+<li>每天投入一定的时间，坚持下去，你会逐渐掌握其中的奥秘。</li>
+</ul>
+</li>
+</ol>
+<p>祝你学习顺利！这是一个非常有价值的挑战！</p>
+<h1 id="CompletableFuture-异步编程首选"><a href="#CompletableFuture-异步编程首选" class="headerlink" title="CompletableFuture - 异步编程首选"></a>CompletableFuture - 异步编程首选</h1><ul>
+<li>支持链式调用</li>
+<li>支持非阻塞回调</li>
+</ul>
+<h1 id="Atomic-包"><a href="#Atomic-包" class="headerlink" title="Atomic 包"></a>Atomic 包</h1><p>提供了一系列原子操作的类，在高并发环境下实现无锁（Lock-free）的线程安全操作。</p>
+<h3 id="atomic-包的核心思想：CAS-Compare-And-Swap"><a href="#atomic-包的核心思想：CAS-Compare-And-Swap" class="headerlink" title="atomic 包的核心思想：CAS (Compare-And-Swap)"></a><code>atomic</code> 包的核心思想：CAS (Compare-And-Swap)</h3><p><code>atomic</code> 包中的所有原子操作类都是基于 <strong>CAS（Compare-And-Swap）</strong> 这种硬件指令实现的。</p>
+<p><strong>CAS 操作包含三个操作数：</strong></p>
+<ol>
+<li><strong>V (Value)</strong>：要更新的变量的内存位置。</li>
+<li><strong>A (Expected)</strong>：期望的旧值。</li>
+<li><strong>B (New)</strong>：要设置的新值。</li>
+</ol>
+<p><strong>CAS 的操作逻辑：</strong> 如果内存位置 V 的值等于期望的旧值 A，那么就将 V 的值更新为新值 B。否则，不做任何操作。无论更新成功还是失败，CAS 操作都会返回 V 的当前值（或者布尔值表示是否成功）。</p>
+<p><strong>CAS 的缺点 (ABA 问题)：</strong> 如果一个值从 A 变成了 B，然后又变回了 A。当执行 CAS 操作时，发现当前值是 A，就会成功更新。但实际上，这个值已经被其他线程修改过了。</p>
+<h3 id="ABA-问题解决方案："><a href="#ABA-问题解决方案：" class="headerlink" title="ABA 问题解决方案："></a><strong>ABA 问题解决方案</strong>：</h3><ul>
+<li><p>使用 <code>AtomicMarkableReference</code>: 带版本号的原子引用。它不仅比较引用是否相同，还会比较版本号是否相同。这可以有效解决 ABA 问题。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">Pair</span>&lt;T&gt; &#123;</span><br><span class="line">    <span class="keyword">final</span> T reference;</span><br><span class="line">    <span class="keyword">final</span> <span class="type">boolean</span> mark;</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">private</span> <span class="title function_">Pair</span><span class="params">(T reference, <span class="type">boolean</span> mark)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.reference = reference;</span><br><span class="line">        <span class="built_in">this</span>.mark = mark;</span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">static</span> &lt;T&gt; Pair&lt;T&gt; <span class="title function_">of</span><span class="params">(T reference, <span class="type">boolean</span> mark)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Pair</span>(reference, mark);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>使用 <code>AtomicStampedReference</code>: 引入 int 类型 stamp 变量，记录值的标记状态，适合更加复杂的场景</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">Pair</span>&lt;T&gt; &#123;</span><br><span class="line">        <span class="keyword">final</span> T reference;</span><br><span class="line">        <span class="keyword">final</span> <span class="type">int</span> stamp;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">private</span> <span class="title function_">Pair</span><span class="params">(T reference, <span class="type">int</span> stamp)</span> &#123;</span><br><span class="line">            <span class="built_in">this</span>.reference = reference;</span><br><span class="line">            <span class="built_in">this</span>.stamp = stamp;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">static</span> &lt;T&gt; Pair&lt;T&gt; <span class="title function_">of</span><span class="params">(T reference, <span class="type">int</span> stamp)</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Pair</span>(reference, stamp);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="累加器（Accumulators）和加法器（Adders）"><a href="#累加器（Accumulators）和加法器（Adders）" class="headerlink" title="累加器（Accumulators）和加法器（Adders）"></a>累加器（Accumulators）和加法器（Adders）</h3><p>解决在大量线程更新同一个 <code>AtomicLong</code> 或 <code>AtomicInteger</code> 时，CAS 操作冲突严重导致性能下降的问题（热点问题）。</p>
+<ul>
+<li><strong><code>LongAdder</code></strong>: 专为高并发的 <code>long</code> 型计数设计。</li>
+<li><strong><code>DoubleAdder</code></strong>: 专为高并发的 <code>double</code> 型计数设计。</li>
+<li><strong><code>LongAccumulator</code></strong>: 泛化的 <code>LongAdder</code>，可以执行任意的二元操作，而不仅仅是加法。</li>
+<li><strong><code>DoubleAccumulator</code></strong>: 泛化的 <code>DoubleAdder</code>。</li>
+</ul>
+<h1 id="Locks-包"><a href="#Locks-包" class="headerlink" title="Locks 包"></a>Locks 包</h1><h3 id="对比-Sychronzied-、Reentrantlock"><a href="#对比-Sychronzied-、Reentrantlock" class="headerlink" title="对比 Sychronzied 、Reentrantlock"></a>对比 Sychronzied 、Reentrantlock</h3><h1 id="AQS"><a href="#AQS" class="headerlink" title="AQS"></a>AQS</h1><h2 id="队列"><a href="#队列" class="headerlink" title="队列"></a>队列</h2><p>AQS 设计中涉及两种队列：</p>
+<ol>
+<li>同步队列：核心部分，管理尝试获取锁但失败的线程。</li>
+<li>条件队列：与条件变量相关，支持 locks. Condition 接口的操作 -  await 和 signal 方法</li>
+</ol>
+<h3 id="同步队列"><a href="#同步队列" class="headerlink" title="同步队列"></a>同步队列</h3><p>同步队列中每个节点代表一个等待锁的线程，按照 FIFO 的原则排列组织。</p>
+<table>
+<thead>
+<tr>
+<th>状态值</th>
+<th>常量名</th>
+<th>数值</th>
+<th>应用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>等待唤醒</td>
+<td><code>SIGNAL</code></td>
+<td>-1</td>
+<td>独占锁&#x2F;共享锁的同步队列，确保后继节点被唤醒</td>
+</tr>
+<tr>
+<td>取消竞争</td>
+<td><code>CANCELLED</code></td>
+<td>1</td>
+<td>线程因超时或中断放弃锁竞争</td>
+</tr>
+<tr>
+<td>条件等待</td>
+<td><code>CONDITION</code></td>
+<td>-2</td>
+<td>条件队列（如 <code>Condition.await()</code>）</td>
+</tr>
+<tr>
+<td>传播释放</td>
+<td><code>PROPAGATE</code></td>
+<td>-3</td>
+<td>共享模式下传递释放信号（如 <code>Semaphore</code>）</td>
+</tr>
+<tr>
+<td>初始化&#x2F;未使用</td>
+<td>默认状态</td>
+<td>0</td>
+<td>节点刚加入队列时的初始状态</td>
+</tr>
+</tbody></table>
+<h3 id="条件队列"><a href="#条件队列" class="headerlink" title="条件队列"></a>条件队列</h3><p><strong>Await 方法</strong></p>
+<blockquote>
+<p>调用 Await 方法会释放当前线程持有的锁，并将该线程加入到条件队列中等待被唤醒</p>
+</blockquote>
+<ol>
+<li><strong>必须先持有锁</strong>：调用 <code>await()</code> 前，线程必须已经成功获取了锁（即处于同步状态中），否则会抛出异常。</li>
+<li><strong>释放锁</strong>：在进入等待之前，线程会<strong>完全释放它所持有的锁</strong>（注意是全部的重入次数）。</li>
+<li><strong>构造节点并插入条件队列</strong>：线程会被封装成一个节点（Node），添加到对应的 <strong>条件队列</strong> 中。</li>
+<li><strong>阻塞自己</strong>：线程进入等待状态，直到被其他线程通过 <code>signal()</code> 或 <code>signalAll()</code> 唤醒。</li>
+<li><strong>重新竞争锁</strong>：当被唤醒后，线程需要重新去尝试获取锁（此时进入同步队列），只有成功获取锁之后才能从 <code>await()</code> 返回。</li>
+</ol>
+<p><strong>Signal 方法</strong></p>
+<blockquote>
+<p>调用 signal 方法，将一个等待在条件队列上线程加入到同步队列，让其准备参与锁的竞争</p>
+</blockquote>
+<ul>
+<li><code>signal()</code> 会从条件队列中取出一个等待的节点（通常是头节点），将其<strong>转移到同步队列中</strong>。</li>
+<li>转移完成后，如果同步队列中前驱节点的状态为 <code>SIGNAL</code>，那么这个刚转移过来的节点可能会被唤醒（具体由 AQS 调度决定）。</li>
+<li>只有当这个线程重新获取到锁之后，它才会从 <code>await()</code> 返回继续执行。</li>
+</ul>
+<h1 id="JUC-包中核心组件"><a href="#JUC-包中核心组件" class="headerlink" title="JUC 包中核心组件"></a>JUC 包中核心组件</h1><p>以下是 JUC 包中核心组件的中文解析：</p>
+<hr>
+<h3 id="1-原子类-java-util-concurrent-atomic"><a href="#1-原子类-java-util-concurrent-atomic" class="headerlink" title="1. 原子类 (java.util.concurrent.atomic)"></a>1. 原子类 (<code>java.util.concurrent.atomic</code>)</h3><p>这些类提供了对单个变量进行<strong>线程安全</strong>操作的能力，而无需使用重量级的 <code>synchronized</code> 关键字。它们主要依赖于硬件级别的 <strong>CAS (Compare-And-Swap&#x2F;比较并交换)</strong> 算法来实现高性能。</p>
+<ul>
+<li><strong>常见类：</strong> <code>AtomicInteger</code>, <code>AtomicLong</code>, <code>AtomicReference</code>, <code>LongAdder</code> (高并发下性能优于 AtomicLong)。</li>
+</ul>
+<h3 id="2-锁机制-java-util-concurrent-locks"><a href="#2-锁机制-java-util-concurrent-locks" class="headerlink" title="2. 锁机制 (java.util.concurrent.locks)"></a>2. 锁机制 (<code>java.util.concurrent.locks</code>)</h3><p>提供了比 Java 内置的 <code>synchronized</code> 更加灵活的锁和等待机制。</p>
+<ul>
+<li><strong><code>ReentrantLock</code> (可重入锁)：</strong> 一种互斥锁，功能类似 <code>synchronized</code>，但功能更强大（支持公平锁&#x2F;非公平锁、可中断、可超时）。</li>
+<li><strong><code>ReentrantReadWriteLock</code> (读写锁)：</strong> 允许多个读线程同时访问，但写线程独占。适合“读多写少”的场景。</li>
+<li><strong><code>Condition</code>：</strong> 配合 Lock 使用，类似于 <code>Object</code> 的 <code>wait/notify</code>，可以实现更精细的线程等待与唤醒控制。</li>
+</ul>
+<h3 id="3-并发容器-Concurrent-Collections"><a href="#3-并发容器-Concurrent-Collections" class="headerlink" title="3. 并发容器 (Concurrent Collections)"></a>3. 并发容器 (Concurrent Collections)</h3><p>为多线程环境优化的集合类，解决了标准集合（如 <code>HashMap</code>, <code>ArrayList</code>）线程不安全的问题，性能优于使用 <code>Collections.synchronizedMap</code>。</p>
+<ul>
+<li><strong><code>ConcurrentHashMap</code>：</strong> 并发编程中最常用的 Map。早期版本使用分段锁，JDK 8 之后改为 CAS + <code>synchronized</code>，性能极高。</li>
+<li><strong><code>CopyOnWriteArrayList</code>：</strong> 写入时复制。读操作无锁，写操作时复制新数组。适合“读多写极少”的场景。</li>
+<li><strong><code>BlockingQueue</code> (阻塞队列)：</strong> 线程池的核心组件。当队列空时取元素会阻塞，满时存元素会阻塞（如 <code>ArrayBlockingQueue</code>, <code>LinkedBlockingQueue</code>）。</li>
+</ul>
+<h3 id="4-线程池-执行器框架-java-util-concurrent-Executor"><a href="#4-线程池-执行器框架-java-util-concurrent-Executor" class="headerlink" title="4. 线程池 &#x2F; 执行器框架 (java.util.concurrent.Executor)"></a>4. 线程池 &#x2F; 执行器框架 (<code>java.util.concurrent.Executor</code>)</h3><p>将任务的提交与执行解耦。在生产环境中，我们极少手动 <code>new Thread()</code>，而是使用线程池来管理线程生命周期，复用线程以降低开销。</p>
+<ul>
+<li><strong><code>ThreadPoolExecutor</code>：</strong> 线程池的核心实现类，包含核心线程数、最大线程数、拒绝策略等参数。</li>
+<li><strong><code>Executors</code>：</strong> 创建线程池的工厂类（如 <code>newFixedThreadPool</code>），但通常建议手动创建 <code>ThreadPoolExecutor</code> 以避免 OOM 风险。</li>
+<li><strong><code>Future</code> &amp; <code>Callable</code>：</strong> 相比 <code>Runnable</code>，它们允许线程有返回值并能抛出异常。</li>
+</ul>
+<h3 id="5-同步工具类-Synchronizers"><a href="#5-同步工具类-Synchronizers" class="headerlink" title="5. 同步工具类 (Synchronizers)"></a>5. 同步工具类 (Synchronizers)</h3><p>用于协调多个线程之间的同步控制。</p>
+<ul>
+<li><strong><code>CountDownLatch</code> (倒计时器)：</strong> 让一个或多个线程等待其他线程完成一组操作后再执行（一次性使用）。</li>
+<li><strong><code>CyclicBarrier</code> (循环栅栏)：</strong> 让一组线程到达一个屏障（同步点）时被阻塞，直到最后一个线程到达屏障，大家才继续运行（可循环使用）。</li>
+<li><strong><code>Semaphore</code> (信号量)：</strong> 控制同时访问特定资源的线程数量，常用于限流。</li>
+</ul>
+<hr>
+</article><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E9%9D%A2%E8%AF%95/">面试</a></div><div class="post-share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/JUC.webp" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/posts/5363d109.html" title="Java8"><img class="cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/JAVA8.webp" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">Java8</div></div><div class="info-2"><div class="info-item-1">Lambda 表达式、Method Reference - 方法引用123456789101112131415private static void testLambda() &#123;    List&lt;String&gt; names = Arrays.asList(&quot;name&quot;, &quot;sex&quot;, &quot;hobby&quot;);    // with method reference -- static method    names.forEach(System.out::println);    names.forEach(name -&gt; System.out.println(name));    // with method reference -- instance method    names.sort(String::compareTo);    names.sort((a, b) -&gt; a.compareTo(b));    // with method reference -- construc...</div></div></div></a><a class="pagination-related" href="/posts/750d7523.html" title="Spring Cloud"><img class="cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/SpringCloud.webp" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">Spring Cloud</div></div><div class="info-2"><div class="info-item-1">Spring Cloud 是一个广泛用于构建微服务架构的框架集合，涵盖了服务发现、配置管理、负载均衡、熔断器、API 网关、消息总线等多个方面。以下是一个系统的 Spring Cloud 学习路线，适合初学者循序渐进地掌握其核心内容。  1. 基础准备在学习 Spring Cloud 之前，需要打好以下基础：  Java 基础：熟悉 Java 编程语言，包括面向对象编程、集合框架、异常处理等。 Spring Boot：Spring Cloud 基于 Spring Boot 构建，需掌握 Spring Boot 的核心概念，如自动配置、依赖注入、RESTful API 开发、Spring Data JPA 等。 微服务架构：了解微服务的基本概念、优缺点，以及与传统单体应用的区别。 HTTP 和 REST：掌握 HTTP 协议和 RESTful 服务设计原则。 Maven 或 Gradle：熟悉项目构建工具，学会管理依赖和构建项目。   2. Spring Cloud 核心组件学习Spring Cloud 由多个子项目组成，每个子项目解决微服务架构中的特定问题。以下是核心组件及其推荐...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/posts/2d0b435f.html" title="Spring MVC"><img class="cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/SpringMVC.webp" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-12-04 20:51</div><div class="info-item-2">Spring MVC</div></div><div class="info-2"><div class="info-item-1">SpringMVC 工作原理引言Spring MVC 框架作为 Java Web 应用程序开发中广泛采用的框架，以其分层和松耦合的架构而闻名。这种架构清晰地分离了表示层、持久层和控制层，使得开发人员能够独立地处理各个模块，并将其组合成专业的 Web 应用程序。遵循 MVC 标准开发的 Web 应用程序更易于扩展、更新和管理，因为松耦合的分层结构使得在特定层进行修改变得更加便捷 1。本报告旨在深入探讨 Spring MVC 框架内 HTTP 请求的完整生命周期，从客户端发起请求到最终响应返回，详细阐述其内部的工作原理。 理解模型-视图-控制器（MVC）模式模型-视图-控制器（MVC）是一种广泛应用于软件工程中的架构模式，旨在分离应用程序的不同关注点，从而提高代码的可维护性和可重用性 3。在 MVC 模式中，应用程序被划分为三个核心组件：  模型（Model）： 模型负责封装应用程序的数据和业务逻辑 2。它是应用程序的核心，管理着数据的存储、检索和处理 4。模型独立于用户界面，当模型中的数据发生变化时，它会通知视图进行更新 4。 视图（View）： 视图负责呈现模型中的数据，并将其转...</div></div></div></a><a class="pagination-related" href="/posts/750d7523.html" title="Spring Cloud"><img class="cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/SpringCloud.webp" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-12-04 20:54</div><div class="info-item-2">Spring Cloud</div></div><div class="info-2"><div class="info-item-1">Spring Cloud 是一个广泛用于构建微服务架构的框架集合，涵盖了服务发现、配置管理、负载均衡、熔断器、API 网关、消息总线等多个方面。以下是一个系统的 Spring Cloud 学习路线，适合初学者循序渐进地掌握其核心内容。  1. 基础准备在学习 Spring Cloud 之前，需要打好以下基础：  Java 基础：熟悉 Java 编程语言，包括面向对象编程、集合框架、异常处理等。 Spring Boot：Spring Cloud 基于 Spring Boot 构建，需掌握 Spring Boot 的核心概念，如自动配置、依赖注入、RESTful API 开发、Spring Data JPA 等。 微服务架构：了解微服务的基本概念、优缺点，以及与传统单体应用的区别。 HTTP 和 REST：掌握 HTTP 协议和 RESTful 服务设计原则。 Maven 或 Gradle：熟悉项目构建工具，学会管理依赖和构建项目。   2. Spring Cloud 核心组件学习Spring Cloud 由多个子项目组成，每个子项目解决微服务架构中的特定问题。以下是核心组件及其推荐...</div></div></div></a><a class="pagination-related" href="/posts/fed01c2.html" title="Spring 过滤器"><img class="cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/Spring%E8%BF%87%E6%BB%A4%E5%99%A8.webp" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-12-03 22:37</div><div class="info-item-2">Spring 过滤器</div></div><div class="info-2"><div class="info-item-1">Filter 和 InterceptorFilter 过滤器 Servlet 容器维度的，拦截 Servlet 的请求。 通过 Filter 接口实现的  Servlet 容器： Tomcat、Jetty。遵循 Java Servlet 规范，通常包括 HTTP 服务器，处理 web 请求和响应。 Interceptor 拦截器 Spring 容器维度的，对 Spring MVC 的请求进行拦截。 通过实现 HandlerInterceptor 接口实现的，并通过 Spring 的配置进行注册。  PS：Spring 框架嵌入到 Servlet 容器中，利用 spring 容器管理应用程序中的其他组件:  Spring Beans： 在 Spring 框架中，你可以定义和配置各种 Bean，包括业务逻辑组件、数据访问组件、服务等。这些 Bean 的生命周期、依赖关系等都由 Spring 容器管理。 Service 层和业务逻辑： 你可以使用 Spring 来管理业务逻辑层的组件，使其成为 Spring 容器管理的 Bean。这些业务逻辑组件通常包括服务层的实现，处理业务逻辑、事务...</div></div></div></a><a class="pagination-related" href="/posts/60441.html" title="Spring AOP 事务失效与底层代理机制深度总结"><img class="cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/AOP-PROXY.webp" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-11-25 20:39</div><div class="info-item-2">Spring AOP 事务失效与底层代理机制深度总结</div></div><div class="info-2"><div class="info-item-1">Spring AOP 事务失效与底层代理机制深度总结1. 核心问题：为什么自调用导致事务失效？现象在同一个类中，方法 A 调用方法 B（this.methodB()），即使方法 B 上加了 @Transactional 注解，事务依然不生效。 根本原因Spring AOP 的默认实现基于 代理模式 (Proxy Pattern)。Spring 容器中注入的 Bean 实际上是一个 代理对象 (Proxy)，它持有你编写的 目标对象 (Target)。  生效路径：外部调用 $\rightarrow$ Proxy $\rightarrow$ 事务拦截器 (Interceptor) $\rightarrow$ Target。 失效路径：Target 内部调用 $\rightarrow$ this.methodB() $\rightarrow$ Target。  此时，this 指针指向的是目标对象本身。代码执行流直接在目标对象内部流转，完全绕过了外层的代理对象及其持有的事务拦截器。 形象比喻 Proxy (代理)：大楼门口的安检员。 Target (目标)：大楼里的员工。 外部访问：...</div></div></div></a><a class="pagination-related" href="/posts/5363d109.html" title="Java8"><img class="cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/JAVA8.webp" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-12-04 21:06</div><div class="info-item-2">Java8</div></div><div class="info-2"><div class="info-item-1">Lambda 表达式、Method Reference - 方法引用123456789101112131415private static void testLambda() &#123;    List&lt;String&gt; names = Arrays.asList(&quot;name&quot;, &quot;sex&quot;, &quot;hobby&quot;);    // with method reference -- static method    names.forEach(System.out::println);    names.forEach(name -&gt; System.out.println(name));    // with method reference -- instance method    names.sort(String::compareTo);    names.sort((a, b) -&gt; a.compareTo(b));    // with method reference -- construc...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Supremes</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">19</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">51</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/Supremes"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#JUC-%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E5%A4%A7%E7%BA%B2"><span class="toc-text">JUC 源码学习大纲</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AD%A6%E4%B9%A0%E5%BB%BA%E8%AE%AE"><span class="toc-text">学习建议</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#CompletableFuture-%E5%BC%82%E6%AD%A5%E7%BC%96%E7%A8%8B%E9%A6%96%E9%80%89"><span class="toc-text">CompletableFuture - 异步编程首选</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Atomic-%E5%8C%85"><span class="toc-text">Atomic 包</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#atomic-%E5%8C%85%E7%9A%84%E6%A0%B8%E5%BF%83%E6%80%9D%E6%83%B3%EF%BC%9ACAS-Compare-And-Swap"><span class="toc-text">atomic 包的核心思想：CAS (Compare-And-Swap)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ABA-%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%EF%BC%9A"><span class="toc-text">ABA 问题解决方案：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%B4%AF%E5%8A%A0%E5%99%A8%EF%BC%88Accumulators%EF%BC%89%E5%92%8C%E5%8A%A0%E6%B3%95%E5%99%A8%EF%BC%88Adders%EF%BC%89"><span class="toc-text">累加器（Accumulators）和加法器（Adders）</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Locks-%E5%8C%85"><span class="toc-text">Locks 包</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%B9%E6%AF%94-Sychronzied-%E3%80%81Reentrantlock"><span class="toc-text">对比 Sychronzied 、Reentrantlock</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#AQS"><span class="toc-text">AQS</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%98%9F%E5%88%97"><span class="toc-text">队列</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%8C%E6%AD%A5%E9%98%9F%E5%88%97"><span class="toc-text">同步队列</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9D%A1%E4%BB%B6%E9%98%9F%E5%88%97"><span class="toc-text">条件队列</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#JUC-%E5%8C%85%E4%B8%AD%E6%A0%B8%E5%BF%83%E7%BB%84%E4%BB%B6"><span class="toc-text">JUC 包中核心组件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%8E%9F%E5%AD%90%E7%B1%BB-java-util-concurrent-atomic"><span class="toc-text">1. 原子类 (java.util.concurrent.atomic)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E9%94%81%E6%9C%BA%E5%88%B6-java-util-concurrent-locks"><span class="toc-text">2. 锁机制 (java.util.concurrent.locks)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%B9%B6%E5%8F%91%E5%AE%B9%E5%99%A8-Concurrent-Collections"><span class="toc-text">3. 并发容器 (Concurrent Collections)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E7%BA%BF%E7%A8%8B%E6%B1%A0-%E6%89%A7%E8%A1%8C%E5%99%A8%E6%A1%86%E6%9E%B6-java-util-concurrent-Executor"><span class="toc-text">4. 线程池 &#x2F; 执行器框架 (java.util.concurrent.Executor)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E5%90%8C%E6%AD%A5%E5%B7%A5%E5%85%B7%E7%B1%BB-Synchronizers"><span class="toc-text">5. 同步工具类 (Synchronizers)</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/posts/5363d109.html" title="Java8"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/JAVA8.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Java8"/></a><div class="content"><a class="title" href="/posts/5363d109.html" title="Java8">Java8</a><time datetime="2025-12-04T21:06:42.000Z" title="发表于 2025-12-04 21:06 21:06:42">2025-12-04 21:06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/eb9166f8.html" title="JUC并发编程"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/JUC.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="JUC并发编程"/></a><div class="content"><a class="title" href="/posts/eb9166f8.html" title="JUC并发编程">JUC并发编程</a><time datetime="2025-12-04T21:00:06.000Z" title="发表于 2025-12-04 21:00 21:00:06">2025-12-04 21:00</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/750d7523.html" title="Spring Cloud"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/SpringCloud.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Spring Cloud"/></a><div class="content"><a class="title" href="/posts/750d7523.html" title="Spring Cloud">Spring Cloud</a><time datetime="2025-12-04T20:54:30.000Z" title="发表于 2025-12-04 20:54 20:54:30">2025-12-04 20:54</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/2d0b435f.html" title="Spring MVC"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/SpringMVC.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Spring MVC"/></a><div class="content"><a class="title" href="/posts/2d0b435f.html" title="Spring MVC">Spring MVC</a><time datetime="2025-12-04T20:51:26.000Z" title="发表于 2025-12-04 20:51 20:51:26">2025-12-04 20:51</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/fed01c2.html" title="Spring 过滤器"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/Spring%E8%BF%87%E6%BB%A4%E5%99%A8.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Spring 过滤器"/></a><div class="content"><a class="title" href="/posts/fed01c2.html" title="Spring 过滤器">Spring 过滤器</a><time datetime="2025-12-03T22:37:18.000Z" title="发表于 2025-12-03 22:37 22:37:18">2025-12-03 22:37</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 By Supremes</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.1</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.2</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.2"></script><script src="/js/main.js?v=5.5.2"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@19.1.3/dist/lazyload.iife.min.js"></script><div class="js-pjax"><script>(() => {
+  const runMermaid = ele => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    ele.forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const config = mermaidSrc.dataset.config ? JSON.parse(mermaidSrc.dataset.config) : {}
+      if (!config.theme) {
+        config.theme = theme
+      }
+      const mermaidThemeConfig = `%%{init: ${JSON.stringify(config)}}%%\n`
+      const mermaidID = `mermaid-${index}`
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+      const renderMermaid = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      // mermaid v9 and v10 compatibility
+      typeof renderFn === 'string' ? renderMermaid(renderFn) : renderFn.then(({ svg }) => renderMermaid(svg))
+    })
+  }
+
+  const codeToMermaid = () => {
+    const codeMermaidEle = document.querySelectorAll('pre > code.mermaid')
+    if (codeMermaidEle.length === 0) return
+
+    codeMermaidEle.forEach(ele => {
+      const preEle = document.createElement('pre')
+      preEle.className = 'mermaid-src'
+      preEle.hidden = true
+      preEle.textContent = ele.textContent
+      const newEle = document.createElement('div')
+      newEle.className = 'mermaid-wrap'
+      newEle.appendChild(preEle)
+      ele.parentNode.replaceWith(newEle)
+    })
+  }
+
+  const loadMermaid = () => {
+    if (true) codeToMermaid()
+    const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+    if ($mermaid.length === 0) return
+
+    const runMermaidFn = () => runMermaid($mermaid)
+    btf.addGlobalFn('themeChange', runMermaidFn, 'mermaid')
+    window.loadMermaid ? runMermaidFn() : btf.getScript('https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.min.js').then(runMermaidFn)
+  }
+
+  btf.addGlobalFn('encrypt', loadMermaid, 'mermaid')
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="/"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章标题和内容..." type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.5.2"></script></div></div></body></html>
