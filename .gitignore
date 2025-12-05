@@ -29,3 +29,6 @@ Thumbs.db
 
 themes
 source/imgs
+
+# Obsidian
+source/.obsidian/workspace.json
