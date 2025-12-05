@@ -95,13 +95,8 @@ category_map:
   标签: tag
   关于: about
   
-# tag_map:
-#   前端: frontend
-#   后端: backend
-#   数据库: database
-#   算法: algorithm
-#   工具: tools
-
+tag_map:
+  面试: Interview
 # Metadata elements
 ## https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta
 meta_generator: true
