@@ -8,7 +8,7 @@ categories:
 cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/GIT.webp
 sticky:
 hidden: false
-updated: 2025-12-06 22:04
+updated: 2025-12-07 10:24
 ---
 # 🍄 Git 全方位实战手册：从入门到通关
 
@@ -26,44 +26,30 @@ updated: 2025-12-06 22:04
 >     
 > 4. **远程仓库 (Remote Repository)**：GitHub/GitLab 等服务器端。
 
-# `git rm --cache <filename>`
+# `.gitignore`
+
+只对 `未被追踪 untracked` 的文件有效，一旦文件之前被 commit 过，git 便会无视该文件的配置，因此需要配合 `git rm --cahce` 使用。
+
+## git rm --cache <文件名>
 
 >  让 git 停止跟踪某个文件，但是不删除本地的文件
 
-常用语某些“亡羊补牢”的场景，把不该提交的配置文件提到到了 Git，现在需要从仓库中删除，但本地还需要使用，通常配合 `.gitignore` 使用。
-
-#  `.gitignore`
-
-只对 `未被追踪 untracked` 的文件有效，一旦文件之前被 commit 过，git 便会无视该文件的配置，因此需要配合上述 `git rm --cahce` 使用。
-
-# `git restore <filename>`
-
-旧版命令：`git checkout -- <文件名>`
-
-放弃 `工作区` 的修改，用 `暂存区` 覆盖 `工作区`。
-- 如果 `工作区` 没有改动，便会直接撤销工作区的改动
-- 如果 `工作区` 有改动，便会覆盖
-
-# `git restore --staged <filename>` 
-
-旧命令: `git reset HEAD <filename>``
-
-将文件从 `暂存区` 切换到 `工作区` , 即在执行完 `git add` 命令后，用来撤回。
+常用语某些“亡羊补牢”的场景，把不该提交的配置文件提到到了 Git，现在需要从仓库中删除，但本地还需要使用，通常配合 `. gitignore`使用。
 
 # `git stash`
 
 ## git stash -u
-u 参数，会把 untracked files 也一并暂存
+>  添加u 参数，会把 untracked files 也一并暂存
 
 ## git stash push -m <多个文件名或目录名>
 - 旧版：git stash save "stash message"
 - 新版：git stash push -m "stash message"
 
 ## git stash -p
- 交互式命令，可以选择哪些需要暂存
+ `交互式命令`，可以选择哪些需要暂存
 
 ## git stash branch <新分支名>
-创建一个新的分支，检出你stash 时的那个 commit，然后应用 stash。这样担心有冲突，就在新分支里解决，不会影响主分支。
+创建一个新的分支，检出你 stash 时的那个 commit，然后应用 stash。这样担心有冲突，就在新分支里解决，不会影响主分支。
 
 ---
 # `删除分支 - git branch -d`
@@ -90,6 +76,13 @@ git restore <file>
 # 或者旧版命令：git checkout -- <file>
 ```
 
+#### git restore <文件名>
+
+旧版命令：`git checkout -- <文件名>`
+
+放弃 `工作区` 的修改，用 `暂存区` 覆盖 `工作区`。
+- 如果 `工作区` 没有改动，便会直接撤销工作区的改动
+- 如果 `工作区` 有改动，便会覆盖
 ### 2. 撤销暂存区的修改 (已 add，未 commit)
 
 ```Bash
@@ -98,6 +91,11 @@ git restore --staged <file>
 # 或者旧版命令：git reset HEAD <file>
 ```
 
+#### git restore --staged <文件名>
+
+旧命令: `git reset HEAD <filename>
+
+将文件从 `暂存区` 切换到 `工作区` , 即在执行完 `git add` 命令后，用来撤回。
 ### 3. 撤销提交 (已 commit) —— **Reset**
 
 这里有三种模式，切记区分：
@@ -118,9 +116,7 @@ git reset --hard <commit-hash>
 
 如果你已经推送到远程仓库，**绝对不要用 Reset**，要用 Revert。它会生成一个新的 commit 来“反向”抵消之前的操作。
 
-Bash
-
-```
+```Bash
 git revert <commit-hash>
 ```
 
@@ -128,11 +124,11 @@ git revert <commit-hash>
 
 # 配置别名 (Aliases)
 
-作为一名熟练工，敲 `git commit` 太慢了。在 `~/.gitconfig` 中添加这些别名，效率起飞。
+作为一名熟练工，敲 `git commit` 太慢了。在 `~/. gitconfig` 中添加这些别名，效率起飞。
 
 **推荐配置项:**
 
-- 设置 *git add, commit, push 别名*： `git config --global alias.acp '!f() { git add -A && git commit -m "$1" && git push; }; f'`
-	- 示例 : `git acp "修复了一个bug"`
-- 设置 *git add, amend no-edit, push -f 别名*: `git config --global alias.amendpush '!git add . && git commit --amend --no-edit && git push -f'`
-- 设置  *git log 漂亮的输出*: `git config --global alias.acp log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit`
+- 设置 *git add, commit, push 别名*： `git config --global alias. acp '!f () { git add -A && git commit -m "$1" && git push; }; f'`
+	- 示例 : `git acp "修复了一个 bug"`
+- 设置 *git add, amend no-edit, push -f 别名*: `git config --global alias. amendpush '! git add . && git commit --amend --no-edit && git push -f'`
+- 设置  *git log 漂亮的输出*: `git config --global alias. acp log --color --graph --pretty=format: '%Cred%h%Creset -%C (yellow)%d%Creset %s %Cgreen (%cr) %C (bold blue)<%an>%Creset' --abbrev-commit`
