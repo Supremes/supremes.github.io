@@ -8,7 +8,7 @@ categories:
 cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/GIT.webp
 sticky:
 hidden: false
-updated: 2025-12-06 15:44
+updated: 2025-12-06 22:04
 ---
 # 🍄 Git 全方位实战手册：从入门到通关
 
@@ -130,17 +130,9 @@ git revert <commit-hash>
 
 作为一名熟练工，敲 `git commit` 太慢了。在 `~/.gitconfig` 中添加这些别名，效率起飞。
 
-```bash
-# 直接在终端运行以下命令即可设置
-git config --global alias.st status
-git config --global alias.co checkout
-git config --global alias.ci commit
-git config --global alias.br branch
-git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
-```
+**推荐配置项:**
 
-**效果：**
-
-- 输入 `git st` = `git status`
-- 输入 `git lg` = **打印出极其漂亮的彩色分支图谱** (强烈推荐尝试！)
-
+- 设置 *git add, commit, push 别名*： `git config --global alias.acp '!f() { git add -A && git commit -m "$1" && git push; }; f'`
+	- 示例 : `git acp "修复了一个bug"`
+- 设置 *git add, amend no-edit, push -f 别名*: `git config --global alias.amendpush '!git add . && git commit --amend --no-edit && git push -f'`
+- 设置  *git log 漂亮的输出*: `git config --global alias.acp log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit`
