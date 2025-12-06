@@ -14,6 +14,7 @@ categories:
 cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/credential证书.webp
 abbrlink: 6104
 date: 2025-11-28 14:04:29
+updated: 2025-12-06 21:51
 ---
 
 # 数字证书与 PKI 技术详解
@@ -167,10 +168,6 @@ Root CA (根证书颁发机构)
 - **DigiCert CertCentral**: 全球领先的商业证书服务
 - **GlobalSign**: 欧洲主导的国际化 PKI 服务商
 
-
-
-
-
 ## 数字证书格式标准
 
 ### X.509 证书标准概述
@@ -264,6 +261,4 @@ ACME（Automatic Certificate Management Environmen）证书是通过 ACME 协议
 
 - 场景：专注于WEB安全，多用于网站的HTTPS验证
 - 使用者：网站管理员、开发者。
-
-
 
