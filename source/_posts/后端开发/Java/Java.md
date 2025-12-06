@@ -6,7 +6,7 @@ categories:
   - 后端开发
 cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/JAVA8.webp
 hidden: false
-updated: 2025-12-05 22:19
+updated: 2025-12-06 10:42
 abbrlink: 5363d109
 date: 2025-12-04 21:06:42
 sticky:
@@ -49,7 +49,7 @@ Lambda 表达式不能凭空存在，它必须依附于**函数式接口**。
 - **注解**：通常使用 `@FunctionalInterface` 标记（非强制，但推荐）。
 - **常见接口**：`Runnable`, `Comparator`, 以及 Java 8 新增的 `java.util.function` 包下的 `Predicate`, `Consumer`, `Function`, `Supplier`。
 
-#### 四种系统预定义函数式接口
+#### 四种系统预定义函数式接口 - [示例代码](https://github.com/Supremes/blog_demo_application/blob/master/src/main/java/org/dododo/StreamDemo.java)
 #####  1. Consumer (消费者)
 > **口诀：只吃不吐（有去无回）**
 
