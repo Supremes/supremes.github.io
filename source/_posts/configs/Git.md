@@ -8,7 +8,7 @@ categories:
 cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/GIT.webp
 sticky:
 hidden: false
-updated: 2025-12-06 22:04
+updated: 2025-12-06 23:08
 ---
 # 🍄 Git 全方位实战手册：从入门到通关
 
@@ -26,29 +26,15 @@ updated: 2025-12-06 22:04
 >     
 > 4. **远程仓库 (Remote Repository)**：GitHub/GitLab 等服务器端。
 
-# `git rm --cache <filename>`
+#  `.gitignore`
+
+只对 `未被追踪 untracked` 的文件有效，一旦文件之前被 commit 过，git 便会无视该文件的配置，因此需要配合 `git rm --cahce` 使用。
+
+## git rm --cache <filename>
 
 >  让 git 停止跟踪某个文件，但是不删除本地的文件
 
-常用语某些“亡羊补牢”的场景，把不该提交的配置文件提到到了 Git，现在需要从仓库中删除，但本地还需要使用，通常配合 `.gitignore` 使用。
-
-#  `.gitignore`
-
-只对 `未被追踪 untracked` 的文件有效，一旦文件之前被 commit 过，git 便会无视该文件的配置，因此需要配合上述 `git rm --cahce` 使用。
-
-# `git restore <filename>`
-
-旧版命令：`git checkout -- <文件名>`
-
-放弃 `工作区` 的修改，用 `暂存区` 覆盖 `工作区`。
-- 如果 `工作区` 没有改动，便会直接撤销工作区的改动
-- 如果 `工作区` 有改动，便会覆盖
-
-# `git restore --staged <filename>` 
-
-旧命令: `git reset HEAD <filename>``
-
-将文件从 `暂存区` 切换到 `工作区` , 即在执行完 `git add` 命令后，用来撤回。
+常用语某些“亡羊补牢”的场景，把不该提交的配置文件提到到了 Git，现在需要从仓库中删除，但本地还需要使用，通常配合 `.gitignore`使用。
 
 # `git stash`
 
@@ -90,6 +76,13 @@ git restore <file>
 # 或者旧版命令：git checkout -- <file>
 ```
 
+#### `git restore <filename>`
+
+旧版命令：`git checkout -- <文件名>`
+
+放弃 `工作区` 的修改，用 `暂存区` 覆盖 `工作区`。
+- 如果 `工作区` 没有改动，便会直接撤销工作区的改动
+- 如果 `工作区` 有改动，便会覆盖
 ### 2. 撤销暂存区的修改 (已 add，未 commit)
 
 ```Bash
@@ -98,6 +91,11 @@ git restore --staged <file>
 # 或者旧版命令：git reset HEAD <file>
 ```
 
+#### `git restore --staged <filename>` 
+
+旧命令: `git reset HEAD <filename>``
+
+将文件从 `暂存区` 切换到 `工作区` , 即在执行完 `git add` 命令后，用来撤回。
 ### 3. 撤销提交 (已 commit) —— **Reset**
 
 这里有三种模式，切记区分：
