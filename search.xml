@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>Git 学习笔记</title>
+      <link href="/posts/3c3cdb74.html"/>
+      <url>/posts/3c3cdb74.html</url>
+      
+        <content type="html"><![CDATA[<h1 id="git-rm-cache"><a href="#git-rm-cache" class="headerlink" title="git rm --cache &lt;filename&gt;"></a><code>git rm --cache &lt;filename&gt;</code></h1><blockquote><p> 让 git 停止跟踪某个文件，但是不删除本地的文件</p></blockquote><p>常用语某些“亡羊补牢”的场景，把不该提交的配置文件提到到了 Git，现在需要从仓库中删除，但本地还需要使用，通常配合 <code>.gitignore</code> 使用。</p><h1 id="gitignore"><a href="#gitignore" class="headerlink" title=".gitignore"></a><code>.gitignore</code></h1><p>只对 <code>未被追踪 untracked</code> 的文件有效，一旦文件之前被 commit 过，git 便会无视该文件的配置，因此需要配合上述 <code>git rm --cahce</code> 使用。</p><h1 id="git-restore"><a href="#git-restore" class="headerlink" title="git restore &lt;filename&gt;"></a><code>git restore &lt;filename&gt;</code></h1><p>旧版命令：<code>git checkout -- &lt;文件名&gt;</code></p><p>放弃 <code>工作区</code> 的修改，用 <code>暂存区</code> 覆盖 <code>工作区</code>。</p><ul><li>如果 <code>工作区</code> 没有改动，便会直接撤销工作区的改动</li><li>如果 <code>工作区</code> 有改动，便会覆盖</li></ul><h1 id="git-restore-staged"><a href="#git-restore-staged" class="headerlink" title="git restore --staged &lt;filename&gt;"></a><code>git restore --staged &lt;filename&gt;</code></h1><p>旧命令: &#96;git reset HEAD <filename>&#96;&#96;</p><p>将文件从 <code>暂存区</code> 切换到 <code>工作区</code> , 即在执行完 <code>git add</code> 命令后，用来撤回。</p><h1 id="git-stash"><a href="#git-stash" class="headerlink" title="git stash"></a><code>git stash</code></h1>]]></content>
+      
+      
+      <categories>
+          
+          <category> 工具效率 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> git </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>Java</title>
       <link href="/posts/5363d109.html"/>
       <url>/posts/5363d109.html</url>
