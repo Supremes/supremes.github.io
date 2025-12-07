@@ -143,6 +143,12 @@ deploy:
   name: Supremes
   email: 1017052447@qq.com
 
+# hexo-renderer-marked 配置
+# 确保生成的标题锚点 ID 为小写，与 titlebased_link 插件保持一致
+marked:
+  modifyAnchors: 1  # 0: 保留原样, 1: 转换为小写, 2: 转换为大写
+
+# hexo-filter-titlebased-link 配置
 titlebased_link:
   enable: true
 
