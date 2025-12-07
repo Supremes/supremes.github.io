@@ -4,6 +4,56 @@
   
     
     <entry>
+      <title>Redis-性能优化笔记</title>
+      <link href="/posts/7a7d46e0.html"/>
+      <url>/posts/7a7d46e0.html</url>
+      
+        <content type="html"><![CDATA[<h1 id="缓存穿透"><a href="#缓存穿透" class="headerlink" title="缓存穿透"></a>缓存穿透</h1><h1 id="缓存击穿"><a href="#缓存击穿" class="headerlink" title="缓存击穿"></a>缓存击穿</h1><!-- flag of hidden posts -->]]></content>
+      
+      
+      <categories>
+          
+          <category> 数据库 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Redis </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>Passkeys 通行密钥</title>
+      <link href="/posts/7fe253b5.html"/>
+      <url>/posts/7fe253b5.html</url>
+      
+        <content type="html"><![CDATA[<!-- flag of hidden posts -->]]></content>
+      
+      
+      <categories>
+          
+          <category> 网络安全 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 认证 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>DawnBlog 项目</title>
       <link href="/posts/40d4ca90.html"/>
       <url>/posts/40d4ca90.html</url>
@@ -591,6 +641,8 @@
       
         <tags>
             
+            <tag> 认证 </tag>
+            
             <tag> OAuth </tag>
             
             <tag> JWT </tag>
@@ -598,8 +650,6 @@
             <tag> SAML </tag>
             
             <tag> OIDC </tag>
-            
-            <tag> 认证 </tag>
             
             <tag> 授权 </tag>
             
