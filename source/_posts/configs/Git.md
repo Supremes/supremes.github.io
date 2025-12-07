@@ -6,7 +6,7 @@ categories:
   - 工具效率
 cover: 'https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/GIT.webp'
 hidden: false
-updated: '2025-12-07 10:24'
+updated: 2025-12-08 14:24
 abbrlink: 3c3cdb74
 date: 2025-12-06 10:47:14
 sticky:
@@ -107,7 +107,7 @@ git restore --staged <file>
 
 ```Bash
 # 回退到上一个版本 (保留代码在暂存区)
-git reset --soft HEAD^
+git reset --soft HEAD~1
 
 # 彻底回退到指定版本 (代码全丢，慎用)
 git reset --hard <commit-hash>
@@ -129,7 +129,19 @@ git revert <commit-hash>
 
 **推荐配置项:**
 
-- 设置 *git add, commit, push 别名*： `git config --global alias. acp '!f () { git add -A && git commit -m "$1" && git push; }; f'`
-	- 示例 : `git acp "修复了一个 bug"`
-- 设置 *git add, amend no-edit, push -f 别名*: `git config --global alias. amendpush '! git add . && git commit --amend --no-edit && git push -f'`
-- 设置  *git log 漂亮的输出*: `git config --global alias. acp log --color --graph --pretty=format: '%Cred%h%Creset -%C (yellow)%d%Creset %s %Cgreen (%cr) %C (bold blue)<%an>%Creset' --abbrev-commit`
+```shell
+# 设置 git add, commit, push 一系列操作别名
+git config --global alias.addpush '!f () { git add -A && git commit -m "$1" && git push; }; f'
+
+# 设置 git add, amend no-edit, push -f 别名:
+git config --global alias.amendpush '! git add . && git commit --amend --no-edit && git push -f'
+```
+示例 : 
+- `git amendpush`
+-  `git addpush "修复了一个 bug"`
+
+```toml
+[alias]
+	# 配置漂亮的log输出
+    lg = log --graph --pretty=format:'%C(yellow)%h%Creset %s %C(dim green)(%cr)%Creset' --abbrev-commit -5
+  ```
