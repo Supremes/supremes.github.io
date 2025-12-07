@@ -1,14 +1,15 @@
 ---
 title: Git 学习笔记
-date: 2025-12-06 10:47:14
 tags:
   - git
 categories:
   - 工具效率
-cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/GIT.webp
-sticky:
+cover: 'https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/GIT.webp'
 hidden: false
-updated: 2025-12-07 10:24
+updated: '2025-12-07 10:24'
+abbrlink: 3c3cdb74
+date: 2025-12-06 10:47:14
+sticky:
 ---
 # 🍄 Git 全方位实战手册：从入门到通关
 

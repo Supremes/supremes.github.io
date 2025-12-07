@@ -147,10 +147,13 @@ titlebased_link:
   enable: true
 
 hide_posts:
+  # 是否启用 hexo-hide-posts
+  enable: true
   # 对应 Front-matter 中的变量名，这里设为 hidden
   filter: hidden
-  # 指定在哪些生成器中“不隐藏”文章（即白名单）
-  # 意思是：除了下面列表里的页面，其他地方（主要是首页）都隐藏
-  public_generators: ['archive', 'category', 'tag']
   # 可选：是否在站点地图中隐藏（通常建议设为 false，方便 SEO）
   no_sitemap: false
+  # 更多黑白名单的高级配置示例，可以在 `lib/isGeneratorAllowed.test.js` 文件中查看
+  # 仅在首页和 RSS 隐藏部分文章，其他地方可见
+  allowlist_generators: ['*']
+  blocklist_generators: ['index', 'feed']

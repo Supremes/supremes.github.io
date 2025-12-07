@@ -1,14 +1,15 @@
 ---
 title: DawnBlog 项目
-date: 2025-12-07 10:26:24
 tags:
   - 面试
 categories:
   - 后端开发
-cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg
-sticky:
+cover: 'https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg'
 hidden: true
-updated: 2025-12-07 10:41
+updated: '2025-12-07 10:41'
+abbrlink: 40d4ca90
+date: 2025-12-07 10:26:24
+sticky:
 ---
 这是根据您提供的 [dawn-springboot](https://github.com/Supremes/dawn) 源码，基于 **资深 Java Spring 架构师与性能优化专家** 的视角，对其架构缺陷、代码质量及未来演进方向进行的深度分析报告。
 
