@@ -7,10 +7,11 @@ sticky: "10"
 abbrlink: 4947
 date: 2025-11-29 08:50:05
 cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/TODO.webp
-updated: 2025-12-03 21:48
+updated: 2025-12-07 10:41
 ---
 
 ### Pending Issues
+- [ ] 升级 DawnBlog java 及 SpringBoot 版本 - [[DawnBlog#Phase 1 基础夯实 (Java 17 & Stability)]]
 
 ### Fixed
 - [x] 多级目录时，通过目录定位会出问题
