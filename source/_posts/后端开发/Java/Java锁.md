@@ -6,14 +6,14 @@ categories:
   - 后端开发
 cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/Java%E9%94%81.webp
 hidden: false
-updated: 2025-12-08 20:45
+updated: 2025-12-08 22:46
 abbrlink: 503970b4
 date: 2025-12-08 20:29:33
 sticky:
 ---
 Java 中的锁机制经历了从重型到轻量，从单一到多元的发展历程。要深入理解它们，不能只背诵概念，必须结合 **JVM 内存模型 (JMM)**、**对象头 (Mark Word)** 以及 **AQS (AbstractQueuedSynchronizer)** 的底层原理。
 
-以下是对 Java 各类锁的深度解析，涵盖 JVM 层面的锁优化、JUC 显式锁以及分布式环境下的锁策略。
+以下是对 Java 各类锁的深度解析，涵盖 JVM 层面的锁优化、JUC 显式锁以及分布式环境下的锁策略。 
 
 ---
 
@@ -32,7 +32,47 @@ Java 中的锁机制经历了从重型到轻量，从单一到多元的发展历
 
 ---
 
-### 二、 JVM 内置锁：Synchronized (关键字)
+### 二、什么是可重入？
+
+在并发编程中，**可重入性** 是指：
+
+> 如果一个线程已经持有了某个锁，当它试图再次获取这把**相同的锁**时，可以直接成功，而不会被自己阻塞。
+
+```Java
+class Counter {
+    private int count = 0;
+
+    // 1. 外部方法：加 1
+    public synchronized void increment() {
+        // 第一次获取锁 (Monitor Lock) 成功，计数器 = 1
+        count++;
+        System.out.println("Increment 第一次获取锁，count=" + count);
+    }
+
+    // 2. 内部方法：安全地加 2
+    public synchronized void safeIncrement() {
+        // 线程 T 第一次进入此方法，获取锁成功，计数器 = 1
+
+        increment(); // 调用了另一个同步方法！
+        // 线程 T 再次尝试获取锁，**如果不可重入，线程会死锁**。
+        // 但因为是可重入的，线程 T **直接再次获取成功，计数器 = 2**。
+
+        increment(); // 再次调用同步方法
+        // 线程 T 第三次尝试获取锁，**再次获取成功，计数器 = 3**。
+        
+        System.out.println("SafeIncrement 最终释放锁，count=" + count);
+        // 线程 T 退出方法，锁的重入计数器归零，锁被真正释放。
+    }
+}
+
+// 假设线程 T 调用：
+new Counter().safeIncrement();
+```
+- **非重入锁的简单实现：** 锁只检查 `isLocked` 状态，不关心是哪个线程锁定的。
+- **重入锁的实现（如 `ReentrantLock`）：** 锁不仅检查 `isLocked` 状态，还会检查**当前持有锁的线程 ID** 是否是自己。如果是自己，则简单地增加一个重入计数器，而不是阻塞。
+---
+
+### 三、 JVM 内置锁：Synchronized (关键字)
 
 在 Java 6 之前，`synchronized` 被称为“重量级锁”，因为它依赖于操作系统的 Mutex Lock，涉及用户态和内核态的切换，开销极大。但在 Java 6 之后，JVM 引入了**锁升级 (Lock Escalation)** 机制，使其性能大幅提升。
 
@@ -55,17 +95,17 @@ Java 中的锁机制经历了从重型到轻量，从单一到多元的发展历
 
 ---
 
-### 三、 JUC 显式锁：java.util.concurrent.locks
+### 四、 JUC 显式锁：java.util.concurrent.locks
 
 JUC 锁的核心基石是 **AQS (AbstractQueuedSynchronizer)**。AQS 使用一个 `volatile int state` 变量表示同步状态，并维护一个 FIFO 的双向队列（CLH 变体）来管理等待线程。
 
 #### 1. ReentrantLock (可重入锁)
 
-比 `synchronized` 更加灵活，提供了 `tryLock()` (尝试获取，不等待)、`lockInterruptibly()` (可中断) 等功能。
+比 `synchronized` 更加灵活，提供了 ：
+-  `tryLock()` (尝试获取，不等待)
+- `lockInterruptibly()` (可中断) 等功能。
 
-Java
-
-```
+```Java
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.TimeUnit;
 
@@ -105,6 +145,48 @@ public class ReentrantLockDemo {
 - **读锁 (共享锁):** 多个线程可以同时持有读锁。
 - **写锁 (独占锁):** 写锁被持有时，所有读锁和其他写锁都被阻塞。
 - **锁降级:** 允许持有写锁的线程获取读锁，然后释放写锁，从而降级为读锁。
+- **公平性与饥饿问题**:
+>`ReentrantReadWriteLock` 默认是非公平的，它**可能会导致写饥饿（Writer Starvation）**
+> 
+>**写饥饿：** 当有大量的读线程持续请求读锁时，如果新的读请求不断插队，写线程可能会长时间无法获取写锁，导致写入操作长时间得不到执行。
+> 
+> 可以通过构造函数 `new ReentrantReadWriteLock(true)` 创建**公平锁**来缓解饥饿问题，但公平锁会引入额外的开销，降低整体吞吐量。因此，**在大多数高性能应用中，通常使用默认的非公平模式**。
+
+```Java
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.Lock;
+
+public class DataCache {
+    private final ReentrantReadWriteLock rwLock = new ReentrantReadWriteLock();
+    // 分别获取读锁和写锁
+    private final Lock readLock = rwLock.readLock();
+    private final Lock writeLock = rwLock.writeLock();
+    
+    private volatile Object data; // 共享数据
+
+    // 读操作：允许多个线程并发访问
+    public Object readData() {
+        readLock.lock(); // 获取读锁
+        try {
+            System.out.println(Thread.currentThread().getName() + " 正在读取数据...");
+            return data;
+        } finally {
+            readLock.unlock(); // 释放读锁
+        }
+    }
+
+    // 写操作：排他性访问
+    public void writeData(Object newData) {
+        writeLock.lock(); // 获取写锁
+        try {
+            System.out.println(Thread.currentThread().getName() + " 正在写入数据...");
+            this.data = newData;
+        } finally {
+            writeLock.unlock(); // 释放写锁
+        }
+    }
+}
+```
 
 #### 3. StampedLock (JDK 8+ 高性能读写锁)
 
@@ -112,9 +194,73 @@ public class ReentrantLockDemo {
 
 **注意:** `StampedLock` **不可重入**，且不支持 `Condition`，使用稍复杂。
 
-Java
+`StampedLock` 是 Java 8 在 `java.util.concurrent.locks` 包中引入的一种**新的、更高性能的锁机制**，旨在作为 `ReentrantReadWriteLock` 的替代品，尤其是在读操作远多于写操作的场景中。
 
-```
+它通过返回一个被称为 **“Stamp”（时间戳/标记）** 的整数值来管理锁状态，这个 Stamp 是锁状态的凭证。
+
+##### 🎯 `StampedLock` 的三大模式
+
+`StampedLock` 提供了三种模式，允许开发者在性能和安全性之间进行权衡：
+
+|**模式**|**方法**|**特性**|
+|---|---|---|
+|1. **乐观读（Optimistic Read）**|`tryOptimisticRead()`|**非阻塞**。不获取锁，线程可以自由读取数据。它假设在读取期间，没有其他线程会写入数据。|
+|2. **悲观读（Pessimistic Read）**|`readLock()`|**阻塞**。与 `ReentrantReadWriteLock` 的读锁类似，是共享锁。|
+|3. **独占写（Exclusive Write）**|`writeLock()`|**阻塞**。与 `ReentrantReadWriteLock` 的写锁类似，是排他锁。|
+
+---
+
+##### 💡 核心机制：乐观读与验证
+
+`StampedLock` 的高性能主要来源于其**乐观读**机制。
+
+###### 1. 乐观读取 (`tryOptimisticRead()`)
+
+1. **获取 Stamp：** 线程调用 `long stamp = lock.tryOptimisticRead();` 获取一个当前的锁状态 Stamp。
+2. **读取数据：** 线程在不持有任何锁的情况下，直接读取共享变量。
+3. **验证 Stamp：** 读取完成后，线程调用 `lock.validate(stamp)` 来验证 Stamp 是否有效。
+
+- **如果验证成功 (`validate(stamp)` 返回 `true`)：** 表明在线程读取数据的整个过程中，没有其他线程获得写锁进行修改。读取的数据是有效的，操作完成。
+- **如果验证失败 (`validate(stamp)` 返回 `false`)：** 表明在读取期间，有其他线程获取了写锁并可能修改了数据。此时，乐观读取失败，线程必须**退化（Fallback）**到悲观读取模式重新尝试。
+
+###### 2. 悲观读 (`readLock()`)
+
+如果乐观读取失败，或者操作本身需要更强的安全性保证，线程必须退化到悲观读模式：
+
+1. 调用 `long stamp = lock.readLock();` 获取悲观读锁。
+2. 在 `try...finally` 中执行读取操作。
+3. 在 `finally` 中调用 `lock.unlockRead(stamp);` 释放读锁。
+
+###### 3. 独占写 (`writeLock()`)
+
+写操作是排他的，它会阻塞所有读锁和写锁。
+
+1. 调用 `long stamp = lock.writeLock();` 获取写锁。
+2. 在 `try...finally` 中执行写入操作。
+3. 在 `finally` 中调用 `lock.unlockWrite(stamp);` 释放写锁。
+
+---
+
+##### 🆚 `StampedLock` 与 `ReentrantReadWriteLock` 的主要区别
+
+|**特性**|**StampedLock**|**ReentrantReadWriteLock**|
+|---|---|---|
+|**读模式**|**三种**：乐观读、悲观读（悲观读可降级自写锁）|**一种**：悲观读|
+|**写锁重入性**|**不可重入**。持有写锁的线程不能再次获取写锁。|**可重入**。持有写锁的线程可以再次获取写锁。|
+|**性能**|**更高**。乐观读几乎没有同步开销，写锁优化了缓存一致性协议。|**较低**。读写都需要通过 AQS 队列机制。|
+|**中断支持**|**支持**。提供了 `try...Lock()` 系列方法，如 `tryReadLock()` 和 `tryWriteLock()`。|**支持**。通过 `lockInterruptibly()` 实现。|
+
+##### ⚠️ 注意事项
+
+由于 `StampedLock` 引入了乐观读和不可重入的写锁，它在使用上比 `ReentrantReadWriteLock` 更复杂，需要注意以下几点：
+
+1. **写锁不可重入：** 如果一个线程在持有写锁的情况下再次尝试获取写锁，它将**阻塞自身**，导致死锁。
+2. **必须使用 Stamp：** 在释放锁（`unlockRead(stamp)` 或 `unlockWrite(stamp)`）时，**必须**传入获取锁时返回的 Stamp 值。
+3. **乐观读的失败处理：** 如果乐观读验证失败，必须退化到悲观锁模式重新执行，否则可能读取到不一致的数据。
+
+总而言之，`StampedLock` 通过乐观读提供了**极高的读取并发性**，是 Java 并发工具箱中针对读多写少场景的有力武器。
+
+```Java
 import java.util.concurrent.locks.StampedLock;
 
 public class Point {
@@ -144,7 +290,7 @@ public class Point {
 
 ---
 
-### 四、 分布式锁 (架构视角)
+### 五、分布式锁 (架构视角)
 
 在微服务架构（Spring Cloud）中，JVM 内部的锁只能控制单个实例的并发。跨服务的资源互斥必须使用分布式锁。
 
@@ -188,7 +334,7 @@ sequenceDiagram
 
 ---
 
-### 五、 专家建议：如何在 Spring 中选择锁？
+### 六、专家建议：如何在 Spring 中选择锁？
 
 作为架构师，我遵循以下决策树：
 
