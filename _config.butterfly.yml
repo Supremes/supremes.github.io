@@ -863,10 +863,10 @@ beautify:
 # Global font settings
 # Don't modify the following settings unless you know how they work
 font:
-  global_font_size:
+  global_font_size: 16px
   code_font_size:
-  font_family:
-  code_font_family:
+  font_family: '"LXGW WenKai Screen", sans-serif'
+  code_font_family: '"Consolas", "LXGW WenKai Screen", monospace'
 
 # Font settings for the site title and site subtitle
 blog_title_font:
@@ -1097,7 +1097,8 @@ css_prefix: true
 # Insert the code to head (before '</head>' tag) and the bottom (before '</body>' tag)
 inject:
   head:
-    # - <link rel="stylesheet" href="/xxx.css">
+    # 引入 LXGW WenKai Screen 字体
+    - <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-webfont/style.css" />
   bottom:
     # - <script src="xxxx"></script>
 
