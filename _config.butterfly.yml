@@ -1055,8 +1055,8 @@ lazyload:
   native: false
   # Specify the field to use lazyload (site or post)
   field: site
-  placeholder:
-  blur: true
+  placeholder: /assets/loading.gif
+  blur: false
 
 # PWA
 # See https://github.com/JLHwung/hexo-offline
