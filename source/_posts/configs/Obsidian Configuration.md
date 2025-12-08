@@ -8,6 +8,7 @@ abbrlink: 54351
 date: 2025-11-28 14:47:35
 cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/obsidian_config.webp
 hidden: true
+updated: 2025-12-08 17:21
 ---
 
 ## Plugins
@@ -29,11 +30,8 @@ Obsidian 的默认主题是给程序员看的，太素了。
 
 - **操作：** `设置` -> `外观 (Appearance)` -> `主题 (Themes)` -> `管理 (Manage)`。
 - **推荐主题（专治简陋）：**
-    
     - **Blue Topaz：** （强烈推荐）这是国人开发的主题，功能极其强大，色彩丰富，默认就很漂亮，适合习惯 Typora 的用户。
-        
     - **Minimal：** 极简主义，Apple 风格，干净利落。
-        
     - **Primary：** 暖色调，字体排版非常舒服，像杂志一样。
 
 ```dataview
@@ -42,8 +40,14 @@ from "games"
 sort rating desc
 ```
 
-
 - Theme: Minimal
 - Plugin: Minimal Theme Settings
 	- Flexio
 
+## 推荐配置
+
+- 主题：Border
+- 插件：Style Settings
+	-  Border可导入配置项: https://github.com/Akifyss/obsidian-border/blob/main/presets.md#light-mode
+	- Side: https://github.com/Akifyss/obsidian-border/blob/main/presets/Side.json
+- 字体：`霞鹜字体` - https://obsidian.vip/zh/best-practices/obsidian-font-LXGW
