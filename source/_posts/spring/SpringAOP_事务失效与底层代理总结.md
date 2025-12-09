@@ -11,9 +11,12 @@ cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/AOP-P
 abbrlink: 60441
 date: 2025-11-25 20:39:20
 description:
+updated: 2025-12-09 10:26
 ---
 
 # Spring AOP 事务失效与底层代理机制深度总结
+
+![img](https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/AOP-PROXY.webp)
 
 ## 1. 核心问题：为什么自调用导致事务失效？
 
