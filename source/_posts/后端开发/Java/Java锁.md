@@ -6,7 +6,7 @@ categories:
   - 后端开发
 cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/Java%E9%94%81.webp
 hidden: false
-updated: 2025-12-08 22:46
+updated: 2025-12-09 22:24
 abbrlink: 503970b4
 date: 2025-12-08 20:29:33
 sticky:
@@ -16,7 +16,6 @@ Java 中的锁机制经历了从重型到轻量，从单一到多元的发展历
 以下是对 Java 各类锁的深度解析，涵盖 JVM 层面的锁优化、JUC 显式锁以及分布式环境下的锁策略。 
 
 ---
-
 ### 一、 宏观分类：锁的特性视角
 
 在深入具体实现之前，我们需要建立一个清晰的分类体系。这些术语描述的是锁的**特性**或**设计思想**，而非具体的类。
@@ -76,9 +75,11 @@ new Counter().safeIncrement();
 
 在 Java 6 之前，`synchronized` 被称为“重量级锁”，因为它依赖于操作系统的 Mutex Lock，涉及用户态和内核态的切换，开销极大。但在 Java 6 之后，JVM 引入了**锁升级 (Lock Escalation)** 机制，使其性能大幅提升。
 
+![Synchronized 原理](https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/articles/synchronized.webp)
+
 #### 1. 锁升级过程
 
-锁的状态保存在对象头（Object Header）的 **Mark Word** 中。
+锁的状态保存在 [[JUC#2. 对象头 (Object Header) 与 Mark Word| 对象头（Object Header）]]  的 **Mark Word** 中。
 
 - **偏向锁 (Biased Lock):**
     - **原理:** 假设只有一个线程在访问。当线程第一次访问同步块时，CAS 修改 Mark Word 记录线程 ID。后续该线程进入无需同步。
@@ -355,6 +356,6 @@ sequenceDiagram
     - 使用 `tryLock` 配合超时机制，永远不要无限等待。
     - 减小锁的粒度（只锁核心代码块，不要锁整个方法）。
 
-### 下一步
-
-我可以为你演示 **"如何使用 Spring AOP + Redisson 自定义一个 `@DistributedLock` 注解"**，让你在业务代码中只需一行注解就能实现安全的分布式锁。你需要这个实战示例吗？
+>  下一步
+> 
+> 我可以为你演示 **"如何使用 Spring AOP + Redisson 自定义一个 `@DistributedLock` 注解"**，让你在业务代码中只需一行注解就能实现安全的分布式锁。你需要这个实战示例吗？

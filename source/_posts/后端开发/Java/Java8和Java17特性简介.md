@@ -1,12 +1,12 @@
 ---
-title: Java
+title: Java8和Java17特性简介
 tags:
   - 面试
 categories:
   - 后端开发
 cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/JAVA8.webp
 hidden: false
-updated: 2025-12-06 10:42
+updated: 2025-12-09 21:16
 abbrlink: 5363d109
 date: 2025-12-04 21:06:42
 sticky:

@@ -6,14 +6,14 @@ categories:
   - 后端开发
 cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/JUC.webp
 hidden: false
-updated: 2025-12-04 21:11
+updated: 2025-12-09 22:27
 abbrlink: eb9166f8
 date: 2025-12-04 21:00:06
 sticky:
 ---
-好的，阅读 JUC（Java Util Concurrent）源码是一项非常棒的学习任务，它能让你深入理解 Java 并发编程的精髓，以及 JVM 和操作系统层面的一些知识。JUC 包是 Java 并发编程的基石，包含了线程池、锁、原子操作、并发集合等核心组件。
+JUC 包是 Java 并发编程的基石，包含了线程池、锁、原子操作、并发集合等核心组件。
 
-下面为你列一个 JUC 源码学习的大纲，并提供一些学习建议：
+下面是JUC 源码学习的大纲，并提供了一些学习建议：
 
 ------
 
@@ -203,6 +203,112 @@ sticky:
 
 祝你学习顺利！这是一个非常有价值的挑战！
 
+---
+# 并发基本原理
+## 1. JVM 内存模型 (JMM - Java Memory Model)
+
+JMM 是一种**抽象的概念**（并不是物理存在的内存划分，不要与“堆/栈/方法区”混淆）。它定义了 JVM 如何与计算机内存（RAM）进行交互，主要用于屏蔽不同硬件和操作系统的内存访问差异。
+
+### 核心架构：主内存与工作内存
+
+JMM 规定了所有的变量都存储在 **主内存 (Main Memory)** 中。每条线程还有自己的 **工作内存 (Working Memory)**（可类比为 CPU 缓存或寄存器）。
+
+1. **主内存 (Main Memory):** 所有线程共享，存储实例对象、静态变量等。
+2. **工作内存 (Working Memory):** 线程私有。线程在操作变量时，必须先将变量从主内存**拷贝**到自己的工作内存中，进行读取、赋值等操作后，再**写回**主内存。
+
+### JMM 解决的三大并发问题
+
+JMM 的主要目的就是为了解决多线程环境下的以下三个问题：
+
+- **原子性 (Atomicity):** 一个操作是不可中断的。
+    - _保障手段: _ `synchronized`, Lock, CAS (Compare-And-Swap).
+- **可见性 (Visibility):** 当一个线程修改了共享变量，其他线程能立即看到。
+    - _保障手段: _ `volatile`, `synchronized`, `final`.
+- **有序性 (Ordering):** 程序执行的顺序按照代码的先后顺序执行（禁止指令重排序）。
+    - _保障手段: _ `volatile` (通过内存屏障), `synchronized`.
+
+### Happens-Before 原则
+
+这是 JMM 最核心的概念。如果操作 A "Happens-Before" 操作 B，那么 A 的结果对 B 可见，且 A 的执行顺序在 B 之前。这是判断数据是否存在竞争的依据。
+
+## 2. 对象头 (Object Header) 与 Mark Word
+
+Java 对象在堆内存中的布局分为三块：**对象头 (Header)**、**实例数据 (Instance Data)** 和 **对齐填充 (Padding)**。
+
+**Mark Word** 是对象头中最关键的部分。
+
+![Java Object](https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/articles/JavaObject.webp)
+
+### Mark Word 的作用
+
+Mark Word 是一个非固定的数据结构，用于存储对象自身的**运行时数据**。为了在极小的空间内存储更多的信息，它会根据对象的状态复用存储空间。
+
+**它主要存储：**
+
+- **哈希码 (HashCode):** 对象的标识。
+- **GC 分代年龄:** 对象经历了多少次 GC。
+- **锁状态标志:** 记录锁的类型（偏向锁、轻量级锁、重量级锁）。
+- **线程持有的锁:** 指向锁记录或 monitor 的指针。
+
+### Mark Word 的状态流转（锁升级）
+
+在 64 位 JVM 中，Mark Word 的最后 2 位（或 3 位）通常用于标识锁的状态。随着竞争的加剧，锁会从“无锁”状态逐渐升级，且**不可逆**（一般情况）。
+
+| **锁状态**                | **存储内容 (Mark Word)**               | **含义**              | **适用场景**         |
+| ---------------------- | ---------------------------------- | ------------------- | ---------------- |
+| **无锁 (Normal)**        | HashCode + 分代年龄 + 001              | 对象未被锁定。             | 单线程访问。           |
+| **偏向锁 (Biased)**       | **线程 ID** + Epoch + 分代年龄 + 101      | 锁偏向于第一个获得它的线程。      | 只有一个线程反复进入同步块。   |
+| **轻量级锁 (Lightweight)** | 指向栈中**Lock Record**的指针 + 00        | 线程通过 CAS 尝试获取锁。     | 线程交替执行，无长时间阻塞。   |
+| **重量级锁 (Heavyweight)** | 指向互斥量 **(ObjectMonitor)** 的指针 + 10 | 锁膨胀，未获取锁的线程被阻塞 (挂起)。 | 高并发，竞争激烈，持有锁时间长。 |
+| **GC 标记**              | 空 + 11                             | 对象被 GC 标记为待回收。      | 垃圾回收。            |
+### Monitor
+
+Java 虚拟机 (HotSpot) 中，每个对象（Object）在内存头部（Mark Word）中都关联着一个 Monitor 对象。Monitor 内部主要包含三个区域，对应线程的不同状态：
+![Synchronized 原理](https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/articles/synchronized.webp)
+- **Entry Set (锁池)**
+    - **状态**：`BLOCKED`
+    - **功能**：存放所有**争抢锁失败**的线程。当一个线程尝试获取锁但锁已被占用时，会被封装成 ObjectWaiter 对象放入此队列阻塞等待。
+- **The Owner (持有者)**
+    - **状态**：`RUNNABLE` (持有锁运行中)
+    - **功能**：表示**当前获取到锁**的线程。Monitor 中的 `_owner` 指针指向该线程。同一时刻，Monitor 中只能有一个 Owner。
+- **Wait Set (等待池)**
+    - **状态**：`WAITING` / `TIMED_WAITING`
+    - **功能**：存放**主动放弃锁**的线程。当 Owner 线程调用 `wait()` 方法时，会释放锁并进入此区域，等待被 `notify()` 或 `notifyAll()` 唤醒。
+
+---
+
+## 3. 深度连接：JMM 与 Mark Word 的关系
+
+这两者通过 **`synchronized` (同步锁)** 紧密联系在一起。
+
+1. **JMM 的需求:** JMM 规定了多线程访问共享资源时必须保证原子性和可见性。`synchronized` 是实现这一目标的关键字。
+2. **Mark Word 的实现:** 当 JVM 执行 `synchronized(obj)` 时，它需要一个地方来记录“谁锁住了这个对象”以及“锁的状态”。**Mark Word 就是这个记录本。**
+
+### 锁升级过程 (示例)
+
+1. **偏向锁阶段:** 线程 A 访问同步块。JVM 检查 Mark Word，发现是无锁，于是将 **线程 A 的 ID** 写入 Mark Word。以后线程 A 再次进入，无需同步，直接放行。
+2. **轻量级锁阶段:** 线程 B 来了，发现 Mark Word 里存的是线程 A。产生竞争。JVM 撤销偏向锁，升级为轻量级锁。线程 A 和 B 在自己的栈帧中创建 **Lock Record**，并尝试用 **CAS** 将 Mark Word 更新为指向自己 Lock Record 的指针。
+3. **重量级锁阶段:** 线程 B 自旋（CAS）多次失败，或者线程 C 又来了。CAS 竞争太激烈。锁膨胀为重量级锁。Mark Word 修改为指向堆中 **ObjectMonitor** 对象的指针。线程 B 和 C 进入操作系统的阻塞队列（Wait Set），通过操作系统内核互斥量（Mutex）来调度，性能开销最大。
+
+### 总结对比
+
+|**特性**|**JMM (Java 内存模型)**|**Mark Word (对象头)**|
+|---|---|---|
+|**本质**|**规范/协议**|**数据结构/存储单元**|
+|**作用域**|整个 JVM 运行时的并发规则。|单个 Java 对象在堆中的头部。|
+|**解决问题**|可见性、原子性、有序性。|存储 HashCode、GC 年龄、锁状态。|
+|**关键点**|主内存、工作内存、volatile、Happens-Before。|偏向锁、轻量级锁、重量级锁、CAS。|
+|**联系**|JMM 定义的并发规则，底层往往依赖 Mark Word 中的锁标记来实现（特别是 `synchronized`）。||
+
+## 4. AQS (AbstractQueuedSynchronizer) 概述
+
+对 AQS 有一个初步的认识，它是 JUC 许多高级同步器的基石。
+## 5. CAS (Compare-And-Swap) 原理
+
+理解其三步操作和 ABA 问题。
+
+---
+
 # CompletableFuture - 异步编程首选
 
 - 支持链式调用
@@ -273,10 +379,7 @@ sticky:
 - **`LongAccumulator`**: 泛化的 `LongAdder`，可以执行任意的二元操作，而不仅仅是加法。
 - **`DoubleAccumulator`**: 泛化的 `DoubleAdder`。
 
-# Locks 包
-
-### 对比 Sychronzied 、Reentrantlock
-
+---
 # AQS
 
 ## 队列
@@ -317,7 +420,7 @@ AQS 设计中涉及两种队列：
 - `signal()` 会从条件队列中取出一个等待的节点（通常是头节点），将其**转移到同步队列中**。
 - 转移完成后，如果同步队列中前驱节点的状态为 `SIGNAL`，那么这个刚转移过来的节点可能会被唤醒（具体由 AQS 调度决定）。
 - 只有当这个线程重新获取到锁之后，它才会从 `await()` 返回继续执行。
-
+---
 # JUC 包中核心组件
 
 以下是 JUC 包中核心组件的中文解析：
