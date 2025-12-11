@@ -1,12 +1,12 @@
 ---
-title: Java8和Java17特性简介
+title: Java新特性简介
 tags:
   - 面试
 categories:
   - 后端开发
 cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/JAVA8.webp
 hidden: false
-updated: 2025-12-09 21:16
+updated: 2025-12-11 22:20
 abbrlink: 5363d109
 date: 2025-12-04 21:06:42
 sticky:
@@ -286,7 +286,7 @@ Lambda 表达式和 Stream API 通常一起使用，以实现更简洁、高效�
 
 这些特性使得 Java 8 在代码编写、集合操作、并发编程等方面变得更加强大和灵活。学习这些特性可以提高代码的效率、可读性，并使代码更具现代化。
 
-## Java 17 新特性
+# Java 17 新特性
 ### 1. 文本块 (Text Blocks)
 
 > **解决痛点**：在 Java 代码中拼接 JSON、SQL 或 HTML 字符串简直是噩梦（需要大量的 `+` 号和转义字符 `\"`）。
@@ -473,3 +473,149 @@ if (obj instanceof String s) {
 |**Switch 表达式**|逻辑更紧凑，减少 Bug。|
 |**性能**|G1 垃圾回收器优化，以及 **ZGC** (低延迟 GC) 的成熟，应用吞吐量更高。|
 |**Spring Boot 3**|**强制要求** Java 17+。|
+
+# Java 21 新特性
+
+Java 17 是目前许多企业应用的基准版本（LTS，长期支持版），但在它之后，Java 保持了每六个月发布一次的节奏。
+
+目前最重要的里程碑是 **Java 21 (LTS)**。对于大多数开发者来说，从 17 升级的下一站就是 21。Java 22 和 23 则是后续的特性版本。
+
+以下是 Java 17 之后的主要核心变化，按**重要性**和**功能领域**分类介绍：
+
+---
+
+### 1. 核心变革：Project Loom (并发能力的飞跃)
+
+这是自 Java 5 引入 `java.util.concurrent` 以来最大的并发模型变革。
+
+#### **虚拟线程 (Virtual Threads)** - _Java 21 正式发布_
+
+这是 Spring Boot 3.2+ 性能起飞的关键。
+
+- **痛点：** 以前的 Java 线程（Platform Thread）直接映射到操作系统的内核线程，创建成本高，数量受限（通常几千个）。
+- **变革：** 虚拟线程由 JVM 管理，极其轻量级，可以轻松创建**数百万个**。
+- **场景：** 高并发、I/O 密集型任务（如 Web 服务器处理大量请求）。
+- **代码示例：**
+ ```Java
+    // 以前：使用线程池限制数量
+    // 现在：可以直接为每个任务创建一个虚拟线程
+    try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+        IntStream.range(0, 10_000).forEach(i -> {
+            executor.submit(() -> {
+                Thread.sleep(Duration.ofSeconds(1));
+                return i;
+            });
+        });
+    }
+ ```
+
+#### **结构化并发 (Structured Concurrency)** - _Preview 阶段_
+
+旨在简化多线程编程，将相关的一组任务视为单个工作单元，从而简化错误处理和取消操作。
+
+---
+
+### 2. 语法糖与开发体验：Project Amber (让代码更简洁)
+
+这一系列更新旨在减少样板代码，让 Java 写起来更像现代语言（如 Kotlin 或 Scala）。
+
+#### **模式匹配增强 (Pattern Matching)** - _Java 21 正式发布_
+
+`switch` 语句现在极其强大，支持类型匹配和守卫条件。
+
+- **代码示例：**
+    ```Java
+    static String formatter(Object obj) {
+        return switch (obj) {
+            case Integer i -> String.format("int %d", i);
+            case Long l    -> String.format("long %d", l);
+            case Double d  -> String.format("double %f", d);
+            case String s  -> String.format("String %s", s);
+            case null      -> "It's null"; // 直接处理 null
+            default        -> obj.toString();
+        };
+    }
+    ```
+
+#### **记录模式 (Record Patterns)** - _Java 21 正式发布_
+
+可以直接在 `instanceof` 或 `switch` 中拆解 Record 对象。
+
+- **代码示例：**
+    
+    ```Java
+    record Point(int x, int y) {}
+    
+    void printSum(Object obj) {
+        // 直接解构 Point 为 x 和 y
+        if (obj instanceof Point(int x, int y)) {
+            System.out.println(x + y);
+        }
+    }
+    ```
+
+#### **未命名变量与模式 (Unnamed Variables)** - _Java 22 正式发布_
+
+使用下划线 `_` 表示你不关心的变量（类似 Go 或 Python）。
+
+- **场景：** 异常捕获、Lambda 参数、循环变量。
+- **代码示例：**
+    ```Java
+    try {
+        int number = Integer.parseInt(string);
+    } catch (NumberFormatException _) { // 我不关心异常变量 e，直接用 _
+        System.out.println("Not a number");
+    }
+    ```
+
+---
+
+### 3. API 库的改进
+
+#### **序列化集合 (Sequenced Collections)** - _Java 21 正式发布_
+
+终于统一了 List、Deque、Set 的访问顺序 API。以前获取“最后一个元素”在不同集合中写法都不一样，现在统一了。
+
+- **新接口：** `SequencedCollection`, `SequencedSet`, `SequencedMap`
+- **新方法：**
+    - `getFirst()` / `getLast()`
+    - `addFirst()` / `addLast()`
+    - `removeFirst()` / `removeLast()`
+    - `reversed()` (返回反转视图)
+
+#### **简单的 Web 服务器 (Simple Web Server)** - _Java 18 正式发布_
+
+类似于 Python 的 `python -m http.server`。
+
+- **命令：** `jwebserver`
+- **用途：** 快速搭建静态文件服务，用于测试或原型开发。
+
+---
+
+### 4. 性能与底层设施
+
+#### **分代 ZGC (Generational ZGC)** - _Java 21 正式发布_
+
+ZGC 是低延迟垃圾收集器。分代 ZGC 将堆分为年轻代和老年代，显著减少了 CPU 消耗。
+
+- **特点：** 即使是 TB 级的堆内存，暂停时间也能控制在 1ms 左右。
+
+#### **默认 UTF-8** - _Java 18 正式发布_
+
+所有操作系统上的默认字符集统一为 UTF-8。这解决了 Windows 上中文乱码的许多历史遗留问题。
+
+---
+
+### 总结：你应该关注哪个版本？
+
+| **版本**         | **状态**  | **关键点**                    | **建议**                                 |     |
+| -------------- | ------- | -------------------------- | -------------------------------------- | --- |
+| **Java 17**    | LTS     | 当前主流                       | 也就是你现在的基准。                             |     |
+| **Java 21**    | **LTS** | **虚拟线程、ZGC、模式匹配**          | **强烈建议升级的目标版本。** Spring Boot 3.x 完美支持。 |     |
+| **Java 22/23** | Non-LTS | `super()`前置语句、Markdown文档注释 | 尝鲜版本，生产环境通常跳过。                         |     |
+
+下一步建议：
+
+考虑到您对 Spring Security 和 OAuth 的关注，升级到 Java 21 配合 Spring Boot 3.2+ 可以利用虚拟线程大幅提升高并发下的身份验证处理能力（因为 Auth 请求通常涉及大量 I/O 等待）。
+
+您想看一段 **Spring Boot 3 中启用虚拟线程** 的配置示例吗？

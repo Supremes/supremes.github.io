@@ -10,5 +10,7 @@
   "obsidian-style-settings",
   "obsidian-editor-shortcuts",
   "obsidian-linter",
-  "image-captions"
+  "image-captions",
+  "obsidian-paste-image-rename",
+  "open-in-new-tab"
 ]
