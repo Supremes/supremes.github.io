@@ -4,11 +4,24 @@
   
     
     <entry>
+      <title>MySQL - 表单</title>
+      <link href="/posts/dd1ba42a.html"/>
+      <url>/posts/dd1ba42a.html</url>
+      
+        <content type="html"><![CDATA[<h1 id="元数据"><a href="#元数据" class="headerlink" title="元数据"></a>元数据</h1><p>MySQL&#x2F;PostgreSQL 中，使用 <code>INFORMATION_SCHEMA</code> 来定义数据库中的元数据.</p><!-- flag of hidden posts -->]]></content>
+      
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>配置ZSH的利器 - Zim</title>
       <link href="/posts/79b4769c.html"/>
       <url>/posts/79b4769c.html</url>
       
-        <content type="html"><![CDATA[<!-- flag of hidden posts -->]]></content>
+        <content type="html"><![CDATA[]]></content>
       
       
       
@@ -537,7 +550,7 @@
       <link href="/posts/54351.html"/>
       <url>/posts/54351.html</url>
       
-        <content type="html"><![CDATA[<h2 id="主题推荐配置"><a href="#主题推荐配置" class="headerlink" title="主题推荐配置"></a>主题推荐配置</h2><ul><li>主题：Border</li><li>插件：Style Settings<ul><li>Border可导入配置项: <a href="https://github.com/Akifyss/obsidian-border/blob/main/presets.md#light-mode">https://github.com/Akifyss/obsidian-border/blob/main/presets.md#light-mode</a></li><li>Side: <a href="https://github.com/Akifyss/obsidian-border/blob/main/presets/Side.json">https://github.com/Akifyss/obsidian-border/blob/main/presets/Side.json</a></li></ul></li><li>字体：<code>霞鹜字体</code> - <a href="https://obsidian.vip/zh/best-practices/obsidian-font-LXGW">https://obsidian.vip/zh/best-practices/obsidian-font-LXGW</a></li></ul><h2 id="插件"><a href="#插件" class="headerlink" title="插件"></a>插件</h2><ul><li>Editing Toolbar: 在顶部增加类似 Word&#x2F;Typora 的格式工具栏。</li><li>Image Toolkit: 点击图片全屏查看、缩放、滚轮放大。</li><li>Easy Typing: 优化中文输入体验，自动在中英文之间加空格。</li><li>Dataview: 还需研究如何使用</li><li><strong>Image Captions</strong>: 支持在底部显示图片名</li></ul><!-- flag of hidden posts -->]]></content>
+        <content type="html"><![CDATA[<h2 id="主题推荐配置"><a href="#主题推荐配置" class="headerlink" title="主题推荐配置"></a>主题推荐配置</h2><ul><li>主题：Border</li><li>插件：Style Settings<ul><li>Border可导入配置项: <a href="https://github.com/Akifyss/obsidian-border/blob/main/presets.md#light-mode">https://github.com/Akifyss/obsidian-border/blob/main/presets.md#light-mode</a></li><li>Side: <a href="https://github.com/Akifyss/obsidian-border/blob/main/presets/Side.json">https://github.com/Akifyss/obsidian-border/blob/main/presets/Side.json</a></li></ul></li><li>字体：<code>霞鹜字体</code> - <a href="https://obsidian.vip/zh/best-practices/obsidian-font-LXGW">https://obsidian.vip/zh/best-practices/obsidian-font-LXGW</a></li></ul><h2 id="插件"><a href="#插件" class="headerlink" title="插件"></a>插件</h2><ul><li>Editing Toolbar: 在顶部增加类似 Word&#x2F;Typora 的格式工具栏。</li><li>Image Toolkit: 点击图片全屏查看、缩放、滚轮放大。</li><li>Easy Typing: 优化中文输入体验，自动在中英文之间加空格。</li><li>Dataview: 还需研究如何使用</li><li><strong>Image Captions</strong>: 支持在底部显示图片名</li></ul><h2 id="标题配置"><a href="#标题配置" class="headerlink" title="标题配置"></a>标题配置</h2><table><thead><tr><th><strong>标题级别 (Level)</strong></th><th><strong>推荐大小 (Size)</strong></th><th><strong>推荐字重 (Weight)</strong></th><th><strong>用途建议</strong></th></tr></thead><tbody><tr><td><strong>H1 (一级标题)</strong></td><td><strong>2.2em</strong></td><td><strong>800 (Extra Bold)</strong></td><td>页面唯一的文档大标题</td></tr><tr><td><strong>H2 (二级标题)</strong></td><td><strong>1.8em</strong></td><td><strong>700 (Bold)</strong></td><td>主要章节划分</td></tr><tr><td><strong>H3 (三级标题)</strong></td><td><strong>1.5em</strong></td><td><strong>600 (Semi Bold)</strong></td><td>子章节&#x2F;具体段落</td></tr><tr><td><strong>H4 (四级标题)</strong></td><td><strong>1.25em</strong></td><td><strong>600 (Semi Bold)</strong></td><td>重点小节&#x2F;步骤标题</td></tr><tr><td><strong>H5 (五级标题)</strong></td><td><strong>1.1em</strong></td><td><strong>500 (Medium)</strong></td><td>强调句&#x2F;提示框标题</td></tr><tr><td><strong>H6 (六级标题)</strong></td><td><strong>1.0em</strong></td><td><strong>400 (Normal)</strong></td><td>备注&#x2F;标签&#x2F;元数据 (建议变灰)</td></tr></tbody></table><!-- flag of hidden posts -->]]></content>
       
       
       <categories>
