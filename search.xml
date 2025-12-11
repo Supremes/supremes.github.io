@@ -706,6 +706,8 @@
       
         <tags>
             
+            <tag> 认证 </tag>
+            
             <tag> OAuth </tag>
             
             <tag> JWT </tag>
@@ -713,8 +715,6 @@
             <tag> SAML </tag>
             
             <tag> OIDC </tag>
-            
-            <tag> 认证 </tag>
             
             <tag> 授权 </tag>
             
