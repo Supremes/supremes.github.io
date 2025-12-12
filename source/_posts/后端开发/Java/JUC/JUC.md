@@ -6,7 +6,7 @@ categories:
   - 后端开发
 cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/JUC.webp
 hidden: false
-updated: 2025-12-09 22:27
+updated: 2025-12-12 14:13
 abbrlink: eb9166f8
 date: 2025-12-04 21:00:06
 sticky:
@@ -446,6 +446,7 @@ AQS 设计中涉及两种队列：
 为多线程环境优化的集合类，解决了标准集合（如 `HashMap`, `ArrayList`）线程不安全的问题，性能优于使用 `Collections.synchronizedMap`。
 
 - **`ConcurrentHashMap`：** 并发编程中最常用的 Map。早期版本使用分段锁，JDK 8 之后改为 CAS + `synchronized`，性能极高。
+	![img](https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/articles/ConcurrentHashMap.webp)
 - **`CopyOnWriteArrayList`：** 写入时复制。读操作无锁，写操作时复制新数组。适合“读多写极少”的场景。
 - **`BlockingQueue` (阻塞队列)：** 线程池的核心组件。当队列空时取元素会阻塞，满时存元素会阻塞（如 `ArrayBlockingQueue`, `LinkedBlockingQueue`）。
 
@@ -453,7 +454,8 @@ AQS 设计中涉及两种队列：
 
 将任务的提交与执行解耦。在生产环境中，我们极少手动 `new Thread()`，而是使用线程池来管理线程生命周期，复用线程以降低开销。
 
-- **`ThreadPoolExecutor`：** 线程池的核心实现类，包含核心线程数、最大线程数、拒绝策略等参数。
+- [[线程池#ThreadPoolExecutor | ThreadPoolExecutor]]： 线程池的核心实现类，包含核心线程数、最大线程数、拒绝策略等参数。
+	![img](https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/articles/ThreadPoolExecutor.webp)
 - **`Executors`：** 创建线程池的工厂类（如 `newFixedThreadPool`），但通常建议手动创建 `ThreadPoolExecutor` 以避免 OOM 风险。
 - **`Future` & `Callable`：** 相比 `Runnable`，它们允许线程有返回值并能抛出异常。
 
