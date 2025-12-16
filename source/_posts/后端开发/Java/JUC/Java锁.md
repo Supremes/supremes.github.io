@@ -6,7 +6,7 @@ categories:
   - 后端开发
 cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/Java%E9%94%81.webp
 hidden: false
-updated: 2025-12-09 22:24
+updated: 2025-12-16 11:26
 abbrlink: 503970b4
 date: 2025-12-08 20:29:33
 sticky:
@@ -359,3 +359,146 @@ sequenceDiagram
 >  下一步
 > 
 > 我可以为你演示 **"如何使用 Spring AOP + Redisson 自定义一个 `@DistributedLock` 注解"**，让你在业务代码中只需一行注解就能实现安全的分布式锁。你需要这个实战示例吗？
+
+这是一个非常棒的后续话题。结合我们刚才讨论的 **AQS 共享模式（Shared Mode）** 和 **Java 17 的重构**，`CountDownLatch` 是理解 AQS 如何实现“共享锁”机制的最佳样本。
+
+它的核心不再是“争抢锁”，而是“等待门闩打开”。
+
+---
+
+### CountDownLatch
+#### 1. 核心概念：倒计时门闩
+
+**CountDownLatch** 就像一个**发令枪**或者**大坝闸门**。
+
+- **初始状态：** 闸门关闭，上面写着一个数字 `N`（计数器）。
+- **动作：**
+    - **`await()`**：调用这个方法的线程会被**阻塞**，堵在闸门前等待。
+    - **`countDown()`**：每调用一次，闸门上的数字减 1。
+- **触发：** 当数字减到 **0** 时，闸门瞬间打开，**所有**堵在前面的线程同时被释放（唤醒）。
+
+---
+
+#### 2. AQS 深度解析：它是如何利用 AQS 的？
+
+结合你刚才关心的 Java 17 AQS 底层，`CountDownLatch` 的实现非常巧妙。它本质上是一个 **共享锁（Shared Lock）** 的特例。
+
+##### A. `state` 的含义
+
+在 `ReentrantLock` 中，`state=1` 代表锁被占用；但在 `CountDownLatch` 中：
+
+- **`state > 0`**：代表锁被“占用”（门闩还关着），线程需要等待。
+- **`state == 0`**：代表锁“空闲”（门闩开了），所有线程都可以通过。
+
+##### B. 核心方法重写 (内部类 `Sync`)
+
+这是 AQS 共享模式的经典实现。
+
+1. tryAcquireShared(int arg) (用于 await())
+
+这个方法的逻辑反直觉：它不是去“抢”某个资源，而是判断“能不能通过”。
+
+Java
+
+```
+protected int tryAcquireShared(int acquires) {
+    // 如果 state == 0，返回 1 (表示成功获取/通过)
+    // 如果 state > 0，返回 -1 (表示获取失败，需要进入队列排队)
+    return (getState() == 0) ? 1 : -1;
+}
+```
+
+- **Java 17 上下文：** 当返回 `-1` 时，AQS 会把当前线程包装成 `Node`（SHARED模式），状态设为 `WAITING`，然后 Park 挂起。
+
+2. tryReleaseShared(int arg) (用于 countDown())
+
+这是一个 CAS 操作，负责减少计数。
+
+Java
+
+```
+protected boolean tryReleaseShared(int releases) {
+    // 循环 CAS 直到成功
+    for (;;) {
+        int c = getState();
+        if (c == 0) return false; // 已经归零了，无需再减
+        int nextc = c - 1;
+        if (compareAndSetState(c, nextc)) {
+            // 关键点：只有当从 1 变成 0 的那一刻，才返回 true
+            return nextc == 0;
+        }
+    }
+}
+```
+
+- **关键点：** 只有**最后一个**调用 `countDown()` 把 `state` 减为 0 的线程，它的 `tryReleaseShared` 才会返回 `true`。
+- **后续动作：** AQS 收到 `true` 后，会调用 `doReleaseShared()`，唤醒队列头部的线程。
+
+---
+
+#### 3. 唤醒风暴：从 JDK 8 的 `PROPAGATE` 到 JDK 17 的优化
+
+这正是我们刚才讨论的“状态消失”的实际应用场景。
+
+场景： 此时队列里有 10 个线程在 await()。
+
+当计数器归零时，AQS 需要唤醒这 10 个线程。这是一个**连锁唤醒（Propagation）**的过程。
+
+##### 唤醒流程（简化版）：
+
+1. **最后一个 countDown 线程**：把 `state` 变为 0，唤醒队列头节点（Head 后面的第一个 Node A）。
+2. **Node A 醒来**：
+    
+    - 检查 `tryAcquireShared` -> 成功（因为 state 已经是 0 了）。
+    - **关键动作：** 它在自己醒来后，会检查“我是不是共享模式？如果是，而且资源还有剩余（state=0 在这里被视为一种无限资源），那我不仅自己要醒，还要**接着唤醒我的后继节点（Node B）**。”
+        
+3. **Node B 醒来**：
+    
+    - 检查 `tryAcquireShared` -> 成功。
+    - 继续唤醒 Node C...
+
+**JDK 8 vs JDK 17 的区别：**
+
+- **JDK 8**：在这个传递过程中，为了防止某些极端并发下的信号丢失，专门设计了 `PROPAGATE` (-3) 状态来标记“需要继续传播”。
+- **JDK 17**：重写了 `acquireShared` 的逻辑，去掉了 `PROPAGATE` 状态。只要 `tryAcquireShared` 返回正数（代表成功且还有资源），就无条件尝试唤醒下一个节点。逻辑更直接，不再依赖节点状态位的标记。
+
+---
+
+#### 4. 局限性：一次性用品
+
+CountDownLatch 最大的特点（也是缺点）是不可重置。
+
+一旦 state 减到 0，它就永远是 0 了。这扇门打开后就关不上了。
+
+如果你需要一个可以循环使用的计数器（比如：人满发车，车走了下一波人继续排队），你需要使用 **`CyclicBarrier`** 或 **`Phaser`**。
+
+#### 5. 实战代码示例
+
+Java
+
+```
+// 模拟场景：等待 3 个微服务启动完成后，主程序才开始对外服务
+CountDownLatch latch = new CountDownLatch(3);
+
+for (int i = 1; i <= 3; i++) {
+    new Thread(() -> {
+        System.out.println(Thread.currentThread().getName() + " 正在启动...");
+        try { Thread.sleep(1000); } catch (InterruptedException e) {}
+        System.out.println(Thread.currentThread().getName() + " 启动完成!");
+        
+        latch.countDown(); // 计数减 1
+    }, "Service-" + i).start();
+}
+
+System.out.println("主线程：等待所有服务启动...");
+latch.await(); // 主线程阻塞在这里，直到 count = 0
+System.out.println("主线程：所有服务已就绪，开始对外服务！");
+```
+
+#### 总结
+
+1. **本质：** 基于 AQS **共享锁**实现。
+2. **State：** 只要 `state > 0` 就代表锁被抢光了（阻塞），`state == 0` 代表锁无限供应（通行）。
+3. **唤醒：** 利用 AQS 的共享传播机制，像推倒多米诺骨牌一样，一个接一个唤醒所有等待线程。
+
+**需要我对比一下 `CyclicBarrier` 吗？** 它的底层实现**不直接依赖 AQS**，而是基于 `ReentrantLock` 和 `Condition`，逻辑完全不同。
