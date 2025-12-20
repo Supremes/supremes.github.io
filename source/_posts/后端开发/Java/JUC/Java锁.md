@@ -6,11 +6,14 @@ categories:
   - 后端开发
 cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/Java%E9%94%81.webp
 hidden: false
-updated: 2025-12-16 11:26
+updated: 2025-12-20 20:42
 abbrlink: 503970b4
 date: 2025-12-08 20:29:33
 sticky:
 ---
+
+## 原理学习
+
 Java 中的锁机制经历了从重型到轻量，从单一到多元的发展历程。要深入理解它们，不能只背诵概念，必须结合 **JVM 内存模型 (JMM)**、**对象头 (Mark Word)** 以及 **AQS (AbstractQueuedSynchronizer)** 的底层原理。
 
 以下是对 Java 各类锁的深度解析，涵盖 JVM 层面的锁优化、JUC 显式锁以及分布式环境下的锁策略。 
@@ -73,7 +76,7 @@ new Counter().safeIncrement();
 
 ### 三、 JVM 内置锁：Synchronized (关键字)
 
-在 Java 6 之前，`synchronized` 被称为“重量级锁”，因为它依赖于操作系统的 Mutex Lock，涉及用户态和内核态的切换，开销极大。但在 Java 6 之后，JVM 引入了**锁升级 (Lock Escalation)** 机制，使其性能大幅提升。
+在 Java 6 之前，`synchronized` 被称为“重量级锁”，因为它依赖于操作系统的 Mutex Lock，涉及**用户态和内核态的切换**，开销极大。但在 Java 6 之后，JVM 引入了**锁升级 (Lock Escalation)** 机制，使其性能大幅提升。
 
 ![Synchronized 原理](https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/articles/synchronized.webp)
 
@@ -334,8 +337,43 @@ sequenceDiagram
 - **缺点:** 性能略逊于 Redis，频繁创建删除节点对 ZK 集群压力大。
 
 ---
+### 六、无锁和有锁的区别？
 
-### 六、专家建议：如何在 Spring 中选择锁？
+|      | 无锁  | 有锁锁 |
+| ---- | --- | --- |
+| 行为模式 | 自旋  | 挂起  |
+| 成本   | 用户态 | 内核态 |
+- 无锁是指利用 CAS 操作，进行自旋，在**用户态**完成，此时 CPU 占用率会上升。
+- 有锁是指一旦 CAS 失败，决定阻塞，会调用 LockSupport. park()将线程挂起，腾出 CPU，从用户态切换到**内核态**。
+	>  由于 CPU 的调度需要操作系统参与，因此需要切换到内核态
+
+### 七、JVM 锁和 JUC 锁
+
+**`synchronized` 的底层实现与 AQS 毫无关系。**
+
+- **AQS (`AbstractQueuedSynchronizer`)**：是 **Java 层面**（JDK源码）实现的一套框架，代码就在 `java.util.concurrent` 包下，你能直接看到它的源码。
+- **`synchronized`**：是 **JVM 层面**（C++源码）实现的关键字，它的逻辑深埋在 HotSpot 虚拟机的源码里（ObjectMonitor），Java 层面看不见。
+
+**实现原理**：
+- AQS 是 **Java 代码 + CAS + LockSupport**；
+- Synchronized 是 **C++ 代码 (ObjectMonitor) + 操作系统 Mutex** 。
+- **队列**：AQS 有 Java 的 `Node` 队列；Synchronized有 C++ 的 `_EntryList` 和 `_WaitSet`.
+- **Monitor**：Synchronized 确实是基于 Object Header 里的 Monitor 实现的，这个 Monitor 是操作系统级别的互斥锁，所以被称为“重量级锁”。
+
+#### synchronized vs Lock+Condition 对比
+
+|特性|synchronized + wait/notify|Lock + Condition|
+|---|---|---|
+|等待队列|**1个**（无法区分等待原因）|**多个**（notEmpty、notFull）|
+|唤醒精度|[notify()](vscode-file://vscode-app/f:/software/Microsoft%20VS%20Code/resources/app/out/vs/code/electron-browser/workbench/workbench.html) 随机唤醒|[signal()](vscode-file://vscode-app/f:/software/Microsoft%20VS%20Code/resources/app/out/vs/code/electron-browser/workbench/workbench.html) 精确唤醒目标队列|
+|性能|需要用 `notifyAll()`（唤醒所有）|只唤醒需要的线程|
+|可读性|较差|更清晰（语义明确）|
+
+#### 关键差异
+
+**建议**：在生产者-消费者场景中，**优先使用 Lock + Condition**，更高效且语义清晰
+
+### 八、专家建议：如何在 Spring 中选择锁？
 
 作为架构师，我遵循以下决策树：
 
@@ -364,8 +402,8 @@ sequenceDiagram
 
 它的核心不再是“争抢锁”，而是“等待门闩打开”。
 
+## 源码总结
 ---
-
 ### CountDownLatch
 #### 1. 核心概念：倒计时门闩
 
@@ -474,9 +512,7 @@ CountDownLatch 最大的特点（也是缺点）是不可重置。
 
 #### 5. 实战代码示例
 
-Java
-
-```
+```Java
 // 模拟场景：等待 3 个微服务启动完成后，主程序才开始对外服务
 CountDownLatch latch = new CountDownLatch(3);
 
