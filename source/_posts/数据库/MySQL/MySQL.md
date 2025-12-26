@@ -4,7 +4,7 @@ tags:
   - MySQL
 categories:
   - 数据库
-sticky: "9"
+sticky: "8"
 abbrlink: 8508
 date: 2025-11-29 08:45:05
 cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/MySQL_learning_note.webp

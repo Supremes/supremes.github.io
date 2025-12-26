@@ -1,15 +1,16 @@
 ---
 title: AQS - AbstractQueuedSynchronizer
-date: 2025-12-12 10:07:45
 tags:
   - 面试
   - JUC
 categories:
   - 后端开发
-cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/AQS.webp
-sticky:
+cover: 'https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/AQS.webp'
 hidden: false
-updated: 2025-12-26 15:59
+updated: '2025-12-26 15:59'
+abbrlink: 40da2f05
+date: 2025-12-12 10:07:45
+sticky:
 ---
 ## AQS - Java 8
 

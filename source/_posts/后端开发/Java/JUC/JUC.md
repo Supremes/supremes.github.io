@@ -10,7 +10,7 @@ hidden: false
 updated: 2025-12-26 15:58
 abbrlink: eb9166f8
 date: 2025-12-04 21:00:06
-sticky:
+sticky: "9"
 ---
 JUC 包是 Java 并发编程的基石，包含了线程池、锁、原子操作、并发集合等核心组件。
 
@@ -22,6 +22,7 @@ JUC 包是 Java 并发编程的基石，包含了线程池、锁、原子操作�
 
 - [[线程与中断]]：interrupt 语义、阻塞点表现、优雅取消模板
 - [[等待与唤醒机制]]：wait/notify、Condition、LockSupport 对照
+- [[原子类与CAS]]：CAS/ABA、LongAdder、FieldUpdater、volatile 落地与常见坑
 - [[AQS]]：AQS 原理与 JDK 17 重构要点
 - [[Java锁]]：synchronized 锁升级、显式锁、读写锁、StampedLock、分布式锁视角
 - [[同步器]]：CountDownLatch / CyclicBarrier / Semaphore / Phaser / Exchanger 选型与坑

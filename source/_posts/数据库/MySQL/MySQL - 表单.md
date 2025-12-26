@@ -1,15 +1,17 @@
 ---
 title: MySQL - 表单
-date: 2025-12-10 15:14:26
 tags:
   - MySQL
   - database
 categories:
   - database
-cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/MySQL_tables.webp
-sticky:
+cover: >-
+  https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/MySQL_tables.webp
 hidden: false
-updated: 2025-12-11 15:31
+updated: '2025-12-11 15:31'
+abbrlink: dd1ba42a
+date: 2025-12-10 15:14:26
+sticky:
 ---
 
 # MySQL 表单概述

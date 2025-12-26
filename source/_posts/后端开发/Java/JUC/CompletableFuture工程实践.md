@@ -1,15 +1,16 @@
 ---
 title: CompletableFuture 工程实践——执行器、超时、异常治理与上下文传播
-date: 2025-12-26 16:45:00
 tags:
   - 面试
   - JUC
 categories:
   - 后端开发
-cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg
-sticky:
+cover: 'https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg'
 hidden: true
-updated: 2025-12-26 16:45
+updated: '2025-12-26 16:45'
+abbrlink: 40480b06
+date: 2025-12-26 16:45:00
+sticky:
 ---
 
 这篇只写工程落地：你在生产里用 `CompletableFuture` 90% 会踩的坑，基本都跟下面四件事有关：

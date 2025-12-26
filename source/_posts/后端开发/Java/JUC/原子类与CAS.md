@@ -1,15 +1,16 @@
 ---
 title: 原子类与 CAS——ABA、LongAdder、字段更新器与 volatile 落地
-date: 2025-12-26 17:40:00
 tags:
   - 面试
   - JUC
 categories:
   - 后端开发
-cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg
-sticky:
+cover: 'https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg'
 hidden: true
-updated: 2025-12-26 17:40
+updated: '2025-12-26 17:40'
+abbrlink: 70d29cce
+date: 2025-12-26 17:40:00
+sticky:
 ---
 
 很多人把“原子类”理解成“比锁快”。工程上更准确的说法是：
