@@ -3,12 +3,13 @@ title: AQS - AbstractQueuedSynchronizer
 date: 2025-12-12 10:07:45
 tags:
   - 面试
+  - JUC
 categories:
   - 后端开发
 cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/AQS.webp
 sticky:
 hidden: false
-updated: 2025-12-20 21:40
+updated: 2025-12-26 15:59
 ---
 ## AQS - Java 8
 
@@ -306,3 +307,15 @@ private static void signalNext(Node h) {
 - **`Lock`+ `Condition`的优势**：通过创建多个`Condition`对象（如`notFull`和`notEmpty`），可以实现**精准通知**。唤醒操作只针对等待特定条件的线程，大大减少了不必要的线程竞争和上下文切换，提升了程序效率。这种设计特别适用于实现资源池、阻塞队列等复杂的同步结构。
 
 希望这些解释能帮助你清晰地理解同步队列和条件队列。如果你对某个特定同步器（如`ReentrantLock`或`ArrayBlockingQueue`）的内部细节感兴趣，我们可以继续深入探讨。
+
+---
+
+# 面试题 / Checklist
+
+- AQS 的 `state` 表示什么？独占/共享模式下语义如何变化？
+- AQS 等待队列（CLH 变体）里 head/tail、“哑节点”的意义是什么？
+- 为什么 AQS 要用 `LockSupport.park/unpark` 而不是 `wait/notify`？
+- `Condition.await()` 为什么必须先持有锁？await 期间发生了什么（释放锁、入条件队列、转同步队列）？
+- 公平锁与非公平锁在 AQS 层面主要差别体现在哪里？
+- 解释一次 acquire 失败后的典型流程：入队、自旋、park、unpark、重试。
+- JDK 17 AQS 相对 JDK 8 的关键变化有哪些（status/WAITING、减少前驱争用、VarHandle）？

@@ -2,16 +2,33 @@
 title: JUC并发编程
 tags:
   - 面试
+  - JUC
 categories:
   - 后端开发
 cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/JUC.webp
 hidden: false
-updated: 2025-12-19 22:18
+updated: 2025-12-26 15:58
 abbrlink: eb9166f8
 date: 2025-12-04 21:00:06
 sticky:
 ---
 JUC 包是 Java 并发编程的基石，包含了线程池、锁、原子操作、并发集合等核心组件。
+
+---
+
+# 本站 JUC 导航
+
+建议阅读顺序：基础（JMM/中断/等待唤醒）→ AQS/锁 → 同步器/容器队列 → 线程池与调参 → CompletableFuture 工程化。
+
+- [[线程与中断]]：interrupt 语义、阻塞点表现、优雅取消模板
+- [[等待与唤醒机制]]：wait/notify、Condition、LockSupport 对照
+- [[AQS]]：AQS 原理与 JDK 17 重构要点
+- [[Java锁]]：synchronized 锁升级、显式锁、读写锁、StampedLock、分布式锁视角
+- [[同步器]]：CountDownLatch / CyclicBarrier / Semaphore / Phaser / Exchanger 选型与坑
+- [[并发容器与队列]]：CopyOnWrite、SkipList、BlockingQueue 家族、弱一致迭代
+- [[线程池]]：ThreadPoolExecutor 核心流程与关键组件
+- [[线程池调参]]：参数联动、背压/拒绝策略、排障 checklist
+- [[CompletableFuture工程实践]]：执行器隔离、超时、异常治理、上下文传播
 
 下面是JUC 源码学习的大纲，并提供了一些学习建议：
 
@@ -468,4 +485,15 @@ AQS 设计中涉及两种队列：
 - **`Semaphore` (信号量)：** 控制同时访问特定资源的线程数量，常用于限流。
 
 ---
+
+# 面试题 / Checklist
+
+- 解释 JMM 的三大特性，以及各自常用保障手段。
+- Happens-Before 常见规则有哪些？用它如何判断“可见性是否成立”。
+- `volatile` 解决什么问题？为什么不能保证复合操作原子性？
+- `synchronized` 与 `ReentrantLock` 的核心差异点（可中断、可超时、公平性、Condition）。
+- AQS 的 `state` + 队列模型在独占/共享模式下分别如何工作。
+- `ThreadPoolExecutor.execute()` 的“三级缓冲”路径与拒绝策略的工程取舍。
+- 阻塞队列的选型：有界 vs 无界、`SynchronousQueue` 的语义。
+- `CompletableFuture` 默认 commonPool 的风险点与工程规避方案。
 

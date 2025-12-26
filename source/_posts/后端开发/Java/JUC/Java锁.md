@@ -2,11 +2,12 @@
 title: Java锁
 tags:
   - 面试
+  - JUC
 categories:
   - 后端开发
 cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/Java%E9%94%81.webp
 hidden: false
-updated: 2025-12-20 20:42
+updated: 2025-12-26 15:59
 abbrlink: 503970b4
 date: 2025-12-08 20:29:33
 sticky:
@@ -538,3 +539,16 @@ System.out.println("主线程：所有服务已就绪，开始对外服务！");
 3. **唤醒：** 利用 AQS 的共享传播机制，像推倒多米诺骨牌一样，一个接一个唤醒所有等待线程。
 
 **需要我对比一下 `CyclicBarrier` 吗？** 它的底层实现**不直接依赖 AQS**，而是基于 `ReentrantLock` 和 `Condition`，逻辑完全不同。
+
+---
+
+# 面试题 / Checklist
+
+- `synchronized` 的锁升级过程（偏向→轻量→重量）触发条件分别是什么？
+- Mark Word 里与锁相关的信息有哪些？锁膨胀后对象头指向什么？
+- 自旋锁的收益/代价是什么？什么时候会“越自旋越慢”？
+- `ReentrantLock` 相比 `synchronized` 多了哪些能力（可中断/可超时/公平/Condition）？
+- `ReentrantReadWriteLock` 可能出现写饥饿的原因与缓解方式？
+- `StampedLock` 的乐观读如何工作？为什么不可重入/不支持 Condition？
+- 无锁（CAS）与有锁（park/阻塞）在成本模型上的差异是什么？
+- 分布式锁三要素：互斥、可重入/续期、释放正确性；常见失效场景有哪些？

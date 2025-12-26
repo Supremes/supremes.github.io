@@ -24,6 +24,7 @@ menu:
   # 需要区分大小写
   分类 || fas fa-folder-open:
     Spring: /categories/Spring/ || fas fa-leaf
+    JUC: /tags/JUC/ || fas fa-book
     面试: /tags/Interview/ || fas fa-book
     数据库: /categories/database/ || fas fa-database
     算法: /categories/algorithm/ || fas fa-code
