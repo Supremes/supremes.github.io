@@ -1,0 +1,346 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>等待与唤醒机制——wait/notify、Condition 与 LockSupport 对照 | Supremes</title><meta name="robots" content="noindex"><meta name="author" content="Supremes"><meta name="copyright" content="Supremes"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="并发里所有“等待&#x2F;唤醒”问题，最终都绕不开三套机制：  Object.wait&#x2F;notify&#x2F;notifyAll（监视器机制，配合 synchronized） Condition.await&#x2F;signal&#x2F;signalAll（显式锁配套） LockSupport.park&#x2F;unpark（更底层，AQS&#x2F;FutureTask&#x2F;线程池广泛使用）  写清楚它们的差异，很多“">
+<meta property="og:type" content="article">
+<meta property="og:title" content="等待与唤醒机制——wait&#x2F;notify、Condition 与 LockSupport 对照">
+<meta property="og:url" content="https://supremes.github.io/posts/6c7575f5.html">
+<meta property="og:site_name" content="Supremes">
+<meta property="og:description" content="并发里所有“等待&#x2F;唤醒”问题，最终都绕不开三套机制：  Object.wait&#x2F;notify&#x2F;notifyAll（监视器机制，配合 synchronized） Condition.await&#x2F;signal&#x2F;signalAll（显式锁配套） LockSupport.park&#x2F;unpark（更底层，AQS&#x2F;FutureTask&#x2F;线程池广泛使用）  写清楚它们的差异，很多“">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/AQS.webp">
+<meta property="article:published_time" content="2025-12-26T17:20:00.000Z">
+<meta property="article:modified_time" content="2025-12-26T17:20:00.000Z">
+<meta property="article:author" content="Supremes">
+<meta property="article:tag" content="JUC">
+<meta property="article:tag" content="面试">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/AQS.webp"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "等待与唤醒机制——wait/notify、Condition 与 LockSupport 对照",
+  "url": "https://supremes.github.io/posts/6c7575f5.html",
+  "image": "https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/AQS.webp",
+  "datePublished": "2025-12-26T17:20:00.000Z",
+  "dateModified": "2025-12-26T17:20:00.000Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Supremes",
+      "url": "https://supremes.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/favicon/favicon.ico"><link rel="canonical" href="https://supremes.github.io/posts/6c7575f5.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.2"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"pagination":{"enable":true,"hitsPerPage":10},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: true,
+  isAnchor: true,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '等待与唤醒机制——wait/notify、Condition 与 LockSupport 对照',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-webfont/style.css" /><meta name="generator" content="Hexo 8.1.1"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">25</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">54</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">14</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/Spring/"><i class="fa-fw fas fa-leaf"></i><span> Spring</span></a></li><li><a class="site-page child" href="/categories/JUC/"><i class="fa-fw fas fa-book"></i><span> JUC</span></a></li><li><a class="site-page child" href="/tags/Interview/"><i class="fa-fw fas fa-book"></i><span> 面试</span></a></li><li><a class="site-page child" href="/categories/database/"><i class="fa-fw fas fa-database"></i><span> 数据库</span></a></li><li><a class="site-page child" href="/categories/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法</span></a></li><li><a class="site-page child" href="/categories/security/"><i class="fa-fw fas fa-shield-alt"></i><span> 网络安全</span></a></li><li><a class="site-page child" href="/categories/message-queue/"><i class="fa-fw fas fa-envelope"></i><span> 消息队列</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 关于</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/about/about_me"><i class="fa-fw fas fa-user"></i><span> 关于我</span></a></li><li><a class="site-page child" href="/about/my_notes"><i class="fa-fw fas fa-note-sticky"></i><span> 备忘录</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/AQS.webp);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Supremes</span></a><a class="nav-page-title" href="/"><span class="site-name">等待与唤醒机制——wait/notify、Condition 与 LockSupport 对照</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/Spring/"><i class="fa-fw fas fa-leaf"></i><span> Spring</span></a></li><li><a class="site-page child" href="/categories/JUC/"><i class="fa-fw fas fa-book"></i><span> JUC</span></a></li><li><a class="site-page child" href="/tags/Interview/"><i class="fa-fw fas fa-book"></i><span> 面试</span></a></li><li><a class="site-page child" href="/categories/database/"><i class="fa-fw fas fa-database"></i><span> 数据库</span></a></li><li><a class="site-page child" href="/categories/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法</span></a></li><li><a class="site-page child" href="/categories/security/"><i class="fa-fw fas fa-shield-alt"></i><span> 网络安全</span></a></li><li><a class="site-page child" href="/categories/message-queue/"><i class="fa-fw fas fa-envelope"></i><span> 消息队列</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 关于</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/about/about_me"><i class="fa-fw fas fa-user"></i><span> 关于我</span></a></li><li><a class="site-page child" href="/about/my_notes"><i class="fa-fw fas fa-note-sticky"></i><span> 备忘录</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">等待与唤醒机制——wait/notify、Condition 与 LockSupport 对照</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-12-26T17:20:00.000Z" title="发表于 2025-12-26 17:20 17:20:00">2025-12-26 17:20</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-12-26T17:20:00.000Z" title="更新于 2025-12-26 17:20 17:20:00">2025-12-26 17:20</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>并发里所有“等待&#x2F;唤醒”问题，最终都绕不开三套机制：</p>
+<ul>
+<li><code>Object.wait/notify/notifyAll</code>（监视器机制，配合 <code>synchronized</code>）</li>
+<li><code>Condition.await/signal/signalAll</code>（显式锁配套）</li>
+<li><code>LockSupport.park/unpark</code>（更底层，AQS&#x2F;FutureTask&#x2F;线程池广泛使用）</li>
+</ul>
+<p>写清楚它们的差异，很多“信号丢失&#x2F;虚假唤醒&#x2F;死等”的问题会一下子明朗。</p>
+<hr>
+<h2 id="1-对比速查表"><a href="#1-对比速查表" class="headerlink" title="1. 对比速查表"></a>1. 对比速查表</h2><table>
+<thead>
+<tr>
+<th>机制</th>
+<th>等待条件</th>
+<th>唤醒方式</th>
+<th>是否必须持有锁</th>
+<th>是否可能虚假唤醒</th>
+<th>典型使用处</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>wait/notify</code></td>
+<td>对象 monitor 的 wait-set</td>
+<td><code>notify/notifyAll</code></td>
+<td>是（必须在 synchronized 内）</td>
+<td>是</td>
+<td>传统生产者-消费者、synchronized 协作</td>
+</tr>
+<tr>
+<td><code>Condition</code></td>
+<td>条件队列（每个 Condition 一个队列）</td>
+<td><code>signal/signalAll</code></td>
+<td>是（必须持有关联 Lock）</td>
+<td>是</td>
+<td>ReentrantLock 协作、多条件队列</td>
+</tr>
+<tr>
+<td><code>LockSupport</code></td>
+<td>线程的“permit”</td>
+<td><code>unpark(thread)</code></td>
+<td>否</td>
+<td>会（park 可能无理由返回）</td>
+<td>AQS、FutureTask、线程池阻塞</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="2-wait-notify：监视器上的等待集合"><a href="#2-wait-notify：监视器上的等待集合" class="headerlink" title="2. wait&#x2F;notify：监视器上的等待集合"></a>2. wait&#x2F;notify：监视器上的等待集合</h2><h3 id="2-1-关键规则"><a href="#2-1-关键规则" class="headerlink" title="2.1 关键规则"></a>2.1 关键规则</h3><ul>
+<li>必须在 <code>synchronized(obj)</code> 内调用 <code>obj.wait()</code> &#x2F; <code>obj.notify()</code></li>
+<li><code>wait()</code> 会：<ul>
+<li>释放 monitor</li>
+<li>把线程加入 obj 的等待集合</li>
+<li>被唤醒后重新竞争 monitor</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-2-正确姿势：永远用-while"><a href="#2-2-正确姿势：永远用-while" class="headerlink" title="2.2 正确姿势：永远用 while"></a>2.2 正确姿势：永远用 while</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">synchronized</span> (lock) &#123;</span><br><span class="line">    <span class="keyword">while</span> (!conditionOk()) &#123;</span><br><span class="line">        lock.wait();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// condition ok</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>原因：</p>
+<ul>
+<li><strong>虚假唤醒</strong>：线程可能在没有收到通知时返回</li>
+<li><strong>竞争唤醒</strong>：notifyAll 后只有一个线程能拿到资源，其余线程需要继续等</li>
+</ul>
+<h3 id="2-3-notify-vs-notifyall"><a href="#2-3-notify-vs-notifyall" class="headerlink" title="2.3 notify vs notifyAll"></a>2.3 notify vs notifyAll</h3><ul>
+<li><code>notify()</code>：只随机唤醒一个等待线程，容易造成“唤醒了不该唤醒的人”（条件不满足又继续睡）</li>
+<li><code>notifyAll()</code>：唤醒全部，依靠 while 自旋检查条件；更安全但唤醒风暴更大</li>
+</ul>
+<hr>
+<h2 id="3-condition：更可控的等待-唤醒"><a href="#3-condition：更可控的等待-唤醒" class="headerlink" title="3. Condition：更可控的等待&#x2F;唤醒"></a>3. Condition：更可控的等待&#x2F;唤醒</h2><p><code>Condition</code> 的最大价值是：</p>
+<ul>
+<li>一个 Lock 可以派生多个 Condition</li>
+<li>每个 Condition 有自己的等待队列</li>
+</ul>
+<p>这让“多条件协作”更清晰：</p>
+<ul>
+<li>notEmpty</li>
+<li>notFull</li>
+<li>hasResource</li>
+</ul>
+<h3 id="3-1-模板"><a href="#3-1-模板" class="headerlink" title="3.1 模板"></a>3.1 模板</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">ReentrantLock</span> <span class="variable">lock</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ReentrantLock</span>();</span><br><span class="line"><span class="type">Condition</span> <span class="variable">notEmpty</span> <span class="operator">=</span> lock.newCondition();</span><br><span class="line"></span><br><span class="line">lock.lock();</span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">while</span> (queue.isEmpty()) &#123;</span><br><span class="line">        notEmpty.await();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// consume</span></span><br><span class="line">&#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">    lock.unlock();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-2-工程易错点"><a href="#3-2-工程易错点" class="headerlink" title="3.2 工程易错点"></a>3.2 工程易错点</h3><ul>
+<li><code>await()</code> 抛 <code>InterruptedException</code>：要决定是“吞掉并继续”还是“回填标志并退出”（通常建议回填并退出）</li>
+<li><code>signal()</code> 一定要在持锁状态下调用（否则时序很难保证）</li>
+</ul>
+<hr>
+<h2 id="4-locksupport：permit-语义（不会丢信号）"><a href="#4-locksupport：permit-语义（不会丢信号）" class="headerlink" title="4. LockSupport：permit 语义（不会丢信号）"></a>4. LockSupport：permit 语义（不会丢信号）</h2><p><code>LockSupport</code> 可以理解成：</p>
+<ul>
+<li>每个线程有一个 <code>permit</code>（0 或 1）</li>
+<li><code>park()</code>：如果 permit&#x3D;0 就阻塞；如果 permit&#x3D;1 就消费 permit 并立即返回</li>
+<li><code>unpark(t)</code>：把 t 的 permit 置为 1（如果已经是 1 就保持 1）</li>
+</ul>
+<p>关键结论：</p>
+<ul>
+<li><strong>unpark 可以先于 park 调用</strong>，信号不会丢（permit 会被记住）</li>
+</ul>
+<p>这也是它被 AQS 选为底层工具的重要原因。</p>
+<h3 id="4-1-但为什么还说可能“无理由返回”"><a href="#4-1-但为什么还说可能“无理由返回”" class="headerlink" title="4.1 但为什么还说可能“无理由返回”"></a>4.1 但为什么还说可能“无理由返回”</h3><ul>
+<li><code>park()</code> 允许虚假返回：<ul>
+<li>中断</li>
+<li>其它原因</li>
+</ul>
+</li>
+</ul>
+<p>所以用 <code>park</code> 的上层实现（AQS&#x2F;FutureTask）都会在循环里反复检查条件。</p>
+<hr>
+<h2 id="5-“信号丢失”与“死等”常见成因"><a href="#5-“信号丢失”与“死等”常见成因" class="headerlink" title="5. “信号丢失”与“死等”常见成因"></a>5. “信号丢失”与“死等”常见成因</h2><ul>
+<li>用 <code>if</code> 代替 <code>while</code>（虚假唤醒直接穿透）</li>
+<li>条件检查与入队&#x2F;等待不是原子序列（检查完条件后再 wait，期间错过 notify）</li>
+<li>多条件混用一个 wait-set（notify 唤醒了不该唤醒的线程）</li>
+</ul>
+<p>规避建议：</p>
+<ul>
+<li>用 Condition 拆分条件队列</li>
+<li>用 while 守护条件</li>
+<li>用更底层的并发结构（BlockingQueue）替代手写 wait&#x2F;notify</li>
+</ul>
+<hr>
+<h2 id="6-总结：怎么选"><a href="#6-总结：怎么选" class="headerlink" title="6. 总结：怎么选"></a>6. 总结：怎么选</h2><ul>
+<li><code>synchronized</code> 协作：用 <code>wait/notifyAll</code>，并坚持 while</li>
+<li><code>ReentrantLock</code>：用 <code>Condition</code>（多条件更清晰）</li>
+<li>写同步器&#x2F;框架代码：用 <code>LockSupport</code>（permit 语义更适合）</li>
+</ul>
+<hr>
+<h2 id="面试题-checklist"><a href="#面试题-checklist" class="headerlink" title="面试题 &#x2F; Checklist"></a>面试题 &#x2F; Checklist</h2><ul>
+<li>为什么 <code>wait()</code>&#x2F;<code>notify()</code> 必须在 <code>synchronized</code> 里调用？</li>
+<li>为什么必须用 <code>while</code> 而不是 <code>if</code> 来守护条件？</li>
+<li><code>notify()</code> 与 <code>notifyAll()</code> 的取舍点是什么？</li>
+<li><code>Condition</code> 相比 <code>wait/notify</code> 解决了什么问题（多条件队列&#x2F;精准唤醒）？</li>
+<li><code>LockSupport</code> 的 permit 语义是什么？为什么 <code>unpark</code> 可以先于 <code>park</code>？</li>
+<li>什么是“信号丢失”？在手写等待&#x2F;唤醒时如何避免？</li>
+</ul>
+<!-- flag of hidden posts --></article><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Interview/">面试</a><a class="post-meta__tags" href="/tags/JUC/">JUC</a></div><div class="post-share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/AQS.webp" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/posts/40da2f05.html" title="AQS - AbstractQueuedSynchronizer"><img class="cover" src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/AQS.webp" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-12-12 10:07</div><div class="info-item-2">AQS - AbstractQueuedSynchronizer</div></div><div class="info-2"><div class="info-item-1">AQS - Java 8这是一个非常好的课题。AQS (AbstractQueuedSynchronizer) 是 Java 并发包 (java.util.concurrent) 中许多同步组件（如 ReentrantLock, CountDownLatch, Semaphore）的基石。理解了它，就理解了 Java 并发的半壁江山。 我将生成两张 Excalidraw 风格的图片来辅助讲解：  AQS 宏观内部结构图：展示 State、持有线程以及 CLH 等待队列的整体关系。 AQS 核心流程与状态转换图：展示一个线程尝试获取锁失败后，如何进入队列、改变前驱节点状态以及最终被唤醒的动态过程。  AQS 宏观内部结构图这一张图展示了 AQS 是如何通过一个共享资源状态 (state) 和一个先进先出的等待队列 (CLH Queue) 来管理线程的。 AQS 核心流程与状态转换图 (Acquire Flow)这一张图聚焦于动态过程。当一个线程尝试去 “acquire”（获取锁）时，如果成功了会怎样，如果失败了，它在队列中会经历哪些关键状态的变迁。 图文详解 AQS 原理AQS 的...</div></div></div></a><a class="pagination-related" href="/posts/eb9166f8.html" title="JUC并发编程"><img class="cover" src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/JUC.webp" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-12-04 21:00</div><div class="info-item-2">JUC并发编程</div></div><div class="info-2"><div class="info-item-1">JUC 包是 Java 并发编程的基石，包含了线程池、锁、原子操作、并发集合等核心组件。  本站 JUC 导航建议阅读顺序：基础（JMM&#x2F;中断&#x2F;等待唤醒）→ AQS&#x2F;锁 → 同步器&#x2F;容器队列 → 线程池与调参 → CompletableFuture 工程化。  线程与中断：interrupt 语义、阻塞点表现、优雅取消模板 等待与唤醒机制：wait&#x2F;notify、Condition、LockSupport 对照 AQS：AQS 原理与 JDK 17 重构要点 Java锁：synchronized 锁升级、显式锁、读写锁、StampedLock、分布式锁视角 同步器：CountDownLatch &#x2F; CyclicBarrier &#x2F; Semaphore &#x2F; Phaser &#x2F; Exchanger 选型与坑 并发容器与队列：CopyOnWrite、SkipList、BlockingQueue 家族、弱一致迭代 线程池：ThreadPoolExecutor 核心流程与关键组件 线程池调参：参数联动、背...</div></div></div></a><a class="pagination-related" href="/posts/503970b4.html" title="Java锁"><img class="cover" src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/Java%E9%94%81.webp" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-12-08 20:29</div><div class="info-item-2">Java锁</div></div><div class="info-2"><div class="info-item-1">原理学习Java 中的锁机制经历了从重型到轻量，从单一到多元的发展历程。要深入理解它们，不能只背诵概念，必须结合 JVM 内存模型 (JMM)、对象头 (Mark Word) 以及 AQS (AbstractQueuedSynchronizer) 的底层原理。 以下是对 Java 各类锁的深度解析，涵盖 JVM 层面的锁优化、JUC 显式锁以及分布式环境下的锁策略。   一、 宏观分类：锁的特性视角在深入具体实现之前，我们需要建立一个清晰的分类体系。这些术语描述的是锁的特性或设计思想，而非具体的类。    锁分类 描述 代表实现 适用场景    乐观锁 假设没有冲突，操作时检测数据是否被修改 (CAS)。 AtomicInteger, 数据库版本号 读多写少，竞争不激烈   悲观锁 假设总有冲突，操作前先锁定。 synchronized, ReentrantLock 写多读少，竞争激烈   可重入锁 允许同一个线程多次获取同一把锁，防止死锁。 synchronized, ReentrantLock 递归调用，父子类方法调用   公平锁 严格按照请求顺序获取锁 (FIFO)。 Re...</div></div></div></a><a class="pagination-related" href="/posts/de7c53fe.html" title="线程池"><img class="cover" src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/JUC%E7%BA%BF%E7%A8%8B%E6%B1%A0.webp" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-12-12 13:53</div><div class="info-item-2">线程池</div></div><div class="info-2"><div class="info-item-1">学习大纲要想深入理解 JUC (Java Util Concurrent) 的线程池实现，不能只看 ThreadPoolExecutor 一个类，而应该顺藤摸瓜，从接口定义、核心实现、辅助组件三个维度入手。 以下是按“阅读优先级”排序的源码研读路径： 第一阶段：核心骨架（必看）这是线程池的灵魂，90% 的面试题和生产环境故障都源于对这个类的误解。  java.util.concurrent.ThreadPoolExecutor (核心)  地位：绝对的核心。 看什么： ctl 变量：高 3 位存状态，低 29 位存线程数。这是位运算设计的典范。 execute(Runnable command)：入口方法，蕴含了“三级缓冲”逻辑（核心线程 -&gt; 队列 -&gt; 最大线程 -&gt; 拒绝）。 addWorker(Runnable firstTask, boolean core)：如何创建一个线程并启动它。 内部类 Worker：重点！它继承了 AQS。为什么要继承 AQS？为了实现独占锁，判断线程是否空闲（中断时使用）。 runWorker(Worker w)：线程启动后...</div></div></div></a><a class="pagination-related" href="/posts/750d7523.html" title="Spring Cloud"><img class="cover" src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/SpringCloud.webp" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-12-04 20:54</div><div class="info-item-2">Spring Cloud</div></div><div class="info-2"><div class="info-item-1">Spring Cloud 是一个广泛用于构建微服务架构的框架集合，涵盖了服务发现、配置管理、负载均衡、熔断器、API 网关、消息总线等多个方面。以下是一个系统的 Spring Cloud 学习路线，适合初学者循序渐进地掌握其核心内容。  1. 基础准备在学习 Spring Cloud 之前，需要打好以下基础：  Java 基础：熟悉 Java 编程语言，包括面向对象编程、集合框架、异常处理等。 Spring Boot：Spring Cloud 基于 Spring Boot 构建，需掌握 Spring Boot 的核心概念，如自动配置、依赖注入、RESTful API 开发、Spring Data JPA 等。 微服务架构：了解微服务的基本概念、优缺点，以及与传统单体应用的区别。 HTTP 和 REST：掌握 HTTP 协议和 RESTful 服务设计原则。 Maven 或 Gradle：熟悉项目构建工具，学会管理依赖和构建项目。   2. Spring Cloud 核心组件学习Spring Cloud 由多个子项目组成，每个子项目解决微服务架构中的特定问题。以下是核心组件及其推荐...</div></div></div></a><a class="pagination-related" href="/posts/2d0b435f.html" title="Spring MVC"><img class="cover" src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/SpringMVC.webp" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-12-04 20:51</div><div class="info-item-2">Spring MVC</div></div><div class="info-2"><div class="info-item-1">SpringMVC 工作原理引言Spring MVC 框架作为 Java Web 应用程序开发中广泛采用的框架，以其分层和松耦合的架构而闻名。这种架构清晰地分离了表示层、持久层和控制层，使得开发人员能够独立地处理各个模块，并将其组合成专业的 Web 应用程序。遵循 MVC 标准开发的 Web 应用程序更易于扩展、更新和管理，因为松耦合的分层结构使得在特定层进行修改变得更加便捷 1。本报告旨在深入探讨 Spring MVC 框架内 HTTP 请求的完整生命周期，从客户端发起请求到最终响应返回，详细阐述其内部的工作原理。 理解模型-视图-控制器（MVC）模式模型-视图-控制器（MVC）是一种广泛应用于软件工程中的架构模式，旨在分离应用程序的不同关注点，从而提高代码的可维护性和可重用性 3。在 MVC 模式中，应用程序被划分为三个核心组件：  模型（Model）： 模型负责封装应用程序的数据和业务逻辑 2。它是应用程序的核心，管理着数据的存储、检索和处理 4。模型独立于用户界面，当模型中的数据发生变化时，它会通知视图进行更新 4。 视图（View）： 视图负责呈现模型中的数据，并将其转...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Supremes</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">25</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">54</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">14</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/Supremes"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%AF%B9%E6%AF%94%E9%80%9F%E6%9F%A5%E8%A1%A8"><span class="toc-text">1. 对比速查表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-wait-notify%EF%BC%9A%E7%9B%91%E8%A7%86%E5%99%A8%E4%B8%8A%E7%9A%84%E7%AD%89%E5%BE%85%E9%9B%86%E5%90%88"><span class="toc-text">2. wait&#x2F;notify：监视器上的等待集合</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E5%85%B3%E9%94%AE%E8%A7%84%E5%88%99"><span class="toc-text">2.1 关键规则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E6%AD%A3%E7%A1%AE%E5%A7%BF%E5%8A%BF%EF%BC%9A%E6%B0%B8%E8%BF%9C%E7%94%A8-while"><span class="toc-text">2.2 正确姿势：永远用 while</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-notify-vs-notifyall"><span class="toc-text">2.3 notify vs notifyAll</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-condition%EF%BC%9A%E6%9B%B4%E5%8F%AF%E6%8E%A7%E7%9A%84%E7%AD%89%E5%BE%85-%E5%94%A4%E9%86%92"><span class="toc-text">3. Condition：更可控的等待&#x2F;唤醒</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E6%A8%A1%E6%9D%BF"><span class="toc-text">3.1 模板</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E5%B7%A5%E7%A8%8B%E6%98%93%E9%94%99%E7%82%B9"><span class="toc-text">3.2 工程易错点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-locksupport%EF%BC%9Apermit-%E8%AF%AD%E4%B9%89%EF%BC%88%E4%B8%8D%E4%BC%9A%E4%B8%A2%E4%BF%A1%E5%8F%B7%EF%BC%89"><span class="toc-text">4. LockSupport：permit 语义（不会丢信号）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-%E4%BD%86%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%98%E8%AF%B4%E5%8F%AF%E8%83%BD%E2%80%9C%E6%97%A0%E7%90%86%E7%94%B1%E8%BF%94%E5%9B%9E%E2%80%9D"><span class="toc-text">4.1 但为什么还说可能“无理由返回”</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E2%80%9C%E4%BF%A1%E5%8F%B7%E4%B8%A2%E5%A4%B1%E2%80%9D%E4%B8%8E%E2%80%9C%E6%AD%BB%E7%AD%89%E2%80%9D%E5%B8%B8%E8%A7%81%E6%88%90%E5%9B%A0"><span class="toc-text">5. “信号丢失”与“死等”常见成因</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E6%80%BB%E7%BB%93%EF%BC%9A%E6%80%8E%E4%B9%88%E9%80%89"><span class="toc-text">6. 总结：怎么选</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9D%A2%E8%AF%95%E9%A2%98-checklist"><span class="toc-text">面试题 &#x2F; Checklist</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/posts/364ea8cc.html" title="设计模式"><img src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="设计模式"/></a><div class="content"><a class="title" href="/posts/364ea8cc.html" title="设计模式">设计模式</a><time datetime="2025-12-18T21:24:14.000Z" title="发表于 2025-12-18 21:24 21:24:14">2025-12-18 21:24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/de7c53fe.html" title="线程池"><img src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/JUC%E7%BA%BF%E7%A8%8B%E6%B1%A0.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="线程池"/></a><div class="content"><a class="title" href="/posts/de7c53fe.html" title="线程池">线程池</a><time datetime="2025-12-12T13:53:45.000Z" title="发表于 2025-12-12 13:53 13:53:45">2025-12-12 13:53</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/40da2f05.html" title="AQS - AbstractQueuedSynchronizer"><img src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/AQS.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="AQS - AbstractQueuedSynchronizer"/></a><div class="content"><a class="title" href="/posts/40da2f05.html" title="AQS - AbstractQueuedSynchronizer">AQS - AbstractQueuedSynchronizer</a><time datetime="2025-12-12T10:07:45.000Z" title="发表于 2025-12-12 10:07 10:07:45">2025-12-12 10:07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/dd1ba42a.html" title="MySQL - 表单"><img src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/MySQL_tables.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MySQL - 表单"/></a><div class="content"><a class="title" href="/posts/dd1ba42a.html" title="MySQL - 表单">MySQL - 表单</a><time datetime="2025-12-10T15:14:26.000Z" title="发表于 2025-12-10 15:14 15:14:26">2025-12-10 15:14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/503970b4.html" title="Java锁"><img src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/Java%E9%94%81.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Java锁"/></a><div class="content"><a class="title" href="/posts/503970b4.html" title="Java锁">Java锁</a><time datetime="2025-12-08T20:29:33.000Z" title="发表于 2025-12-08 20:29 20:29:33">2025-12-08 20:29</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 By Supremes</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.1</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.2</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.2"></script><script src="/js/main.js?v=5.5.2"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@19.1.3/dist/lazyload.iife.min.js"></script><div class="js-pjax"><script>(() => {
+  const runMermaid = ele => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    ele.forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const config = mermaidSrc.dataset.config ? JSON.parse(mermaidSrc.dataset.config) : {}
+      if (!config.theme) {
+        config.theme = theme
+      }
+      const mermaidThemeConfig = `%%{init: ${JSON.stringify(config)}}%%\n`
+      const mermaidID = `mermaid-${index}`
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+      const renderMermaid = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      // mermaid v9 and v10 compatibility
+      typeof renderFn === 'string' ? renderMermaid(renderFn) : renderFn.then(({ svg }) => renderMermaid(svg))
+    })
+  }
+
+  const codeToMermaid = () => {
+    const codeMermaidEle = document.querySelectorAll('pre > code.mermaid')
+    if (codeMermaidEle.length === 0) return
+
+    codeMermaidEle.forEach(ele => {
+      const preEle = document.createElement('pre')
+      preEle.className = 'mermaid-src'
+      preEle.hidden = true
+      preEle.textContent = ele.textContent
+      const newEle = document.createElement('div')
+      newEle.className = 'mermaid-wrap'
+      newEle.appendChild(preEle)
+      ele.parentNode.replaceWith(newEle)
+    })
+  }
+
+  const loadMermaid = () => {
+    if (true) codeToMermaid()
+    const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+    if ($mermaid.length === 0) return
+
+    const runMermaidFn = () => runMermaid($mermaid)
+    btf.addGlobalFn('themeChange', runMermaidFn, 'mermaid')
+    window.loadMermaid ? runMermaidFn() : btf.getScript('https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.min.js').then(runMermaidFn)
+  }
+
+  btf.addGlobalFn('encrypt', loadMermaid, 'mermaid')
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="/"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章标题和内容..." type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.5.2"></script></div></div></body></html>
