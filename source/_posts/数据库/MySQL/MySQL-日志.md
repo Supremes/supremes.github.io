@@ -3,9 +3,8 @@ title: MySQL 日志系统
 tags: []
 categories:
   - 数据库
-  - MySQL
 cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/articles/MySQL_Log.webp
-hidden: false
+hidden: true
 abbrlink: 356a30bc
 date: 2025-12-02 17:26:11
 sticky:

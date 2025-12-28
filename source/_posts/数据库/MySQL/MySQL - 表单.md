@@ -4,11 +4,10 @@ tags:
   - MySQL
   - database
 categories:
-  - database
-cover: >-
-  https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/MySQL_tables.webp
-hidden: false
-updated: '2025-12-11 15:31'
+  - 数据库
+cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/MySQL_tables.webp
+hidden: true
+updated: 2025-12-28 22:05
 abbrlink: dd1ba42a
 date: 2025-12-10 15:14:26
 sticky:

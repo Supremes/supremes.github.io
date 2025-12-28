@@ -1,5 +1,5 @@
 ---
-title: Redis 学习笔记
+title: Redis - 核心原理笔记
 tags:
   - Redis
 categories:
@@ -7,6 +7,7 @@ categories:
 abbrlink: 16018
 date: 2025-11-29 08:56:10
 cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/Redis.webp
+updated: 2025-12-28 22:01
 ---
 ## 基础数据结构
 
@@ -101,9 +102,6 @@ Redis是key-value数据库，key的类型只能是String，但是value的数据�
 ### Sorted Set
 
 有序集合，不允许重复。相对于set，支持按照score排序，key不允许重复，但是score允许重复，底层实现使用到了压缩列表和跳表
-
-  
-  
 
 ## slot
 
@@ -259,7 +257,6 @@ end
 
 - 使用 ZK 的临时节点和有序节点，每个线程获取锁就是在 ZK 创建一个临时有序的节点，比如在 /lock/ 目录下
 - 创建节点成功后，获取 /lock 目录下的所有临时节点，再判断当前线程创建的节点是否是所有的节点的序号最小的节点
-
 - 如果当前线程创建的节点是所有节点序号最小的节点，则认为获取锁成功
 - 如果当前线程创建的节点不是所有节点序号最小的节点，则对节点序号的前一个节点添加一个事件监听。
 
