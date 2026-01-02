@@ -7,7 +7,7 @@ categories:
   - 后端开发
 cover: 'https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg'
 hidden: true
-updated: '2025-12-26 17:40'
+updated: 2026-01-02 20:02
 abbrlink: 70d29cce
 date: 2025-12-26 17:40:00
 sticky:
@@ -75,7 +75,7 @@ ABA：
 
 ---
 
-## 4. 字段更新器（Atomic*FieldUpdater）：少对象、少分配
+## 4. 字段更新器（AtomicFieldUpdater）：少对象、少分配
 
 典型场景：
 - 你有大量对象，每个对象一个计数/状态字段
