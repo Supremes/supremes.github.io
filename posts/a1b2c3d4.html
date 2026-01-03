@@ -1,0 +1,668 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Redis 核心技术与实战 | Supremes</title><meta name="author" content="Supremes"><meta name="copyright" content="Supremes"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Redis 是一款高性能的键值数据库，广泛应用于缓存、消息队列、排行榜、分布式锁等场景。掌握 Redis 的核心原理和实战技巧是后端开发工程师的必备技能。  本站 Redis 导航建议阅读顺序：基础数据类型 → 底层数据结构 → 持久化 → 缓存策略 → 集群架构 → 分布式锁 → 性能优化 → 应用场景。  Redis数据类型与底层实现：String&#x2F;Hash&#x2F;List&amp;#x">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis 核心技术与实战">
+<meta property="og:url" content="https://supremes.github.io/posts/a1b2c3d4.html">
+<meta property="og:site_name" content="Supremes">
+<meta property="og:description" content="Redis 是一款高性能的键值数据库，广泛应用于缓存、消息队列、排行榜、分布式锁等场景。掌握 Redis 的核心原理和实战技巧是后端开发工程师的必备技能。  本站 Redis 导航建议阅读顺序：基础数据类型 → 底层数据结构 → 持久化 → 缓存策略 → 集群架构 → 分布式锁 → 性能优化 → 应用场景。  Redis数据类型与底层实现：String&#x2F;Hash&#x2F;List&amp;#x">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/Redis%E5%AF%BC%E8%88%AA.webp">
+<meta property="article:published_time" content="2026-01-03T15:00:00.000Z">
+<meta property="article:modified_time" content="2026-01-03T16:49:00.000Z">
+<meta property="article:author" content="Supremes">
+<meta property="article:tag" content="Redis">
+<meta property="article:tag" content="数据库">
+<meta property="article:tag" content="缓存">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/Redis%E5%AF%BC%E8%88%AA.webp"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Redis 核心技术与实战",
+  "url": "https://supremes.github.io/posts/a1b2c3d4.html",
+  "image": "https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/Redis%E5%AF%BC%E8%88%AA.webp",
+  "datePublished": "2026-01-03T15:00:00.000Z",
+  "dateModified": "2026-01-03T16:49:00.000Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Supremes",
+      "url": "https://supremes.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/favicon/favicon.ico"><link rel="canonical" href="https://supremes.github.io/posts/a1b2c3d4.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.2"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"pagination":{"enable":true,"hitsPerPage":10},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: true,
+  isAnchor: true,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Redis 核心技术与实战',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-webfont/style.css" /><meta name="generator" content="Hexo 8.1.1"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">25</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">65</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">12</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/Spring/"><i class="fa-fw fas fa-leaf"></i><span> Spring</span></a></li><li><a class="site-page child" href="/tags/JUC/"><i class="fa-fw fas fa-book"></i><span> JUC</span></a></li><li><a class="site-page child" href="/tags/Interview/"><i class="fa-fw fas fa-book"></i><span> 面试</span></a></li><li><a class="site-page child" href="/categories/database/"><i class="fa-fw fas fa-database"></i><span> 数据库</span></a></li><li><a class="site-page child" href="/categories/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法</span></a></li><li><a class="site-page child" href="/categories/security/"><i class="fa-fw fas fa-shield-alt"></i><span> 网络安全</span></a></li><li><a class="site-page child" href="/categories/message-queue/"><i class="fa-fw fas fa-envelope"></i><span> 消息队列</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 关于</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/about/about_me"><i class="fa-fw fas fa-user"></i><span> 关于我</span></a></li><li><a class="site-page child" href="/about/my_notes"><i class="fa-fw fas fa-note-sticky"></i><span> 备忘录</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/Redis%E5%AF%BC%E8%88%AA.webp);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Supremes</span></a><a class="nav-page-title" href="/"><span class="site-name">Redis 核心技术与实战</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/Spring/"><i class="fa-fw fas fa-leaf"></i><span> Spring</span></a></li><li><a class="site-page child" href="/tags/JUC/"><i class="fa-fw fas fa-book"></i><span> JUC</span></a></li><li><a class="site-page child" href="/tags/Interview/"><i class="fa-fw fas fa-book"></i><span> 面试</span></a></li><li><a class="site-page child" href="/categories/database/"><i class="fa-fw fas fa-database"></i><span> 数据库</span></a></li><li><a class="site-page child" href="/categories/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法</span></a></li><li><a class="site-page child" href="/categories/security/"><i class="fa-fw fas fa-shield-alt"></i><span> 网络安全</span></a></li><li><a class="site-page child" href="/categories/message-queue/"><i class="fa-fw fas fa-envelope"></i><span> 消息队列</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 关于</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/about/about_me"><i class="fa-fw fas fa-user"></i><span> 关于我</span></a></li><li><a class="site-page child" href="/about/my_notes"><i class="fa-fw fas fa-note-sticky"></i><span> 备忘录</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">Redis 核心技术与实战</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-01-03T15:00:00.000Z" title="发表于 2026-01-03 15:00 15:00:00">2026-01-03 15:00</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-01-03T16:49:00.000Z" title="更新于 2026-01-03 16:49 16:49:00">2026-01-03 16:49</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/database/">数据库</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>Redis 是一款高性能的键值数据库，广泛应用于缓存、消息队列、排行榜、分布式锁等场景。掌握 Redis 的核心原理和实战技巧是后端开发工程师的必备技能。</p>
+<hr>
+<h1 id="本站-redis-导航"><a href="#本站-redis-导航" class="headerlink" title="本站 Redis 导航"></a>本站 Redis 导航</h1><p>建议阅读顺序：基础数据类型 → 底层数据结构 → 持久化 → 缓存策略 → 集群架构 → 分布式锁 → 性能优化 → 应用场景。</p>
+<ul>
+<li><a  href="/posts/750d7523.html">Redis数据类型与底层实现</a>：String&#x2F;Hash&#x2F;List&#x2F;Set&#x2F;ZSet 五大类型，SDS&#x2F;ziplist&#x2F;skiplist&#x2F;intset&#x2F;dict 底层实现，编码转换规则</li>
+<li><a  href="/posts/79b4769c.html">Redis持久化机制</a>：RDB 快照原理、AOF 日志机制、混合持久化策略、持久化配置调优</li>
+<li><a  href="/posts/r2345129.html">Redis缓存策略</a>：缓存穿透&#x2F;击穿&#x2F;雪崩解决方案、缓存更新策略（旁路&#x2F;直写&#x2F;异步刷新）、布隆过滤器实战</li>
+<li><a  href="/posts/40480b06.html">Redis集群方案</a>：主从复制原理、哨兵选举机制、Cluster 分片与槽位、一致性哈希、扩缩容流程</li>
+<li><a  href="/posts/3abc81c7.html">Redis分布式锁</a>：基于 SETNX 实现、Redisson 分布式锁、Redlock 算法、锁续期与看门狗机制</li>
+<li><a  href="/posts/7a7d46e0.html">Redis-性能优化</a>：Pipeline 批量操作、大 key 与热 key 处理、内存淘汰策略、慢查询分析、Redis 多线程模型</li>
+<li><a  href="/posts/364ea8cc.html">Redis应用场景实战</a>：排行榜（ZSet）、消息队列（Stream）、限流（漏桶&#x2F;令牌桶）、分布式 ID、地理位置、会话共享</li>
+</ul>
+<p>下面是 Redis 知识体系的完整学习路径：</p>
+<hr>
+<h2 id="redis-学习大纲"><a href="#redis-学习大纲" class="headerlink" title="Redis 学习大纲"></a>Redis 学习大纲</h2><h3 id="第一阶段：数据类型与核心命令"><a href="#第一阶段：数据类型与核心命令" class="headerlink" title="第一阶段：数据类型与核心命令"></a>第一阶段：数据类型与核心命令</h3><ol>
+<li><p><strong>五大基础数据类型：</strong></p>
+<ul>
+<li><strong>String (字符串)：</strong><ul>
+<li>应用场景：缓存、计数器、分布式锁、Session 共享。</li>
+<li>核心命令：<code>SET</code>, <code>GET</code>, <code>INCR</code>, <code>DECR</code>, <code>SETEX</code>, <code>SETNX</code>。</li>
+<li>底层实现：SDS (Simple Dynamic String)，预分配空间、杜绝缓冲区溢出。</li>
+</ul>
+</li>
+<li><strong>Hash (哈希)：</strong><ul>
+<li>应用场景：存储对象（如用户信息）。</li>
+<li>核心命令：<code>HSET</code>, <code>HGET</code>, <code>HMGET</code>, <code>HINCRBY</code>。</li>
+<li>底层实现：ziplist（元素少时）或 dict（元素多时）。</li>
+</ul>
+</li>
+<li><strong>List (列表)：</strong><ul>
+<li>应用场景：消息队列、文章列表、最新消息。</li>
+<li>核心命令：<code>LPUSH</code>, <code>RPUSH</code>, <code>LPOP</code>, <code>RPOP</code>, <code>LRANGE</code>, <code>BLPOP</code>。</li>
+<li>底层实现：quicklist（双向链表 + ziplist 的混合体）。</li>
+</ul>
+</li>
+<li><strong>Set (集合)：</strong><ul>
+<li>应用场景：标签系统、共同好友、去重。</li>
+<li>核心命令：<code>SADD</code>, <code>SMEMBERS</code>, <code>SINTER</code>, <code>SUNION</code>, <code>SISMEMBER</code>。</li>
+<li>底层实现：intset（整数集合）或 dict。</li>
+</ul>
+</li>
+<li><strong>ZSet (有序集合)：</strong><ul>
+<li>应用场景：排行榜、延时队列、范围查询。</li>
+<li>核心命令：<code>ZADD</code>, <code>ZRANGE</code>, <code>ZREVRANGE</code>, <code>ZRANK</code>, <code>ZINCRBY</code>。</li>
+<li>底层实现：ziplist 或 skiplist + dict。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>三种特殊数据类型：</strong></p>
+<ul>
+<li><strong>Bitmap (位图)：</strong> 布隆过滤器、签到统计。</li>
+<li><strong>HyperLogLog：</strong> 基数统计（UV 统计）。</li>
+<li><strong>Geospatial (地理位置)：</strong> 附近的人、打车距离。</li>
+<li><strong>Stream (流)：</strong> 消息队列（Redis 5.0+）。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="第二阶段：底层数据结构深入"><a href="#第二阶段：底层数据结构深入" class="headerlink" title="第二阶段：底层数据结构深入"></a>第二阶段：底层数据结构深入</h3><ol>
+<li><p><strong>SDS (Simple Dynamic String)：</strong></p>
+<ul>
+<li>与 C 字符串的区别：<code>len</code> 记录长度、<code>free</code> 预分配空间、二进制安全。</li>
+<li>为什么 Redis 的 String 不用原生 C 字符串？避免溢出、减少内存分配次数。</li>
+</ul>
+</li>
+<li><p><strong>ziplist (压缩列表)：</strong></p>
+<ul>
+<li>紧凑型数据结构，节省内存。</li>
+<li>缺点：连锁更新（cascading update）性能问题。</li>
+<li>应用：Hash、List、ZSet 在元素少时使用。</li>
+</ul>
+</li>
+<li><p><strong>skiplist (跳表)：</strong></p>
+<ul>
+<li>有序数据结构，平均 O(log N) 复杂度。</li>
+<li>ZSet 的核心实现（配合 dict 实现 O(1) 查找）。</li>
+<li>与红黑树对比：实现简单、范围查询友好。</li>
+</ul>
+</li>
+<li><p><strong>dict (字典&#x2F;哈希表)：</strong></p>
+<ul>
+<li>渐进式 rehash：避免一次性 rehash 阻塞。</li>
+<li>链地址法解决哈希冲突。</li>
+<li>应用：Hash、Set、ZSet、Redis 全局键空间。</li>
+</ul>
+</li>
+<li><p><strong>intset (整数集合)：</strong></p>
+<ul>
+<li>Set 在全是整数且数量少时使用。</li>
+<li>升级机制：从 int16 -&gt; int32 -&gt; int64。</li>
+</ul>
+</li>
+<li><p><strong>quicklist：</strong></p>
+<ul>
+<li>List 的底层实现（Redis 3.2+）。</li>
+<li>双向链表 + ziplist 的混合体，平衡内存与性能。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="第三阶段：持久化机制"><a href="#第三阶段：持久化机制" class="headerlink" title="第三阶段：持久化机制"></a>第三阶段：持久化机制</h3><ol>
+<li><p><strong>RDB (Redis Database Backup)：</strong></p>
+<ul>
+<li>全量快照，适合备份和恢复。</li>
+<li>触发方式：<code>SAVE</code>（阻塞）、<code>BGSAVE</code>（fork 子进程）、自动触发（配置 <code>save</code> 规则）。</li>
+<li>优点：恢复速度快、文件体积小。</li>
+<li>缺点：数据丢失风险（快照间隔内的数据会丢失）。</li>
+</ul>
+</li>
+<li><p><strong>AOF (Append Only File)：</strong></p>
+<ul>
+<li>增量日志，记录每条写命令。</li>
+<li>刷盘策略：<code>always</code>（每条命令）、<code>everysec</code>（每秒）、<code>no</code>（操作系统决定）。</li>
+<li>AOF 重写（rewrite）：压缩日志文件，减少体积。</li>
+<li>优点：数据丢失少、可读性强。</li>
+<li>缺点：文件体积大、恢复速度慢。</li>
+</ul>
+</li>
+<li><p><strong>混合持久化（RDB + AOF）：</strong></p>
+<ul>
+<li>Redis 4.0+ 默认策略。</li>
+<li>AOF 重写时，先生成 RDB 快照，再追加增量命令。</li>
+<li>兼具两者优点：恢复快、数据丢失少。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="第四阶段：缓存策略与高可用"><a href="#第四阶段：缓存策略与高可用" class="headerlink" title="第四阶段：缓存策略与高可用"></a>第四阶段：缓存策略与高可用</h3><ol>
+<li><p><strong>缓存更新策略：</strong></p>
+<ul>
+<li><strong>Cache Aside（旁路缓存）：</strong> 读穿透缓存、更新先删缓存再写 DB。</li>
+<li><strong>Read&#x2F;Write Through：</strong> 缓存层自动同步 DB。</li>
+<li><strong>Write Behind（异步刷新）：</strong> 先写缓存，异步批量写 DB。</li>
+</ul>
+</li>
+<li><p><strong>缓存失效问题：</strong></p>
+<ul>
+<li><strong>缓存穿透：</strong> 查询不存在的数据。<ul>
+<li>解决：布隆过滤器、缓存空对象。</li>
+</ul>
+</li>
+<li><strong>缓存击穿：</strong> 热点 key 过期，瞬时流量打到 DB。<ul>
+<li>解决：互斥锁（SETNX）、逻辑过期（永不过期 + 异步更新）。</li>
+</ul>
+</li>
+<li><strong>缓存雪崩：</strong> 大量 key 同时过期。<ul>
+<li>解决：随机过期时间、高可用架构、限流降级。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>内存淘汰策略：</strong></p>
+<ul>
+<li><code>noeviction</code>：内存满时拒绝写入。</li>
+<li><code>allkeys-lru</code>：所有 key 按 LRU 淘汰（推荐）。</li>
+<li><code>volatile-lru</code>：仅淘汰设置了过期时间的 key。</li>
+<li><code>allkeys-random</code>、<code>volatile-random</code>、<code>volatile-ttl</code>。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="第五阶段：集群架构"><a href="#第五阶段：集群架构" class="headerlink" title="第五阶段：集群架构"></a>第五阶段：集群架构</h3><ol>
+<li><p><strong>主从复制 (Replication)：</strong></p>
+<ul>
+<li>全量同步（RDB）+ 增量同步（命令传播）。</li>
+<li>读写分离：主节点写、从节点读。</li>
+<li>缺点：主节点宕机需手动切换。</li>
+</ul>
+</li>
+<li><p><strong>哨兵模式 (Sentinel)：</strong></p>
+<ul>
+<li>自动故障转移（Failover）。</li>
+<li>选举新的主节点（Raft 协议）。</li>
+<li>监控 + 通知 + 自动切换。</li>
+</ul>
+</li>
+<li><p><strong>Cluster (集群)：</strong></p>
+<ul>
+<li>数据分片：16384 个哈希槽（slot）。</li>
+<li>去中心化架构，无 Proxy 层。</li>
+<li>扩缩容：槽位迁移（<code>redis-cli --cluster reshard</code>）。</li>
+<li>Gossip 协议：节点间通信。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="第六阶段：分布式锁与事务"><a href="#第六阶段：分布式锁与事务" class="headerlink" title="第六阶段：分布式锁与事务"></a>第六阶段：分布式锁与事务</h3><ol>
+<li><p><strong>分布式锁：</strong></p>
+<ul>
+<li>基础实现：<code>SETNX</code> + <code>EXPIRE</code>（需原子性：<code>SET key value NX EX seconds</code>）。</li>
+<li>Redisson 分布式锁：自动续期（看门狗机制）。</li>
+<li>Redlock 算法：Redis 作者提出的多节点锁方案（争议较大）。</li>
+</ul>
+</li>
+<li><p><strong>事务与 Lua 脚本：</strong></p>
+<ul>
+<li><strong>MULTI&#x2F;EXEC：</strong> 事务不支持回滚，仅保证命令顺序执行。</li>
+<li><strong>WATCH：</strong> 乐观锁，监控 key 变化。</li>
+<li><strong>Lua 脚本：</strong> 原子性执行一组命令（推荐方式）。</li>
+</ul>
+</li>
+<li><p><strong>Pipeline（管道）：</strong></p>
+<ul>
+<li>批量发送命令，减少 RTT（Round-Trip Time）。</li>
+<li>非原子操作，与事务结合使用可保证原子性。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="第七阶段：性能优化与监控"><a href="#第七阶段：性能优化与监控" class="headerlink" title="第七阶段：性能优化与监控"></a>第七阶段：性能优化与监控</h3><ol>
+<li><p><strong>性能调优：</strong></p>
+<ul>
+<li><strong>大 key 问题：</strong> 使用 <code>redis-cli --bigkeys</code> 分析，拆分大 key。</li>
+<li><strong>热 key 问题：</strong> 复制多份、使用本地缓存（Caffeine）。</li>
+<li><strong>慢查询：</strong> <code>SLOWLOG GET</code> 分析慢命令。</li>
+<li><strong>Redis 多线程模型：</strong> Redis 6.0+ 网络 I&#x2F;O 多线程（命令执行仍单线程）。</li>
+</ul>
+</li>
+<li><p><strong>监控工具：</strong></p>
+<ul>
+<li><code>INFO</code> 命令：查看内存、连接、持久化等信息。</li>
+<li><code>MONITOR</code>：实时查看所有命令（生产慎用，性能影响大）。</li>
+<li>Redis Exporter + Prometheus + Grafana：企业级监控方案。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="第八阶段：应用场景实战"><a href="#第八阶段：应用场景实战" class="headerlink" title="第八阶段：应用场景实战"></a>第八阶段：应用场景实战</h3><ol>
+<li><strong>排行榜：</strong> ZSet 的 <code>ZADD</code> + <code>ZREVRANGE</code>。</li>
+<li><strong>消息队列：</strong> List 的 <code>BLPOP</code>&#x2F;<code>BRPOP</code> 或 Stream（推荐）。</li>
+<li><strong>限流：</strong> <ul>
+<li>固定窗口：<code>INCR</code> + <code>EXPIRE</code>。</li>
+<li>滑动窗口：ZSet 时间戳。</li>
+<li>令牌桶&#x2F;漏桶：Lua 脚本 + 原子操作。</li>
+</ul>
+</li>
+<li><strong>分布式 ID 生成：</strong> <code>INCR</code> 单机递增、雪花算法。</li>
+<li><strong>会话共享：</strong> Spring Session + Redis。</li>
+<li><strong>地理位置：</strong> <code>GEOADD</code>、<code>GEORADIUS</code> 查找附近的人。</li>
+<li><strong>布隆过滤器：</strong> Redisson 实现、缓存穿透防护。</li>
+</ol>
+<hr>
+<h2 id="学习建议"><a href="#学习建议" class="headerlink" title="学习建议"></a>学习建议</h2><ol>
+<li><p><strong>从实战出发：</strong></p>
+<ul>
+<li>先掌握常用命令和应用场景，再深入底层原理。</li>
+<li>通过 <code>redis-cli</code> 命令行实践每个数据类型。</li>
+</ul>
+</li>
+<li><p><strong>源码阅读路径：</strong></p>
+<ul>
+<li>先看数据结构源码（如 <code>sds.c</code>、<code>dict.c</code>）。</li>
+<li>再看持久化（<code>rdb.c</code>、<code>aof.c</code>）。</li>
+<li>最后看集群实现（<code>cluster.c</code>）。</li>
+</ul>
+</li>
+<li><p><strong>调试与压测：</strong></p>
+<ul>
+<li>使用 <code>redis-benchmark</code> 压测性能。</li>
+<li>通过 <code>INFO MEMORY</code> 分析内存使用。</li>
+<li>使用 Docker 搭建本地 Redis Cluster 环境。</li>
+</ul>
+</li>
+<li><p><strong>面试准备：</strong></p>
+<ul>
+<li>熟练掌握”三高”问题（穿透、击穿、雪崩）。</li>
+<li>理解持久化原理与选型（RDB vs AOF）。</li>
+<li>掌握分布式锁实现与坑点（锁过期、死锁）。</li>
+</ul>
+</li>
+<li><p><strong>持续学习：</strong></p>
+<ul>
+<li>关注 Redis 官方博客和社区动态。</li>
+<li>阅读《Redis 设计与实现》（黄健宏）。</li>
+<li>学习企业级架构（如阿里云 Redis、AWS ElastiCache）。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h1 id="核心知识点速查"><a href="#核心知识点速查" class="headerlink" title="核心知识点速查"></a>核心知识点速查</h1><h2 id="1-数据类型与底层编码对应关系"><a href="#1-数据类型与底层编码对应关系" class="headerlink" title="1. 数据类型与底层编码对应关系"></a>1. 数据类型与底层编码对应关系</h2><table>
+<thead>
+<tr>
+<th><strong>类型</strong></th>
+<th><strong>底层编码（encoding）</strong></th>
+<th><strong>转换条件</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>String</td>
+<td>int &#x2F; embstr &#x2F; raw</td>
+<td>整数&#x2F;短字符串（&lt;44 字节）&#x2F;长字符串</td>
+</tr>
+<tr>
+<td>Hash</td>
+<td>ziplist &#x2F; hashtable</td>
+<td>元素少且值小 → ziplist，否则 hashtable</td>
+</tr>
+<tr>
+<td>List</td>
+<td>quicklist（ziplist + linkedlist）</td>
+<td>Redis 3.2+ 统一使用 quicklist</td>
+</tr>
+<tr>
+<td>Set</td>
+<td>intset &#x2F; hashtable</td>
+<td>全是整数且少 → intset，否则 hashtable</td>
+</tr>
+<tr>
+<td>ZSet</td>
+<td>ziplist &#x2F; skiplist + hashtable</td>
+<td>元素少且值小 → ziplist，否则 skiplist+dict</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="2-持久化对比表"><a href="#2-持久化对比表" class="headerlink" title="2. 持久化对比表"></a>2. 持久化对比表</h2><table>
+<thead>
+<tr>
+<th><strong>特性</strong></th>
+<th><strong>RDB</strong></th>
+<th><strong>AOF</strong></th>
+<th><strong>混合持久化（RDB+AOF）</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>文件大小</strong></td>
+<td>小（压缩二进制）</td>
+<td>大（文本日志）</td>
+<td>中等（前半部分 RDB，后半增量）</td>
+</tr>
+<tr>
+<td><strong>恢复速度</strong></td>
+<td>快</td>
+<td>慢</td>
+<td>快（先加载 RDB）</td>
+</tr>
+<tr>
+<td><strong>数据丢失</strong></td>
+<td>多（快照间隔内数据会丢）</td>
+<td>少（可配置每秒刷盘）</td>
+<td>少</td>
+</tr>
+<tr>
+<td><strong>性能影响</strong></td>
+<td>fork 时有短暂阻塞</td>
+<td>持续追加写，影响较小</td>
+<td>fork + 追加</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>备份、冷数据、对丢失不敏感场景</td>
+<td>金融、订单等高数据一致性场景</td>
+<td>生产环境推荐（默认策略）</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="3-主从复制-vs-哨兵-vs-cluster"><a href="#3-主从复制-vs-哨兵-vs-cluster" class="headerlink" title="3. 主从复制 vs 哨兵 vs Cluster"></a>3. 主从复制 vs 哨兵 vs Cluster</h2><table>
+<thead>
+<tr>
+<th><strong>架构</strong></th>
+<th><strong>优点</strong></th>
+<th><strong>缺点</strong></th>
+<th><strong>适用场景</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>主从复制</strong></td>
+<td>简单、读写分离</td>
+<td>手动故障转移、写能力受限</td>
+<td>小规模、读多写少</td>
+</tr>
+<tr>
+<td><strong>哨兵</strong></td>
+<td>自动故障转移、高可用</td>
+<td>写能力仍受限、运维复杂度提升</td>
+<td>中等规模、需高可用</td>
+</tr>
+<tr>
+<td><strong>Cluster</strong></td>
+<td>数据分片、水平扩展、去中心化</td>
+<td>配置复杂、不支持跨节点事务、运维成本高</td>
+<td>大规模、高并发、需分片</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="4-内存淘汰策略速查"><a href="#4-内存淘汰策略速查" class="headerlink" title="4. 内存淘汰策略速查"></a>4. 内存淘汰策略速查</h2><table>
+<thead>
+<tr>
+<th><strong>策略</strong></th>
+<th><strong>淘汰范围</strong></th>
+<th><strong>淘汰算法</strong></th>
+<th><strong>推荐场景</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>noeviction</td>
+<td>-</td>
+<td>-</td>
+<td>不允许淘汰，写入报错</td>
+</tr>
+<tr>
+<td><strong>allkeys-lru</strong></td>
+<td><strong>所有 key</strong></td>
+<td><strong>LRU</strong></td>
+<td><strong>通用场景（推荐）</strong></td>
+</tr>
+<tr>
+<td>volatile-lru</td>
+<td>设置过期时间的 key</td>
+<td>LRU</td>
+<td>部分数据需永久保留</td>
+</tr>
+<tr>
+<td>allkeys-random</td>
+<td>所有 key</td>
+<td>随机</td>
+<td>测试环境</td>
+</tr>
+<tr>
+<td>volatile-random</td>
+<td>设置过期时间的 key</td>
+<td>随机</td>
+<td>不推荐</td>
+</tr>
+<tr>
+<td>volatile-ttl</td>
+<td>设置过期时间的 key</td>
+<td>优先淘汰 TTL 短</td>
+<td>Session、验证码等短期数据</td>
+</tr>
+</tbody></table>
+<hr>
+<h1 id="面试题-checklist"><a href="#面试题-checklist" class="headerlink" title="面试题 &#x2F; Checklist"></a>面试题 &#x2F; Checklist</h1><ul>
+<li>Redis 为什么快？单线程模型、IO 多路复用、内存操作、高效数据结构。</li>
+<li>String 的三种编码（int&#x2F;embstr&#x2F;raw）分别在什么场景下使用？</li>
+<li>skiplist 的平均时间复杂度是多少？为什么 ZSet 不用红黑树？</li>
+<li>渐进式 rehash 如何避免阻塞？在 rehash 期间如何查询和插入数据？</li>
+<li>RDB 和 AOF 的区别？混合持久化如何工作？生产环境如何选择？</li>
+<li>缓存穿透&#x2F;击穿&#x2F;雪崩的本质区别与解决方案？</li>
+<li>布隆过滤器的原理与误判率如何权衡？</li>
+<li>分布式锁的实现方式？如何解决锁过期问题（Redisson 看门狗）？</li>
+<li>Redis Cluster 的哈希槽（16384）分配原理？节点间如何通信（Gossip）？</li>
+<li>大 key 和热 key 如何发现与处理？</li>
+<li>Redis 6.0 的多线程是指什么？为什么命令执行仍是单线程？</li>
+<li>Pipeline、事务（MULTI&#x2F;EXEC）、Lua 脚本三者的区别与适用场景？</li>
+<li>如何保证缓存与数据库的一致性？先删缓存还是先更新 DB？</li>
+<li>Redis 内存淘汰策略 allkeys-lru 和 volatile-lru 的区别？</li>
+<li>Stream 数据类型相比 List 做消息队列的优势是什么？</li>
+</ul>
+<hr>
+<p>祝你学习顺利！Redis 是高并发系统的核心组件，掌握它将大大提升你的系统设计能力！🚀</p>
+</article><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Redis/">Redis</a><a class="post-meta__tags" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a><a class="post-meta__tags" href="/tags/%E7%BC%93%E5%AD%98/">缓存</a></div><div class="post-share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/Redis%E5%AF%BC%E8%88%AA.webp" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/posts/c24675b4.html" title="MySQL"><img class="cover" src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/MySQL%E5%AF%BC%E8%88%AA.webp" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">MySQL</div></div><div class="info-2"><div class="info-item-1">本站 MySQL 导航建议阅读顺序：架构 → 日志系统 → 事务隔离&#x2F;MVCC → 索引 → 锁 → 系统表速查。   架构与执行流程：连接器&#x2F;分析器&#x2F;优化器&#x2F;执行器 MySQL-日志：redo&#x2F;bin&#x2F;undo、WAL、刷盘与崩溃恢复 事务隔离与 MVCC：隔离级别、脏读&#x2F;不可重复读&#x2F;幻读、快照读&#x2F;当前读 索引：B+树、回表&#x2F;覆盖、联合索引、最左前缀、索引下推 锁：全局锁&#x2F;表锁&#x2F;行锁、死锁检测、MDL MySQL - 表单：INFORMATION_SCHEMA 等系统表速查  </div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/posts/16018.html" title="Redis - 核心原理笔记"><img class="cover" src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/Redis.webp" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-11-29 08:56</div><div class="info-item-2">Redis - 核心原理笔记</div></div><div class="info-2"><div class="info-item-1">基础数据结构SDS12345struct sdshdr &#123;    int len; // buf中已使用的字节数    int free; // buf中未使用的字节数    char buf[];&#125;  链表 包含头尾节点，head tail，以及链表长度计数器len 无环 多态：链表节点使用void*来保存节点值，可以支持各种不同类型的值  字典属于k-v结构的映射表。  字典由两个哈希表构成，当字典处于redhash状态，ht[1]才有数据，当rehash完成之后，数据会全部复制到ht[0] 哈希表使用链地址法来解决冲突 采用渐进式rehash，并不是一次性，集中式完成，而是分多次、渐进式完成。rehash会与增删改等操作一起进行：  渐进式hash总结：在扩容和收缩的时候，如果哈希字典中有很多元素，一次性将这些键全部rehash到ht[1]的话，可能会导致服务器在一段时间内停止服务。所以，采用渐进式rehash的方式，详细步骤如下：  为ht[1]分配空间，让字典同时持有ht[0]和ht[1]两个哈希表 将rehashindex的值设置为0，表示reha...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Supremes</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">25</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">65</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">12</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/Supremes"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9C%AC%E7%AB%99-redis-%E5%AF%BC%E8%88%AA"><span class="toc-text">本站 Redis 导航</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#redis-%E5%AD%A6%E4%B9%A0%E5%A4%A7%E7%BA%B2"><span class="toc-text">Redis 学习大纲</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%B8%80%E9%98%B6%E6%AE%B5%EF%BC%9A%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%B8%8E%E6%A0%B8%E5%BF%83%E5%91%BD%E4%BB%A4"><span class="toc-text">第一阶段：数据类型与核心命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%BA%8C%E9%98%B6%E6%AE%B5%EF%BC%9A%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%B7%B1%E5%85%A5"><span class="toc-text">第二阶段：底层数据结构深入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%B8%89%E9%98%B6%E6%AE%B5%EF%BC%9A%E6%8C%81%E4%B9%85%E5%8C%96%E6%9C%BA%E5%88%B6"><span class="toc-text">第三阶段：持久化机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E5%9B%9B%E9%98%B6%E6%AE%B5%EF%BC%9A%E7%BC%93%E5%AD%98%E7%AD%96%E7%95%A5%E4%B8%8E%E9%AB%98%E5%8F%AF%E7%94%A8"><span class="toc-text">第四阶段：缓存策略与高可用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%BA%94%E9%98%B6%E6%AE%B5%EF%BC%9A%E9%9B%86%E7%BE%A4%E6%9E%B6%E6%9E%84"><span class="toc-text">第五阶段：集群架构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E5%85%AD%E9%98%B6%E6%AE%B5%EF%BC%9A%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E4%B8%8E%E4%BA%8B%E5%8A%A1"><span class="toc-text">第六阶段：分布式锁与事务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%B8%83%E9%98%B6%E6%AE%B5%EF%BC%9A%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E4%B8%8E%E7%9B%91%E6%8E%A7"><span class="toc-text">第七阶段：性能优化与监控</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E5%85%AB%E9%98%B6%E6%AE%B5%EF%BC%9A%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%E5%AE%9E%E6%88%98"><span class="toc-text">第八阶段：应用场景实战</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AD%A6%E4%B9%A0%E5%BB%BA%E8%AE%AE"><span class="toc-text">学习建议</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E7%9F%A5%E8%AF%86%E7%82%B9%E9%80%9F%E6%9F%A5"><span class="toc-text">核心知识点速查</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%B8%8E%E5%BA%95%E5%B1%82%E7%BC%96%E7%A0%81%E5%AF%B9%E5%BA%94%E5%85%B3%E7%B3%BB"><span class="toc-text">1. 数据类型与底层编码对应关系</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%8C%81%E4%B9%85%E5%8C%96%E5%AF%B9%E6%AF%94%E8%A1%A8"><span class="toc-text">2. 持久化对比表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6-vs-%E5%93%A8%E5%85%B5-vs-cluster"><span class="toc-text">3. 主从复制 vs 哨兵 vs Cluster</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%86%85%E5%AD%98%E6%B7%98%E6%B1%B0%E7%AD%96%E7%95%A5%E9%80%9F%E6%9F%A5"><span class="toc-text">4. 内存淘汰策略速查</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%9D%A2%E8%AF%95%E9%A2%98-checklist"><span class="toc-text">面试题 &#x2F; Checklist</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/posts/a1b2c3d4.html" title="Redis 核心技术与实战"><img src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/Redis%E5%AF%BC%E8%88%AA.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Redis 核心技术与实战"/></a><div class="content"><a class="title" href="/posts/a1b2c3d4.html" title="Redis 核心技术与实战">Redis 核心技术与实战</a><time datetime="2026-01-03T15:00:00.000Z" title="发表于 2026-01-03 15:00 15:00:00">2026-01-03 15:00</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/c24675b4.html" title="MySQL"><img src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/MySQL%E5%AF%BC%E8%88%AA.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MySQL"/></a><div class="content"><a class="title" href="/posts/c24675b4.html" title="MySQL">MySQL</a><time datetime="2025-12-28T21:48:34.000Z" title="发表于 2025-12-28 21:48 21:48:34">2025-12-28 21:48</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/364ea8cc.html" title="设计模式"><img src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="设计模式"/></a><div class="content"><a class="title" href="/posts/364ea8cc.html" title="设计模式">设计模式</a><time datetime="2025-12-18T21:24:14.000Z" title="发表于 2025-12-18 21:24 21:24:14">2025-12-18 21:24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/de7c53fe.html" title="线程池"><img src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/JUC%E7%BA%BF%E7%A8%8B%E6%B1%A0.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="线程池"/></a><div class="content"><a class="title" href="/posts/de7c53fe.html" title="线程池">线程池</a><time datetime="2025-12-12T13:53:45.000Z" title="发表于 2025-12-12 13:53 13:53:45">2025-12-12 13:53</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/40da2f05.html" title="AQS - AbstractQueuedSynchronizer"><img src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/AQS.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="AQS - AbstractQueuedSynchronizer"/></a><div class="content"><a class="title" href="/posts/40da2f05.html" title="AQS - AbstractQueuedSynchronizer">AQS - AbstractQueuedSynchronizer</a><time datetime="2025-12-12T10:07:45.000Z" title="发表于 2025-12-12 10:07 10:07:45">2025-12-12 10:07</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Supremes</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.1</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.2</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.2"></script><script src="/js/main.js?v=5.5.2"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@19.1.3/dist/lazyload.iife.min.js"></script><div class="js-pjax"><script>(() => {
+  const runMermaid = ele => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    ele.forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const config = mermaidSrc.dataset.config ? JSON.parse(mermaidSrc.dataset.config) : {}
+      if (!config.theme) {
+        config.theme = theme
+      }
+      const mermaidThemeConfig = `%%{init: ${JSON.stringify(config)}}%%\n`
+      const mermaidID = `mermaid-${index}`
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+      const renderMermaid = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      // mermaid v9 and v10 compatibility
+      typeof renderFn === 'string' ? renderMermaid(renderFn) : renderFn.then(({ svg }) => renderMermaid(svg))
+    })
+  }
+
+  const codeToMermaid = () => {
+    const codeMermaidEle = document.querySelectorAll('pre > code.mermaid')
+    if (codeMermaidEle.length === 0) return
+
+    codeMermaidEle.forEach(ele => {
+      const preEle = document.createElement('pre')
+      preEle.className = 'mermaid-src'
+      preEle.hidden = true
+      preEle.textContent = ele.textContent
+      const newEle = document.createElement('div')
+      newEle.className = 'mermaid-wrap'
+      newEle.appendChild(preEle)
+      ele.parentNode.replaceWith(newEle)
+    })
+  }
+
+  const loadMermaid = () => {
+    if (true) codeToMermaid()
+    const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+    if ($mermaid.length === 0) return
+
+    const runMermaidFn = () => runMermaid($mermaid)
+    btf.addGlobalFn('themeChange', runMermaidFn, 'mermaid')
+    window.loadMermaid ? runMermaidFn() : btf.getScript('https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.min.js').then(runMermaidFn)
+  }
+
+  btf.addGlobalFn('encrypt', loadMermaid, 'mermaid')
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="/"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章标题和内容..." type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.5.2"></script></div></div></body></html>
