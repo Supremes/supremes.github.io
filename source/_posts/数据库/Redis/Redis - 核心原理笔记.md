@@ -6,8 +6,9 @@ categories:
   - 数据库
 abbrlink: 16018
 date: 2025-11-29 08:56:10
-cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/Redis.webp
+cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg
 updated: 2025-12-28 22:01
+hidden: false
 ---
 ## 基础数据结构
 
