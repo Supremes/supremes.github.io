@@ -8,7 +8,7 @@ categories:
 cover: 'https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg'
 hidden: true
 updated: '2025-12-26 16:45'
-abbrlink: 40480b06
+abbrlink: c0480b06
 date: 2025-12-26 16:45:00
 sticky:
 ---
