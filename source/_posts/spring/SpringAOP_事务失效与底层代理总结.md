@@ -11,7 +11,7 @@ cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/AOP-P
 abbrlink: 60441
 date: 2025-11-25 20:39:20
 description:
-updated: 2025-12-09 10:26
+updated: 2026-02-06 23:34
 ---
 
 # Spring AOP 事务失效与底层代理机制深度总结
@@ -28,8 +28,8 @@ updated: 2025-12-09 10:26
 
 Spring AOP 的默认实现基于 **代理模式 (Proxy Pattern)**。Spring 容器中注入的 Bean 实际上是一个 **代理对象 (Proxy)**，它持有你编写的 **目标对象 (Target)**。
 
-- **生效路径**：外部调用 $\rightarrow$ Proxy $\rightarrow$ 事务拦截器 (Interceptor) $\rightarrow$ Target。
-- **失效路径**：Target 内部调用 $\rightarrow$ `this.methodB()` $\rightarrow$ Target。
+- **生效路径**：外部调用 -> Proxy -> 事务拦截器 (Interceptor) -> Target。
+- **失效路径**：Target 内部调用 -> `this.methodB()` -> Target。
 
 此时，`this` 指针指向的是**目标对象本身**。代码执行流直接在目标对象内部流转，完全**绕过**了外层的代理对象及其持有的事务拦截器。
 

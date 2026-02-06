@@ -1,12 +1,12 @@
 ---
-title: DawnBlog 项目
+title: DawnBlog 架构审计与演进建议书
 tags:
   - 面试
 categories:
   - 后端开发
-cover: 'https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg'
+cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg
 hidden: true
-updated: '2025-12-07 10:41'
+updated: 2026-01-07 21:44
 abbrlink: 40d4ca90
 date: 2025-12-07 10:26:24
 sticky:

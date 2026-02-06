@@ -7,13 +7,10 @@ sticky: "10"
 abbrlink: 4947
 date: 2025-11-29 08:50:05
 cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/TODO.webp
-updated: 2026-01-04 22:20
+updated: 2026-02-06 23:07
 ---
 
 ### Pending Issues
-- [ ] 利用 JUC 相关的类，应用并完成一个 demo
-	- [ ] provide a specific Docker Compose configuration to quickly set up Prometheus and Grafana for your Spring Boot application
-- [ ] 升级 DawnBlog java 及 SpringBoot 版本 - [[DawnBlog#Phase 1 基础夯实 (Java 17 & Stability)]]
 
 ### Fixed
 - [x] 多级目录时，通过目录定位会出问题
@@ -35,3 +32,4 @@ updated: 2026-01-04 22:20
 - [x] 首页按照更新时间展示文章列表
 	- 更新时间显示有误，导致列表展示乱序：由于是 github action 编译部署，会导致把所有文章统一更新到编译时间，因此选择使用 Obsidian 的 Linter 插件应用更新时间。
 	- 配置更新时间具体到分钟: 更新 date format 即可 - 'YYYY MM DD HH:MM'
+- [x] 升级 DawnBlog java 及 SpringBoot 版本 - [[DawnBlog-架构审计与演进建议书#Phase 1 基础夯实 (Java 17 & Stability)]]
