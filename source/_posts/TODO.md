@@ -7,10 +7,14 @@ sticky: "10"
 abbrlink: 4947
 date: 2025-11-29 08:50:05
 cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/TODO.webp
-updated: 2026-02-06 23:07
+updated: 2026-03-13 15:42
 ---
 
 ### Pending Issues
+
+> [!todo]
+> - [ ] 配置 dawn-ai 并测试接口连通性
+> - [ ] review 代码
 
 ### Fixed
 - [x] 多级目录时，通过目录定位会出问题
