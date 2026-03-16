@@ -7,10 +7,10 @@ categories:
   - 后端开发
 cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/JUC.webp
 hidden: false
-updated: 2025-12-26 15:58
+updated: 2026-03-16 10:59
 abbrlink: eb9166f8
 date: 2025-12-04 21:00:06
-sticky: "9"
+sticky:
 ---
 JUC 包是 Java 并发编程的基石，包含了线程池、锁、原子操作、并发集合等核心组件。
 

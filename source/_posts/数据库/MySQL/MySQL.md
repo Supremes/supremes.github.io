@@ -5,7 +5,7 @@ tags:
 categories:
   - 面试
 cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/MySQL%E5%AF%BC%E8%88%AA.webp
-sticky: "8"
+sticky:
 hidden: false
 updated: 2025-12-28 22:03
 abbrlink: c24675b4

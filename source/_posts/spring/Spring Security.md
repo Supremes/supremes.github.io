@@ -1,12 +1,13 @@
 ---
 title: Spring Security
-date: 2026-01-29 21:38:55
 tags: []
-categories:
-cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg
-sticky:
+cover: 'https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg'
 hidden: false
-updated: 2026-02-07 22:14
+updated: '2026-02-07 22:14'
+abbrlink: 27ace9d5
+date: 2026-01-29 21:38:55
+categories:
+sticky:
 ---
 Spring security 作为 spring 提供的认证和授权框架，基于 filter 链式结构，处理不同的 filter 来应对认证和授权业务场景。
 - 在 SpringBoot 2.X 中，通过 extends `WebSecurityConfigurerAdapter`, 进行配置

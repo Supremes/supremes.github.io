@@ -9,6 +9,7 @@ comments: false
 
 这是一个技术博客，主要分享关于：
 
+- **AI Agent**: ReAct, Function Calling, Memory...
 - **后端开发**：Java、Spring、微服务架构
 - **消息队列**：Kafka、RabbitMQ
 - **数据库**：MySQL、Redis
@@ -17,7 +18,7 @@ comments: false
 ## 📫 联系方式
 
 - GitHub: [@Supremes](https://github.com/Supremes)
-- Email: your-email@example.com
+- Email: supremedj951221@gmail.com
 
 ## 💡 关于本站
 

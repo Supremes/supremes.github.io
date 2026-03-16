@@ -1,12 +1,13 @@
 ---
 title: Dawn-项目学习笔记
-date: 2026-01-07 21:44:46
 tags: []
-categories:
-cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg
-sticky:
+cover: 'https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg'
 hidden: true
-updated: 2026-02-26 21:55
+updated: '2026-02-26 21:55'
+abbrlink: 3540c1b1
+date: 2026-01-07 21:44:46
+categories:
+sticky:
 ---
 ## **SpringAOP - 切面编程**
 
