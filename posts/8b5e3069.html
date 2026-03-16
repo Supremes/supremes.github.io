@@ -1,0 +1,714 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Agent Development Guide | Supremes</title><meta name="author" content="Supremes"><meta name="copyright" content="Supremes"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="面向：有 Java 后端经验 → 目标：AI Agent 架构师技术栈：Java 17+ · Spring Boot 3 · Spring AI · LangChain4j   📅 总体时间线   阶段 时长 核心目标    Phase 0：地基补强 第 1 月 LLM 基础认知 + Prompt Engineering   Phase 1：Tool Calling 第 2 月 Agent 手">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Agent Development Guide">
+<meta property="og:url" content="https://supremes.github.io/posts/8b5e3069.html">
+<meta property="og:site_name" content="Supremes">
+<meta property="og:description" content="面向：有 Java 后端经验 → 目标：AI Agent 架构师技术栈：Java 17+ · Spring Boot 3 · Spring AI · LangChain4j   📅 总体时间线   阶段 时长 核心目标    Phase 0：地基补强 第 1 月 LLM 基础认知 + Prompt Engineering   Phase 1：Tool Calling 第 2 月 Agent 手">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg">
+<meta property="article:published_time" content="2026-03-16T15:34:20.000Z">
+<meta property="article:modified_time" content="2026-03-16T15:40:00.000Z">
+<meta property="article:author" content="Supremes">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Agent Development Guide",
+  "url": "https://supremes.github.io/posts/8b5e3069.html",
+  "image": "https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg",
+  "datePublished": "2026-03-16T15:34:20.000Z",
+  "dateModified": "2026-03-16T15:40:00.000Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Supremes",
+      "url": "https://supremes.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/favicon/favicon.ico"><link rel="canonical" href="https://supremes.github.io/posts/8b5e3069.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.2"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"pagination":{"enable":true,"hitsPerPage":10},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: true,
+  isAnchor: true,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Agent Development Guide',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-webfont/style.css" /><meta name="generator" content="Hexo 8.1.1"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">31</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">65</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">12</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/Spring/"><i class="fa-fw fas fa-leaf"></i><span> Spring</span></a></li><li><a class="site-page child" href="/tags/JUC/"><i class="fa-fw fas fa-book"></i><span> JUC</span></a></li><li><a class="site-page child" href="/tags/Interview/"><i class="fa-fw fas fa-book"></i><span> 面试</span></a></li><li><a class="site-page child" href="/categories/database/"><i class="fa-fw fas fa-database"></i><span> 数据库</span></a></li><li><a class="site-page child" href="/categories/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法</span></a></li><li><a class="site-page child" href="/categories/security/"><i class="fa-fw fas fa-shield-alt"></i><span> 网络安全</span></a></li><li><a class="site-page child" href="/categories/message-queue/"><i class="fa-fw fas fa-envelope"></i><span> 消息队列</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 关于</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/about/about_me"><i class="fa-fw fas fa-user"></i><span> 关于我</span></a></li><li><a class="site-page child" href="/about/my_notes"><i class="fa-fw fas fa-note-sticky"></i><span> 备忘录</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Supremes</span></a><a class="nav-page-title" href="/"><span class="site-name">Agent Development Guide</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/Spring/"><i class="fa-fw fas fa-leaf"></i><span> Spring</span></a></li><li><a class="site-page child" href="/tags/JUC/"><i class="fa-fw fas fa-book"></i><span> JUC</span></a></li><li><a class="site-page child" href="/tags/Interview/"><i class="fa-fw fas fa-book"></i><span> 面试</span></a></li><li><a class="site-page child" href="/categories/database/"><i class="fa-fw fas fa-database"></i><span> 数据库</span></a></li><li><a class="site-page child" href="/categories/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法</span></a></li><li><a class="site-page child" href="/categories/security/"><i class="fa-fw fas fa-shield-alt"></i><span> 网络安全</span></a></li><li><a class="site-page child" href="/categories/message-queue/"><i class="fa-fw fas fa-envelope"></i><span> 消息队列</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 关于</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/about/about_me"><i class="fa-fw fas fa-user"></i><span> 关于我</span></a></li><li><a class="site-page child" href="/about/my_notes"><i class="fa-fw fas fa-note-sticky"></i><span> 备忘录</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">Agent Development Guide</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-03-16T15:34:20.000Z" title="发表于 2026-03-16 15:34 15:34:20">2026-03-16 15:34</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-03-16T15:40:00.000Z" title="更新于 2026-03-16 15:40 15:40:00">2026-03-16 15:40</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/AI/">AI</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><blockquote>
+<p>面向：有 Java 后端经验 → 目标：AI Agent 架构师<br>技术栈：Java 17+ · Spring Boot 3 · Spring AI · LangChain4j</p>
+</blockquote>
+<hr>
+<h2 id="📅-总体时间线"><a href="#📅-总体时间线" class="headerlink" title="📅 总体时间线"></a>📅 总体时间线</h2><table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>时长</th>
+<th>核心目标</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Phase 0：地基补强</td>
+<td>第 1 月</td>
+<td>LLM 基础认知 + Prompt Engineering</td>
+</tr>
+<tr>
+<td>Phase 1：Tool Calling</td>
+<td>第 2 月</td>
+<td>Agent 手脚：工具设计与调用</td>
+</tr>
+<tr>
+<td>Phase 2：Memory</td>
+<td>第 3 月</td>
+<td>Agent 记忆：短期&#x2F;长期&#x2F;语义记忆</td>
+</tr>
+<tr>
+<td>Phase 3：RAG</td>
+<td>第 4-5 月</td>
+<td>Agent 知识：检索增强生成架构</td>
+</tr>
+<tr>
+<td>Phase 4：Planner</td>
+<td>第 6 月</td>
+<td>Agent 大脑：规划与推理范式</td>
+</tr>
+<tr>
+<td>Phase 5：多 Agent 协作</td>
+<td>第 7 月</td>
+<td>Agent 组织：编排与协作框架</td>
+</tr>
+<tr>
+<td>Phase 6：工程化</td>
+<td>第 8 月</td>
+<td>Agent 血肉：可观测&#x2F;安全&#x2F;CI&#x2F;CD</td>
+</tr>
+<tr>
+<td>Phase 7：综合实战</td>
+<td>第 9-10 月</td>
+<td>完整 Agent 系统落地</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="phase-0：地基补强-—-llm-认知与-prompt-engineering"><a href="#phase-0：地基补强-—-llm-认知与-prompt-engineering" class="headerlink" title="Phase 0：地基补强 — LLM 认知与 Prompt Engineering"></a>Phase 0：地基补强 — LLM 认知与 Prompt Engineering</h2><h3 id="🎯-学习目标"><a href="#🎯-学习目标" class="headerlink" title="🎯 学习目标"></a>🎯 学习目标</h3><p>理解大模型的能力边界，掌握与 LLM 有效”沟通”的工程化方法。</p>
+<h3 id="📚-核心知识点"><a href="#📚-核心知识点" class="headerlink" title="📚 核心知识点"></a>📚 核心知识点</h3><h4 id="0-1-大模型基础认知"><a href="#0-1-大模型基础认知" class="headerlink" title="0.1 大模型基础认知"></a>0.1 大模型基础认知</h4><ul>
+<li>Transformer 架构直觉理解（不需要推导，但要懂 Attention 的本质）</li>
+<li>Token 机制：什么是 context window，为什么它是 Agent 设计的核心约束</li>
+<li>温度（Temperature）&#x2F; Top-P：概率采样对输出确定性的影响</li>
+<li><strong>后端类比：</strong> Token 限制 ≈ JVM 堆内存上限；超出 context window ≈ OOM，需要主动做”内存管理”（消息裁剪&#x2F;压缩）</li>
+</ul>
+<h4 id="0-2-prompt-engineering"><a href="#0-2-prompt-engineering" class="headerlink" title="0.2 Prompt Engineering"></a>0.2 Prompt Engineering</h4><ul>
+<li>Zero-shot &#x2F; Few-shot &#x2F; Chain-of-Thought (CoT)</li>
+<li>System Prompt 的架构设计（角色设定、约束、输出格式）</li>
+<li>Prompt 模板工程化：变量注入、版本管理</li>
+<li>结构化输出：JSON Mode &#x2F; Function Calling 输出约束</li>
+</ul>
+<h4 id="0-3-主流模型-api-接入"><a href="#0-3-主流模型-api-接入" class="headerlink" title="0.3 主流模型 API 接入"></a>0.3 主流模型 API 接入</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Spring AI 接入 OpenAI 示例</span></span><br><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="keyword">public</span> ChatClient <span class="title function_">chatClient</span><span class="params">(ChatClient.Builder builder)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> builder</span><br><span class="line">        .defaultSystem(<span class="string">&quot;你是一个专业的 Java 技术助手&quot;</span>)</span><br><span class="line">        .build();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 调用</span></span><br><span class="line"><span class="type">String</span> <span class="variable">response</span> <span class="operator">=</span> chatClient.prompt()</span><br><span class="line">    .user(<span class="string">&quot;解释 AQS 的核心原理&quot;</span>)</span><br><span class="line">    .call()</span><br><span class="line">    .content();</span><br></pre></td></tr></table></figure>
+
+<h3 id="🛠️-推荐实践"><a href="#🛠️-推荐实践" class="headerlink" title="🛠️ 推荐实践"></a>🛠️ 推荐实践</h3><ul>
+<li><input disabled="" type="checkbox"> 搭建 Spring AI + OpenAI&#x2F;Ollama 本地环境</li>
+<li><input disabled="" type="checkbox"> 手写 Prompt 模板管理器（支持版本化）</li>
+<li><input disabled="" type="checkbox"> 实现结构化 JSON 输出解析器</li>
+</ul>
+<h3 id="📖-推荐资料"><a href="#📖-推荐资料" class="headerlink" title="📖 推荐资料"></a>📖 推荐资料</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://docs.spring.io/spring-ai/reference/">Spring AI 官方文档</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.langchain4j.dev/">LangChain4j 快速开始</a></li>
+<li>OpenAI Prompt Engineering Guide</li>
+</ul>
+<hr>
+<h2 id="phase-1：tool-calling-—-agent-的”手脚”"><a href="#phase-1：tool-calling-—-agent-的”手脚”" class="headerlink" title="Phase 1：Tool Calling — Agent 的”手脚”"></a>Phase 1：Tool Calling — Agent 的”手脚”</h2><blockquote>
+<p><strong>后端类比：</strong> Tool &#x3D; 你注册在 Spring 容器里的 <code>@Service</code>，LLM 是调用方；整个 Tool Calling 机制 ≈ 反射 + 动态代理 + RPC 路由</p>
+</blockquote>
+<h3 id="🎯-学习目标-1"><a href="#🎯-学习目标-1" class="headerlink" title="🎯 学习目标"></a>🎯 学习目标</h3><p>设计和实现高可用、可扩展的 Agent Tool 体系，处理并发安全与降级。</p>
+<h3 id="📚-核心知识点-1"><a href="#📚-核心知识点-1" class="headerlink" title="📚 核心知识点"></a>📚 核心知识点</h3><h4 id="1-1-tool-calling-底层原理"><a href="#1-1-tool-calling-底层原理" class="headerlink" title="1.1 Tool Calling 底层原理"></a>1.1 Tool Calling 底层原理</h4><ul>
+<li>Function Calling 协议：LLM 如何决策调用哪个工具（JSON Schema 描述）</li>
+<li>工具注册机制：Tool Description 的质量直接决定 LLM 的调用准确率</li>
+<li>同步 vs 异步工具调用</li>
+<li>工具调用的循环：<code>LLM → Tool → Result → LLM</code>（ReAct 的基础）</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// LangChain4j Tool 定义</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DatabaseQueryTool</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Tool(&quot;查询用户订单列表，支持按状态和时间范围过滤&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> List&lt;Order&gt; <span class="title function_">queryOrders</span><span class="params">(</span></span><br><span class="line"><span class="params">        <span class="meta">@P(&quot;用户ID&quot;)</span> Long userId,</span></span><br><span class="line"><span class="params">        <span class="meta">@P(&quot;订单状态: PENDING/COMPLETED/CANCELLED&quot;)</span> String status,</span></span><br><span class="line"><span class="params">        <span class="meta">@P(&quot;开始时间 yyyy-MM-dd&quot;)</span> String startDate</span></span><br><span class="line"><span class="params">    )</span> &#123;</span><br><span class="line">        <span class="comment">// 实现查询逻辑</span></span><br><span class="line">        <span class="keyword">return</span> orderService.query(userId, status, startDate);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="1-2-工具设计原则（tool-design-patterns）"><a href="#1-2-工具设计原则（tool-design-patterns）" class="headerlink" title="1.2 工具设计原则（Tool Design Patterns）"></a>1.2 工具设计原则（Tool Design Patterns）</h4><table>
+<thead>
+<tr>
+<th>原则</th>
+<th>说明</th>
+<th>后端类比</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>单一职责</td>
+<td>一个 Tool 只做一件事</td>
+<td>微服务拆分原则</td>
+</tr>
+<tr>
+<td>幂等设计</td>
+<td>重复调用结果一致</td>
+<td>HTTP PUT 语义</td>
+</tr>
+<tr>
+<td>防御性编程</td>
+<td>入参校验 + 类型安全</td>
+<td>DTO 校验 + @Valid</td>
+</tr>
+<tr>
+<td>超时控制</td>
+<td>每个 Tool 必须有超时</td>
+<td><code>@Async</code> + <code>CompletableFuture.orTimeout()</code></td>
+</tr>
+</tbody></table>
+<h4 id="1-3-进阶：并发工具调用"><a href="#1-3-进阶：并发工具调用" class="headerlink" title="1.3 进阶：并发工具调用"></a>1.3 进阶：并发工具调用</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 并行工具调用 - 类比 CompletableFuture.allOf()</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ParallelToolExecutor</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">ExecutorService</span> <span class="variable">toolExecutor</span> <span class="operator">=</span></span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">ThreadPoolExecutor</span>(</span><br><span class="line">            <span class="number">10</span>, <span class="number">50</span>, <span class="number">60L</span>, TimeUnit.SECONDS,</span><br><span class="line">            <span class="keyword">new</span> <span class="title class_">LinkedBlockingQueue</span>&lt;&gt;(<span class="number">100</span>),</span><br><span class="line">            <span class="keyword">new</span> <span class="title class_">ThreadFactory</span>() &#123; <span class="comment">/* 命名线程 */</span> &#125;,</span><br><span class="line">            <span class="keyword">new</span> <span class="title class_">ThreadPoolExecutor</span>.CallerRunsPolicy() <span class="comment">// 背压策略</span></span><br><span class="line">        );</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Map&lt;String, Object&gt; <span class="title function_">executeParallel</span><span class="params">(List&lt;ToolCall&gt; toolCalls)</span> &#123;</span><br><span class="line">        List&lt;CompletableFuture&lt;Map.Entry&lt;String, Object&gt;&gt;&gt; futures =</span><br><span class="line">            toolCalls.stream()</span><br><span class="line">                .map(call -&gt; CompletableFuture</span><br><span class="line">                    .supplyAsync(() -&gt; executeOne(call), toolExecutor)</span><br><span class="line">                    .orTimeout(<span class="number">5</span>, TimeUnit.SECONDS)</span><br><span class="line">                    .exceptionally(ex -&gt; Map.entry(call.id(), <span class="string">&quot;ERROR: &quot;</span> + ex.getMessage()))</span><br><span class="line">                )</span><br><span class="line">                .toList();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> CompletableFuture.allOf(futures.toArray(<span class="keyword">new</span> <span class="title class_">CompletableFuture</span>[<span class="number">0</span>]))</span><br><span class="line">            .thenApply(v -&gt; futures.stream()</span><br><span class="line">                .map(CompletableFuture::join)</span><br><span class="line">                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))</span><br><span class="line">            .join();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="1-4-高级：工具注册中心"><a href="#1-4-高级：工具注册中心" class="headerlink" title="1.4 高级：工具注册中心"></a>1.4 高级：工具注册中心</h4><ul>
+<li>动态工具注册&#x2F;注销（插件化架构）</li>
+<li>工具权限控制（哪个 Agent 能调用哪些工具）</li>
+<li>工具调用审计日志</li>
+</ul>
+<h3 id="🛠️-推荐实践-1"><a href="#🛠️-推荐实践-1" class="headerlink" title="🛠️ 推荐实践"></a>🛠️ 推荐实践</h3><ul>
+<li><input disabled="" type="checkbox"> 实现数据库查询 Tool（带超时 + 降级）</li>
+<li><input disabled="" type="checkbox"> 实现 HTTP 调用 Tool（带重试 + 熔断）</li>
+<li><input disabled="" type="checkbox"> 设计工具调用链路的 Trace 日志</li>
+<li><input disabled="" type="checkbox"> 压测：模拟 LLM 并发调用 50 个 Tool 实例</li>
+</ul>
+<h3 id="📖-推荐资料-1"><a href="#📖-推荐资料-1" class="headerlink" title="📖 推荐资料"></a>📖 推荐资料</h3><ul>
+<li>OpenAI Function Calling 官方文档</li>
+<li>LangChain4j Tools &amp; Agents 文档</li>
+<li>Spring AI Tool&#x2F;Function Calling 章节</li>
+</ul>
+<hr>
+<h2 id="phase-2：memory-—-agent-的”记忆”"><a href="#phase-2：memory-—-agent-的”记忆”" class="headerlink" title="Phase 2：Memory — Agent 的”记忆”"></a>Phase 2：Memory — Agent 的”记忆”</h2><blockquote>
+<p><strong>后端类比：</strong></p>
+<ul>
+<li>短期记忆（Buffer Memory）≈ Redis String，快速读写，有 TTL</li>
+<li>长期记忆（Vector Memory）≈ MySQL + 倒排索引，持久化，按语义检索</li>
+<li>对话摘要 ≈ 数据库归档压缩（将历史 binlog 归档为快照）</li>
+</ul>
+</blockquote>
+<h3 id="🎯-学习目标-2"><a href="#🎯-学习目标-2" class="headerlink" title="🎯 学习目标"></a>🎯 学习目标</h3><p>设计多层次记忆体系，解决 context window 限制，实现跨会话的持久化记忆。</p>
+<h3 id="📚-核心知识点-2"><a href="#📚-核心知识点-2" class="headerlink" title="📚 核心知识点"></a>📚 核心知识点</h3><h4 id="2-1-短期记忆（conversation-buffer）"><a href="#2-1-短期记忆（conversation-buffer）" class="headerlink" title="2.1 短期记忆（Conversation Buffer）"></a>2.1 短期记忆（Conversation Buffer）</h4><ul>
+<li>消息窗口管理：滑动窗口 vs Token 预算管理</li>
+<li>消息压缩策略：超出窗口后的摘要生成</li>
+<li>多轮对话状态机设计</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 基于 Spring AI 的对话历史管理</span></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ConversationMemoryService</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 类比 Redis 的 List 结构存储消息</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">ChatMemory</span> <span class="variable">chatMemory</span> <span class="operator">=</span> MessageWindowChatMemory.builder()</span><br><span class="line">        .maxMessages(<span class="number">20</span>)  <span class="comment">// 滑动窗口大小</span></span><br><span class="line">        .build();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">chat</span><span class="params">(String sessionId, String userInput)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> chatClient.prompt()</span><br><span class="line">            .user(userInput)</span><br><span class="line">            .advisors(<span class="keyword">new</span> <span class="title class_">MessageChatMemoryAdvisor</span>(chatMemory, sessionId, <span class="number">10</span>))</span><br><span class="line">            .call()</span><br><span class="line">            .content();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-2-token-预算管理（核心难点）"><a href="#2-2-token-预算管理（核心难点）" class="headerlink" title="2.2 Token 预算管理（核心难点）"></a>2.2 Token 预算管理（核心难点）</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Token 计算与裁剪 - 类比内存分页管理</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TokenBudgetManager</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">MAX_CONTEXT_TOKENS</span> <span class="operator">=</span> <span class="number">8000</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">RESPONSE_RESERVE</span> <span class="operator">=</span> <span class="number">1000</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">AVAILABLE_TOKENS</span> <span class="operator">=</span> MAX_CONTEXT_TOKENS - RESPONSE_RESERVE;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> List&lt;Message&gt; <span class="title function_">trimHistory</span><span class="params">(List&lt;Message&gt; history)</span> &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">usedTokens</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">        Deque&lt;Message&gt; result = <span class="keyword">new</span> <span class="title class_">ArrayDeque</span>&lt;&gt;();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> history.size() - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">            <span class="type">Message</span> <span class="variable">msg</span> <span class="operator">=</span> history.get(i);</span><br><span class="line">            <span class="type">int</span> <span class="variable">tokens</span> <span class="operator">=</span> estimateTokens(msg);</span><br><span class="line">            <span class="keyword">if</span> (usedTokens + tokens &gt; AVAILABLE_TOKENS) <span class="keyword">break</span>;</span><br><span class="line">            result.addFirst(msg);</span><br><span class="line">            usedTokens += tokens;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;(result);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-3-长期记忆（vector-memory）"><a href="#2-3-长期记忆（vector-memory）" class="headerlink" title="2.3 长期记忆（Vector Memory）"></a>2.3 长期记忆（Vector Memory）</h4><ul>
+<li>Embedding 原理：文本 → 高维向量（类比将文档转换为多维索引键）</li>
+<li>向量数据库选型：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>数据库</th>
+<th>特点</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Milvus</td>
+<td>高性能，企业级</td>
+<td>亿级向量，生产首选</td>
+</tr>
+<tr>
+<td>Qdrant</td>
+<td>Rust 实现，轻量</td>
+<td>中小规模</td>
+</tr>
+<tr>
+<td>PGVector</td>
+<td>PostgreSQL 扩展</td>
+<td>已有 PG 的团队</td>
+</tr>
+<tr>
+<td>Redis Vector</td>
+<td>低延迟</td>
+<td>热数据语义搜索</td>
+</tr>
+</tbody></table>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Spring AI 向量存储操作</span></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">LongTermMemoryService</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> VectorStore vectorStore;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 存储记忆（类比 INSERT + 建索引）</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">remember</span><span class="params">(String userId, String content)</span> &#123;</span><br><span class="line">        <span class="type">Document</span> <span class="variable">doc</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Document</span>(content,</span><br><span class="line">            Map.of(<span class="string">&quot;userId&quot;</span>, userId, <span class="string">&quot;timestamp&quot;</span>, Instant.now().toString()));</span><br><span class="line">        vectorStore.add(List.of(doc));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 语义检索（类比 SELECT WHERE similarity &gt; threshold）</span></span><br><span class="line">    <span class="keyword">public</span> List&lt;String&gt; <span class="title function_">recall</span><span class="params">(String userId, String query, <span class="type">int</span> topK)</span> &#123;</span><br><span class="line">        <span class="type">SearchRequest</span> <span class="variable">request</span> <span class="operator">=</span> SearchRequest.query(query)</span><br><span class="line">            .withTopK(topK)</span><br><span class="line">            .withFilterExpression(<span class="string">&quot;userId == &#x27;&quot;</span> + userId + <span class="string">&quot;&#x27;&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> vectorStore.similaritySearch(request)</span><br><span class="line">            .stream()</span><br><span class="line">            .map(Document::getContent)</span><br><span class="line">            .toList();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-4-记忆分层架构"><a href="#2-4-记忆分层架构" class="headerlink" title="2.4 记忆分层架构"></a>2.4 记忆分层架构</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────────────────────────────────┐</span><br><span class="line">│              Agent Memory 分层               │</span><br><span class="line">├─────────────────────────────────────────────┤</span><br><span class="line">│  L1: 工作记忆 (Working Memory)               │</span><br><span class="line">│      当前对话 context window                 │</span><br><span class="line">│      类比: CPU L1 Cache / JVM 栈帧           │</span><br><span class="line">├─────────────────────────────────────────────┤</span><br><span class="line">│  L2: 会话记忆 (Session Memory)               │</span><br><span class="line">│      Redis 存储，TTL=24h                     │</span><br><span class="line">│      类比: CPU L2 Cache / Redis 热数据       │</span><br><span class="line">├─────────────────────────────────────────────┤</span><br><span class="line">│  L3: 长期记忆 (Episodic Memory)              │</span><br><span class="line">│      Vector DB，永久存储                     │</span><br><span class="line">│      类比: 磁盘 / MySQL 全文索引             │</span><br><span class="line">├─────────────────────────────────────────────┤</span><br><span class="line">│  L4: 知识记忆 (Semantic Memory)              │</span><br><span class="line">│      RAG 知识库（下一章节）                  │</span><br><span class="line">│      类比: 只读文档数据库                    │</span><br><span class="line">└─────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<h3 id="🛠️-推荐实践-2"><a href="#🛠️-推荐实践-2" class="headerlink" title="🛠️ 推荐实践"></a>🛠️ 推荐实践</h3><ul>
+<li><input disabled="" type="checkbox"> 实现基于 Redis 的会话记忆存储（带 TTL + 序列化）</li>
+<li><input disabled="" type="checkbox"> 接入 PGVector，实现用户历史行为的语义检索</li>
+<li><input disabled="" type="checkbox"> 实现对话摘要压缩（超过 10 轮自动摘要）</li>
+<li><input disabled="" type="checkbox"> 压测：1000 并发用户会话的内存隔离验证</li>
+</ul>
+<hr>
+<h2 id="phase-3：rag-—-agent-的”知识库”"><a href="#phase-3：rag-—-agent-的”知识库”" class="headerlink" title="Phase 3：RAG — Agent 的”知识库”"></a>Phase 3：RAG — Agent 的”知识库”</h2><blockquote>
+<p><strong>后端类比：</strong> RAG &#x3D; 数据库查询增强版。<code>SELECT * FROM knowledge WHERE semantic_similarity(content, query) &gt; 0.8</code>。Embedding 就是给文档建”语义索引”，比 MySQL LIKE 查询高维得多。</p>
+</blockquote>
+<h3 id="🎯-学习目标-3"><a href="#🎯-学习目标-3" class="headerlink" title="🎯 学习目标"></a>🎯 学习目标</h3><p>构建生产级 RAG 系统，掌握从文档摄入到检索增强的完整链路。</p>
+<h3 id="📚-核心知识点-3"><a href="#📚-核心知识点-3" class="headerlink" title="📚 核心知识点"></a>📚 核心知识点</h3><h4 id="3-1-rag-基础架构（naive-rag）"><a href="#3-1-rag-基础架构（naive-rag）" class="headerlink" title="3.1 RAG 基础架构（Naive RAG）"></a>3.1 RAG 基础架构（Naive RAG）</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">文档摄入流水线（离线）：</span><br><span class="line">原始文档 → 解析 → 分块(Chunking) → Embedding → 向量存储</span><br><span class="line"></span><br><span class="line">检索增强流水线（在线）：</span><br><span class="line">用户问题 → Embedding → 向量检索 → 重排序 → 注入 Prompt → LLM → 回答</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-2-文档处理流水线"><a href="#3-2-文档处理流水线" class="headerlink" title="3.2 文档处理流水线"></a>3.2 文档处理流水线</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Spring AI ETL Pipeline</span></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DocumentIngestionPipeline</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> VectorStore vectorStore;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> EmbeddingModel embeddingModel;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">ingest</span><span class="params">(Resource documentResource)</span> &#123;</span><br><span class="line">        <span class="comment">// 1. 读取文档（支持 PDF/Word/Markdown）</span></span><br><span class="line">        <span class="type">var</span> <span class="variable">reader</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">PagePdfDocumentReader</span>(documentResource,</span><br><span class="line">            PdfDocumentReaderConfig.builder()</span><br><span class="line">                .withPageTopMargin(<span class="number">0</span>)</span><br><span class="line">                .withPageExtractedTextFormatter(</span><br><span class="line">                    ExtractedTextFormatter.builder()</span><br><span class="line">                        .withNumberOfBottomTextLinesToDelete(<span class="number">3</span>)</span><br><span class="line">                        .build())</span><br><span class="line">                .build());</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2. 分块策略（核心！类比数据库分区策略）</span></span><br><span class="line">        <span class="type">var</span> <span class="variable">splitter</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TokenTextSplitter</span>(</span><br><span class="line">            <span class="number">512</span>,    <span class="comment">// chunk size（类比分区大小）</span></span><br><span class="line">            <span class="number">128</span>,    <span class="comment">// overlap（类比分区重叠，保证语义连续性）</span></span><br><span class="line">            <span class="number">5</span>, <span class="number">10000</span>, <span class="literal">true</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 3. ETL &amp; 写入向量库</span></span><br><span class="line">        List&lt;Document&gt; docs = splitter.apply(reader.get());</span><br><span class="line">        vectorStore.add(docs);  <span class="comment">// 自动 Embedding + 存储</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-3-分块策略（chunking-strategy）"><a href="#3-3-分块策略（chunking-strategy）" class="headerlink" title="3.3 分块策略（Chunking Strategy）"></a>3.3 分块策略（Chunking Strategy）</h4><table>
+<thead>
+<tr>
+<th>策略</th>
+<th>原理</th>
+<th>优点</th>
+<th>缺点</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Fixed Size</td>
+<td>固定 Token 数切割</td>
+<td>简单</td>
+<td>语义割裂</td>
+<td>快速原型</td>
+</tr>
+<tr>
+<td>Recursive</td>
+<td>按段落&#x2F;句子递归</td>
+<td>语义完整</td>
+<td>实现复杂</td>
+<td>通用文档</td>
+</tr>
+<tr>
+<td>Semantic</td>
+<td>语义相似度分割</td>
+<td>最佳质量</td>
+<td>计算昂贵</td>
+<td>高质量知识库</td>
+</tr>
+<tr>
+<td>Hierarchical</td>
+<td>父子块关联</td>
+<td>支持多粒度检索</td>
+<td>存储翻倍</td>
+<td>长文档问答</td>
+</tr>
+</tbody></table>
+<h4 id="3-4-进阶-rag-模式"><a href="#3-4-进阶-rag-模式" class="headerlink" title="3.4 进阶 RAG 模式"></a>3.4 进阶 RAG 模式</h4><p><strong>Advanced RAG 架构：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">查询理解层:</span><br><span class="line">  ├── Query Rewriting（查询改写，提高召回率）</span><br><span class="line">  ├── Query Decomposition（复杂问题分解）</span><br><span class="line">  └── HyDE（假设文档嵌入，提高检索精度）</span><br><span class="line"></span><br><span class="line">检索层:</span><br><span class="line">  ├── Dense Retrieval（向量检索）</span><br><span class="line">  ├── Sparse Retrieval（BM25 关键词检索）</span><br><span class="line">  └── Hybrid Search（混合检索 = 两者 + RRF 融合）</span><br><span class="line"></span><br><span class="line">后处理层:</span><br><span class="line">  ├── Re-ranking（交叉编码器重排序）</span><br><span class="line">  ├── Contextual Compression（上下文压缩）</span><br><span class="line">  └── Citation（来源溯源）</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 混合检索实现</span></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">HybridSearchService</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> VectorStore vectorStore;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> ElasticsearchClient esClient;  <span class="comment">// BM25 检索</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> List&lt;Document&gt; <span class="title function_">hybridSearch</span><span class="params">(String query, <span class="type">int</span> topK)</span> &#123;</span><br><span class="line">        CompletableFuture&lt;List&lt;Document&gt;&gt; denseFuture =</span><br><span class="line">            CompletableFuture.supplyAsync(() -&gt;</span><br><span class="line">                vectorStore.similaritySearch(SearchRequest.query(query).withTopK(topK * <span class="number">2</span>)));</span><br><span class="line"></span><br><span class="line">        CompletableFuture&lt;List&lt;Document&gt;&gt; sparseFuture =</span><br><span class="line">            CompletableFuture.supplyAsync(() -&gt;</span><br><span class="line">                esClient.bm25Search(query, topK * <span class="number">2</span>));</span><br><span class="line"></span><br><span class="line">        <span class="comment">// RRF 融合排序（Reciprocal Rank Fusion）</span></span><br><span class="line">        <span class="keyword">return</span> CompletableFuture.allOf(denseFuture, sparseFuture)</span><br><span class="line">            .thenApply(v -&gt; rrfFusion(denseFuture.join(), sparseFuture.join(), topK))</span><br><span class="line">            .join();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> List&lt;Document&gt; <span class="title function_">rrfFusion</span><span class="params">(List&lt;Document&gt; dense,</span></span><br><span class="line"><span class="params">                                      List&lt;Document&gt; sparse, <span class="type">int</span> topK)</span> &#123;</span><br><span class="line">        <span class="comment">// RRF score = Σ 1/(k + rank_i), k=60</span></span><br><span class="line">        Map&lt;String, Double&gt; scores = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">        IntStream.range(<span class="number">0</span>, dense.size()).forEach(i -&gt;</span><br><span class="line">            scores.merge(dense.get(i).getId(), <span class="number">1.0</span> / (<span class="number">60</span> + i + <span class="number">1</span>), Double::sum));</span><br><span class="line">        IntStream.range(<span class="number">0</span>, sparse.size()).forEach(i -&gt;</span><br><span class="line">            scores.merge(sparse.get(i).getId(), <span class="number">1.0</span> / (<span class="number">60</span> + i + <span class="number">1</span>), Double::sum));</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> scores.entrySet().stream()</span><br><span class="line">            .sorted(Map.Entry.&lt;String, Double&gt;comparingByValue().reversed())</span><br><span class="line">            .limit(topK)</span><br><span class="line">            .map(e -&gt; findDocById(e.getKey(), dense, sparse))</span><br><span class="line">            .toList();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-5-rag-评估体系（ragas-指标）"><a href="#3-5-rag-评估体系（ragas-指标）" class="headerlink" title="3.5 RAG 评估体系（RAGAS 指标）"></a>3.5 RAG 评估体系（RAGAS 指标）</h4><table>
+<thead>
+<tr>
+<th>指标</th>
+<th>含义</th>
+<th>类比</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Faithfulness</td>
+<td>回答是否忠实于检索内容</td>
+<td>数据一致性检验</td>
+</tr>
+<tr>
+<td>Answer Relevance</td>
+<td>回答与问题相关性</td>
+<td>查询精度（Precision）</td>
+</tr>
+<tr>
+<td>Context Recall</td>
+<td>检索是否覆盖必要信息</td>
+<td>查询召回率（Recall）</td>
+</tr>
+<tr>
+<td>Context Precision</td>
+<td>检索结果是否精准</td>
+<td>索引选择性</td>
+</tr>
+</tbody></table>
+<h3 id="🛠️-推荐实践-3"><a href="#🛠️-推荐实践-3" class="headerlink" title="🛠️ 推荐实践"></a>🛠️ 推荐实践</h3><ul>
+<li><input disabled="" type="checkbox"> 构建企业文档问答系统（PDF 摄入 → 问答）</li>
+<li><input disabled="" type="checkbox"> 对比 4 种分块策略的效果差异</li>
+<li><input disabled="" type="checkbox"> 实现混合检索（Vector + BM25）</li>
+<li><input disabled="" type="checkbox"> 集成 RAGAS 建立评估 Pipeline</li>
+<li><input disabled="" type="checkbox"> 实现 Re-ranking（使用 Cohere Rerank API）</li>
+</ul>
+<hr>
+<h2 id="phase-4：planner-—-agent-的”大脑”"><a href="#phase-4：planner-—-agent-的”大脑”" class="headerlink" title="Phase 4：Planner — Agent 的”大脑”"></a>Phase 4：Planner — Agent 的”大脑”</h2><blockquote>
+<p><strong>后端类比：</strong> Planner ≈ 分布式任务调度器（类比 Quartz&#x2F;XXL-Job），但决策逻辑由 LLM 驱动而非硬编码。ReAct ≈ 工作流引擎的 <code>决策节点 → 执行节点 → 观察节点</code> 循环。</p>
+</blockquote>
+<h3 id="🎯-学习目标-4"><a href="#🎯-学习目标-4" class="headerlink" title="🎯 学习目标"></a>🎯 学习目标</h3><p>掌握主流 Agent 推理范式，设计可观测、可干预的规划执行引擎。</p>
+<h3 id="📚-核心知识点-4"><a href="#📚-核心知识点-4" class="headerlink" title="📚 核心知识点"></a>📚 核心知识点</h3><h4 id="4-1-推理范式对比"><a href="#4-1-推理范式对比" class="headerlink" title="4.1 推理范式对比"></a>4.1 推理范式对比</h4><table>
+<thead>
+<tr>
+<th>范式</th>
+<th>机制</th>
+<th>优点</th>
+<th>缺点</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CoT</td>
+<td>思维链推理</td>
+<td>提升推理质量</td>
+<td>无法执行动作</td>
+<td>复杂分析</td>
+</tr>
+<tr>
+<td>ReAct</td>
+<td>推理 + 行动交替</td>
+<td>动态环境适应</td>
+<td>多轮开销大</td>
+<td>通用 Agent</td>
+</tr>
+<tr>
+<td>Plan-and-Execute</td>
+<td>先完整规划再执行</td>
+<td>全局最优</td>
+<td>规划失败代价高</td>
+<td>长任务</td>
+</tr>
+<tr>
+<td>Tree of Thoughts</td>
+<td>树状搜索</td>
+<td>最优解探索</td>
+<td>极高开销</td>
+<td>复杂决策</td>
+</tr>
+</tbody></table>
+<h4 id="4-2-react-实现"><a href="#4-2-react-实现" class="headerlink" title="4.2 ReAct 实现"></a>4.2 ReAct 实现</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ReAct 循环核心实现</span></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ReActAgent</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">MAX_ITERATIONS</span> <span class="operator">=</span> <span class="number">10</span>;  <span class="comment">// 防止无限循环</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> AgentResult <span class="title function_">execute</span><span class="params">(String task, List&lt;Object&gt; tools)</span> &#123;</span><br><span class="line">        List&lt;Message&gt; trajectory = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">        trajectory.add(<span class="keyword">new</span> <span class="title class_">SystemMessage</span>(buildSystemPrompt(tools)));</span><br><span class="line">        trajectory.add(<span class="keyword">new</span> <span class="title class_">UserMessage</span>(task));</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">iter</span> <span class="operator">=</span> <span class="number">0</span>; iter &lt; MAX_ITERATIONS; iter++) &#123;</span><br><span class="line">            <span class="comment">// Thought: LLM 推理</span></span><br><span class="line">            <span class="type">ChatResponse</span> <span class="variable">response</span> <span class="operator">=</span> chatClient.prompt()</span><br><span class="line">                .messages(trajectory)</span><br><span class="line">                .call()</span><br><span class="line">                .chatResponse();</span><br><span class="line"></span><br><span class="line">            <span class="type">String</span> <span class="variable">llmOutput</span> <span class="operator">=</span> response.getResult().getOutput().getContent();</span><br><span class="line">            trajectory.add(<span class="keyword">new</span> <span class="title class_">AssistantMessage</span>(llmOutput));</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 检测是否完成</span></span><br><span class="line">            <span class="keyword">if</span> (llmOutput.contains(<span class="string">&quot;Final Answer:&quot;</span>)) &#123;</span><br><span class="line">                <span class="keyword">return</span> AgentResult.success(extractFinalAnswer(llmOutput));</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// Action: 解析工具调用</span></span><br><span class="line">            <span class="type">ToolCall</span> <span class="variable">toolCall</span> <span class="operator">=</span> parseToolCall(llmOutput);</span><br><span class="line">            <span class="keyword">if</span> (toolCall == <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="keyword">return</span> AgentResult.failure(<span class="string">&quot;无法解析工具调用&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// Observation: 执行工具获取结果</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">observation</span> <span class="operator">=</span> executeToolWithTimeout(toolCall, <span class="number">5</span>, TimeUnit.SECONDS);</span><br><span class="line">            trajectory.add(<span class="keyword">new</span> <span class="title class_">UserMessage</span>(<span class="string">&quot;Observation: &quot;</span> + observation));</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 记录追踪（可观测性）</span></span><br><span class="line">            tracer.record(iter, toolCall, observation);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> AgentResult.failure(<span class="string">&quot;超过最大迭代次数&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-3-plan-and-execute-模式"><a href="#4-3-plan-and-execute-模式" class="headerlink" title="4.3 Plan-and-Execute 模式"></a>4.3 Plan-and-Execute 模式</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">record</span> <span class="title class_">ExecutionPlan</span><span class="params">(</span></span><br><span class="line"><span class="params">    String goal,</span></span><br><span class="line"><span class="params">    List&lt;PlanStep&gt; steps,</span></span><br><span class="line"><span class="params">    Map&lt;String, Object&gt; context  // 步骤间共享状态</span></span><br><span class="line"><span class="params">)</span> &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">record</span> <span class="title class_">PlanStep</span><span class="params">(</span></span><br><span class="line"><span class="params">    <span class="type">int</span> stepId,</span></span><br><span class="line"><span class="params">    String description,</span></span><br><span class="line"><span class="params">    String toolName,</span></span><br><span class="line"><span class="params">    Map&lt;String, Object&gt; parameters,</span></span><br><span class="line"><span class="params">    List&lt;Integer&gt; dependsOn  // 依赖关系，支持并行执行！</span></span><br><span class="line"><span class="params">)</span> &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">PlanAndExecuteAgent</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> AgentResult <span class="title function_">execute</span><span class="params">(String goal)</span> &#123;</span><br><span class="line">        <span class="comment">// Phase 1: Planner - 生成执行计划</span></span><br><span class="line">        <span class="type">ExecutionPlan</span> <span class="variable">plan</span> <span class="operator">=</span> plannerLlm.generatePlan(goal);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Phase 2: Executor - 按依赖关系并行执行</span></span><br><span class="line">        Map&lt;Integer, CompletableFuture&lt;StepResult&gt;&gt; futures = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (PlanStep step : plan.steps()) &#123;</span><br><span class="line">            CompletableFuture&lt;Void&gt; deps = step.dependsOn().isEmpty()</span><br><span class="line">                ? CompletableFuture.completedFuture(<span class="literal">null</span>)</span><br><span class="line">                : CompletableFuture.allOf(</span><br><span class="line">                    step.dependsOn().stream()</span><br><span class="line">                        .map(futures::get)</span><br><span class="line">                        .toArray(CompletableFuture[]::<span class="keyword">new</span>));</span><br><span class="line"></span><br><span class="line">            futures.put(step.stepId(), deps.thenApplyAsync(</span><br><span class="line">                v -&gt; executeStep(step, plan.context())));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Phase 3: 汇总结果</span></span><br><span class="line">        <span class="keyword">return</span> aggregateResults(futures);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-4-规划的核心工程问题"><a href="#4-4-规划的核心工程问题" class="headerlink" title="4.4 规划的核心工程问题"></a>4.4 规划的核心工程问题</h4><ul>
+<li><strong>幻觉降级：</strong> LLM 规划出不存在的工具 → 工具名称白名单校验</li>
+<li><strong>循环检测：</strong> Agent 陷入重复调用循环 → 调用链去重 + 最大迭代限制</li>
+<li><strong>状态持久化：</strong> 长任务中途失败后恢复 → Checkpoint 机制（类比 Saga 模式）</li>
+<li><strong>人机交互：</strong> 关键节点需人工确认 → Human-in-the-loop 暂停点</li>
+</ul>
+<h3 id="🛠️-推荐实践-4"><a href="#🛠️-推荐实践-4" class="headerlink" title="🛠️ 推荐实践"></a>🛠️ 推荐实践</h3><ul>
+<li><input disabled="" type="checkbox"> 实现 ReAct Agent，完成「研究竞品并生成报告」任务</li>
+<li><input disabled="" type="checkbox"> 实现 Plan-and-Execute，含步骤依赖并行化</li>
+<li><input disabled="" type="checkbox"> 加入 Checkpoint 机制，支持任务断点续跑</li>
+<li><input disabled="" type="checkbox"> 实现 Human-in-the-loop 的审批暂停点</li>
+</ul>
+<hr>
+<h2 id="phase-5：多-agent-协作"><a href="#phase-5：多-agent-协作" class="headerlink" title="Phase 5：多 Agent 协作"></a>Phase 5：多 Agent 协作</h2><blockquote>
+<p><strong>后端类比：</strong> 多 Agent 系统 ≈ 微服务架构。每个 Agent 是一个专职微服务，需要服务发现、负载均衡、消息总线和分布式追踪。</p>
+</blockquote>
+<h3 id="🎯-学习目标-5"><a href="#🎯-学习目标-5" class="headerlink" title="🎯 学习目标"></a>🎯 学习目标</h3><p>设计可扩展的多 Agent 协作架构，掌握主流编排框架。</p>
+<h3 id="📚-核心知识点-5"><a href="#📚-核心知识点-5" class="headerlink" title="📚 核心知识点"></a>📚 核心知识点</h3><h4 id="5-1-多-agent-拓扑模式"><a href="#5-1-多-agent-拓扑模式" class="headerlink" title="5.1 多 Agent 拓扑模式"></a>5.1 多 Agent 拓扑模式</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">模式一：层级式（Hierarchical）</span><br><span class="line">┌─────────────────────────────┐</span><br><span class="line">│      Supervisor Agent       │  ← 任务分发、结果汇总</span><br><span class="line">└──────────┬──────────────────┘</span><br><span class="line">    ┌──────┼──────┐</span><br><span class="line">    ↓      ↓      ↓</span><br><span class="line">  Agent1 Agent2 Agent3      ← 专职 Worker Agent</span><br><span class="line"></span><br><span class="line">模式二：流水线式（Pipeline）</span><br><span class="line">User → [预处理Agent] → [分析Agent] → [写作Agent] → Result</span><br><span class="line"></span><br><span class="line">模式三：辩论式（Debate）</span><br><span class="line">                ┌→ Agent-正方 ─┐</span><br><span class="line">User Request ──→│              ├→ Judge Agent → Final Answer</span><br><span class="line">                └→ Agent-反方 ─┘</span><br></pre></td></tr></table></figure>
+
+<h4 id="5-2-基于-langgraph4j-的状态机编排"><a href="#5-2-基于-langgraph4j-的状态机编排" class="headerlink" title="5.2 基于 LangGraph4j 的状态机编排"></a>5.2 基于 LangGraph4j 的状态机编排</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// LangGraph4j 工作流定义（类比 Spring State Machine）</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ResearchWorkflow</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> StateGraph&lt;ResearchState&gt; <span class="title function_">researchGraph</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> StateGraph.&lt;ResearchState&gt;builder()</span><br><span class="line">            .addNode(<span class="string">&quot;planner&quot;</span>, plannerAgent::run)</span><br><span class="line">            .addNode(<span class="string">&quot;researcher&quot;</span>, researcherAgent::run)</span><br><span class="line">            .addNode(<span class="string">&quot;writer&quot;</span>, writerAgent::run)</span><br><span class="line">            .addNode(<span class="string">&quot;reviewer&quot;</span>, reviewerAgent::run)</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 条件路由（类比路由表）</span></span><br><span class="line">            .addConditionalEdges(<span class="string">&quot;reviewer&quot;</span>, state -&gt;</span><br><span class="line">                state.reviewScore() &gt;= <span class="number">8</span> ? <span class="string">&quot;END&quot;</span> : <span class="string">&quot;writer&quot;</span>)</span><br><span class="line"></span><br><span class="line">            .addEdge(START, <span class="string">&quot;planner&quot;</span>)</span><br><span class="line">            .addEdge(<span class="string">&quot;planner&quot;</span>, <span class="string">&quot;researcher&quot;</span>)</span><br><span class="line">            .addEdge(<span class="string">&quot;researcher&quot;</span>, <span class="string">&quot;writer&quot;</span>)</span><br><span class="line">            .addEdge(<span class="string">&quot;writer&quot;</span>, <span class="string">&quot;reviewer&quot;</span>)</span><br><span class="line">            .build();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="5-3-agent-间通信设计"><a href="#5-3-agent-间通信设计" class="headerlink" title="5.3 Agent 间通信设计"></a>5.3 Agent 间通信设计</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 基于消息总线的 Agent 通信（类比 MQ 解耦）</span></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AgentMessageBus</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Map&lt;String, BlockingQueue&lt;AgentMessage&gt;&gt; queues =</span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">ConcurrentHashMap</span>&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">publish</span><span class="params">(String targetAgentId, AgentMessage message)</span> &#123;</span><br><span class="line">        queues.computeIfAbsent(targetAgentId, k -&gt; <span class="keyword">new</span> <span class="title class_">LinkedBlockingQueue</span>&lt;&gt;())</span><br><span class="line">            .offer(message);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> AgentMessage <span class="title function_">consume</span><span class="params">(String agentId, <span class="type">long</span> timeout, TimeUnit unit)</span></span><br><span class="line">        <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line">        <span class="keyword">return</span> queues.computeIfAbsent(agentId, k -&gt; <span class="keyword">new</span> <span class="title class_">LinkedBlockingQueue</span>&lt;&gt;())</span><br><span class="line">            .poll(timeout, unit);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="🛠️-推荐实践-5"><a href="#🛠️-推荐实践-5" class="headerlink" title="🛠️ 推荐实践"></a>🛠️ 推荐实践</h3><ul>
+<li><input disabled="" type="checkbox"> 实现「研究员 + 撰写员 + 评审员」三角协作系统</li>
+<li><input disabled="" type="checkbox"> 实现 Supervisor 模式，动态分配子任务</li>
+<li><input disabled="" type="checkbox"> 基于 LangGraph4j 实现条件循环工作流</li>
+</ul>
+<hr>
+<h2 id="phase-6：agent-工程化-—-生产级标准"><a href="#phase-6：agent-工程化-—-生产级标准" class="headerlink" title="Phase 6：Agent 工程化 — 生产级标准"></a>Phase 6：Agent 工程化 — 生产级标准</h2><blockquote>
+<p>这是从「能用」到「好用」的关键跨越。</p>
+</blockquote>
+<h3 id="🎯-学习目标-6"><a href="#🎯-学习目标-6" class="headerlink" title="🎯 学习目标"></a>🎯 学习目标</h3><p>建立完整的 Agent 工程化体系：可观测 + 安全 + 自动化交付。</p>
+<h3 id="📚-核心知识点-6"><a href="#📚-核心知识点-6" class="headerlink" title="📚 核心知识点"></a>📚 核心知识点</h3><h4 id="6-1-可观测性（observability）"><a href="#6-1-可观测性（observability）" class="headerlink" title="6.1 可观测性（Observability）"></a>6.1 可观测性（Observability）</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Micrometer + Prometheus 打点</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AgentMetrics</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> MeterRegistry registry;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Timer llmLatency;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Counter tokenCounter;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Counter toolSuccessCounter;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Counter toolFailureCounter;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">AgentMetrics</span><span class="params">(MeterRegistry registry)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.registry = registry;</span><br><span class="line">        <span class="built_in">this</span>.llmLatency = Timer.builder(<span class="string">&quot;agent.llm.latency&quot;</span>)</span><br><span class="line">            .description(<span class="string">&quot;LLM API 调用延迟&quot;</span>)</span><br><span class="line">            .tag(<span class="string">&quot;model&quot;</span>, <span class="string">&quot;gpt-4o&quot;</span>)</span><br><span class="line">            .publishPercentiles(<span class="number">0.5</span>, <span class="number">0.95</span>, <span class="number">0.99</span>)</span><br><span class="line">            .register(registry);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> &lt;T&gt; T <span class="title function_">recordLlmCall</span><span class="params">(Supplier&lt;T&gt; llmCall, String model)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> llmLatency.record(() -&gt; &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="type">T</span> <span class="variable">result</span> <span class="operator">=</span> llmCall.get();</span><br><span class="line">                tokenCounter.increment(extractTokenCount(result));</span><br><span class="line">                <span class="keyword">return</span> result;</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                registry.counter(<span class="string">&quot;agent.llm.errors&quot;</span>, <span class="string">&quot;model&quot;</span>, model).increment();</span><br><span class="line">                <span class="keyword">throw</span> e;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>Grafana 核心监控面板：</strong></p>
+<ul>
+<li>LLM API P99 延迟趋势</li>
+<li>Token 消耗速率（成本控制）</li>
+<li>工具调用成功率</li>
+<li>Agent 任务完成率</li>
+<li>内存使用量（向量存储增长）</li>
+</ul>
+<h4 id="6-2-降级策略"><a href="#6-2-降级策略" class="headerlink" title="6.2 降级策略"></a>6.2 降级策略</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Resilience4j 集成 LLM 熔断</span></span><br><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="keyword">public</span> CircuitBreaker <span class="title function_">llmCircuitBreaker</span><span class="params">(CircuitBreakerRegistry registry)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> registry.circuitBreaker(<span class="string">&quot;llm-api&quot;</span>, CircuitBreakerConfig.custom()</span><br><span class="line">        .failureRateThreshold(<span class="number">50</span>)           <span class="comment">// 失败率超 50% 开启熔断</span></span><br><span class="line">        .waitDurationInOpenState(Duration.ofSeconds(<span class="number">30</span>))</span><br><span class="line">        .slidingWindowSize(<span class="number">10</span>)</span><br><span class="line">        .build());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 降级策略：主模型熔断时切换备用模型</span></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ResilientLlmClient</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">chat</span><span class="params">(String prompt)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> Decorators.ofSupplier(() -&gt; primaryLlm.call(prompt))</span><br><span class="line">            .withCircuitBreaker(llmCircuitBreaker)</span><br><span class="line">            .withRetry(Retry.ofDefaults(<span class="string">&quot;llm-retry&quot;</span>))</span><br><span class="line">            .withFallback(List.of(Exception.class),</span><br><span class="line">                e -&gt; fallbackLlm.call(prompt))  <span class="comment">// 降级到本地模型</span></span><br><span class="line">            .decorate()</span><br><span class="line">            .get();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="6-3-安全设计"><a href="#6-3-安全设计" class="headerlink" title="6.3 安全设计"></a>6.3 安全设计</h4><table>
+<thead>
+<tr>
+<th>威胁</th>
+<th>防护措施</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Prompt Injection</td>
+<td>输入净化 + 系统提示隔离</td>
+</tr>
+<tr>
+<td>数据泄露</td>
+<td>Tool 调用权限矩阵 + 敏感数据脱敏</td>
+</tr>
+<tr>
+<td>资源滥用</td>
+<td>Token 配额限流（令牌桶算法）</td>
+</tr>
+<tr>
+<td>未授权调用</td>
+<td>OIDC + JWT 验证 Agent 身份</td>
+</tr>
+</tbody></table>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 基于令牌桶的 Token 限流</span></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TokenRateLimiter</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 每用户每分钟最多 10000 tokens</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Cache&lt;String, RateLimiter&gt; userLimiters = Caffeine.newBuilder()</span><br><span class="line">        .expireAfterAccess(<span class="number">1</span>, TimeUnit.HOURS)</span><br><span class="line">        .build();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">tryAcquire</span><span class="params">(String userId, <span class="type">int</span> tokenCount)</span> &#123;</span><br><span class="line">        <span class="type">RateLimiter</span> <span class="variable">limiter</span> <span class="operator">=</span> userLimiters.get(userId,</span><br><span class="line">            k -&gt; RateLimiter.create(<span class="number">10000.0</span> / <span class="number">60</span>)); <span class="comment">// tokens/second</span></span><br><span class="line">        <span class="keyword">return</span> limiter.tryAcquire(tokenCount);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="6-4-ci-cd-pipeline"><a href="#6-4-ci-cd-pipeline" class="headerlink" title="6.4 CI&#x2F;CD Pipeline"></a>6.4 CI&#x2F;CD Pipeline</h4><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># GitHub Actions - Agent 系统 CI/CD</span></span><br><span class="line"><span class="attr">name:</span> <span class="string">Agent</span> <span class="string">CI/CD</span> <span class="string">Pipeline</span></span><br><span class="line"></span><br><span class="line"><span class="attr">on:</span> [<span class="string">push</span>]</span><br><span class="line"></span><br><span class="line"><span class="attr">jobs:</span></span><br><span class="line">  <span class="attr">test:</span></span><br><span class="line">    <span class="attr">steps:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">单元测试（Mock</span> <span class="string">LLM）</span></span><br><span class="line">        <span class="attr">run:</span> <span class="string">./gradlew</span> <span class="string">test</span></span><br><span class="line"></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">RAG</span> <span class="string">评估测试</span></span><br><span class="line">        <span class="attr">run:</span> <span class="string">./gradlew</span> <span class="string">ragas-eval</span>  <span class="comment"># 自动化 RAG 质量评估</span></span><br><span class="line"></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Prompt</span> <span class="string">回归测试</span></span><br><span class="line">        <span class="attr">run:</span> <span class="string">./gradlew</span> <span class="string">prompt-regression</span>  <span class="comment"># 对比 Prompt 变更前后效果</span></span><br><span class="line"></span><br><span class="line">  <span class="attr">build:</span></span><br><span class="line">    <span class="attr">needs:</span> <span class="string">test</span></span><br><span class="line">    <span class="attr">steps:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">构建镜像</span></span><br><span class="line">        <span class="attr">run:</span> <span class="string">docker</span> <span class="string">build</span> <span class="string">-t</span> <span class="string">agent-service:$&#123;&#123;</span> <span class="string">github.sha</span> <span class="string">&#125;&#125;</span> <span class="string">.</span></span><br><span class="line"></span><br><span class="line">  <span class="attr">deploy:</span></span><br><span class="line">    <span class="attr">needs:</span> <span class="string">build</span></span><br><span class="line">    <span class="attr">steps:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">金丝雀发布（5%</span> <span class="string">流量）</span></span><br><span class="line">        <span class="attr">run:</span> <span class="string">kubectl</span> <span class="string">set</span> <span class="string">image</span> <span class="string">deployment/agent-service</span> <span class="string">...</span></span><br><span class="line"></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">监控</span> <span class="string">15min</span> <span class="string">后全量发布</span></span><br><span class="line">        <span class="attr">run:</span> <span class="string">./scripts/canary-promote.sh</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="🛠️-推荐实践-6"><a href="#🛠️-推荐实践-6" class="headerlink" title="🛠️ 推荐实践"></a>🛠️ 推荐实践</h3><ul>
+<li><input disabled="" type="checkbox"> 搭建完整 Prometheus + Grafana 监控栈</li>
+<li><input disabled="" type="checkbox"> 实现 LLM API 熔断降级</li>
+<li><input disabled="" type="checkbox"> 实现 Prompt Injection 防护</li>
+<li><input disabled="" type="checkbox"> 搭建含 RAG 评估的 CI&#x2F;CD Pipeline</li>
+</ul>
+<hr>
+<h2 id="phase-7：综合实战项目-🏆"><a href="#phase-7：综合实战项目-🏆" class="headerlink" title="Phase 7：综合实战项目 🏆"></a>Phase 7：综合实战项目 🏆</h2><h3 id="项目：「企业级智能客服-agent-系统」"><a href="#项目：「企业级智能客服-agent-系统」" class="headerlink" title="项目：「企业级智能客服 Agent 系统」"></a>项目：「企业级智能客服 Agent 系统」</h3><blockquote>
+<p>将所有模块串联，覆盖完整的工程化落地。</p>
+</blockquote>
+<h4 id="系统架构"><a href="#系统架构" class="headerlink" title="系统架构"></a>系统架构</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">┌────────────────────────────────────────────────────────┐</span><br><span class="line">│                    用户接入层                           │</span><br><span class="line">│         Web / WeChat / API (Spring Boot 3)             │</span><br><span class="line">└──────────────────────┬─────────────────────────────────┘</span><br><span class="line">                       ↓</span><br><span class="line">┌────────────────────────────────────────────────────────┐</span><br><span class="line">│                   Agent 编排层                          │</span><br><span class="line">│    Supervisor Agent → [意图识别] → [路由决策]           │</span><br><span class="line">│         ↓                ↓                             │</span><br><span class="line">│   FAQ Agent        Order Agent      Complaint Agent    │</span><br><span class="line">│  (RAG驱动)        (Tool Calling)    (Escalation)       │</span><br><span class="line">└──────────────────────┬─────────────────────────────────┘</span><br><span class="line">                       ↓</span><br><span class="line">┌────────────────────────────────────────────────────────┐</span><br><span class="line">│                   基础设施层                            │</span><br><span class="line">│  Memory: Redis(短期) + Milvus(长期)                    │</span><br><span class="line">│  Knowledge: PGVector + Elasticsearch (混合检索)        │</span><br><span class="line">│  Tools: 订单系统/CRM/工单系统                          │</span><br><span class="line">│  Observability: Prometheus + Grafana + Jaeger          │</span><br><span class="line">└────────────────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<h4 id="涵盖的技术模块"><a href="#涵盖的技术模块" class="headerlink" title="涵盖的技术模块"></a>涵盖的技术模块</h4><table>
+<thead>
+<tr>
+<th>模块</th>
+<th>在项目中的体现</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Tool Calling</td>
+<td>查询订单状态、创建工单、发送邮件</td>
+</tr>
+<tr>
+<td>Memory</td>
+<td>记住用户历史投诉记录、偏好</td>
+</tr>
+<tr>
+<td>RAG</td>
+<td>企业知识库问答（产品手册&#x2F;FAQ）</td>
+</tr>
+<tr>
+<td>Planner</td>
+<td>复杂投诉处理的多步骤规划</td>
+</tr>
+<tr>
+<td>多 Agent</td>
+<td>Supervisor 路由 + 专职 Agent</td>
+</tr>
+<tr>
+<td>工程化</td>
+<td>全链路监控 + 灰度发布 + 降级</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="📊-技能成熟度自检表"><a href="#📊-技能成熟度自检表" class="headerlink" title="📊 技能成熟度自检表"></a>📊 技能成熟度自检表</h2><table>
+<thead>
+<tr>
+<th>能力维度</th>
+<th>入门 ✓</th>
+<th>进阶 ✓✓</th>
+<th>高级 ✓✓✓</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Tool 设计与并发安全</td>
+<td>能实现基本 Tool</td>
+<td>含超时&#x2F;降级&#x2F;并发</td>
+<td>动态插件化 Tool 注册中心</td>
+</tr>
+<tr>
+<td>Memory 分层架构</td>
+<td>实现对话历史</td>
+<td>向量长期记忆</td>
+<td>Token 预算管理 + 压缩</td>
+</tr>
+<tr>
+<td>RAG 质量优化</td>
+<td>Naive RAG</td>
+<td>混合检索 + Rerank</td>
+<td>自适应 RAG + 评估体系</td>
+</tr>
+<tr>
+<td>Planner 可靠性</td>
+<td>ReAct 基础实现</td>
+<td>带 Checkpoint 的长任务</td>
+<td>多 Agent 协作编排</td>
+</tr>
+<tr>
+<td>工程化成熟度</td>
+<td>基础日志</td>
+<td>Prometheus 监控</td>
+<td>熔断降级 + 自动化评估 CI</td>
+</tr>
+</tbody></table>
+<hr>
+<blockquote>
+<p>💡 <strong>导师寄语：</strong> 你的 Java 后端底子是最大的优势。每当遇到 Agent 的「概率性」让你不安时，记住：你已经驯服了 JVM GC 的不确定性、分布式网络的抖动——大模型不过是另一个需要被工程化约束的”不确定性黑盒”。<strong>用你驾驭系统的方式，去驾驭 AI。</strong></p>
+</blockquote>
+</article><div class="tag_share"><div class="post-share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/posts/9ffccb73.html" title="Skill"><img class="cover" src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">Skill</div></div><div class="info-2"><div class="info-item-1">Why AI-Assisted Testing Needs an SOP ModelOverviewMost teams start using AI the same way: open a chat window, describe a problem, and hope for the best. That works for one-off questions — it fails for repeatable delivery work like testing, release validation, and triage, where consistency actually matters.  [!tip] The Real FixThe answer is not better prompts. It is a better execution model — one where AI operates inside a defined process, not around it.   Figure: An SOP-style AI execution flo...</div></div></div></a><a class="pagination-related" href="/posts/10d86b97.html" title="KV Cache"><img class="cover" src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">KV Cache</div></div><div class="info-2"><div class="info-item-1"> [!Important]  Query, Key, Value self-attention: 自注意力机制    本图表详细解释了大型语言模型（LLM）推理过程中的 KV-Cache（Key-Value Cache，键值缓存） 机制。该机制是提高 LLM 生成速度的核心技术，它通过避免重复计算来加速 token 的生成。 图表结构与流程图表分为四个主要部分，从宏观到微观展示了 KV-Cache 的全貌：  LLM 推理概览 (LLM Inference Overview)：  展示了 LLM 生成文本的基本过程。输入提示（Prompt）后，模型会逐个生成 token。生成一个 token 后，它会与之前的输入一起再次输入模型，以生成下一个 token。这是一个循环过程。   对比：无与有 KV-Cache (Comparison: Without vs. With KV-Cache)：  无 KV-Cache（左侧红色区域）：在生成第 3 个 token 时，模型必须重新计算所有先前 token（Token 1 和 Token 2）的自注意力矩阵（Q, K, V）。图中使用红...</div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Supremes</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">31</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">65</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">12</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/Supremes"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%93%85-%E6%80%BB%E4%BD%93%E6%97%B6%E9%97%B4%E7%BA%BF"><span class="toc-text">📅 总体时间线</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#phase-0%EF%BC%9A%E5%9C%B0%E5%9F%BA%E8%A1%A5%E5%BC%BA-%E2%80%94-llm-%E8%AE%A4%E7%9F%A5%E4%B8%8E-prompt-engineering"><span class="toc-text">Phase 0：地基补强 — LLM 认知与 Prompt Engineering</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%8E%AF-%E5%AD%A6%E4%B9%A0%E7%9B%AE%E6%A0%87"><span class="toc-text">🎯 学习目标</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%93%9A-%E6%A0%B8%E5%BF%83%E7%9F%A5%E8%AF%86%E7%82%B9"><span class="toc-text">📚 核心知识点</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#0-1-%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%9F%BA%E7%A1%80%E8%AE%A4%E7%9F%A5"><span class="toc-text">0.1 大模型基础认知</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#0-2-prompt-engineering"><span class="toc-text">0.2 Prompt Engineering</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#0-3-%E4%B8%BB%E6%B5%81%E6%A8%A1%E5%9E%8B-api-%E6%8E%A5%E5%85%A5"><span class="toc-text">0.3 主流模型 API 接入</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%9B%A0%EF%B8%8F-%E6%8E%A8%E8%8D%90%E5%AE%9E%E8%B7%B5"><span class="toc-text">🛠️ 推荐实践</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%93%96-%E6%8E%A8%E8%8D%90%E8%B5%84%E6%96%99"><span class="toc-text">📖 推荐资料</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#phase-1%EF%BC%9Atool-calling-%E2%80%94-agent-%E7%9A%84%E2%80%9D%E6%89%8B%E8%84%9A%E2%80%9D"><span class="toc-text">Phase 1：Tool Calling — Agent 的”手脚”</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%8E%AF-%E5%AD%A6%E4%B9%A0%E7%9B%AE%E6%A0%87-1"><span class="toc-text">🎯 学习目标</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%93%9A-%E6%A0%B8%E5%BF%83%E7%9F%A5%E8%AF%86%E7%82%B9-1"><span class="toc-text">📚 核心知识点</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-1-tool-calling-%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86"><span class="toc-text">1.1 Tool Calling 底层原理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-2-%E5%B7%A5%E5%85%B7%E8%AE%BE%E8%AE%A1%E5%8E%9F%E5%88%99%EF%BC%88tool-design-patterns%EF%BC%89"><span class="toc-text">1.2 工具设计原则（Tool Design Patterns）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-3-%E8%BF%9B%E9%98%B6%EF%BC%9A%E5%B9%B6%E5%8F%91%E5%B7%A5%E5%85%B7%E8%B0%83%E7%94%A8"><span class="toc-text">1.3 进阶：并发工具调用</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-4-%E9%AB%98%E7%BA%A7%EF%BC%9A%E5%B7%A5%E5%85%B7%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83"><span class="toc-text">1.4 高级：工具注册中心</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%9B%A0%EF%B8%8F-%E6%8E%A8%E8%8D%90%E5%AE%9E%E8%B7%B5-1"><span class="toc-text">🛠️ 推荐实践</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%93%96-%E6%8E%A8%E8%8D%90%E8%B5%84%E6%96%99-1"><span class="toc-text">📖 推荐资料</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#phase-2%EF%BC%9Amemory-%E2%80%94-agent-%E7%9A%84%E2%80%9D%E8%AE%B0%E5%BF%86%E2%80%9D"><span class="toc-text">Phase 2：Memory — Agent 的”记忆”</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%8E%AF-%E5%AD%A6%E4%B9%A0%E7%9B%AE%E6%A0%87-2"><span class="toc-text">🎯 学习目标</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%93%9A-%E6%A0%B8%E5%BF%83%E7%9F%A5%E8%AF%86%E7%82%B9-2"><span class="toc-text">📚 核心知识点</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#2-1-%E7%9F%AD%E6%9C%9F%E8%AE%B0%E5%BF%86%EF%BC%88conversation-buffer%EF%BC%89"><span class="toc-text">2.1 短期记忆（Conversation Buffer）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-2-token-%E9%A2%84%E7%AE%97%E7%AE%A1%E7%90%86%EF%BC%88%E6%A0%B8%E5%BF%83%E9%9A%BE%E7%82%B9%EF%BC%89"><span class="toc-text">2.2 Token 预算管理（核心难点）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-3-%E9%95%BF%E6%9C%9F%E8%AE%B0%E5%BF%86%EF%BC%88vector-memory%EF%BC%89"><span class="toc-text">2.3 长期记忆（Vector Memory）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-4-%E8%AE%B0%E5%BF%86%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84"><span class="toc-text">2.4 记忆分层架构</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%9B%A0%EF%B8%8F-%E6%8E%A8%E8%8D%90%E5%AE%9E%E8%B7%B5-2"><span class="toc-text">🛠️ 推荐实践</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#phase-3%EF%BC%9Arag-%E2%80%94-agent-%E7%9A%84%E2%80%9D%E7%9F%A5%E8%AF%86%E5%BA%93%E2%80%9D"><span class="toc-text">Phase 3：RAG — Agent 的”知识库”</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%8E%AF-%E5%AD%A6%E4%B9%A0%E7%9B%AE%E6%A0%87-3"><span class="toc-text">🎯 学习目标</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%93%9A-%E6%A0%B8%E5%BF%83%E7%9F%A5%E8%AF%86%E7%82%B9-3"><span class="toc-text">📚 核心知识点</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#3-1-rag-%E5%9F%BA%E7%A1%80%E6%9E%B6%E6%9E%84%EF%BC%88naive-rag%EF%BC%89"><span class="toc-text">3.1 RAG 基础架构（Naive RAG）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-2-%E6%96%87%E6%A1%A3%E5%A4%84%E7%90%86%E6%B5%81%E6%B0%B4%E7%BA%BF"><span class="toc-text">3.2 文档处理流水线</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-3-%E5%88%86%E5%9D%97%E7%AD%96%E7%95%A5%EF%BC%88chunking-strategy%EF%BC%89"><span class="toc-text">3.3 分块策略（Chunking Strategy）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-4-%E8%BF%9B%E9%98%B6-rag-%E6%A8%A1%E5%BC%8F"><span class="toc-text">3.4 进阶 RAG 模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-5-rag-%E8%AF%84%E4%BC%B0%E4%BD%93%E7%B3%BB%EF%BC%88ragas-%E6%8C%87%E6%A0%87%EF%BC%89"><span class="toc-text">3.5 RAG 评估体系（RAGAS 指标）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%9B%A0%EF%B8%8F-%E6%8E%A8%E8%8D%90%E5%AE%9E%E8%B7%B5-3"><span class="toc-text">🛠️ 推荐实践</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#phase-4%EF%BC%9Aplanner-%E2%80%94-agent-%E7%9A%84%E2%80%9D%E5%A4%A7%E8%84%91%E2%80%9D"><span class="toc-text">Phase 4：Planner — Agent 的”大脑”</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%8E%AF-%E5%AD%A6%E4%B9%A0%E7%9B%AE%E6%A0%87-4"><span class="toc-text">🎯 学习目标</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%93%9A-%E6%A0%B8%E5%BF%83%E7%9F%A5%E8%AF%86%E7%82%B9-4"><span class="toc-text">📚 核心知识点</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#4-1-%E6%8E%A8%E7%90%86%E8%8C%83%E5%BC%8F%E5%AF%B9%E6%AF%94"><span class="toc-text">4.1 推理范式对比</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-2-react-%E5%AE%9E%E7%8E%B0"><span class="toc-text">4.2 ReAct 实现</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-3-plan-and-execute-%E6%A8%A1%E5%BC%8F"><span class="toc-text">4.3 Plan-and-Execute 模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-4-%E8%A7%84%E5%88%92%E7%9A%84%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E9%97%AE%E9%A2%98"><span class="toc-text">4.4 规划的核心工程问题</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%9B%A0%EF%B8%8F-%E6%8E%A8%E8%8D%90%E5%AE%9E%E8%B7%B5-4"><span class="toc-text">🛠️ 推荐实践</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#phase-5%EF%BC%9A%E5%A4%9A-agent-%E5%8D%8F%E4%BD%9C"><span class="toc-text">Phase 5：多 Agent 协作</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%8E%AF-%E5%AD%A6%E4%B9%A0%E7%9B%AE%E6%A0%87-5"><span class="toc-text">🎯 学习目标</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%93%9A-%E6%A0%B8%E5%BF%83%E7%9F%A5%E8%AF%86%E7%82%B9-5"><span class="toc-text">📚 核心知识点</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#5-1-%E5%A4%9A-agent-%E6%8B%93%E6%89%91%E6%A8%A1%E5%BC%8F"><span class="toc-text">5.1 多 Agent 拓扑模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-2-%E5%9F%BA%E4%BA%8E-langgraph4j-%E7%9A%84%E7%8A%B6%E6%80%81%E6%9C%BA%E7%BC%96%E6%8E%92"><span class="toc-text">5.2 基于 LangGraph4j 的状态机编排</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-3-agent-%E9%97%B4%E9%80%9A%E4%BF%A1%E8%AE%BE%E8%AE%A1"><span class="toc-text">5.3 Agent 间通信设计</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%9B%A0%EF%B8%8F-%E6%8E%A8%E8%8D%90%E5%AE%9E%E8%B7%B5-5"><span class="toc-text">🛠️ 推荐实践</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#phase-6%EF%BC%9Aagent-%E5%B7%A5%E7%A8%8B%E5%8C%96-%E2%80%94-%E7%94%9F%E4%BA%A7%E7%BA%A7%E6%A0%87%E5%87%86"><span class="toc-text">Phase 6：Agent 工程化 — 生产级标准</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%8E%AF-%E5%AD%A6%E4%B9%A0%E7%9B%AE%E6%A0%87-6"><span class="toc-text">🎯 学习目标</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%93%9A-%E6%A0%B8%E5%BF%83%E7%9F%A5%E8%AF%86%E7%82%B9-6"><span class="toc-text">📚 核心知识点</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#6-1-%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7%EF%BC%88observability%EF%BC%89"><span class="toc-text">6.1 可观测性（Observability）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-2-%E9%99%8D%E7%BA%A7%E7%AD%96%E7%95%A5"><span class="toc-text">6.2 降级策略</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-3-%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1"><span class="toc-text">6.3 安全设计</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-4-ci-cd-pipeline"><span class="toc-text">6.4 CI&#x2F;CD Pipeline</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%9B%A0%EF%B8%8F-%E6%8E%A8%E8%8D%90%E5%AE%9E%E8%B7%B5-6"><span class="toc-text">🛠️ 推荐实践</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#phase-7%EF%BC%9A%E7%BB%BC%E5%90%88%E5%AE%9E%E6%88%98%E9%A1%B9%E7%9B%AE-%F0%9F%8F%86"><span class="toc-text">Phase 7：综合实战项目 🏆</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A1%B9%E7%9B%AE%EF%BC%9A%E3%80%8C%E4%BC%81%E4%B8%9A%E7%BA%A7%E6%99%BA%E8%83%BD%E5%AE%A2%E6%9C%8D-agent-%E7%B3%BB%E7%BB%9F%E3%80%8D"><span class="toc-text">项目：「企业级智能客服 Agent 系统」</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84"><span class="toc-text">系统架构</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B6%B5%E7%9B%96%E7%9A%84%E6%8A%80%E6%9C%AF%E6%A8%A1%E5%9D%97"><span class="toc-text">涵盖的技术模块</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%93%8A-%E6%8A%80%E8%83%BD%E6%88%90%E7%86%9F%E5%BA%A6%E8%87%AA%E6%A3%80%E8%A1%A8"><span class="toc-text">📊 技能成熟度自检表</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/posts/9ffccb73.html" title="Skill"><img src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Skill"/></a><div class="content"><a class="title" href="/posts/9ffccb73.html" title="Skill">Skill</a><time datetime="2026-03-16T15:36:35.000Z" title="发表于 2026-03-16 15:36 15:36:35">2026-03-16 15:36</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/8b5e3069.html" title="Agent Development Guide"><img src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Agent Development Guide"/></a><div class="content"><a class="title" href="/posts/8b5e3069.html" title="Agent Development Guide">Agent Development Guide</a><time datetime="2026-03-16T15:34:20.000Z" title="发表于 2026-03-16 15:34 15:34:20">2026-03-16 15:34</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/10d86b97.html" title="KV Cache"><img src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="KV Cache"/></a><div class="content"><a class="title" href="/posts/10d86b97.html" title="KV Cache">KV Cache</a><time datetime="2026-03-16T14:39:31.000Z" title="发表于 2026-03-16 14:39 14:39:31">2026-03-16 14:39</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/e0e90631.html" title="ReAct"><img src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ReAct"/></a><div class="content"><a class="title" href="/posts/e0e90631.html" title="ReAct">ReAct</a><time datetime="2026-03-16T14:30:06.000Z" title="发表于 2026-03-16 14:30 14:30:06">2026-03-16 14:30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/a87cbcc7.html" title="Dawn-AI"><img src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Dawn-AI"/></a><div class="content"><a class="title" href="/posts/a87cbcc7.html" title="Dawn-AI">Dawn-AI</a><time datetime="2026-03-16T10:53:30.000Z" title="发表于 2026-03-16 10:53 10:53:30">2026-03-16 10:53</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Supremes</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.1</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.2</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.2"></script><script src="/js/main.js?v=5.5.2"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@19.1.3/dist/lazyload.iife.min.js"></script><div class="js-pjax"><script>(() => {
+  const runMermaid = ele => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    ele.forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const config = mermaidSrc.dataset.config ? JSON.parse(mermaidSrc.dataset.config) : {}
+      if (!config.theme) {
+        config.theme = theme
+      }
+      const mermaidThemeConfig = `%%{init: ${JSON.stringify(config)}}%%\n`
+      const mermaidID = `mermaid-${index}`
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+      const renderMermaid = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      // mermaid v9 and v10 compatibility
+      typeof renderFn === 'string' ? renderMermaid(renderFn) : renderFn.then(({ svg }) => renderMermaid(svg))
+    })
+  }
+
+  const codeToMermaid = () => {
+    const codeMermaidEle = document.querySelectorAll('pre > code.mermaid')
+    if (codeMermaidEle.length === 0) return
+
+    codeMermaidEle.forEach(ele => {
+      const preEle = document.createElement('pre')
+      preEle.className = 'mermaid-src'
+      preEle.hidden = true
+      preEle.textContent = ele.textContent
+      const newEle = document.createElement('div')
+      newEle.className = 'mermaid-wrap'
+      newEle.appendChild(preEle)
+      ele.parentNode.replaceWith(newEle)
+    })
+  }
+
+  const loadMermaid = () => {
+    if (true) codeToMermaid()
+    const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+    if ($mermaid.length === 0) return
+
+    const runMermaidFn = () => runMermaid($mermaid)
+    btf.addGlobalFn('themeChange', runMermaidFn, 'mermaid')
+    window.loadMermaid ? runMermaidFn() : btf.getScript('https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.min.js').then(runMermaidFn)
+  }
+
+  btf.addGlobalFn('encrypt', loadMermaid, 'mermaid')
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="/"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章标题和内容..." type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.5.2"></script></div></div></body></html>
