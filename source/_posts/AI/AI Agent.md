@@ -14,8 +14,8 @@ description: 深入解析AI Agent的核心技术概念，从Embedding、向量�
 abbrlink: 51504
 date: 2025-11-28 14:47:28
 cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/ai_agent.webp
+updated: 2026-03-17 11:01
 ---
-
 
 ### **LLM应用技术核心概念学习路线**
 

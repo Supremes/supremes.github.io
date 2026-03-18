@@ -1,12 +1,13 @@
 ---
 title: Skill
 tags: []
-cover: 'https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg'
+cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg
 hidden: false
-updated: '2026-03-16 15:36'
+updated: 2026-03-17 11:21
 abbrlink: 9ffccb73
 date: 2026-03-16 15:36:35
 categories:
+  - AI
 sticky:
 ---
 # Why AI-Assisted Testing Needs an SOP Model

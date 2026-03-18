@@ -1,13 +1,12 @@
 ---
-title: Dawn-AI
+title: AI-Interview
+date: 2026-03-17 11:00:25
 tags: []
-cover: 'https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg'
-sticky: '9'
-hidden: false
-updated: 2026-03-17 11:20
-abbrlink: a87cbcc7
-date: 2026-03-16 10:53:30
 categories:
+cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg
+sticky:
+hidden: false
+updated: 2026-03-17 17:54
 ---
 
 > [!Interview]
