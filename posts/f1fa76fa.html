@@ -1,0 +1,314 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>java env setup | Supremes</title><meta name="robots" content="noindex"><meta name="author" content="Supremes"><meta name="copyright" content="Supremes"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Java &amp; Maven 编译环境维护指南 基于实际踩坑整理，适用于 macOS + 多 JDK 共存场景。   核心概念：三层版本控制12345全局 (Global)   ~&#x2F;.jenv&#x2F;version          ← jenv global &lt;version&gt;项目 (Local)    &lt;project&gt;&#x2F;.java-version  ← jenv loc">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java env setup">
+<meta property="og:url" content="https://supremes.github.io/posts/f1fa76fa.html">
+<meta property="og:site_name" content="Supremes">
+<meta property="og:description" content="Java &amp; Maven 编译环境维护指南 基于实际踩坑整理，适用于 macOS + 多 JDK 共存场景。   核心概念：三层版本控制12345全局 (Global)   ~&#x2F;.jenv&#x2F;version          ← jenv global &lt;version&gt;项目 (Local)    &lt;project&gt;&#x2F;.java-version  ← jenv loc">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/avatar.jpg">
+<meta property="article:published_time" content="2026-03-20T09:11:39.612Z">
+<meta property="article:modified_time" content="2026-03-20T17:10:00.000Z">
+<meta property="article:author" content="Supremes">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/avatar.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "java env setup",
+  "url": "https://supremes.github.io/posts/f1fa76fa.html",
+  "image": "https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/avatar.jpg",
+  "datePublished": "2026-03-20T09:11:39.612Z",
+  "dateModified": "2026-03-20T17:10:00.000Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Supremes",
+      "url": "https://supremes.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/favicon/favicon.ico"><link rel="canonical" href="https://supremes.github.io/posts/f1fa76fa.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.2"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"pagination":{"enable":true,"hitsPerPage":10},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: true,
+  isAnchor: true,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'java env setup',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-webfont/style.css" /><meta name="generator" content="Hexo 8.1.1"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">35</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">65</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">12</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/AI/"><i class="fa-fw fas fa-robot"></i><span> AI</span></a></li><li><a class="site-page child" href="/categories/Spring/"><i class="fa-fw fas fa-leaf"></i><span> Spring</span></a></li><li><a class="site-page child" href="/tags/JUC/"><i class="fa-fw fas fa-book"></i><span> JUC</span></a></li><li><a class="site-page child" href="/tags/Interview/"><i class="fa-fw fas fa-book"></i><span> 面试</span></a></li><li><a class="site-page child" href="/categories/database/"><i class="fa-fw fas fa-database"></i><span> 数据库</span></a></li><li><a class="site-page child" href="/categories/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法</span></a></li><li><a class="site-page child" href="/categories/security/"><i class="fa-fw fas fa-shield-alt"></i><span> 网络安全</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 关于</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/about/about_me"><i class="fa-fw fas fa-user"></i><span> 关于我</span></a></li><li><a class="site-page child" href="/about/my_notes"><i class="fa-fw fas fa-note-sticky"></i><span> 备忘录</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Supremes</span></a><a class="nav-page-title" href="/"><span class="site-name">java env setup</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/AI/"><i class="fa-fw fas fa-robot"></i><span> AI</span></a></li><li><a class="site-page child" href="/categories/Spring/"><i class="fa-fw fas fa-leaf"></i><span> Spring</span></a></li><li><a class="site-page child" href="/tags/JUC/"><i class="fa-fw fas fa-book"></i><span> JUC</span></a></li><li><a class="site-page child" href="/tags/Interview/"><i class="fa-fw fas fa-book"></i><span> 面试</span></a></li><li><a class="site-page child" href="/categories/database/"><i class="fa-fw fas fa-database"></i><span> 数据库</span></a></li><li><a class="site-page child" href="/categories/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法</span></a></li><li><a class="site-page child" href="/categories/security/"><i class="fa-fw fas fa-shield-alt"></i><span> 网络安全</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 关于</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/about/about_me"><i class="fa-fw fas fa-user"></i><span> 关于我</span></a></li><li><a class="site-page child" href="/about/my_notes"><i class="fa-fw fas fa-note-sticky"></i><span> 备忘录</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">java env setup</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-03-20T09:11:39.612Z" title="发表于 2026-03-20 09:11 09:11:39">2026-03-20 09:11</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-03-20T17:10:00.000Z" title="更新于 2026-03-20 17:10 17:10:00">2026-03-20 17:10</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="java-maven-编译环境维护指南"><a href="#java-maven-编译环境维护指南" class="headerlink" title="Java &amp; Maven 编译环境维护指南"></a>Java &amp; Maven 编译环境维护指南</h1><blockquote>
+<p>基于实际踩坑整理，适用于 macOS + 多 JDK 共存场景。</p>
+</blockquote>
+<hr>
+<h2 id="核心概念：三层版本控制"><a href="#核心概念：三层版本控制" class="headerlink" title="核心概念：三层版本控制"></a>核心概念：三层版本控制</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">全局 (Global)   ~/.jenv/version          ← jenv global &lt;version&gt;</span><br><span class="line">项目 (Local)    &lt;project&gt;/.java-version  ← jenv local &lt;version&gt;</span><br><span class="line">当前 (Shell)    当前 terminal session    ← jenv shell &lt;version&gt;</span><br><span class="line"></span><br><span class="line">优先级：Shell &gt; Local &gt; Global</span><br></pre></td></tr></table></figure>
+
+<p>Maven 读取 Java 版本的路径：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">JAVA_HOME 环境变量 → (jenv export 插件同步) → jenv 当前版本</span><br></pre></td></tr></table></figure>
+
+<p><strong>关键结论：<code>java</code> 命令和 <code>mvn</code> 使用的 Java 版本，是两个独立的机制，必须都配好才能一致。</strong></p>
+<hr>
+<h2 id="一次性环境搭建"><a href="#一次性环境搭建" class="headerlink" title="一次性环境搭建"></a>一次性环境搭建</h2><h3 id="1-安装-jenv"><a href="#1-安装-jenv" class="headerlink" title="1. 安装 jenv"></a>1. 安装 jenv</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew install jenv</span><br></pre></td></tr></table></figure>
+
+<p>在 <code>~/.zshrc</code> 末尾加入（顺序不能错）：</p>
+<figure class="highlight zsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> PATH=<span class="string">&quot;<span class="variable">$HOME</span>/.jenv/bin:<span class="variable">$PATH</span>&quot;</span></span><br><span class="line"><span class="built_in">eval</span> <span class="string">&quot;<span class="subst">$(jenv init -)</span>&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>然后启用两个关键插件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">jenv enable-plugin <span class="built_in">export</span>   <span class="comment"># 让 jenv 切版本时同步更新 JAVA_HOME</span></span><br><span class="line">jenv enable-plugin maven    <span class="comment"># 让 mvn 跟随 jenv 版本（可选但推荐）</span></span><br></pre></td></tr></table></figure>
+
+<p>重新加载：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">source</span> ~/.zshrc</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-注册已安装的-jdk"><a href="#2-注册已安装的-jdk" class="headerlink" title="2. 注册已安装的 JDK"></a>2. 注册已安装的 JDK</h3><p>jenv <strong>不会自动扫描</strong>系统 JDK，每个都要手动注册：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看系统中已安装的 JDK</span></span><br><span class="line">/usr/libexec/java_home -V</span><br><span class="line"></span><br><span class="line"><span class="comment"># 逐个注册</span></span><br><span class="line">jenv add /Library/Java/JavaVirtualMachines/jdk1.8.0_333.jdk/Contents/Home</span><br><span class="line">jenv add /Users/junkangd/Library/Java/JavaVirtualMachines/corretto-17.0.9/Contents/Home</span><br><span class="line">jenv add /usr/local/Cellar/openjdk/24.0.1/libexec/openjdk.jdk/Contents/Home</span><br><span class="line"></span><br><span class="line"><span class="comment"># 确认注册结果</span></span><br><span class="line">jenv versions</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-设置全局默认版本"><a href="#3-设置全局默认版本" class="headerlink" title="3. 设置全局默认版本"></a>3. 设置全局默认版本</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jenv global 17</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-验证-java-和-mvn-一致"><a href="#4-验证-java-和-mvn-一致" class="headerlink" title="4. 验证 java 和 mvn 一致"></a>4. 验证 java 和 mvn 一致</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">java -version    <span class="comment"># 应该是 17</span></span><br><span class="line">mvn --version    <span class="comment"># Java version 也应该是 17</span></span><br></pre></td></tr></table></figure>
+
+<p>如果 <code>mvn</code> 显示的 Java 版本与 <code>java -version</code> 不一致，说明 <code>export</code> 插件没生效，重新执行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">jenv enable-plugin <span class="built_in">export</span></span><br><span class="line"><span class="built_in">source</span> ~/.zshrc</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="项目级版本锁定"><a href="#项目级版本锁定" class="headerlink" title="项目级版本锁定"></a>项目级版本锁定</h2><p>在项目根目录执行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /path/to/your-project</span><br><span class="line">jenv <span class="built_in">local</span> 17      <span class="comment"># 生成 .java-version 文件，内容为 &quot;17&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>效果：进入该目录后，<code>java</code> 和 <code>mvn</code> 自动切换到 17，离开后恢复全局版本。</p>
+<p><strong>是否提交 <code>.java-version</code> 到 git？</strong></p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>建议</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>团队统一使用 jenv</td>
+<td><code>git add .java-version</code>，锁定版本，避免环境差异</td>
+</tr>
+<tr>
+<td>团队工具不统一</td>
+<td>加入 <code>.gitignore</code>，作为个人本地配置</td>
+</tr>
+</tbody></table>
+<p>本项目选择加入 git，确保所有开发者在项目目录内自动使用 Java 17：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git add .java-version</span><br><span class="line">git commit -m <span class="string">&quot;chore: lock project Java version to 17 via jenv&quot;</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="常见问题排查"><a href="#常见问题排查" class="headerlink" title="常见问题排查"></a>常见问题排查</h2><h3 id="问题-1：jenv-global-1-8-执行后版本没变"><a href="#问题-1：jenv-global-1-8-执行后版本没变" class="headerlink" title="问题 1：jenv global 1.8 执行后版本没变"></a>问题 1：<code>jenv global 1.8</code> 执行后版本没变</h3><p><strong>排查步骤</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 检查当前目录是否有 .java-version（Local 优先级更高）</span></span><br><span class="line"><span class="built_in">cat</span> .java-version</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 检查 1.8 是否已注册</span></span><br><span class="line">jenv versions | grep 1.8</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 确认 jenv 诊断</span></span><br><span class="line">jenv doctor</span><br></pre></td></tr></table></figure>
+
+<p><strong>常见原因</strong>：</p>
+<ul>
+<li>当前目录存在 <code>.java-version</code>，Local 覆盖了 Global</li>
+<li><code>1.8</code> 版本未通过 <code>jenv add</code> 注册</li>
+</ul>
+<hr>
+<h3 id="问题-2：java-version-是-17，但-mvn-version-显示-java-8-或-24"><a href="#问题-2：java-version-是-17，但-mvn-version-显示-java-8-或-24" class="headerlink" title="问题 2：java -version 是 17，但 mvn --version 显示 Java 8 或 24"></a>问题 2：<code>java -version</code> 是 17，但 <code>mvn --version</code> 显示 Java 8 或 24</h3><p><strong>根因</strong>：<code>JAVA_HOME</code> 环境变量没有跟随 jenv 切换。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="variable">$JAVA_HOME</span>    <span class="comment"># 查看当前 JAVA_HOME 指向哪里</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>修复</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">jenv enable-plugin <span class="built_in">export</span></span><br><span class="line"><span class="built_in">source</span> ~/.zshrc</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="问题-3：mvn-报-invalid-flag-release"><a href="#问题-3：mvn-报-invalid-flag-release" class="headerlink" title="问题 3：mvn 报 invalid flag: --release"></a>问题 3：<code>mvn</code> 报 <code>invalid flag: --release</code></h3><p><strong>根因</strong>：Maven 用了 Java 8，而 <code>--release</code> 参数是 Java 9+ 才支持的编译器参数。</p>
+<p><strong>快速验证</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mvn --version | grep <span class="string">&quot;Java version&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>修复</strong>：确保 <code>JAVA_HOME</code> 指向 Java 11+，参考问题 2。</p>
+<hr>
+<h3 id="问题-4：新开-terminal-版本恢复默认"><a href="#问题-4：新开-terminal-版本恢复默认" class="headerlink" title="问题 4：新开 terminal 版本恢复默认"></a>问题 4：新开 terminal 版本恢复默认</h3><p><strong>根因</strong>：<code>~/.zshrc</code> 里没有 jenv 初始化代码，或者初始化代码放在了 <code>~/.bashrc</code> 里（但用的是 zsh）。</p>
+<p><strong>检查</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep -n <span class="string">&quot;jenv&quot;</span> ~/.zshrc</span><br></pre></td></tr></table></figure>
+
+<p>确保以下三行在 <code>~/.zshrc</code> 里：</p>
+<figure class="highlight zsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> PATH=<span class="string">&quot;<span class="variable">$HOME</span>/.jenv/bin:<span class="variable">$PATH</span>&quot;</span></span><br><span class="line"><span class="built_in">eval</span> <span class="string">&quot;<span class="subst">$(jenv init -)</span>&quot;</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="版本切换速查"><a href="#版本切换速查" class="headerlink" title="版本切换速查"></a>版本切换速查</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看所有已注册版本</span></span><br><span class="line">jenv versions</span><br><span class="line"></span><br><span class="line"><span class="comment"># 全局切换（对所有目录生效，.java-version 除外）</span></span><br><span class="line">jenv global 17</span><br><span class="line"></span><br><span class="line"><span class="comment"># 项目切换（生成/修改 .java-version）</span></span><br><span class="line">jenv <span class="built_in">local</span> 17</span><br><span class="line"></span><br><span class="line"><span class="comment"># 临时切换（仅当前 shell session）</span></span><br><span class="line">jenv shell 17</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看当前生效版本及来源</span></span><br><span class="line">jenv version</span><br><span class="line"><span class="comment"># 输出示例: 17 (set by /path/to/project/.java-version)</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="本项目的-mvnw-备用方案"><a href="#本项目的-mvnw-备用方案" class="headerlink" title="本项目的 mvnw 备用方案"></a>本项目的 <code>mvnw</code> 备用方案</h2><p>项目根目录提供了 <code>mvnw</code> 脚本，<strong>不依赖 jenv 或 JAVA_HOME 配置</strong>，直接通过 <code>/usr/libexec/java_home -v 17</code> 定位 Java 17：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">./mvnw clean package        <span class="comment"># 始终使用 Java 17 构建</span></span><br><span class="line">./mvnw <span class="built_in">test</span>                 <span class="comment"># 运行测试</span></span><br><span class="line">./mvnw spring-boot:run      <span class="comment"># 启动应用</span></span><br></pre></td></tr></table></figure>
+
+<p>当 jenv 环境出问题时，<code>./mvnw</code> 是最可靠的兜底方案。</p>
+<hr>
+<h2 id="环境健康检查清单"><a href="#环境健康检查清单" class="headerlink" title="环境健康检查清单"></a>环境健康检查清单</h2><p>每次遇到奇怪的编译问题，先跑这几条：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">jenv doctor              <span class="comment"># jenv 自检</span></span><br><span class="line">jenv version             <span class="comment"># 当前生效版本及来源</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$JAVA_HOME</span>          <span class="comment"># JAVA_HOME 指向</span></span><br><span class="line">java -version            <span class="comment"># java 命令版本</span></span><br><span class="line">mvn --version            <span class="comment"># mvn 用的 Java 版本</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>正常状态</strong>：<code>java -version</code>、<code>mvn --version</code> 中的 Java 版本、<code>$JAVA_HOME</code> 路径三者一致。</p>
+<!-- flag of hidden posts --></article><div class="tag_share"><div class="post-share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/avatar.jpg" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Supremes</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">35</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">65</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">12</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/Supremes"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#java-maven-%E7%BC%96%E8%AF%91%E7%8E%AF%E5%A2%83%E7%BB%B4%E6%8A%A4%E6%8C%87%E5%8D%97"><span class="toc-text">Java &amp; Maven 编译环境维护指南</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5%EF%BC%9A%E4%B8%89%E5%B1%82%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6"><span class="toc-text">核心概念：三层版本控制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E6%AC%A1%E6%80%A7%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-text">一次性环境搭建</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%AE%89%E8%A3%85-jenv"><span class="toc-text">1. 安装 jenv</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%B3%A8%E5%86%8C%E5%B7%B2%E5%AE%89%E8%A3%85%E7%9A%84-jdk"><span class="toc-text">2. 注册已安装的 JDK</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E8%AE%BE%E7%BD%AE%E5%85%A8%E5%B1%80%E9%BB%98%E8%AE%A4%E7%89%88%E6%9C%AC"><span class="toc-text">3. 设置全局默认版本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E9%AA%8C%E8%AF%81-java-%E5%92%8C-mvn-%E4%B8%80%E8%87%B4"><span class="toc-text">4. 验证 java 和 mvn 一致</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A1%B9%E7%9B%AE%E7%BA%A7%E7%89%88%E6%9C%AC%E9%94%81%E5%AE%9A"><span class="toc-text">项目级版本锁定</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5"><span class="toc-text">常见问题排查</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%97%AE%E9%A2%98-1%EF%BC%9Ajenv-global-1-8-%E6%89%A7%E8%A1%8C%E5%90%8E%E7%89%88%E6%9C%AC%E6%B2%A1%E5%8F%98"><span class="toc-text">问题 1：jenv global 1.8 执行后版本没变</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%97%AE%E9%A2%98-2%EF%BC%9Ajava-version-%E6%98%AF-17%EF%BC%8C%E4%BD%86-mvn-version-%E6%98%BE%E7%A4%BA-java-8-%E6%88%96-24"><span class="toc-text">问题 2：java -version 是 17，但 mvn --version 显示 Java 8 或 24</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%97%AE%E9%A2%98-3%EF%BC%9Amvn-%E6%8A%A5-invalid-flag-release"><span class="toc-text">问题 3：mvn 报 invalid flag: --release</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%97%AE%E9%A2%98-4%EF%BC%9A%E6%96%B0%E5%BC%80-terminal-%E7%89%88%E6%9C%AC%E6%81%A2%E5%A4%8D%E9%BB%98%E8%AE%A4"><span class="toc-text">问题 4：新开 terminal 版本恢复默认</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%89%88%E6%9C%AC%E5%88%87%E6%8D%A2%E9%80%9F%E6%9F%A5"><span class="toc-text">版本切换速查</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%AC%E9%A1%B9%E7%9B%AE%E7%9A%84-mvnw-%E5%A4%87%E7%94%A8%E6%96%B9%E6%A1%88"><span class="toc-text">本项目的 mvnw 备用方案</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5%E6%B8%85%E5%8D%95"><span class="toc-text">环境健康检查清单</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/0.html" title="无标题">无标题</a><time datetime="2026-03-20T09:11:39.612Z" title="发表于 2026-03-20 09:11 09:11:39">2026-03-20 09:11</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3b2987c6.html" title="vibe coding">vibe coding</a><time datetime="2026-03-19T00:38:45.000Z" title="发表于 2026-03-19 00:38 00:38:45">2026-03-19 00:38</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/6c5038c3.html" title="AI-Interview">AI-Interview</a><time datetime="2026-03-17T11:00:25.000Z" title="发表于 2026-03-17 11:00 11:00:25">2026-03-17 11:00</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/b4688e1e.html" title="LLM 基础知识">LLM 基础知识</a><time datetime="2026-03-16T23:25:16.000Z" title="发表于 2026-03-16 23:25 23:25:16">2026-03-16 23:25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/9ffccb73.html" title="Skill">Skill</a><time datetime="2026-03-16T15:36:35.000Z" title="发表于 2026-03-16 15:36 15:36:35">2026-03-16 15:36</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Supremes</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.1</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.2</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.2"></script><script src="/js/main.js?v=5.5.2"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@19.1.3/dist/lazyload.iife.min.js"></script><div class="js-pjax"><script>(() => {
+  const runMermaid = ele => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    ele.forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const config = mermaidSrc.dataset.config ? JSON.parse(mermaidSrc.dataset.config) : {}
+      if (!config.theme) {
+        config.theme = theme
+      }
+      const mermaidThemeConfig = `%%{init: ${JSON.stringify(config)}}%%\n`
+      const mermaidID = `mermaid-${index}`
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+      const renderMermaid = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      // mermaid v9 and v10 compatibility
+      typeof renderFn === 'string' ? renderMermaid(renderFn) : renderFn.then(({ svg }) => renderMermaid(svg))
+    })
+  }
+
+  const codeToMermaid = () => {
+    const codeMermaidEle = document.querySelectorAll('pre > code.mermaid')
+    if (codeMermaidEle.length === 0) return
+
+    codeMermaidEle.forEach(ele => {
+      const preEle = document.createElement('pre')
+      preEle.className = 'mermaid-src'
+      preEle.hidden = true
+      preEle.textContent = ele.textContent
+      const newEle = document.createElement('div')
+      newEle.className = 'mermaid-wrap'
+      newEle.appendChild(preEle)
+      ele.parentNode.replaceWith(newEle)
+    })
+  }
+
+  const loadMermaid = () => {
+    if (true) codeToMermaid()
+    const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+    if ($mermaid.length === 0) return
+
+    const runMermaidFn = () => runMermaid($mermaid)
+    btf.addGlobalFn('themeChange', runMermaidFn, 'mermaid')
+    window.loadMermaid ? runMermaidFn() : btf.getScript('https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.min.js').then(runMermaidFn)
+  }
+
+  btf.addGlobalFn('encrypt', loadMermaid, 'mermaid')
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="/"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章标题和内容..." type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.5.2"></script></div></div></body></html>
