@@ -1,0 +1,331 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>第13章：人机协同 / Human-in-the-Loop (HITL) | Supremes</title><meta name="robots" content="noindex"><meta name="author" content="Supremes"><meta name="copyright" content="Supremes"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="人机协同 &#x2F; Human-in-the-Loop (HITL) 来源：https:&#x2F;&#x2F;adp.xindoo.xyz&#x2F;chapters&#x2F;Chapter%2013_%20Human-in-the-Loop&#x2F;整理日期：2026-03-23   核心概念人机协同（Human-in-the-Loop，HITL）模式是一种将人类判断力有意识地嵌入 AI 工作流的设计策略。它不把 AI 视为人类的替代">
+<meta property="og:type" content="article">
+<meta property="og:title" content="第13章：人机协同 &#x2F; Human-in-the-Loop (HITL)">
+<meta property="og:url" content="https://supremes.github.io/posts/8ae18854.html">
+<meta property="og:site_name" content="Supremes">
+<meta property="og:description" content="人机协同 &#x2F; Human-in-the-Loop (HITL) 来源：https:&#x2F;&#x2F;adp.xindoo.xyz&#x2F;chapters&#x2F;Chapter%2013_%20Human-in-the-Loop&#x2F;整理日期：2026-03-23   核心概念人机协同（Human-in-the-Loop，HITL）模式是一种将人类判断力有意识地嵌入 AI 工作流的设计策略。它不把 AI 视为人类的替代">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg">
+<meta property="article:published_time" content="2026-03-23T23:30:00.000Z">
+<meta property="article:modified_time" content="2026-03-23T23:30:00.000Z">
+<meta property="article:author" content="Supremes">
+<meta property="article:tag" content="Agentic Design Patterns">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "第13章：人机协同 / Human-in-the-Loop (HITL)",
+  "url": "https://supremes.github.io/posts/8ae18854.html",
+  "image": "https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg",
+  "datePublished": "2026-03-23T23:30:00.000Z",
+  "dateModified": "2026-03-23T23:30:00.000Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Supremes",
+      "url": "https://supremes.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/favicon/favicon.ico"><link rel="canonical" href="https://supremes.github.io/posts/8ae18854.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.2"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"pagination":{"enable":true,"hitsPerPage":10},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: true,
+  isAnchor: true,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '第13章：人机协同 / Human-in-the-Loop (HITL)',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-webfont/style.css" /><meta name="generator" content="Hexo 8.1.1"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">35</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">66</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">12</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/AI/"><i class="fa-fw fas fa-robot"></i><span> AI</span></a></li><li><a class="site-page child" href="/categories/Spring/"><i class="fa-fw fas fa-leaf"></i><span> Spring</span></a></li><li><a class="site-page child" href="/tags/JUC/"><i class="fa-fw fas fa-book"></i><span> JUC</span></a></li><li><a class="site-page child" href="/tags/Interview/"><i class="fa-fw fas fa-book"></i><span> 面试</span></a></li><li><a class="site-page child" href="/categories/database/"><i class="fa-fw fas fa-database"></i><span> 数据库</span></a></li><li><a class="site-page child" href="/categories/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法</span></a></li><li><a class="site-page child" href="/categories/security/"><i class="fa-fw fas fa-shield-alt"></i><span> 网络安全</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 关于</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/about/about_me"><i class="fa-fw fas fa-user"></i><span> 关于我</span></a></li><li><a class="site-page child" href="/about/my_notes"><i class="fa-fw fas fa-note-sticky"></i><span> 备忘录</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Supremes</span></a><a class="nav-page-title" href="/"><span class="site-name">第13章：人机协同 / Human-in-the-Loop (HITL)</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/AI/"><i class="fa-fw fas fa-robot"></i><span> AI</span></a></li><li><a class="site-page child" href="/categories/Spring/"><i class="fa-fw fas fa-leaf"></i><span> Spring</span></a></li><li><a class="site-page child" href="/tags/JUC/"><i class="fa-fw fas fa-book"></i><span> JUC</span></a></li><li><a class="site-page child" href="/tags/Interview/"><i class="fa-fw fas fa-book"></i><span> 面试</span></a></li><li><a class="site-page child" href="/categories/database/"><i class="fa-fw fas fa-database"></i><span> 数据库</span></a></li><li><a class="site-page child" href="/categories/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法</span></a></li><li><a class="site-page child" href="/categories/security/"><i class="fa-fw fas fa-shield-alt"></i><span> 网络安全</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 关于</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/about/about_me"><i class="fa-fw fas fa-user"></i><span> 关于我</span></a></li><li><a class="site-page child" href="/about/my_notes"><i class="fa-fw fas fa-note-sticky"></i><span> 备忘录</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">第13章：人机协同 / Human-in-the-Loop (HITL)</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-03-23T23:30:00.000Z" title="发表于 2026-03-23 23:30 23:30:00">2026-03-23 23:30</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-03-23T23:30:00.000Z" title="更新于 2026-03-23 23:30 23:30:00">2026-03-23 23:30</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/AI/">AI</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="人机协同-human-in-the-loop-hitl"><a href="#人机协同-human-in-the-loop-hitl" class="headerlink" title="人机协同 &#x2F; Human-in-the-Loop (HITL)"></a>人机协同 &#x2F; Human-in-the-Loop (HITL)</h1><blockquote>
+<p><strong>来源</strong>：<a target="_blank" rel="noopener" href="https://adp.xindoo.xyz/chapters/Chapter%2013_%20Human-in-the-Loop/">https://adp.xindoo.xyz/chapters/Chapter%2013_%20Human-in-the-Loop/</a><br><strong>整理日期</strong>：2026-03-23</p>
+</blockquote>
+<hr>
+<h2 id="核心概念"><a href="#核心概念" class="headerlink" title="核心概念"></a>核心概念</h2><p>人机协同（Human-in-the-Loop，HITL）模式是一种将<strong>人类判断力</strong>有意识地嵌入 AI 工作流的设计策略。它不把 AI 视为人类的替代品，而是将 AI 定位为<strong>增强人类能力的工具</strong>：AI 负责高速计算和数据处理，人类负责道德推理、细微判断和关键决策。两者形成协同生态，共同实现任何一方单独无法达到的结果。</p>
+<hr>
+<h2 id="解决什么问题"><a href="#解决什么问题" class="headerlink" title="解决什么问题"></a>解决什么问题</h2><p>全自主 AI 在以下场景存在严重风险：</p>
+<ul>
+<li><strong>高风险领域</strong>：医疗、金融、法律中的错误代价极高</li>
+<li><strong>模糊性与伦理判断</strong>：内容审核、量刑等需要复杂道德推理</li>
+<li><strong>AI 固有局限</strong>：缺乏创造力、常识推理和对细微文化&#x2F;情感差异的理解</li>
+<li><strong>合规要求</strong>：某些行业监管明确要求人类对关键决策拥有最终权威</li>
+</ul>
+<p>HITL 提供标准化解决方案，确保 AI 行为与人类价值观、安全协议和道德边界保持对齐。</p>
+<hr>
+<h2 id="工作原理-关键机制"><a href="#工作原理-关键机制" class="headerlink" title="工作原理 &#x2F; 关键机制"></a>工作原理 &#x2F; 关键机制</h2><h3 id="六大关键方面"><a href="#六大关键方面" class="headerlink" title="六大关键方面"></a>六大关键方面</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────────────────────────────────────────────────┐</span><br><span class="line">│                    HITL 工作流                               │</span><br><span class="line">│                                                             │</span><br><span class="line">│  AI 处理 ──→ 人类监督 ──→ 干预/纠正 ──→ 反馈学习           │</span><br><span class="line">│      ↑                                          │           │</span><br><span class="line">│      └──────────── 持续改进循环 ────────────────┘           │</span><br><span class="line">└─────────────────────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>机制</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>人类监督</strong></td>
+<td>通过日志审查或实时仪表板监控 AI 输出，确保合规</td>
+</tr>
+<tr>
+<td><strong>干预与纠正</strong></td>
+<td>AI 遇到模糊场景时请求人工介入，人类纠错并指导</td>
+</tr>
+<tr>
+<td><strong>反馈学习</strong></td>
+<td>收集人类反馈用于改进模型（如 RLHF）</td>
+</tr>
+<tr>
+<td><strong>决策增强</strong></td>
+<td>AI 提供分析建议，人类做最终决定</td>
+</tr>
+<tr>
+<td><strong>人机协作</strong></td>
+<td>AI 处理常规数据任务，人类负责创意和复杂谈判</td>
+</tr>
+<tr>
+<td><strong>升级策略</strong></td>
+<td>预定义协议：何时、如何将任务移交给人类操作员</td>
+</tr>
+</tbody></table>
+<h3 id="变体：human-on-the-loop（人在循环外）"><a href="#变体：human-on-the-loop（人在循环外）" class="headerlink" title="变体：Human-on-the-Loop（人在循环外）"></a>变体：Human-on-the-Loop（人在循环外）</h3><p>人类设定<strong>总体策略</strong>，AI <strong>自主执行</strong>即时操作，人类不介入每个具体决策但持续监控整体表现。</p>
+<p><strong>示例 1 - 自动交易系统</strong>：</p>
+<ul>
+<li>人类设定：「维持 70% 科技股 + 30% 债券，单股不超过 5%，跌超 10% 自动止损」</li>
+<li>AI：实时监控并执行交易，无需人类逐笔审批</li>
+</ul>
+<p><strong>示例 2 - 智能客服中心</strong>：</p>
+<ul>
+<li>人类设定：「提及”服务中断”立即转技术专家；情绪激动时提供升级选项」</li>
+<li>AI：处理初始交互并自动路由，不需要对每个呼叫人工干预</li>
+</ul>
+<hr>
+<h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><ol>
+<li><strong>内容审核</strong>：AI 批量过滤明显违规内容，边界案例升级人类审核员判定</li>
+<li><strong>自动驾驶</strong>：极端天气或复杂路况时，AI 将控制权交还人类驾驶员</li>
+<li><strong>金融欺诈检测</strong>：AI 标记可疑交易，高风险案例由人类分析师最终裁定</li>
+<li><strong>法律文件审查</strong>：AI 快速扫描分类数千份文件，人类律师审查关键案件的含义</li>
+<li><strong>复杂客户支持</strong>：聊天机器人处理常规问题，情绪化或复杂问题无缝转人工</li>
+<li><strong>数据标注</strong>：人类为 AI 训练提供高质量标注数据，形成正向飞轮</li>
+<li><strong>生成 AI 内容打磨</strong>：LLM 生成初稿，人类编辑确保符合品牌调性和质量标准</li>
+<li><strong>网络运维</strong>：AI 分析告警预测异常，高风险决策（如网络变更）需人类批准</li>
+</ol>
+<hr>
+<h2 id="框架实现"><a href="#框架实现" class="headerlink" title="框架实现"></a>框架实现</h2><h3 id="google-adk-实现"><a href="#google-adk-实现" class="headerlink" title="Google ADK 实现"></a>Google ADK 实现</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> google.adk.agents <span class="keyword">import</span> Agent</span><br><span class="line"></span><br><span class="line"><span class="comment"># 技术支持智能体：配备升级工具实现 HITL</span></span><br><span class="line">technical_support_agent = Agent(</span><br><span class="line">    name=<span class="string">&quot;technical_support_specialist&quot;</span>,</span><br><span class="line">    model=<span class="string">&quot;gemini-2.0-flash-exp&quot;</span>,</span><br><span class="line">    instruction=<span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    对于技术问题：</span></span><br><span class="line"><span class="string">    1. 使用 troubleshoot_issue 分析问题</span></span><br><span class="line"><span class="string">    2. 引导用户完成基本故障排除</span></span><br><span class="line"><span class="string">    3. 问题持续则用 create_ticket 记录</span></span><br><span class="line"><span class="string">    4. 超出基本排查范围时，使用 escalate_to_human 转接人类专家</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span>,</span><br><span class="line">    tools=[troubleshoot_issue, create_ticket, escalate_to_human]</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p><strong>关键设计</strong>：</p>
+<ul>
+<li><code>escalate_to_human</code> 工具是 HITL 的核心枢纽，触发人工接管</li>
+<li>通过 <code>before_model_callback</code> 注入客户个性化信息（姓名、等级、购买历史），提升交互质量</li>
+</ul>
+<h3 id="langchain"><a href="#langchain" class="headerlink" title="LangChain"></a>LangChain</h3><ul>
+<li>同样提供工具和中断机制来实现人机交互点</li>
+<li>可通过 <code>interrupt_before</code> &#x2F; <code>interrupt_after</code> 节点在 LangGraph 工作流中插入人工审核步骤</li>
+</ul>
+<hr>
+<h2 id="注意事项-权衡"><a href="#注意事项-权衡" class="headerlink" title="注意事项 &#x2F; 权衡"></a>注意事项 &#x2F; 权衡</h2><table>
+<thead>
+<tr>
+<th>问题</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>可扩展性瓶颈</strong></td>
+<td>核心缺陷：人类无法处理百万级任务，形成吞吐量上限</td>
+</tr>
+<tr>
+<td><strong>专业知识依赖</strong></td>
+<td>效果高度依赖操作员专业水平；不专业的干预反而降低质量</td>
+</tr>
+<tr>
+<td><strong>培训成本</strong></td>
+<td>用于数据标注的人工标注员需要专门培训才能产出高质量数据</td>
+</tr>
+<tr>
+<td><strong>隐私风险</strong></td>
+<td>敏感信息暴露给人工操作员前必须严格匿名化，增加流程复杂度</td>
+</tr>
+<tr>
+<td><strong>权衡公式</strong></td>
+<td>自动化实现规模 ↔ HITL 保障准确性，通常需要混合策略</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="一句话总结"><a href="#一句话总结" class="headerlink" title="一句话总结"></a>一句话总结</h2><blockquote>
+<p>HITL 模式通过将人类监督、干预和反馈战略性地嵌入 AI 工作流，确保智能体在高风险、高复杂度场景下做出符合人类价值观的决策——代价是牺牲部分可扩展性，换取更高的安全性、道德性和可信度。</p>
+</blockquote>
+<!-- flag of hidden posts --></article><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Agentic-Design-Patterns/">Agentic Design Patterns</a></div><div class="post-share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Supremes</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">35</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">66</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">12</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/Supremes"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%BA%E6%9C%BA%E5%8D%8F%E5%90%8C-human-in-the-loop-hitl"><span class="toc-text">人机协同 &#x2F; Human-in-the-Loop (HITL)</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5"><span class="toc-text">核心概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98"><span class="toc-text">解决什么问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86-%E5%85%B3%E9%94%AE%E6%9C%BA%E5%88%B6"><span class="toc-text">工作原理 &#x2F; 关键机制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%AD%E5%A4%A7%E5%85%B3%E9%94%AE%E6%96%B9%E9%9D%A2"><span class="toc-text">六大关键方面</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%98%E4%BD%93%EF%BC%9Ahuman-on-the-loop%EF%BC%88%E4%BA%BA%E5%9C%A8%E5%BE%AA%E7%8E%AF%E5%A4%96%EF%BC%89"><span class="toc-text">变体：Human-on-the-Loop（人在循环外）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-text">应用场景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A1%86%E6%9E%B6%E5%AE%9E%E7%8E%B0"><span class="toc-text">框架实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#google-adk-%E5%AE%9E%E7%8E%B0"><span class="toc-text">Google ADK 实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#langchain"><span class="toc-text">LangChain</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9-%E6%9D%83%E8%A1%A1"><span class="toc-text">注意事项 &#x2F; 权衡</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E5%8F%A5%E8%AF%9D%E6%80%BB%E7%BB%93"><span class="toc-text">一句话总结</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/0.html" title="无标题">无标题</a><time datetime="2026-03-23T15:48:34.601Z" title="发表于 2026-03-23 15:48 15:48:34">2026-03-23 15:48</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3b2987c6.html" title="vibe coding">vibe coding</a><time datetime="2026-03-19T00:38:45.000Z" title="发表于 2026-03-19 00:38 00:38:45">2026-03-19 00:38</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/6c5038c3.html" title="AI-Interview">AI-Interview</a><time datetime="2026-03-17T11:00:25.000Z" title="发表于 2026-03-17 11:00 11:00:25">2026-03-17 11:00</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/b4688e1e.html" title="LLM 基础知识">LLM 基础知识</a><time datetime="2026-03-16T23:25:16.000Z" title="发表于 2026-03-16 23:25 23:25:16">2026-03-16 23:25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/9ffccb73.html" title="Skill">Skill</a><time datetime="2026-03-16T15:36:35.000Z" title="发表于 2026-03-16 15:36 15:36:35">2026-03-16 15:36</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Supremes</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.1</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.2</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.2"></script><script src="/js/main.js?v=5.5.2"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@19.1.3/dist/lazyload.iife.min.js"></script><div class="js-pjax"><script>(() => {
+  const runMermaid = ele => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    ele.forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const config = mermaidSrc.dataset.config ? JSON.parse(mermaidSrc.dataset.config) : {}
+      if (!config.theme) {
+        config.theme = theme
+      }
+      const mermaidThemeConfig = `%%{init: ${JSON.stringify(config)}}%%\n`
+      const mermaidID = `mermaid-${index}`
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+      const renderMermaid = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      // mermaid v9 and v10 compatibility
+      typeof renderFn === 'string' ? renderMermaid(renderFn) : renderFn.then(({ svg }) => renderMermaid(svg))
+    })
+  }
+
+  const codeToMermaid = () => {
+    const codeMermaidEle = document.querySelectorAll('pre > code.mermaid')
+    if (codeMermaidEle.length === 0) return
+
+    codeMermaidEle.forEach(ele => {
+      const preEle = document.createElement('pre')
+      preEle.className = 'mermaid-src'
+      preEle.hidden = true
+      preEle.textContent = ele.textContent
+      const newEle = document.createElement('div')
+      newEle.className = 'mermaid-wrap'
+      newEle.appendChild(preEle)
+      ele.parentNode.replaceWith(newEle)
+    })
+  }
+
+  const loadMermaid = () => {
+    if (true) codeToMermaid()
+    const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+    if ($mermaid.length === 0) return
+
+    const runMermaidFn = () => runMermaid($mermaid)
+    btf.addGlobalFn('themeChange', runMermaidFn, 'mermaid')
+    window.loadMermaid ? runMermaidFn() : btf.getScript('https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.min.js').then(runMermaidFn)
+  }
+
+  btf.addGlobalFn('encrypt', loadMermaid, 'mermaid')
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="/"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章标题和内容..." type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.5.2"></script></div></div></body></html>

@@ -1,0 +1,341 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>第12章：异常处理与恢复 / Exception Handling and Recovery | Supremes</title><meta name="robots" content="noindex"><meta name="author" content="Supremes"><meta name="copyright" content="Supremes"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="异常处理与恢复 &#x2F; Exception Handling and Recovery 来源：https:&#x2F;&#x2F;adp.xindoo.xyz&#x2F;chapters&#x2F;Chapter%2012_%20Exception%20Handling%20and%20Recovery&#x2F;整理日期：2026-03-23   核心概念异常处理与恢复模式（Exception Handling and Recovery">
+<meta property="og:type" content="article">
+<meta property="og:title" content="第12章：异常处理与恢复 &#x2F; Exception Handling and Recovery">
+<meta property="og:url" content="https://supremes.github.io/posts/9eaaabf7.html">
+<meta property="og:site_name" content="Supremes">
+<meta property="og:description" content="异常处理与恢复 &#x2F; Exception Handling and Recovery 来源：https:&#x2F;&#x2F;adp.xindoo.xyz&#x2F;chapters&#x2F;Chapter%2012_%20Exception%20Handling%20and%20Recovery&#x2F;整理日期：2026-03-23   核心概念异常处理与恢复模式（Exception Handling and Recovery">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg">
+<meta property="article:published_time" content="2026-03-23T23:30:00.000Z">
+<meta property="article:modified_time" content="2026-03-23T23:30:00.000Z">
+<meta property="article:author" content="Supremes">
+<meta property="article:tag" content="Agentic Design Patterns">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "第12章：异常处理与恢复 / Exception Handling and Recovery",
+  "url": "https://supremes.github.io/posts/9eaaabf7.html",
+  "image": "https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg",
+  "datePublished": "2026-03-23T23:30:00.000Z",
+  "dateModified": "2026-03-23T23:30:00.000Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Supremes",
+      "url": "https://supremes.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/favicon/favicon.ico"><link rel="canonical" href="https://supremes.github.io/posts/9eaaabf7.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.2"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"pagination":{"enable":true,"hitsPerPage":10},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: true,
+  isAnchor: true,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '第12章：异常处理与恢复 / Exception Handling and Recovery',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-webfont/style.css" /><meta name="generator" content="Hexo 8.1.1"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">35</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">66</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">12</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/AI/"><i class="fa-fw fas fa-robot"></i><span> AI</span></a></li><li><a class="site-page child" href="/categories/Spring/"><i class="fa-fw fas fa-leaf"></i><span> Spring</span></a></li><li><a class="site-page child" href="/tags/JUC/"><i class="fa-fw fas fa-book"></i><span> JUC</span></a></li><li><a class="site-page child" href="/tags/Interview/"><i class="fa-fw fas fa-book"></i><span> 面试</span></a></li><li><a class="site-page child" href="/categories/database/"><i class="fa-fw fas fa-database"></i><span> 数据库</span></a></li><li><a class="site-page child" href="/categories/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法</span></a></li><li><a class="site-page child" href="/categories/security/"><i class="fa-fw fas fa-shield-alt"></i><span> 网络安全</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 关于</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/about/about_me"><i class="fa-fw fas fa-user"></i><span> 关于我</span></a></li><li><a class="site-page child" href="/about/my_notes"><i class="fa-fw fas fa-note-sticky"></i><span> 备忘录</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Supremes</span></a><a class="nav-page-title" href="/"><span class="site-name">第12章：异常处理与恢复 / Exception Handling and Recovery</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/AI/"><i class="fa-fw fas fa-robot"></i><span> AI</span></a></li><li><a class="site-page child" href="/categories/Spring/"><i class="fa-fw fas fa-leaf"></i><span> Spring</span></a></li><li><a class="site-page child" href="/tags/JUC/"><i class="fa-fw fas fa-book"></i><span> JUC</span></a></li><li><a class="site-page child" href="/tags/Interview/"><i class="fa-fw fas fa-book"></i><span> 面试</span></a></li><li><a class="site-page child" href="/categories/database/"><i class="fa-fw fas fa-database"></i><span> 数据库</span></a></li><li><a class="site-page child" href="/categories/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法</span></a></li><li><a class="site-page child" href="/categories/security/"><i class="fa-fw fas fa-shield-alt"></i><span> 网络安全</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 关于</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/about/about_me"><i class="fa-fw fas fa-user"></i><span> 关于我</span></a></li><li><a class="site-page child" href="/about/my_notes"><i class="fa-fw fas fa-note-sticky"></i><span> 备忘录</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">第12章：异常处理与恢复 / Exception Handling and Recovery</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-03-23T23:30:00.000Z" title="发表于 2026-03-23 23:30 23:30:00">2026-03-23 23:30</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-03-23T23:30:00.000Z" title="更新于 2026-03-23 23:30 23:30:00">2026-03-23 23:30</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/AI/">AI</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="异常处理与恢复-exception-handling-and-recovery"><a href="#异常处理与恢复-exception-handling-and-recovery" class="headerlink" title="异常处理与恢复 &#x2F; Exception Handling and Recovery"></a>异常处理与恢复 &#x2F; Exception Handling and Recovery</h1><blockquote>
+<p><strong>来源</strong>：<a target="_blank" rel="noopener" href="https://adp.xindoo.xyz/chapters/Chapter%2012_%20Exception%20Handling%20and%20Recovery/">https://adp.xindoo.xyz/chapters/Chapter%2012_%20Exception%20Handling%20and%20Recovery/</a><br><strong>整理日期</strong>：2026-03-23</p>
+</blockquote>
+<hr>
+<h2 id="核心概念"><a href="#核心概念" class="headerlink" title="核心概念"></a>核心概念</h2><p>异常处理与恢复模式（Exception Handling and Recovery Pattern）是一种专注于构建<strong>高韧性 AI 智能体</strong>的设计模式。它要求智能体能够主动预测潜在故障（工具调用失败、API 错误、网络中断等），并在故障发生时执行结构化的检测→处理→恢复三阶段响应，从而在不可预测的真实环境中维持操作完整性，而不是直接崩溃或挂起。</p>
+<hr>
+<h2 id="解决什么问题"><a href="#解决什么问题" class="headerlink" title="解决什么问题"></a>解决什么问题</h2><p>在真实环境中，工具错误、服务不可用、格式错误的输出、超时等问题无处不在。没有异常处理能力的智能体一旦遇到意外状况就会彻底失败，导致：</p>
+<ul>
+<li>整个任务流程中断，用户体验极差</li>
+<li>产生不可预知的副作用（如重复执行有害操作）</li>
+<li>缺乏可调试性，无法快速定位问题根因</li>
+</ul>
+<p>该模式将智能体从脆弱的单点失败系统转变为可靠的生产级组件。</p>
+<hr>
+<h2 id="工作原理-关键机制"><a href="#工作原理-关键机制" class="headerlink" title="工作原理 &#x2F; 关键机制"></a>工作原理 &#x2F; 关键机制</h2><h3 id="三阶段框架"><a href="#三阶段框架" class="headerlink" title="三阶段框架"></a>三阶段框架</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[错误检测] → [错误处理] → [恢复]</span><br></pre></td></tr></table></figure>
+
+<h3 id="1-错误检测（detection）"><a href="#1-错误检测（detection）" class="headerlink" title="1. 错误检测（Detection）"></a>1. 错误检测（Detection）</h3><ul>
+<li>验证工具输出格式是否合法</li>
+<li>检查 API 错误码（404、500 等）</li>
+<li>监控响应超时</li>
+<li>识别无意义&#x2F;不连贯的输出</li>
+<li>部署监控智能体或专用监控系统主动巡检</li>
+</ul>
+<h3 id="2-错误处理（handling）"><a href="#2-错误处理（handling）" class="headerlink" title="2. 错误处理（Handling）"></a>2. 错误处理（Handling）</h3><table>
+<thead>
+<tr>
+<th>策略</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>日志记录</strong></td>
+<td>详细记录错误信息，支持后续调试</td>
+</tr>
+<tr>
+<td><strong>重试</strong></td>
+<td>针对瞬态错误，可用略微调整的参数重试</td>
+</tr>
+<tr>
+<td><strong>回退（Fallback）</strong></td>
+<td>切换到替代策略或备用工具</td>
+</tr>
+<tr>
+<td><strong>优雅降级</strong></td>
+<td>无法完全恢复时保持部分功能可用</td>
+</tr>
+<tr>
+<td><strong>通知</strong></td>
+<td>向人类操作员或其他智能体发出警报</td>
+</tr>
+</tbody></table>
+<h3 id="3-恢复（recovery）"><a href="#3-恢复（recovery）" class="headerlink" title="3. 恢复（Recovery）"></a>3. 恢复（Recovery）</h3><table>
+<thead>
+<tr>
+<th>策略</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>状态回滚</strong></td>
+<td>撤销最近变更，还原到上一稳定状态</td>
+</tr>
+<tr>
+<td><strong>诊断分析</strong></td>
+<td>深入分析错误根因，防止复发</td>
+</tr>
+<tr>
+<td><strong>自我纠正</strong></td>
+<td>调整计划、参数或推理逻辑后重试</td>
+</tr>
+<tr>
+<td><strong>升级</strong></td>
+<td>复杂&#x2F;严重问题委托给人类操作员处理</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><ol>
+<li><strong>客户服务聊天机器人</strong>：数据库临时宕机时，不崩溃而是提示用户稍后重试或转接人工，同时记录错误</li>
+<li><strong>自动金融交易机器人</strong>：遇到”资金不足”或”市场关闭”错误时，记录错误、避免重复无效交易，并通知用户</li>
+<li><strong>智能家居自动化</strong>：灯控失败时，重试 → 仍失败 → 通知用户手动干预</li>
+<li><strong>批量数据处理智能体</strong>：遇到损坏文件时跳过并记录，继续处理其余文件，最终汇报跳过列表</li>
+<li><strong>网络爬虫智能体</strong>：遭遇验证码&#x2F;404&#x2F;503 时暂停、切换代理或报告失败 URL</li>
+<li><strong>工业机械臂</strong>：拾取失败时重新调整位置重试，持续失败则警告操作员</li>
+</ol>
+<hr>
+<h2 id="框架实现"><a href="#框架实现" class="headerlink" title="框架实现"></a>框架实现</h2><h3 id="google-adk-实现"><a href="#google-adk-实现" class="headerlink" title="Google ADK 实现"></a>Google ADK 实现</h3><p>使用 <code>SequentialAgent</code> 组合三个子智能体实现主备 + 降级逻辑：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> google.adk.agents <span class="keyword">import</span> Agent, SequentialAgent</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 主处理器：尝试精确工具</span></span><br><span class="line">primary_handler = Agent(</span><br><span class="line">    name=<span class="string">&quot;primary_handler&quot;</span>,</span><br><span class="line">    model=<span class="string">&quot;gemini-2.0-flash-exp&quot;</span>,</span><br><span class="line">    instruction=<span class="string">&quot;使用 get_precise_location_info 获取精确位置信息&quot;</span>,</span><br><span class="line">    tools=[get_precise_location_info]</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 回退处理器：检查主处理器是否失败</span></span><br><span class="line">fallback_handler = Agent(</span><br><span class="line">    name=<span class="string">&quot;fallback_handler&quot;</span>,</span><br><span class="line">    model=<span class="string">&quot;gemini-2.0-flash-exp&quot;</span>,</span><br><span class="line">    instruction=<span class="string">&quot;&quot;&quot;检查 state[&quot;primary_location_failed&quot;]。</span></span><br><span class="line"><span class="string">    若为 True，提取城市并使用 get_general_area_info。&quot;&quot;&quot;</span>,</span><br><span class="line">    tools=[get_general_area_info]</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 响应智能体：从 state 中读取最终结果</span></span><br><span class="line">response_agent = Agent(</span><br><span class="line">    name=<span class="string">&quot;response_agent&quot;</span>,</span><br><span class="line">    model=<span class="string">&quot;gemini-2.0-flash-exp&quot;</span>,</span><br><span class="line">    instruction=<span class="string">&quot;从 state[&#x27;location_result&#x27;] 读取并向用户展示位置信息&quot;</span>,</span><br><span class="line">    tools=[]</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># SequentialAgent 保证执行顺序</span></span><br><span class="line">robust_location_agent = SequentialAgent(</span><br><span class="line">    name=<span class="string">&quot;robust_location_agent&quot;</span>,</span><br><span class="line">    sub_agents=[primary_handler, fallback_handler, response_agent]</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p><strong>核心思路</strong>：通过共享 state 在子智能体间传递失败标志，实现主备切换。</p>
+<h3 id="langchain-langgraph"><a href="#langchain-langgraph" class="headerlink" title="LangChain &#x2F; LangGraph"></a>LangChain &#x2F; LangGraph</h3><ul>
+<li>可通过 <code>try/except</code> + 条件分支节点实现类似的错误检测和回退逻辑</li>
+<li>LangGraph 的图结构天然支持基于状态的条件跳转（错误边）</li>
+</ul>
+<hr>
+<h2 id="注意事项-权衡"><a href="#注意事项-权衡" class="headerlink" title="注意事项 &#x2F; 权衡"></a>注意事项 &#x2F; 权衡</h2><table>
+<thead>
+<tr>
+<th>考量</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>与反思模式结合</strong></td>
+<td>失败后可触发反思，分析原因并用优化提示重试</td>
+</tr>
+<tr>
+<td><strong>重试风暴风险</strong></td>
+<td>不加限制的重试可能导致级联故障，需设置最大重试次数和退避策略</td>
+</tr>
+<tr>
+<td><strong>状态管理复杂度</strong></td>
+<td>引入回滚机制需要维护状态快照，增加系统复杂度</td>
+</tr>
+<tr>
+<td><strong>升级代价</strong></td>
+<td>频繁升级人工处理会降低系统自动化价值，需权衡升级阈值</td>
+</tr>
+<tr>
+<td><strong>日志存储成本</strong></td>
+<td>详细错误日志能提升可调试性，但会增加存储和处理开销</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="一句话总结"><a href="#一句话总结" class="headerlink" title="一句话总结"></a>一句话总结</h2><blockquote>
+<p>异常处理与恢复模式通过「检测→处理→恢复」三阶段机制，赋予 AI 智能体在工具故障、API 错误和网络问题等真实挑战中依然稳定运行的能力，是生产环境中构建可靠智能体的必备模式。</p>
+</blockquote>
+<!-- flag of hidden posts --></article><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Agentic-Design-Patterns/">Agentic Design Patterns</a></div><div class="post-share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Supremes</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">35</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">66</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">12</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/Supremes"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E4%B8%8E%E6%81%A2%E5%A4%8D-exception-handling-and-recovery"><span class="toc-text">异常处理与恢复 &#x2F; Exception Handling and Recovery</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5"><span class="toc-text">核心概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98"><span class="toc-text">解决什么问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86-%E5%85%B3%E9%94%AE%E6%9C%BA%E5%88%B6"><span class="toc-text">工作原理 &#x2F; 关键机制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E9%98%B6%E6%AE%B5%E6%A1%86%E6%9E%B6"><span class="toc-text">三阶段框架</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E9%94%99%E8%AF%AF%E6%A3%80%E6%B5%8B%EF%BC%88detection%EF%BC%89"><span class="toc-text">1. 错误检测（Detection）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86%EF%BC%88handling%EF%BC%89"><span class="toc-text">2. 错误处理（Handling）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%81%A2%E5%A4%8D%EF%BC%88recovery%EF%BC%89"><span class="toc-text">3. 恢复（Recovery）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-text">应用场景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A1%86%E6%9E%B6%E5%AE%9E%E7%8E%B0"><span class="toc-text">框架实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#google-adk-%E5%AE%9E%E7%8E%B0"><span class="toc-text">Google ADK 实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#langchain-langgraph"><span class="toc-text">LangChain &#x2F; LangGraph</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9-%E6%9D%83%E8%A1%A1"><span class="toc-text">注意事项 &#x2F; 权衡</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E5%8F%A5%E8%AF%9D%E6%80%BB%E7%BB%93"><span class="toc-text">一句话总结</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/0.html" title="无标题">无标题</a><time datetime="2026-03-23T15:48:34.601Z" title="发表于 2026-03-23 15:48 15:48:34">2026-03-23 15:48</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3b2987c6.html" title="vibe coding">vibe coding</a><time datetime="2026-03-19T00:38:45.000Z" title="发表于 2026-03-19 00:38 00:38:45">2026-03-19 00:38</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/6c5038c3.html" title="AI-Interview">AI-Interview</a><time datetime="2026-03-17T11:00:25.000Z" title="发表于 2026-03-17 11:00 11:00:25">2026-03-17 11:00</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/b4688e1e.html" title="LLM 基础知识">LLM 基础知识</a><time datetime="2026-03-16T23:25:16.000Z" title="发表于 2026-03-16 23:25 23:25:16">2026-03-16 23:25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/9ffccb73.html" title="Skill">Skill</a><time datetime="2026-03-16T15:36:35.000Z" title="发表于 2026-03-16 15:36 15:36:35">2026-03-16 15:36</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Supremes</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.1</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.2</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.2"></script><script src="/js/main.js?v=5.5.2"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@19.1.3/dist/lazyload.iife.min.js"></script><div class="js-pjax"><script>(() => {
+  const runMermaid = ele => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    ele.forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const config = mermaidSrc.dataset.config ? JSON.parse(mermaidSrc.dataset.config) : {}
+      if (!config.theme) {
+        config.theme = theme
+      }
+      const mermaidThemeConfig = `%%{init: ${JSON.stringify(config)}}%%\n`
+      const mermaidID = `mermaid-${index}`
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+      const renderMermaid = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      // mermaid v9 and v10 compatibility
+      typeof renderFn === 'string' ? renderMermaid(renderFn) : renderFn.then(({ svg }) => renderMermaid(svg))
+    })
+  }
+
+  const codeToMermaid = () => {
+    const codeMermaidEle = document.querySelectorAll('pre > code.mermaid')
+    if (codeMermaidEle.length === 0) return
+
+    codeMermaidEle.forEach(ele => {
+      const preEle = document.createElement('pre')
+      preEle.className = 'mermaid-src'
+      preEle.hidden = true
+      preEle.textContent = ele.textContent
+      const newEle = document.createElement('div')
+      newEle.className = 'mermaid-wrap'
+      newEle.appendChild(preEle)
+      ele.parentNode.replaceWith(newEle)
+    })
+  }
+
+  const loadMermaid = () => {
+    if (true) codeToMermaid()
+    const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+    if ($mermaid.length === 0) return
+
+    const runMermaidFn = () => runMermaid($mermaid)
+    btf.addGlobalFn('themeChange', runMermaidFn, 'mermaid')
+    window.loadMermaid ? runMermaidFn() : btf.getScript('https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.min.js').then(runMermaidFn)
+  }
+
+  btf.addGlobalFn('encrypt', loadMermaid, 'mermaid')
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="/"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章标题和内容..." type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.5.2"></script></div></div></body></html>

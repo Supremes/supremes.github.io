@@ -1,0 +1,298 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>第20章：优先级排序 / Prioritization | Supremes</title><meta name="robots" content="noindex"><meta name="author" content="Supremes"><meta name="copyright" content="Supremes"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="第20章：优先级排序 &#x2F; Prioritization来源 URL: https:&#x2F;&#x2F;adp.xindoo.xyz&#x2F;chapters&#x2F;Chapter%2020_%20Prioritization&#x2F;整理日期: 2026-03-23  核心概念优先级排序（Prioritization）模式通过使 AI 智能体根据重要性、紧迫性、依赖关系和既定标准来评估和排序任务、目标或行动，解决多任务环境中">
+<meta property="og:type" content="article">
+<meta property="og:title" content="第20章：优先级排序 &#x2F; Prioritization">
+<meta property="og:url" content="https://supremes.github.io/posts/62269f37.html">
+<meta property="og:site_name" content="Supremes">
+<meta property="og:description" content="第20章：优先级排序 &#x2F; Prioritization来源 URL: https:&#x2F;&#x2F;adp.xindoo.xyz&#x2F;chapters&#x2F;Chapter%2020_%20Prioritization&#x2F;整理日期: 2026-03-23  核心概念优先级排序（Prioritization）模式通过使 AI 智能体根据重要性、紧迫性、依赖关系和既定标准来评估和排序任务、目标或行动，解决多任务环境中">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg">
+<meta property="article:published_time" content="2026-03-23T23:30:00.000Z">
+<meta property="article:modified_time" content="2026-03-23T23:30:00.000Z">
+<meta property="article:author" content="Supremes">
+<meta property="article:tag" content="Agentic Design Patterns">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "第20章：优先级排序 / Prioritization",
+  "url": "https://supremes.github.io/posts/62269f37.html",
+  "image": "https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg",
+  "datePublished": "2026-03-23T23:30:00.000Z",
+  "dateModified": "2026-03-23T23:30:00.000Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Supremes",
+      "url": "https://supremes.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/favicon/favicon.ico"><link rel="canonical" href="https://supremes.github.io/posts/62269f37.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.2"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"pagination":{"enable":true,"hitsPerPage":10},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: true,
+  isAnchor: true,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '第20章：优先级排序 / Prioritization',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-webfont/style.css" /><meta name="generator" content="Hexo 8.1.1"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">35</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">66</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">12</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/AI/"><i class="fa-fw fas fa-robot"></i><span> AI</span></a></li><li><a class="site-page child" href="/categories/Spring/"><i class="fa-fw fas fa-leaf"></i><span> Spring</span></a></li><li><a class="site-page child" href="/tags/JUC/"><i class="fa-fw fas fa-book"></i><span> JUC</span></a></li><li><a class="site-page child" href="/tags/Interview/"><i class="fa-fw fas fa-book"></i><span> 面试</span></a></li><li><a class="site-page child" href="/categories/database/"><i class="fa-fw fas fa-database"></i><span> 数据库</span></a></li><li><a class="site-page child" href="/categories/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法</span></a></li><li><a class="site-page child" href="/categories/security/"><i class="fa-fw fas fa-shield-alt"></i><span> 网络安全</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 关于</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/about/about_me"><i class="fa-fw fas fa-user"></i><span> 关于我</span></a></li><li><a class="site-page child" href="/about/my_notes"><i class="fa-fw fas fa-note-sticky"></i><span> 备忘录</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Supremes</span></a><a class="nav-page-title" href="/"><span class="site-name">第20章：优先级排序 / Prioritization</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/AI/"><i class="fa-fw fas fa-robot"></i><span> AI</span></a></li><li><a class="site-page child" href="/categories/Spring/"><i class="fa-fw fas fa-leaf"></i><span> Spring</span></a></li><li><a class="site-page child" href="/tags/JUC/"><i class="fa-fw fas fa-book"></i><span> JUC</span></a></li><li><a class="site-page child" href="/tags/Interview/"><i class="fa-fw fas fa-book"></i><span> 面试</span></a></li><li><a class="site-page child" href="/categories/database/"><i class="fa-fw fas fa-database"></i><span> 数据库</span></a></li><li><a class="site-page child" href="/categories/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法</span></a></li><li><a class="site-page child" href="/categories/security/"><i class="fa-fw fas fa-shield-alt"></i><span> 网络安全</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 关于</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/about/about_me"><i class="fa-fw fas fa-user"></i><span> 关于我</span></a></li><li><a class="site-page child" href="/about/my_notes"><i class="fa-fw fas fa-note-sticky"></i><span> 备忘录</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">第20章：优先级排序 / Prioritization</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-03-23T23:30:00.000Z" title="发表于 2026-03-23 23:30 23:30:00">2026-03-23 23:30</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-03-23T23:30:00.000Z" title="更新于 2026-03-23 23:30 23:30:00">2026-03-23 23:30</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/AI/">AI</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="第20章：优先级排序-prioritization"><a href="#第20章：优先级排序-prioritization" class="headerlink" title="第20章：优先级排序 &#x2F; Prioritization"></a>第20章：优先级排序 &#x2F; Prioritization</h1><p><strong>来源 URL</strong>: <a target="_blank" rel="noopener" href="https://adp.xindoo.xyz/chapters/Chapter%2020_%20Prioritization/">https://adp.xindoo.xyz/chapters/Chapter%2020_%20Prioritization/</a><br><strong>整理日期</strong>: 2026-03-23</p>
+<hr>
+<h2 id="核心概念"><a href="#核心概念" class="headerlink" title="核心概念"></a>核心概念</h2><p>优先级排序（Prioritization）模式通过使 AI 智能体<strong>根据重要性、紧迫性、依赖关系和既定标准来评估和排序任务、目标或行动</strong>，解决多任务环境中的资源调度问题。确保智能体将精力集中在最关键的任务上，从而提高有效性和目标一致性。</p>
+<p>这反映了人类团队的组织方式：管理者通过考虑所有成员的输入来优先处理任务。</p>
+<hr>
+<h2 id="解决什么问题"><a href="#解决什么问题" class="headerlink" title="解决什么问题"></a>解决什么问题</h2><p>在复杂动态环境中，智能体常面临：</p>
+<ul>
+<li>大量潜在行动和相互冲突的目标</li>
+<li>有限的计算资源和时间约束</li>
+<li>不知道”下一步该做什么”导致的低效</li>
+<li>新的紧急事件出现时无法动态调整焦点</li>
+<li>多目标之间的优先级冲突（效率 vs 安全 vs 成本）</li>
+</ul>
+<hr>
+<h2 id="工作原理-关键机制"><a href="#工作原理-关键机制" class="headerlink" title="工作原理&#x2F;关键机制"></a>工作原理&#x2F;关键机制</h2><p>优先级排序的四个核心要素：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">1. 标准定义</span><br><span class="line">   ├── 紧急性（时间敏感性）</span><br><span class="line">   ├── 重要性（对主要目标的影响）</span><br><span class="line">   ├── 依赖关系（该任务是否为其他任务的前提）</span><br><span class="line">   ├── 资源可用性（必要工具/信息就绪状态）</span><br><span class="line">   ├── 成本/收益分析（投入 vs 预期产出）</span><br><span class="line">   └── 用户偏好（个性化权重）</span><br><span class="line"></span><br><span class="line">2. 任务评估</span><br><span class="line">   └── 对每个任务按标准评分（可用规则引擎或 LLM 推理）</span><br><span class="line"></span><br><span class="line">3. 调度/选择逻辑</span><br><span class="line">   └── 基于评分选择最优下一步或任务序列（队列/规划算法）</span><br><span class="line"></span><br><span class="line">4. 动态重新优先级排序</span><br><span class="line">   └── 当新事件出现（紧急中断、截止日期临近）时实时调整</span><br></pre></td></tr></table></figure>
+
+<p><strong>优先级排序层次</strong>：</p>
+<ul>
+<li><strong>高层目标优先级排序</strong>：选择总体战略目标</li>
+<li><strong>子任务优先级排序</strong>：在计划内排序步骤</li>
+<li><strong>行动选择</strong>：从可用选项中选择下一个即时行动</li>
+</ul>
+<p><strong>LangChain 项目管理智能体工作流</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">用户请求</span><br><span class="line">    ↓</span><br><span class="line">1. create_new_task（创建任务，获取 task_id）</span><br><span class="line">    ↓</span><br><span class="line">2. assign_priority_to_task（P0/P1/P2 优先级分配）</span><br><span class="line">    ↓</span><br><span class="line">3. assign_task_to_worker（分配给团队成员）</span><br><span class="line">    ↓</span><br><span class="line">4. list_all_tasks（展示最终状态）</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><ol>
+<li><p><strong>自动化客户支持</strong>：优先处理”系统停机”类紧急请求 &gt; 常规密码重置；高价值客户优先级更高</p>
+</li>
+<li><p><strong>云计算资源调度</strong>：高峰期将资源优先分配给关键应用；非高峰期执行批处理作业节省成本</p>
+</li>
+<li><p><strong>自动驾驶系统</strong>：避免碰撞制动 &gt; 保持车道纪律 &gt; 优化燃油效率（安全始终第一）</p>
+</li>
+<li><p><strong>金融交易机器人</strong>：综合市场条件、风险承受能力、利润率和实时新闻，优先执行高优先级交易</p>
+</li>
+<li><p><strong>项目管理 AI</strong>：按截止日期、依赖关系、团队可用性和战略重要性排序项目板任务</p>
+</li>
+<li><p><strong>网络安全监控</strong>：按威胁严重性、潜在影响和资产关键性排序告警，确保对最危险威胁立即响应</p>
+</li>
+<li><p><strong>个人助理 AI</strong>：根据用户定义重要性、截止日期和当前上下文组织日历事件和提醒</p>
+</li>
+</ol>
+<hr>
+<h2 id="框架实现"><a href="#框架实现" class="headerlink" title="框架实现"></a>框架实现</h2><h3 id="langchain（项目管理智能体）"><a href="#langchain（项目管理智能体）" class="headerlink" title="LangChain（项目管理智能体）"></a>LangChain（项目管理智能体）</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> langchain.agents <span class="keyword">import</span> AgentExecutor, create_react_agent</span><br><span class="line"><span class="keyword">from</span> langchain.memory <span class="keyword">import</span> ConversationBufferMemory</span><br><span class="line"></span><br><span class="line"><span class="comment"># 任务数据模型</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Task</span>(<span class="title class_ inherited__">BaseModel</span>):</span><br><span class="line">    <span class="built_in">id</span>: <span class="built_in">str</span></span><br><span class="line">    description: <span class="built_in">str</span></span><br><span class="line">    priority: <span class="type">Optional</span>[<span class="built_in">str</span>] = <span class="literal">None</span>  <span class="comment"># P0, P1, P2</span></span><br><span class="line">    assigned_to: <span class="type">Optional</span>[<span class="built_in">str</span>] = <span class="literal">None</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 工具集</span></span><br><span class="line">pm_tools = [</span><br><span class="line">    Tool(name=<span class="string">&quot;create_new_task&quot;</span>, func=create_new_task_tool, ...),</span><br><span class="line">    Tool(name=<span class="string">&quot;assign_priority_to_task&quot;</span>, func=assign_priority_to_task_tool, ...),</span><br><span class="line">    Tool(name=<span class="string">&quot;assign_task_to_worker&quot;</span>, func=assign_task_to_worker_tool, ...),</span><br><span class="line">    Tool(name=<span class="string">&quot;list_all_tasks&quot;</span>, func=task_manager.list_all_tasks, ...),</span><br><span class="line">]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 系统提示词定义优先级逻辑</span></span><br><span class="line">pm_prompt = <span class="string">&quot;&quot;&quot;当收到任务请求时：</span></span><br><span class="line"><span class="string">1. 先创建任务获取 task_id</span></span><br><span class="line"><span class="string">2. 分析紧急性 → &quot;紧急/ASAP/关键&quot; 映射到 P0</span></span><br><span class="line"><span class="string">3. 分配工作人员</span></span><br><span class="line"><span class="string">4. 若信息缺失，合理默认（P1 + Worker A）</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">pm_agent_executor = AgentExecutor(</span><br><span class="line">    agent=pm_agent,</span><br><span class="line">    tools=pm_tools,</span><br><span class="line">    memory=ConversationBufferMemory(memory_key=<span class="string">&quot;chat_history&quot;</span>, return_messages=<span class="literal">True</span>)</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="注意事项或权衡"><a href="#注意事项或权衡" class="headerlink" title="注意事项或权衡"></a>注意事项或权衡</h2><table>
+<thead>
+<tr>
+<th>权衡点</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>标准设计难度</td>
+<td>优先级标准需要领域专家参与，错误标准导致错误排序</td>
+</tr>
+<tr>
+<td>动态变化开销</td>
+<td>频繁重新排序消耗计算资源，需设置重排阈值</td>
+</tr>
+<tr>
+<td>优先级饥饿</td>
+<td>低优先级任务可能永远得不到执行（需要 aging 机制）</td>
+</tr>
+<tr>
+<td>冲突解决</td>
+<td>多个高优先级任务同时出现时需要决断逻辑</td>
+</tr>
+<tr>
+<td>用户期望管理</td>
+<td>自动降级低优先级请求可能触发用户不满</td>
+</tr>
+<tr>
+<td>可解释性</td>
+<td>系统为何将某任务排在另一个之前需要透明解释</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="一句话总结"><a href="#一句话总结" class="headerlink" title="一句话总结"></a>一句话总结</h2><blockquote>
+<p>优先级排序通过建立标准定义、任务评估、调度逻辑和动态重排四个机制，使智能体在资源约束的多任务环境中像经验丰富的管理者一样将精力集中在最重要的事情上，是智能体从”被动执行者”进化为”主动决策者”的关键能力。</p>
+</blockquote>
+<!-- flag of hidden posts --></article><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Agentic-Design-Patterns/">Agentic Design Patterns</a></div><div class="post-share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Supremes</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">35</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">66</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">12</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/Supremes"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AC%AC20%E7%AB%A0%EF%BC%9A%E4%BC%98%E5%85%88%E7%BA%A7%E6%8E%92%E5%BA%8F-prioritization"><span class="toc-text">第20章：优先级排序 &#x2F; Prioritization</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5"><span class="toc-text">核心概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98"><span class="toc-text">解决什么问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86-%E5%85%B3%E9%94%AE%E6%9C%BA%E5%88%B6"><span class="toc-text">工作原理&#x2F;关键机制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-text">应用场景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A1%86%E6%9E%B6%E5%AE%9E%E7%8E%B0"><span class="toc-text">框架实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#langchain%EF%BC%88%E9%A1%B9%E7%9B%AE%E7%AE%A1%E7%90%86%E6%99%BA%E8%83%BD%E4%BD%93%EF%BC%89"><span class="toc-text">LangChain（项目管理智能体）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9%E6%88%96%E6%9D%83%E8%A1%A1"><span class="toc-text">注意事项或权衡</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E5%8F%A5%E8%AF%9D%E6%80%BB%E7%BB%93"><span class="toc-text">一句话总结</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/0.html" title="无标题">无标题</a><time datetime="2026-03-23T15:48:34.601Z" title="发表于 2026-03-23 15:48 15:48:34">2026-03-23 15:48</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3b2987c6.html" title="vibe coding">vibe coding</a><time datetime="2026-03-19T00:38:45.000Z" title="发表于 2026-03-19 00:38 00:38:45">2026-03-19 00:38</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/6c5038c3.html" title="AI-Interview">AI-Interview</a><time datetime="2026-03-17T11:00:25.000Z" title="发表于 2026-03-17 11:00 11:00:25">2026-03-17 11:00</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/b4688e1e.html" title="LLM 基础知识">LLM 基础知识</a><time datetime="2026-03-16T23:25:16.000Z" title="发表于 2026-03-16 23:25 23:25:16">2026-03-16 23:25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/9ffccb73.html" title="Skill">Skill</a><time datetime="2026-03-16T15:36:35.000Z" title="发表于 2026-03-16 15:36 15:36:35">2026-03-16 15:36</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Supremes</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.1</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.2</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.2"></script><script src="/js/main.js?v=5.5.2"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@19.1.3/dist/lazyload.iife.min.js"></script><div class="js-pjax"><script>(() => {
+  const runMermaid = ele => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    ele.forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const config = mermaidSrc.dataset.config ? JSON.parse(mermaidSrc.dataset.config) : {}
+      if (!config.theme) {
+        config.theme = theme
+      }
+      const mermaidThemeConfig = `%%{init: ${JSON.stringify(config)}}%%\n`
+      const mermaidID = `mermaid-${index}`
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+      const renderMermaid = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      // mermaid v9 and v10 compatibility
+      typeof renderFn === 'string' ? renderMermaid(renderFn) : renderFn.then(({ svg }) => renderMermaid(svg))
+    })
+  }
+
+  const codeToMermaid = () => {
+    const codeMermaidEle = document.querySelectorAll('pre > code.mermaid')
+    if (codeMermaidEle.length === 0) return
+
+    codeMermaidEle.forEach(ele => {
+      const preEle = document.createElement('pre')
+      preEle.className = 'mermaid-src'
+      preEle.hidden = true
+      preEle.textContent = ele.textContent
+      const newEle = document.createElement('div')
+      newEle.className = 'mermaid-wrap'
+      newEle.appendChild(preEle)
+      ele.parentNode.replaceWith(newEle)
+    })
+  }
+
+  const loadMermaid = () => {
+    if (true) codeToMermaid()
+    const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+    if ($mermaid.length === 0) return
+
+    const runMermaidFn = () => runMermaid($mermaid)
+    btf.addGlobalFn('themeChange', runMermaidFn, 'mermaid')
+    window.loadMermaid ? runMermaidFn() : btf.getScript('https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.min.js').then(runMermaidFn)
+  }
+
+  btf.addGlobalFn('encrypt', loadMermaid, 'mermaid')
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="/"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章标题和内容..." type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.5.2"></script></div></div></body></html>
