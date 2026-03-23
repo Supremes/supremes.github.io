@@ -1,5 +1,8 @@
 ---
-updated: 2026-03-19 21:36
+updated: 2026-03-23 23:55
+Categories:
+  - Spring
+title: spring-ai-config-reference
 ---
 # Spring AI 完整配置项参考
 
