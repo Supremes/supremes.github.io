@@ -7,7 +7,7 @@ categories:
 cover:
 sticky:
 hidden: false
-updated: 2026-03-19 09:27
+updated: 2026-03-25 22:54
 ---
 ## Transformer
 
@@ -180,3 +180,47 @@ Agent 具有可调用外部工具的能力，但是每个 tool 需要提供 meta
   提供最强约束，字段类型和必填项均由 Schema 保证
 - Schema 设计是核心 — description 影响模型理解，enum 限制取值可有效减少幻觉，required只标真正必填字段
 - 选型原则 — 简单提取用 JSON Mode，多工具/多步骤用 Function Calling，强类型系统对接用Structured Outputs
+## 智能体范式
+
+- ReAct：执行thought -> action -> observe 动态循环，模拟人类解决问题的方式，方便地利用外部的工具，直至 LLM 认为任务结束。
+- Plan - and - Solve: 先规划后执行，擅长解决需要多部推理的场景，将复杂的场景逐步拆解成清晰的步骤进行执行
+- Reflection（自我反思和迭代）：引入 **执行 -> 反思 -> 优化**的迭代循环，显著提升解决方案的质量。
+
+![img](https://raw.githubusercontent.com/datawhalechina/Hello-Agents/main/docs/images/4-figures/4-4.png)
+
+### 对比
+
+ReAct：摸着石头过河，思考和行动是高度交织、步步紧扣的。
+Plan - and - Solve: 思考与行动是解耦的，前期进行思考，输出 plan，随后进入纯 Solve 模式，按部就班完成每一步
+Reflection: 不是指导行动的第一范式，强调在执行之后，加入一次回顾性思考，找到错误并修正，并发起一轮新的行动
+
+### Reflection 机制如何与 Plan-and-Solve、ReAct 协作？
+
+在实际的智能体系统中，**Reflection 并不是一个孤立存在的执行范式，而是一个建立在 ReAct 或 Plan-and-Solve 基础之上的高阶“元控制”回路。** 它们之间的协作关系完美地体现在 Reflection 的“三步走”工作流中：
+
+#### 1. 执行阶段 (Execution)：ReAct / Plan-and-Solve 负责“打草稿”
+
+Reflection 机制发挥作用的前提是必须有一个“初稿”。这个初稿正是由 ReAct 或 Plan-and-Solve 跑完一轮后生成的初步解决方案或行动轨迹。
+
+- **与 ReAct 协作：** 智能体先通过 ReAct 循环不断调用工具尝试解决问题。例如，智能体试图写一段爬虫代码，通过 ReAct 调用测试工具后发现报错，将这段含有缺陷的行动与报错轨迹保留下来。
+- **与 Plan-and-Solve 协作：** 智能体通过 Planner 制定计划，并由 Executor 逐步推导得出一个初步答案（比如一道复杂数学题的解题过程及答案）。
+
+#### 2. 反思阶段 (Reflection)：针对执行结果进行“内部评审”
+
+ReAct 和 Plan-and-Solve 都是**一次性**的任务执行链路——一旦输出了最终答案（即使是错的），工作流就结束了。并且，ReAct 极度依赖外部工具的反馈（Observation），如果工具返回无用信息，ReAct 就容易陷入死循环。
+
+而 Reflection 机制此时作为“评审员”介入协作：
+
+- 它脱离了单纯对外部工具的依赖，调用模型从**内部逻辑维度**审查 ReAct 或 Plan-and-Solve 刚刚产出的“初稿轨迹”。
+- 它会专门检查是否存在事实性错误、逻辑不连贯、关键约束遗漏，或者方案是否过于低效（例如发现 Plan-and-Solve 生成的 Python 代码时间复杂度是 $O(n^2)$），然后生成结构化的“反馈意见（Feedback）”。
+
+#### 3. 优化阶段 (Refinement)：带着反馈重新触发执行
+
+最后，Reflection 机制将原始任务、前两者的执行初稿，以及刚刚生成的评审反馈融合在一起，构建成全新的上下文（利用文章中提到的 `Memory` 模块管理）。
+
+- 智能体带着这些极具针对性的反馈，**再次触发** ReAct 去寻找新工具，或者要求 Plan-and-Solve 重新规划一套更优的执行路径，生成“修订版”。
+- 这个过程会多次迭代，直到反思阶段找不出新问题为止。
+
+**总结来说：**
+
+如果把解决复杂问题比作写一篇文章，**Plan-and-Solve** 是在列大纲并按章节起草，**ReAct** 是在边查资料边撰写内容。而 **Reflection** 则是写完后的“校对和审稿机制”。Reflection 将原本单向执行的 ReAct 和 Plan-and-Solve 包裹进了一个持续迭代优化的循环中，显著提升了智能体处理复杂任务的成功率和结果质量。
