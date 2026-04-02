@@ -1,0 +1,272 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>dawn-ai | Supremes</title><meta name="author" content="Supremes"><meta name="copyright" content="Supremes"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Propmt Engineering Output Structure：限制LLM 的输出结果符合结构化的格式，适应非概率型的业务场景  ReAct max-steps: 单次对话 tool 最多调用次数，避免 LLM &lt;-&gt; AGENT 陷入死循环 plan-and-resovle:  llm params optimization: temperature …    RAG Que">
+<meta property="og:type" content="article">
+<meta property="og:title" content="dawn-ai">
+<meta property="og:url" content="https://supremes.github.io/posts/c92b8131.html">
+<meta property="og:site_name" content="Supremes">
+<meta property="og:description" content="Propmt Engineering Output Structure：限制LLM 的输出结果符合结构化的格式，适应非概率型的业务场景  ReAct max-steps: 单次对话 tool 最多调用次数，避免 LLM &lt;-&gt; AGENT 陷入死循环 plan-and-resovle:  llm params optimization: temperature …    RAG Que">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg">
+<meta property="article:published_time" content="2026-04-01T22:57:03.000Z">
+<meta property="article:modified_time" content="2026-04-02T23:53:00.000Z">
+<meta property="article:author" content="Supremes">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "dawn-ai",
+  "url": "https://supremes.github.io/posts/c92b8131.html",
+  "image": "https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg",
+  "datePublished": "2026-04-01T22:57:03.000Z",
+  "dateModified": "2026-04-02T23:53:00.000Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Supremes",
+      "url": "https://supremes.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/favicon/favicon.ico"><link rel="canonical" href="https://supremes.github.io/posts/c92b8131.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.2"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"pagination":{"enable":true,"hitsPerPage":10},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: true,
+  isAnchor: true,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'dawn-ai',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-webfont/style.css" /><meta name="generator" content="Hexo 8.1.1"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">36</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">66</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">12</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/AI/"><i class="fa-fw fas fa-robot"></i><span> AI</span></a></li><li><a class="site-page child" href="/categories/Spring/"><i class="fa-fw fas fa-leaf"></i><span> Spring</span></a></li><li><a class="site-page child" href="/tags/JUC/"><i class="fa-fw fas fa-book"></i><span> JUC</span></a></li><li><a class="site-page child" href="/tags/Interview/"><i class="fa-fw fas fa-book"></i><span> 面试</span></a></li><li><a class="site-page child" href="/categories/database/"><i class="fa-fw fas fa-database"></i><span> 数据库</span></a></li><li><a class="site-page child" href="/categories/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法</span></a></li><li><a class="site-page child" href="/categories/security/"><i class="fa-fw fas fa-shield-alt"></i><span> 网络安全</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 关于</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/about/about_me"><i class="fa-fw fas fa-user"></i><span> 关于我</span></a></li><li><a class="site-page child" href="/about/my_notes"><i class="fa-fw fas fa-note-sticky"></i><span> 备忘录</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Supremes</span></a><a class="nav-page-title" href="/"><span class="site-name">dawn-ai</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/AI/"><i class="fa-fw fas fa-robot"></i><span> AI</span></a></li><li><a class="site-page child" href="/categories/Spring/"><i class="fa-fw fas fa-leaf"></i><span> Spring</span></a></li><li><a class="site-page child" href="/tags/JUC/"><i class="fa-fw fas fa-book"></i><span> JUC</span></a></li><li><a class="site-page child" href="/tags/Interview/"><i class="fa-fw fas fa-book"></i><span> 面试</span></a></li><li><a class="site-page child" href="/categories/database/"><i class="fa-fw fas fa-database"></i><span> 数据库</span></a></li><li><a class="site-page child" href="/categories/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法</span></a></li><li><a class="site-page child" href="/categories/security/"><i class="fa-fw fas fa-shield-alt"></i><span> 网络安全</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 关于</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/about/about_me"><i class="fa-fw fas fa-user"></i><span> 关于我</span></a></li><li><a class="site-page child" href="/about/my_notes"><i class="fa-fw fas fa-note-sticky"></i><span> 备忘录</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">dawn-ai</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-04-01T22:57:03.000Z" title="发表于 2026-04-01 22:57 22:57:03">2026-04-01 22:57</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-04-02T23:53:00.000Z" title="更新于 2026-04-02 23:53 23:53:00">2026-04-02 23:53</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2 id="propmt-engineering"><a href="#propmt-engineering" class="headerlink" title="Propmt Engineering"></a><strong>Propmt Engineering</strong></h2><ul>
+<li>Output Structure：限制LLM 的输出结果符合结构化的格式，适应非概率型的业务场景</li>
+</ul>
+<h2 id="react"><a href="#react" class="headerlink" title="ReAct"></a><strong>ReAct</strong></h2><ul>
+<li>max-steps: 单次对话 tool 最多调用次数，避免 LLM &lt;-&gt; AGENT 陷入死循环</li>
+<li>plan-and-resovle: </li>
+<li>llm params optimization:<ul>
+<li>temperature</li>
+<li>…</li>
+</ul>
+</li>
+</ul>
+<h2 id="rag"><a href="#rag" class="headerlink" title="RAG"></a><strong>RAG</strong></h2><ul>
+<li>Query 重写</li>
+<li>Agentic RAG (LLM 驱动), Max-rag-calls (每次请求，RAG 工具最多调用次数)</li>
+<li>Embedding、Chunk、Overlap</li>
+<li>召回率</li>
+<li>HYDE - Hypothetical Document Embeddings</li>
+</ul>
+<h2 id="向量检索算法"><a href="#向量检索算法" class="headerlink" title="向量检索算法"></a><strong>向量检索算法</strong></h2><ul>
+<li>IVF (Inverted File System) - 缩小搜索范围</li>
+<li>PQ (Product Quantization) - 压缩向量体积</li>
+<li>HNSW (Hierarchical navigable small world) - 分层可导航小世界算法</li>
+<li>HNSW_PQ &#x2F; HNSW_SQ</li>
+<li>DiskANN (Vamana 图)</li>
+</ul>
+<h2 id="memory-management"><a href="#memory-management" class="headerlink" title="Memory Management"></a><strong>Memory Management</strong></h2><ul>
+<li>核心记忆 - 用户画像、核心指令等信息，每次都会携带在 System Prompt 里</li>
+<li>短期记忆 - 对话历史<blockquote>
+<ul>
+<li><strong>存储内容</strong>：当前 Session（会话）中最近发生的 N 轮对话历史。</li>
+<li><strong>管理策略与痛点</strong>： 随着对话进行，Token 会迅速逼近大模型的上限（同时导致 KV Cache 暴增，拖慢生成速度）。必须引入<strong>截断与压缩机制</strong>：<ul>
+<li><strong>Sliding Window (滑动窗口)</strong>：最粗暴的方法，只保留最近的 N 条消息（如 LangChain4j 中的 <code>MessageWindowChatMemory</code>）。</li>
+<li><strong>Token Bounding (Token 限制)</strong>：实时计算历史记录的 Token 数，超过阈值（如 4000 tokens）就丢弃最老的记录。</li>
+<li><strong>Summary Buffer (摘要缓冲)</strong>：当对话达到一定长度时，触发一个后台的小模型或低成本 API（如 Gemini Flash），将旧的对话“浓缩”成一段简短的摘要（Summary），然后替换掉原有的完整对话。</li>
+</ul>
+</li>
+<li><strong>技术选型</strong>：通常存在后端内存中，或者为了分布式无状态化，存储在 Redis 中（如 <code>RedisChatMemoryStore</code>）。</li>
+</ul>
+</blockquote>
+</li>
+<li>长期记忆 - 向量数据库</li>
+<li>记忆流转与管理<ul>
+<li><strong>记忆固化 (Consolidation)</strong> 类似于人类的“睡眠”。当用户离线或当前 Task 结束后，后台调度任务（如使用 Spring 的 <code>@Async</code> 或定时任务）会对短期记忆进行盘点。提取关键信息、生成摘要、调用 Embedding API，然后持久化到长期记忆（向量&#x2F;图数据库）中，最后清空或截断 Redis 中的短期记忆。</li>
+<li><strong>记忆反思 (Reflection)</strong> 借鉴斯坦福 Generative Agents 论文：当 Agent 积累了足够多的散碎情景记忆后，系统会主动触发 LLM 进行“高维思考”。<ul>
+<li><em>底层数据</em>：“用户昨天问了多线程，今天问了 JUC，刚才问了线程池”。</li>
+<li><em>反思生成</em>：“用户是一个关注高并发和底层原理的后端开发”。</li>
+<li>这个反思结果会被提升（Promote）到核心工作记忆或作为高权重的长期记忆。</li>
+</ul>
+</li>
+<li><strong>遗忘机制 (Decay &#x2F; Eviction)</strong> 并不是所有检索出来的长期记忆都有价值。在进行向量检索时，工业界通常不仅看“相似度得分”，还会结合以下公式进行 Rerank（重排序）：<ul>
+<li><code>最终相关性 = 向量相似度权重 * a + 时间衰减权重 * b + 重要性评分权重 * c</code></li>
+<li>这意味着：越近发生的事、以及被 LLM 判定为越“重要”的事（比如用户的医疗过敏史 vs 用户昨天中午吃了什么），越容易被回忆起来。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="reflection"><a href="#reflection" class="headerlink" title="Reflection"></a><strong>Reflection</strong></h2><h2 id="agent-评估系统"><a href="#agent-评估系统" class="headerlink" title="Agent 评估系统"></a><strong>Agent 评估系统</strong></h2></article><div class="tag_share"><div class="post-share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/posts/6c846870.html" title="spring-ai-config-reference"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">spring-ai-config-reference</div></div><div class="info-2"><div class="info-item-1">Spring AI 完整配置项参考 基于 Spring AI 1.1.2，聚焦 OpenAI + PGVector 组合整理日期：2026-03-19  https://docs.spring.io/spring-ai/reference/index.html一、通用连接配置（spring.ai.openai.*）   配置项 说明 默认值    spring.ai.openai.api-key OpenAI API Key -   spring.ai.openai.base-url API 地址 https://api.openai.com   spring.ai.openai.organization-id 组织 ID -   spring.ai.openai.project-id 项目 ID -    二、Chat 模型配置（spring.ai.openai.chat.*）模型启用   配置项 说明 默认值    spring.ai.model.chat 启用 Chat 模型（设为 none 禁用） openai   spring.ai.openai.chat.base-u...</div></div></div></a><a class="pagination-related" href="/posts/3b2987c6.html" title="vibe coding"><img class="cover" src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">vibe coding</div></div><div class="info-2"><div class="info-item-1"> 模板页面：https://variant.com/community   </div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Supremes</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">36</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">66</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">12</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/Supremes"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#propmt-engineering"><span class="toc-text">Propmt Engineering</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#react"><span class="toc-text">ReAct</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#rag"><span class="toc-text">RAG</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%91%E9%87%8F%E6%A3%80%E7%B4%A2%E7%AE%97%E6%B3%95"><span class="toc-text">向量检索算法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#memory-management"><span class="toc-text">Memory Management</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reflection"><span class="toc-text">Reflection</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#agent-%E8%AF%84%E4%BC%B0%E7%B3%BB%E7%BB%9F"><span class="toc-text">Agent 评估系统</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/6c846870.html" title="spring-ai-config-reference">spring-ai-config-reference</a><time datetime="2026-04-02T15:54:24.071Z" title="发表于 2026-04-02 15:54 15:54:24">2026-04-02 15:54</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/c92b8131.html" title="dawn-ai">dawn-ai</a><time datetime="2026-04-01T22:57:03.000Z" title="发表于 2026-04-01 22:57 22:57:03">2026-04-01 22:57</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3b2987c6.html" title="vibe coding">vibe coding</a><time datetime="2026-03-19T00:38:45.000Z" title="发表于 2026-03-19 00:38 00:38:45">2026-03-19 00:38</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/6c5038c3.html" title="AI-Interview">AI-Interview</a><time datetime="2026-03-17T11:00:25.000Z" title="发表于 2026-03-17 11:00 11:00:25">2026-03-17 11:00</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/b4688e1e.html" title="LLM 基础知识">LLM 基础知识</a><time datetime="2026-03-16T23:25:16.000Z" title="发表于 2026-03-16 23:25 23:25:16">2026-03-16 23:25</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Supremes</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.1</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.2</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.2"></script><script src="/js/main.js?v=5.5.2"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@19.1.3/dist/lazyload.iife.min.js"></script><div class="js-pjax"><script>(() => {
+  const runMermaid = ele => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    ele.forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const config = mermaidSrc.dataset.config ? JSON.parse(mermaidSrc.dataset.config) : {}
+      if (!config.theme) {
+        config.theme = theme
+      }
+      const mermaidThemeConfig = `%%{init: ${JSON.stringify(config)}}%%\n`
+      const mermaidID = `mermaid-${index}`
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+      const renderMermaid = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      // mermaid v9 and v10 compatibility
+      typeof renderFn === 'string' ? renderMermaid(renderFn) : renderFn.then(({ svg }) => renderMermaid(svg))
+    })
+  }
+
+  const codeToMermaid = () => {
+    const codeMermaidEle = document.querySelectorAll('pre > code.mermaid')
+    if (codeMermaidEle.length === 0) return
+
+    codeMermaidEle.forEach(ele => {
+      const preEle = document.createElement('pre')
+      preEle.className = 'mermaid-src'
+      preEle.hidden = true
+      preEle.textContent = ele.textContent
+      const newEle = document.createElement('div')
+      newEle.className = 'mermaid-wrap'
+      newEle.appendChild(preEle)
+      ele.parentNode.replaceWith(newEle)
+    })
+  }
+
+  const loadMermaid = () => {
+    if (true) codeToMermaid()
+    const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+    if ($mermaid.length === 0) return
+
+    const runMermaidFn = () => runMermaid($mermaid)
+    btf.addGlobalFn('themeChange', runMermaidFn, 'mermaid')
+    window.loadMermaid ? runMermaidFn() : btf.getScript('https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.min.js').then(runMermaidFn)
+  }
+
+  btf.addGlobalFn('encrypt', loadMermaid, 'mermaid')
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="/"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章标题和内容..." type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.5.2"></script></div></div></body></html>
