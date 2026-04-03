@@ -1,0 +1,473 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>dawn-ai 企业级 Agent 整改方案 | Supremes</title><meta name="author" content="Supremes"><meta name="copyright" content="Supremes"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="参考 Claude Code 源码架构深度解析 V2.0 提炼的 7 大设计原则，结合 dawn-ai 现状，制定从 prototype 到 enterprise-grade agent 的整改路线。 详细差距分析见 dawn-ai 增强点记录   一、设计原则对标（Claude Code → dawn-ai） 以下 7 条原则提炼自 Claude Code 4756 个源文件的架构解析，每条原">
+<meta property="og:type" content="article">
+<meta property="og:title" content="dawn-ai 企业级 Agent 整改方案">
+<meta property="og:url" content="https://supremes.github.io/posts/1607ebb8.html">
+<meta property="og:site_name" content="Supremes">
+<meta property="og:description" content="参考 Claude Code 源码架构深度解析 V2.0 提炼的 7 大设计原则，结合 dawn-ai 现状，制定从 prototype 到 enterprise-grade agent 的整改路线。 详细差距分析见 dawn-ai 增强点记录   一、设计原则对标（Claude Code → dawn-ai） 以下 7 条原则提炼自 Claude Code 4756 个源文件的架构解析，每条原">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg">
+<meta property="article:published_time" content="2026-04-03T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-04-03T16:00:00.000Z">
+<meta property="article:author" content="Supremes">
+<meta property="article:tag" content="AI">
+<meta property="article:tag" content="Agent">
+<meta property="article:tag" content="Architecture">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "dawn-ai 企业级 Agent 整改方案",
+  "url": "https://supremes.github.io/posts/1607ebb8.html",
+  "image": "https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg",
+  "datePublished": "2026-04-03T16:00:00.000Z",
+  "dateModified": "2026-04-03T16:00:00.000Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Supremes",
+      "url": "https://supremes.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/favicon/favicon.ico"><link rel="canonical" href="https://supremes.github.io/posts/1607ebb8.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.2"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"pagination":{"enable":true,"hitsPerPage":10},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: true,
+  isAnchor: true,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'dawn-ai 企业级 Agent 整改方案',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-webfont/style.css" /><meta name="generator" content="Hexo 8.1.1"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">37</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">67</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">12</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/AI/"><i class="fa-fw fas fa-robot"></i><span> AI</span></a></li><li><a class="site-page child" href="/categories/Spring/"><i class="fa-fw fas fa-leaf"></i><span> Spring</span></a></li><li><a class="site-page child" href="/tags/JUC/"><i class="fa-fw fas fa-book"></i><span> JUC</span></a></li><li><a class="site-page child" href="/tags/Interview/"><i class="fa-fw fas fa-book"></i><span> 面试</span></a></li><li><a class="site-page child" href="/categories/database/"><i class="fa-fw fas fa-database"></i><span> 数据库</span></a></li><li><a class="site-page child" href="/categories/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法</span></a></li><li><a class="site-page child" href="/categories/security/"><i class="fa-fw fas fa-shield-alt"></i><span> 网络安全</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 关于</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/about/about_me"><i class="fa-fw fas fa-user"></i><span> 关于我</span></a></li><li><a class="site-page child" href="/about/my_notes"><i class="fa-fw fas fa-note-sticky"></i><span> 备忘录</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Supremes</span></a><a class="nav-page-title" href="/"><span class="site-name">dawn-ai 企业级 Agent 整改方案</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/AI/"><i class="fa-fw fas fa-robot"></i><span> AI</span></a></li><li><a class="site-page child" href="/categories/Spring/"><i class="fa-fw fas fa-leaf"></i><span> Spring</span></a></li><li><a class="site-page child" href="/tags/JUC/"><i class="fa-fw fas fa-book"></i><span> JUC</span></a></li><li><a class="site-page child" href="/tags/Interview/"><i class="fa-fw fas fa-book"></i><span> 面试</span></a></li><li><a class="site-page child" href="/categories/database/"><i class="fa-fw fas fa-database"></i><span> 数据库</span></a></li><li><a class="site-page child" href="/categories/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法</span></a></li><li><a class="site-page child" href="/categories/security/"><i class="fa-fw fas fa-shield-alt"></i><span> 网络安全</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 关于</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/about/about_me"><i class="fa-fw fas fa-user"></i><span> 关于我</span></a></li><li><a class="site-page child" href="/about/my_notes"><i class="fa-fw fas fa-note-sticky"></i><span> 备忘录</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">dawn-ai 企业级 Agent 整改方案</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-04-03T16:00:00.000Z" title="发表于 2026-04-03 16:00 16:00:00">2026-04-03 16:00</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-04-03T16:00:00.000Z" title="更新于 2026-04-03 16:00 16:00:00">2026-04-03 16:00</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><blockquote>
+<p>参考 <a target="_blank" rel="noopener" href="https://x.com/tvytlx">Claude Code 源码架构深度解析 V2.0</a> 提炼的 7 大设计原则，结合 dawn-ai 现状，制定从 prototype 到 enterprise-grade agent 的整改路线。</p>
+<p>详细差距分析见 <a href="/AI/dawn-ai-enhancement/">dawn-ai 增强点记录</a></p>
+</blockquote>
+<hr>
+<h2 id="一、设计原则对标（claude-code-→-dawn-ai）"><a href="#一、设计原则对标（claude-code-→-dawn-ai）" class="headerlink" title="一、设计原则对标（Claude Code → dawn-ai）"></a>一、设计原则对标（Claude Code → dawn-ai）</h2><blockquote>
+<p>以下 7 条原则提炼自 Claude Code 4756 个源文件的架构解析，每条原则都有对应的源码实现支撑。</p>
+</blockquote>
+<h3 id="原则-1：不信任模型的自觉性"><a href="#原则-1：不信任模型的自觉性" class="headerlink" title="原则 1：不信任模型的自觉性"></a>原则 1：不信任模型的自觉性</h3><blockquote>
+<p>好行为要写成制度。你希望模型先读代码再改代码，就写进 prompt；你希望模型不要乱加功能，就写进 prompt；你希望模型遇到风险操作停下来，就在 runtime 层加权限检查。不要指望一个 LLM 每次都”想到”该怎么做。制度化的行为比临场发挥稳定得多。</p>
+<p>Claude Code 对应源码：<code>getSimpleDoingTasksSection()</code>、<code>getActionsSection()</code></p>
+</blockquote>
+<p><strong>dawn-ai 现状</strong>：<code>buildSystemPrompt()</code> 已实现动态系统提示词，但行为规范较粗糙，缺乏 Claude Code 级别的细粒度行为约束（如逐条禁令：”不要加用户没要求的功能”、”不要过度抽象”、”先读代码再改代码”等）。</p>
+<p><strong>整改方向</strong>：System Prompt 中增加结构化的行为规范 section，明确 Agent 的”能做&#x2F;不能做”边界。</p>
+<h3 id="原则-2：把角色拆开"><a href="#原则-2：把角色拆开" class="headerlink" title="原则 2：把角色拆开"></a>原则 2：把角色拆开</h3><blockquote>
+<p>至少把”做事的人”和”验收的人”分开。哪怕用同一个模型，职责拆开也会有明显改善。因为同一个 Agent 既实现又验证，天然倾向于觉得自己做得没问题。</p>
+<p>Claude Code 对应源码：Verification Agent、Explore Agent、Plan Agent</p>
+</blockquote>
+<p><strong>dawn-ai 现状</strong>：单 Agent 架构，所有职责耦合在 <code>AgentOrchestrator</code> 中。</p>
+<p><strong>整改方向</strong>：拆分为至少 3 个角色 — Executor Agent（执行）、Verification Agent（对抗性验证）、Plan Agent（规划）。</p>
+<h3 id="原则-3：工具调用要有治理"><a href="#原则-3：工具调用要有治理" class="headerlink" title="原则 3：工具调用要有治理"></a>原则 3：工具调用要有治理</h3><blockquote>
+<p>模型说要调工具，中间还要过输入校验、权限检查、风险预判。执行完了还有后处理和失败处理。这层治理决定了系统在异常情况下的表现。</p>
+<p>Claude Code 对应源码：<code>toolExecution.ts</code> 的 14 步 pipeline</p>
+</blockquote>
+<p><strong>dawn-ai 现状</strong>：<code>ToolRegistry</code> 实现了自动扫描和注册，但缺乏执行前的校验、权限检查、风险预判。工具直接被 LLM 调用，无中间治理层。</p>
+<p><strong>整改方向</strong>：构建 Tool Execution Pipeline — Schema 校验 → 权限检查 → PreHook → 执行 → PostHook → 结果处理。</p>
+<h3 id="原则-4：上下文是预算"><a href="#原则-4：上下文是预算" class="headerlink" title="原则 4：上下文是预算"></a>原则 4：上下文是预算</h3><blockquote>
+<p>每个 token 都有成本，每条信息都占空间。能缓存的要缓存，能按需加载的不要一开始就塞进去，能压缩的要压缩。</p>
+<p>Claude Code 对应源码：<code>SYSTEM_PROMPT_DYNAMIC_BOUNDARY</code>、fork cache optimization、四道压缩机制（Snip → Micro → Context Collapse → Auto Compact）</p>
+</blockquote>
+<p><strong>dawn-ai 现状</strong>：短期记忆仅靠滑动窗口(MAX&#x3D;20)粗暴截断，无压缩&#x2F;摘要&#x2F;按需加载机制。System Prompt 无静态&#x2F;动态分区。</p>
+<p><strong>整改方向</strong>：实现 Summary Buffer 压缩 + System Prompt 静态&#x2F;动态分区（利用 Prompt Cache）。</p>
+<h3 id="原则-5：安全层要互不绕过"><a href="#原则-5：安全层要互不绕过" class="headerlink" title="原则 5：安全层要互不绕过"></a>原则 5：安全层要互不绕过</h3><blockquote>
+<p>三层防护（Classifier、Hook、Permission）可以互相配合，但任何一层不能绕过另一层。Hook 的 allow 不能绕过 settings 的 deny。这样即使某一层出了问题，整体安全性不会崩塌。</p>
+<p>Claude Code 对应源码：<code>resolveHookPermissionDecision()</code></p>
+</blockquote>
+<p><strong>dawn-ai 现状</strong>：零安全层。无输入过滤、无权限模型、无 Prompt Injection 检测。</p>
+<p><strong>整改方向</strong>：建立分层安全架构 — Input Filter → Tool Permission → Output Filter，各层独立且不可绕过。</p>
+<h3 id="原则-6：生态的关键是模型感知"><a href="#原则-6：生态的关键是模型感知" class="headerlink" title="原则 6：生态的关键是模型感知"></a>原则 6：生态的关键是模型感知</h3><blockquote>
+<p>你给系统接了十个插件，但模型不知道什么时候该用哪个，那这十个插件就等于不存在。扩展机制的最后一步，是让模型看到自己的能力清单。</p>
+<p>Claude Code 对应源码：MCP instructions injection、skill discovery、session-specific guidance</p>
+</blockquote>
+<p><strong>dawn-ai 现状</strong>：工具通过 @Tool 注解注册，LLM 通过 function calling 感知。但缺乏 MCP 协议支持和动态工具发现能力。</p>
+<p><strong>整改方向</strong>：实现 MCP 集成，让 Agent 动态感知和使用外部工具生态。</p>
+<h3 id="原则-7：产品化在于处理第二天"><a href="#原则-7：产品化在于处理第二天" class="headerlink" title="原则 7：产品化在于处理第二天"></a>原则 7：产品化在于处理第二天</h3><blockquote>
+<p>第一天跑起来不难。难的是任务中断怎么续、脏状态怎么清、进程泄漏怎么办、session 怎么恢复。这些问题不解决，产品就只能是 Demo。</p>
+<p>Claude Code 对应源码：<code>runAgent.ts</code> 的 cleanup chain、transcript recording、task lifecycle</p>
+</blockquote>
+<p><strong>dawn-ai 现状</strong>：无生命周期管理，MemoryService Redis 不可用时无 Failsafe（#10），无 Transcript 记录。</p>
+<p><strong>整改方向</strong>：完善生命周期管理 — 会话恢复、资源清理、异常兜底、执行记录。</p>
+<hr>
+<h2 id="二、整改计划（按价值分级）"><a href="#二、整改计划（按价值分级）" class="headerlink" title="二、整改计划（按价值分级）"></a>二、整改计划（按价值分级）</h2><h3 id="p0-—-核心竞争力（直接决定-agent-质量上限）"><a href="#p0-—-核心竞争力（直接决定-agent-质量上限）" class="headerlink" title="P0 — 核心竞争力（直接决定 Agent 质量上限）"></a>P0 — 核心竞争力（直接决定 Agent 质量上限）</h3><table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>Issue</th>
+<th>对标原则</th>
+<th>核心交付</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>P0-1</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/Supremes/dawn-ai/issues/23">#23 Memory 增强</a></td>
+<td>原则4：上下文是预算</td>
+<td>Summary Buffer 摘要压缩 + 记忆固化到向量库 + 时间衰减 Rerank</td>
+</tr>
+<tr>
+<td>P0-2</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/Supremes/dawn-ai/issues/13">#13 Reflection 机制</a></td>
+<td>原则4：上下文是预算</td>
+<td>情景记忆聚合 → 高维反思 → 提升为核心记忆</td>
+</tr>
+<tr>
+<td>P0-3</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/Supremes/dawn-ai/issues/24">#24 安全与合规</a></td>
+<td>原则5：安全层互不绕过</td>
+<td>Input Filter + Prompt Injection 检测 + Output Filter + 审计日志</td>
+</tr>
+<tr>
+<td>P0-4</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/Supremes/dawn-ai/issues/25">#25 MCP 协议支持</a></td>
+<td>原则6：生态的关键是模型感知</td>
+<td>MCP Client 实现 + 外部工具动态发现 + Instructions 注入</td>
+</tr>
+</tbody></table>
+<p><strong>执行顺序</strong>：#23 → #13 → #24 → #25（Memory 和 Reflection 互相依赖，先打通记忆链路）</p>
+<h3 id="p1-—-重要增强（提升可靠性与可扩展性）"><a href="#p1-—-重要增强（提升可靠性与可扩展性）" class="headerlink" title="P1 — 重要增强（提升可靠性与可扩展性）"></a>P1 — 重要增强（提升可靠性与可扩展性）</h3><table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>Issue</th>
+<th>对标原则</th>
+<th>核心交付</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>P1-1</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/Supremes/dawn-ai/issues/26">#26 Agent 评估系统</a></td>
+<td>原则1：不信任模型自觉性</td>
+<td>评估指标定义 + 标准测试集 + CI 质量门禁</td>
+</tr>
+<tr>
+<td>P1-2</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/Supremes/dawn-ai/issues/27">#27 可观测性增强</a></td>
+<td>原则7：产品化处理第二天</td>
+<td>OpenTelemetry 全链路 Tracing + Grafana Dashboard + 告警规则</td>
+</tr>
+<tr>
+<td>P1-3</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/Supremes/dawn-ai/issues/28">#28 Multi-Agent 协作</a></td>
+<td>原则2：把角色拆开</td>
+<td>Executor&#x2F;Verifier&#x2F;Planner 三角色拆分 + 任务委派 + 结果聚合</td>
+</tr>
+<tr>
+<td>P1-4</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/Supremes/dawn-ai/issues/29">#29 成本控制</a></td>
+<td>原则4：上下文是预算</td>
+<td>Token 计量 + 模型路由（按任务选模型）+ 速率限制与重试</td>
+</tr>
+<tr>
+<td>P1-5</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/Supremes/dawn-ai/issues/2">#2 Streaming SSE</a></td>
+<td>原则7：产品化处理第二天</td>
+<td>流式输出 + Streaming Tool Execution</td>
+</tr>
+</tbody></table>
+<p><strong>执行顺序</strong>：#26 → #27 → #28 → #29 → #2（先建评估体系，才能量化后续改进效果）</p>
+<h3 id="p2-—-长期演进（锦上添花）"><a href="#p2-—-长期演进（锦上添花）" class="headerlink" title="P2 — 长期演进（锦上添花）"></a>P2 — 长期演进（锦上添花）</h3><table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>Issue</th>
+<th>对标原则</th>
+<th>核心交付</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>P2-1</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/Supremes/dawn-ai/issues/30">#30 推理增强</a></td>
+<td>原则1：不信任模型自觉性</td>
+<td>CoT &#x2F; Tree-of-Thought &#x2F; HYDE</td>
+</tr>
+<tr>
+<td>P2-2</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/Supremes/dawn-ai/issues/31">#31 Prompt Engineering 增强</a></td>
+<td>原则1：不信任模型自觉性</td>
+<td>Template 引擎 + Few-shot + Output Parsing 容错</td>
+</tr>
+<tr>
+<td>P2-3</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/Supremes/dawn-ai/issues/32">#32 工程化与部署</a></td>
+<td>原则7：产品化处理第二天</td>
+<td>CI&#x2F;CD + 弹性伸缩 + 熔断降级</td>
+</tr>
+</tbody></table>
+<h3 id="已有-issue-整合"><a href="#已有-issue-整合" class="headerlink" title="已有 Issue 整合"></a>已有 Issue 整合</h3><table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>状态</th>
+<th>归属阶段</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a target="_blank" rel="noopener" href="https://github.com/Supremes/dawn-ai/issues/22">#22 System Prompt 动态组装</a></td>
+<td>OPEN</td>
+<td>与 P0-4 MCP 协同（动态注入 MCP instructions）</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://github.com/Supremes/dawn-ai/issues/21">#21 项目优化</a></td>
+<td>OPEN</td>
+<td>持续进行</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://github.com/Supremes/dawn-ai/issues/20">#20 AgentScope 学习载体</a></td>
+<td>OPEN(P0)</td>
+<td>贯穿全程，作为学习载体与原型验证平台</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://github.com/Supremes/dawn-ai/issues/10">#10 MemoryService Redis Failsafe</a></td>
+<td>OPEN(P2)</td>
+<td>并入 #23 Memory 增强一并解决</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://github.com/Supremes/dawn-ai/issues/9">#9 simpleChat 绕过 Agent 基础设施</a></td>
+<td>OPEN</td>
+<td>并入 #24 安全合规（工具治理）</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://github.com/Supremes/dawn-ai/issues/6">#6 补全单元测试</a></td>
+<td>OPEN(P2)</td>
+<td>并入 #26 评估系统（测试是评估的基础）</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="三、架构全景图"><a href="#三、架构全景图" class="headerlink" title="三、架构全景图"></a>三、架构全景图</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────────────────────────────────────┐</span><br><span class="line">│           第八层：工程化与部署 [#32]               │</span><br><span class="line">│  CI/CD · 弹性伸缩 · 熔断降级 · 灰度发布           │</span><br><span class="line">├─────────────────────────────────────────────────┤</span><br><span class="line">│         第七层：可观测性与评估 [#26 #27]            │</span><br><span class="line">│  OpenTelemetry · Metrics · Agent 评估 · A/B Test  │</span><br><span class="line">├─────────────────────────────────────────────────┤</span><br><span class="line">│          第六层：安全与合规 [#24]                   │</span><br><span class="line">│  Input Filter · Prompt Injection · Output Filter  │</span><br><span class="line">│  三层互不绕过：Classifier → Hook → Permission      │</span><br><span class="line">├─────────────────────────────────────────────────┤</span><br><span class="line">│        第五层：多 Agent 协作 [#28]                  │</span><br><span class="line">│  Executor · Verifier · Planner · 任务委派           │</span><br><span class="line">├─────────────────────────────────────────────────┤</span><br><span class="line">│         第四层：工具与执行 [#25]                    │</span><br><span class="line">│  ToolRegistry · MCP · 14步执行Pipeline             │</span><br><span class="line">│  Schema校验→权限→PreHook→执行→PostHook→结果       │</span><br><span class="line">├─────────────────────────────────────────────────┤</span><br><span class="line">│        第三层：知识与记忆 [#23 #13]                 │</span><br><span class="line">│  短期(Redis) · Summary Buffer · 长期(向量库)        │</span><br><span class="line">│  固化 · 反思(Reflection) · 遗忘(Decay)              │</span><br><span class="line">│  RAG · Query重写 · HYDE · 向量检索                  │</span><br><span class="line">├─────────────────────────────────────────────────┤</span><br><span class="line">│        第二层：推理与规划 [#30]                      │</span><br><span class="line">│  ReAct · Plan-and-Solve · CoT · ToT                │</span><br><span class="line">├─────────────────────────────────────────────────┤</span><br><span class="line">│        第一层：基础能力 [#31 #29]                    │</span><br><span class="line">│  LLM集成 · Prompt Engineering · Output Parsing     │</span><br><span class="line">│  Token计量 · 模型路由 · Prompt Cache                │</span><br><span class="line">└─────────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="四、关键决策点"><a href="#四、关键决策点" class="headerlink" title="四、关键决策点"></a>四、关键决策点</h2><h3 id="决策-1：agentscope-作为学习载体（-20）"><a href="#决策-1：agentscope-作为学习载体（-20）" class="headerlink" title="决策 1：AgentScope 作为学习载体（#20）"></a>决策 1：AgentScope 作为学习载体（<a target="_blank" rel="noopener" href="https://github.com/Supremes/dawn-ai/issues/20">#20</a>）</h3><p><strong>结论：引入 AgentScope，定位为学习载体与原型验证平台。</strong></p>
+<p>Spring AI 和 AgentScope 都是深度封装的框架。既然都是站在框架肩膀上，选择标准就变成了：<strong>哪个框架在”用的过程中”能让你更直接地接触 Agent 设计决策？</strong></p>
+<p>AgentScope 原生提供 ReAct Agent、Multi-Agent 编排、Memory 抽象、消息传递等 Agent 原语，且 Python 源码直观可读。学习路径更顺畅：<strong>先用 → 遇到问题 → 带着问题读源码 → 理解设计决策 → 反哺 Java 实现</strong>。</p>
+<p><strong>重点阅读模块：</strong></p>
+<table>
+<thead>
+<tr>
+<th>AgentScope 模块</th>
+<th>学习目标</th>
+<th>对应 dawn-ai Issue</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>agentscope/memory/</code></td>
+<td>Memory 抽象、短期&#x2F;长期记忆切换</td>
+<td>#23 Memory 增强</td>
+</tr>
+<tr>
+<td><code>agentscope/agents/react_agent.py</code></td>
+<td>ReAct Loop 实现细节</td>
+<td>AgentOrchestrator 优化</td>
+</tr>
+<tr>
+<td><code>agentscope/msghub.py</code></td>
+<td>Multi-Agent 消息传递与编排</td>
+<td>#28 Multi-Agent 协作</td>
+</tr>
+<tr>
+<td><code>agentscope/service/</code></td>
+<td>Tool&#x2F;Service 注册与执行</td>
+<td>#25 MCP 协议支持</td>
+</tr>
+<tr>
+<td><code>agentscope/prompt/</code></td>
+<td>Prompt 模板与组装策略</td>
+<td>#31 Prompt Engineering 增强</td>
+</tr>
+</tbody></table>
+<p><strong>实施步骤：</strong></p>
+<ol>
+<li>搭建 AgentScope 本地环境，跑通官方示例</li>
+<li>用 AgentScope 实现 dawn-ai 的核心场景（对话 + RAG + 工具调用）</li>
+<li>对比 Spring AI 实现，记录设计差异和优劣</li>
+<li>重点读源码模块（上表），提取可移植的设计模式</li>
+<li>将验证过的模式反哺到 dawn-ai Java 实现</li>
+</ol>
+<h3 id="决策-2：安全层实现策略"><a href="#决策-2：安全层实现策略" class="headerlink" title="决策 2：安全层实现策略"></a>决策 2：安全层实现策略</h3><p>参照 Claude Code 的三层防护设计：</p>
+<ul>
+<li><strong>Classifier</strong>（风险预判）→ 可用 Spring AI 的 Advisor 拦截链实现</li>
+<li><strong>Hook</strong>（策略层）→ Spring AOP + 自定义注解</li>
+<li><strong>Permission</strong>（权限决策）→ 工具级别的 <code>checkPermissions()</code> 方法</li>
+</ul>
+<h3 id="决策-3：上下文压缩策略"><a href="#决策-3：上下文压缩策略" class="headerlink" title="决策 3：上下文压缩策略"></a>决策 3：上下文压缩策略</h3><p>参照 Claude Code 的四道压缩机制，dawn-ai 可分步实现：</p>
+<ol>
+<li><strong>Phase 1</strong>：Summary Buffer（#23 中实现）</li>
+<li><strong>Phase 2</strong>：Token Bounding + Auto Compact</li>
+<li><strong>Phase 3</strong>：Context Collapse（需要 Multi-Agent 后支持）</li>
+</ol>
+</article><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/AI/">AI</a><a class="post-meta__tags" href="/tags/Agent/">Agent</a><a class="post-meta__tags" href="/tags/Architecture/">Architecture</a></div><div class="post-share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/posts/85e8511c.html" title="dawn-ai 增强点记录"><img class="cover" src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">dawn-ai 增强点记录</div></div><div class="info-2"><div class="info-item-1">代码与文档差距分析 对照 dawn-ai 仓库代码与规划文档，标注各模块实现状态。     模块 状态 关键代码 备注    Prompt Engineering ✅ 已实现 BeanOutputConverter&lt;RewriteResult&gt;、buildSystemPrompt() 结构化输出通过 Record(PlanStep) 实现，系统提示词动态构建   ReAct ✅ 已实现 AgentOrchestrator、TaskPlanner、application.yml max-steps&#x3D;10, plan-and-resolve 完整, temperature 差异化(TaskPlanner 0.3, QueryRewriter 0.1)   RAG ✅ 已实现 RagService、QueryRewriter、KnowledgeSearchTool Query 重写、Agentic RAG、Chunking(500token&#x2F;50overlap)、相似度阈值 0.7、max-calls&#x3D;3、去重机制   向量检索算法 🔨 部分...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/posts/85e8511c.html" title="dawn-ai 增强点记录"><img class="cover" src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-04-03 15:00</div><div class="info-item-2">dawn-ai 增强点记录</div></div><div class="info-2"><div class="info-item-1">代码与文档差距分析 对照 dawn-ai 仓库代码与规划文档，标注各模块实现状态。     模块 状态 关键代码 备注    Prompt Engineering ✅ 已实现 BeanOutputConverter&lt;RewriteResult&gt;、buildSystemPrompt() 结构化输出通过 Record(PlanStep) 实现，系统提示词动态构建   ReAct ✅ 已实现 AgentOrchestrator、TaskPlanner、application.yml max-steps&#x3D;10, plan-and-resolve 完整, temperature 差异化(TaskPlanner 0.3, QueryRewriter 0.1)   RAG ✅ 已实现 RagService、QueryRewriter、KnowledgeSearchTool Query 重写、Agentic RAG、Chunking(500token&#x2F;50overlap)、相似度阈值 0.7、max-calls&#x3D;3、去重机制   向量检索算法 🔨 部分...</div></div></div></a><a class="pagination-related" href="/posts/27915.html" title="MCP（Model Context Protocol）详解"><img class="cover" src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/MCP.webp" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-11-28 14:47</div><div class="info-item-2">MCP（Model Context Protocol）详解</div></div><div class="info-2"><div class="info-item-1">What is the MCP? MCP (Model Context Protocol) is an open-source standard for connecting AI applications to external systems. Using MCP, AI applications like Claude or ChatGPT can connect to data sources (e.g. local files, databases), tools (e.g. search engines, calculators) and workflows (e.g. specialized prompts)—enabling them to access key information and perform tasks. Think of MCP like a USB-C port for AI applications. Just as USB-C provides a standardized way to connect electronic device...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Supremes</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">37</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">67</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">12</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/Supremes"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E8%AE%BE%E8%AE%A1%E5%8E%9F%E5%88%99%E5%AF%B9%E6%A0%87%EF%BC%88claude-code-%E2%86%92-dawn-ai%EF%BC%89"><span class="toc-text">一、设计原则对标（Claude Code → dawn-ai）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8E%9F%E5%88%99-1%EF%BC%9A%E4%B8%8D%E4%BF%A1%E4%BB%BB%E6%A8%A1%E5%9E%8B%E7%9A%84%E8%87%AA%E8%A7%89%E6%80%A7"><span class="toc-text">原则 1：不信任模型的自觉性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8E%9F%E5%88%99-2%EF%BC%9A%E6%8A%8A%E8%A7%92%E8%89%B2%E6%8B%86%E5%BC%80"><span class="toc-text">原则 2：把角色拆开</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8E%9F%E5%88%99-3%EF%BC%9A%E5%B7%A5%E5%85%B7%E8%B0%83%E7%94%A8%E8%A6%81%E6%9C%89%E6%B2%BB%E7%90%86"><span class="toc-text">原则 3：工具调用要有治理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8E%9F%E5%88%99-4%EF%BC%9A%E4%B8%8A%E4%B8%8B%E6%96%87%E6%98%AF%E9%A2%84%E7%AE%97"><span class="toc-text">原则 4：上下文是预算</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8E%9F%E5%88%99-5%EF%BC%9A%E5%AE%89%E5%85%A8%E5%B1%82%E8%A6%81%E4%BA%92%E4%B8%8D%E7%BB%95%E8%BF%87"><span class="toc-text">原则 5：安全层要互不绕过</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8E%9F%E5%88%99-6%EF%BC%9A%E7%94%9F%E6%80%81%E7%9A%84%E5%85%B3%E9%94%AE%E6%98%AF%E6%A8%A1%E5%9E%8B%E6%84%9F%E7%9F%A5"><span class="toc-text">原则 6：生态的关键是模型感知</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8E%9F%E5%88%99-7%EF%BC%9A%E4%BA%A7%E5%93%81%E5%8C%96%E5%9C%A8%E4%BA%8E%E5%A4%84%E7%90%86%E7%AC%AC%E4%BA%8C%E5%A4%A9"><span class="toc-text">原则 7：产品化在于处理第二天</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E6%95%B4%E6%94%B9%E8%AE%A1%E5%88%92%EF%BC%88%E6%8C%89%E4%BB%B7%E5%80%BC%E5%88%86%E7%BA%A7%EF%BC%89"><span class="toc-text">二、整改计划（按价值分级）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#p0-%E2%80%94-%E6%A0%B8%E5%BF%83%E7%AB%9E%E4%BA%89%E5%8A%9B%EF%BC%88%E7%9B%B4%E6%8E%A5%E5%86%B3%E5%AE%9A-agent-%E8%B4%A8%E9%87%8F%E4%B8%8A%E9%99%90%EF%BC%89"><span class="toc-text">P0 — 核心竞争力（直接决定 Agent 质量上限）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#p1-%E2%80%94-%E9%87%8D%E8%A6%81%E5%A2%9E%E5%BC%BA%EF%BC%88%E6%8F%90%E5%8D%87%E5%8F%AF%E9%9D%A0%E6%80%A7%E4%B8%8E%E5%8F%AF%E6%89%A9%E5%B1%95%E6%80%A7%EF%BC%89"><span class="toc-text">P1 — 重要增强（提升可靠性与可扩展性）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#p2-%E2%80%94-%E9%95%BF%E6%9C%9F%E6%BC%94%E8%BF%9B%EF%BC%88%E9%94%A6%E4%B8%8A%E6%B7%BB%E8%8A%B1%EF%BC%89"><span class="toc-text">P2 — 长期演进（锦上添花）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B7%B2%E6%9C%89-issue-%E6%95%B4%E5%90%88"><span class="toc-text">已有 Issue 整合</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E6%9E%B6%E6%9E%84%E5%85%A8%E6%99%AF%E5%9B%BE"><span class="toc-text">三、架构全景图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%85%B3%E9%94%AE%E5%86%B3%E7%AD%96%E7%82%B9"><span class="toc-text">四、关键决策点</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%B3%E7%AD%96-1%EF%BC%9Aagentscope-%E4%BD%9C%E4%B8%BA%E5%AD%A6%E4%B9%A0%E8%BD%BD%E4%BD%93%EF%BC%88-20%EF%BC%89"><span class="toc-text">决策 1：AgentScope 作为学习载体（#20）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%B3%E7%AD%96-2%EF%BC%9A%E5%AE%89%E5%85%A8%E5%B1%82%E5%AE%9E%E7%8E%B0%E7%AD%96%E7%95%A5"><span class="toc-text">决策 2：安全层实现策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%B3%E7%AD%96-3%EF%BC%9A%E4%B8%8A%E4%B8%8B%E6%96%87%E5%8E%8B%E7%BC%A9%E7%AD%96%E7%95%A5"><span class="toc-text">决策 3：上下文压缩策略</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/1607ebb8.html" title="dawn-ai 企业级 Agent 整改方案">dawn-ai 企业级 Agent 整改方案</a><time datetime="2026-04-03T16:00:00.000Z" title="发表于 2026-04-03 16:00 16:00:00">2026-04-03 16:00</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/85e8511c.html" title="dawn-ai 增强点记录">dawn-ai 增强点记录</a><time datetime="2026-04-03T15:00:00.000Z" title="发表于 2026-04-03 15:00 15:00:00">2026-04-03 15:00</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/6c846870.html" title="spring-ai-config-reference">spring-ai-config-reference</a><time datetime="2026-04-03T08:50:04.959Z" title="发表于 2026-04-03 08:50 08:50:04">2026-04-03 08:50</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/c92b8131.html" title="dawn-ai">dawn-ai</a><time datetime="2026-04-01T22:57:03.000Z" title="发表于 2026-04-01 22:57 22:57:03">2026-04-01 22:57</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3b2987c6.html" title="vibe coding">vibe coding</a><time datetime="2026-03-19T00:38:45.000Z" title="发表于 2026-03-19 00:38 00:38:45">2026-03-19 00:38</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Supremes</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.1</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.2</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.2"></script><script src="/js/main.js?v=5.5.2"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@19.1.3/dist/lazyload.iife.min.js"></script><div class="js-pjax"><script>(() => {
+  const runMermaid = ele => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    ele.forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const config = mermaidSrc.dataset.config ? JSON.parse(mermaidSrc.dataset.config) : {}
+      if (!config.theme) {
+        config.theme = theme
+      }
+      const mermaidThemeConfig = `%%{init: ${JSON.stringify(config)}}%%\n`
+      const mermaidID = `mermaid-${index}`
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+      const renderMermaid = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      // mermaid v9 and v10 compatibility
+      typeof renderFn === 'string' ? renderMermaid(renderFn) : renderFn.then(({ svg }) => renderMermaid(svg))
+    })
+  }
+
+  const codeToMermaid = () => {
+    const codeMermaidEle = document.querySelectorAll('pre > code.mermaid')
+    if (codeMermaidEle.length === 0) return
+
+    codeMermaidEle.forEach(ele => {
+      const preEle = document.createElement('pre')
+      preEle.className = 'mermaid-src'
+      preEle.hidden = true
+      preEle.textContent = ele.textContent
+      const newEle = document.createElement('div')
+      newEle.className = 'mermaid-wrap'
+      newEle.appendChild(preEle)
+      ele.parentNode.replaceWith(newEle)
+    })
+  }
+
+  const loadMermaid = () => {
+    if (true) codeToMermaid()
+    const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+    if ($mermaid.length === 0) return
+
+    const runMermaidFn = () => runMermaid($mermaid)
+    btf.addGlobalFn('themeChange', runMermaidFn, 'mermaid')
+    window.loadMermaid ? runMermaidFn() : btf.getScript('https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.min.js').then(runMermaidFn)
+  }
+
+  btf.addGlobalFn('encrypt', loadMermaid, 'mermaid')
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="/"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章标题和内容..." type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.5.2"></script></div></div></body></html>
