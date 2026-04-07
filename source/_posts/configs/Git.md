@@ -4,12 +4,12 @@ tags:
   - git
 categories:
   - 工具效率
-cover: 'https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/GIT.webp'
+cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/GIT.webp
 hidden: false
-updated: 2025-12-08 14:24
+updated: 2026-04-07 10:48
 abbrlink: 3c3cdb74
 date: 2025-12-06 10:47:14
-sticky:
+sticky: "10"
 ---
 # 🍄 Git 全方位实战手册：从入门到通关
 
@@ -145,3 +145,96 @@ git config --global alias.amendpush '! git add . && git commit --amend --no-edit
 	# 配置漂亮的log输出
     lg = log --graph --pretty=format:'%C(yellow)%h%Creset %s %C(dim green)(%cr)%Creset' --abbrev-commit -5
   ```
+
+---
+
+# `git fixup` — 优雅地修补历史提交
+
+> 开发中经常遇到：刚提交完发现少改了一行、多了个 typo、忘加一个文件。这时候用 `git commit --amend` 只能修改**最近一次**提交，而 `fixup` + `autosquash` 可以精准修补**任意历史提交**。
+
+## 核心流程
+
+修改文件 → git add → git commit --fixup=<目标commit> → git rebase --autosquash
+
+### Step 1：找到要修补的目标 commit
+
+```bash
+git log --oneline -10
+```
+
+输出示例：
+```
+a1b2c3d feat: 添加用户登录功能
+e4f5g6h fix: 修复数据库连接问题
+h7i8j9k refactor: 重构配置模块
+```
+
+假设你想修补 `a1b2c3d` 这个 commit。
+
+### Step 2：修改文件并创建 fixup commit
+
+```bash
+# 修改需要补充的文件
+git add <修改的文件>
+
+# 创建 fixup commit，自动生成 "fixup! <原commit message>" 格式
+git commit --fixup=a1b2c3d
+```
+
+此时 `git log` 会多一条：
+```
+x9y8z7w fixup! feat: 添加用户登录功能   ← 新生成的 fixup commit
+a1b2c3d feat: 添加用户登录功能
+e4f5g6h fix: 修复数据库连接问题
+```
+
+### Step 3：使用 autosquash rebase 合并
+
+```bash
+# 对目标 commit 的父提交进行 rebase
+git rebase --autosquash <目标commit>~1
+
+# 或者如果 fixup 的目标在最近几个 commit 内
+git rebase --autosquash HEAD~5
+```
+
+Git 会自动将 fixup commit 移动到目标 commit 下方并合并，无需手动调整顺序。最终历史中只保留干净的 `a1b2c3d`，看不到修补痕迹。
+
+## 进阶用法
+
+### 设置 autosquash 为默认行为
+
+每次 rebase 都加 `--autosquash` 很麻烦，可以全局开启：
+
+```bash
+git config --global rebase.autosquash true
+```
+
+之后只需要：
+```bash
+git rebase -i HEAD~5   # autosquash 自动生效
+```
+
+### `--fixup=amend:` — 同时修改 commit message
+
+```bash
+# 不仅合并代码变更，还允许修改目标 commit 的 message
+git commit --fixup=amend:<commit-hash>
+```
+
+### `--fixup=reword:` — 只改 message 不改代码
+
+```bash
+# 只修改目标 commit 的 message，不涉及代码变更
+git commit --allow-empty --fixup=reword:<commit-hash>
+```
+
+## fixup vs amend vs revert 对比
+
+| 场景 | 命令 | 适用范围 |
+|------|------|----------|
+| 修补最近一次提交 | `git commit --amend` | 仅限最新 commit |
+| 修补任意历史提交 | `git commit --fixup` + `rebase --autosquash` | 任意未推送的 commit |
+| 撤销已推送的提交 | `git revert` | 已推送到远程的 commit |
+
+> ⚠️ **注意**：`fixup` + `rebase` 会**改写历史**，仅适用于尚未推送到远程的本地提交。如果已经 push，需要 `git push --force`，在团队协作中请谨慎使用。
