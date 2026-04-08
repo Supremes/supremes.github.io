@@ -95,24 +95,24 @@ updated: 2026-04-03 16:00
 
 ### P0 — 核心竞争力（直接决定 Agent 质量上限）
 
-| 阶段 | Issue | 对标原则 | 核心交付 |
-|------|-------|---------|---------|
-| P0-1 | [#23 Memory 增强](https://github.com/Supremes/dawn-ai/issues/23) | 原则4：上下文是预算 | Summary Buffer 摘要压缩 + 记忆固化到向量库 + 时间衰减 Rerank |
-| P0-2 | [#13 Reflection 机制](https://github.com/Supremes/dawn-ai/issues/13) | 原则4：上下文是预算 | 情景记忆聚合 → 高维反思 → 提升为核心记忆 |
-| P0-3 | [#24 安全与合规](https://github.com/Supremes/dawn-ai/issues/24) | 原则5：安全层互不绕过 | Input Filter + Prompt Injection 检测 + Output Filter + 审计日志 |
-| P0-4 | [#25 MCP 协议支持](https://github.com/Supremes/dawn-ai/issues/25) | 原则6：生态的关键是模型感知 | MCP Client 实现 + 外部工具动态发现 + Instructions 注入 |
+| 阶段   | Issue                                                              | 对标原则           | 核心交付                                                      |
+| ---- | ------------------------------------------------------------------ | -------------- | --------------------------------------------------------- |
+| P0-1 | [#23 Memory 增强](https://github.com/Supremes/dawn-ai/issues/23)     | 原则4：上下文是预算     | Summary Buffer 摘要压缩 + 记忆固化到向量库 + 时间衰减 Rerank              |
+| P0-2 | [#13 Reflection 机制](https://github.com/Supremes/dawn-ai/issues/13) | 原则4：上下文是预算     | 情景记忆聚合 → 高维反思 → 提升为核心记忆                                   |
+| P0-3 | [#24 安全与合规](https://github.com/Supremes/dawn-ai/issues/24)         | 原则5：安全层互不绕过    | Input Filter + Prompt Injection 检测 + Output Filter + 审计日志 |
+| P0-4 | [#25 MCP 协议支持](https://github.com/Supremes/dawn-ai/issues/25)      | 原则6：生态的关键是模型感知 | MCP Client 实现 + 外部工具动态发现 + Instructions 注入                |
 
 **执行顺序**：#23 → #13 → #24 → #25（Memory 和 Reflection 互相依赖，先打通记忆链路）
 
 ### P1 — 重要增强（提升可靠性与可扩展性）
 
-| 阶段 | Issue | 对标原则 | 核心交付 |
-|------|-------|---------|---------|
-| P1-1 | [#26 Agent 评估系统](https://github.com/Supremes/dawn-ai/issues/26) | 原则1：不信任模型自觉性 | 评估指标定义 + 标准测试集 + CI 质量门禁 |
-| P1-2 | [#27 可观测性增强](https://github.com/Supremes/dawn-ai/issues/27) | 原则7：产品化处理第二天 | OpenTelemetry 全链路 Tracing + Grafana Dashboard + 告警规则 |
-| P1-3 | [#28 Multi-Agent 协作](https://github.com/Supremes/dawn-ai/issues/28) | 原则2：把角色拆开 | Executor/Verifier/Planner 三角色拆分 + 任务委派 + 结果聚合 |
-| P1-4 | [#29 成本控制](https://github.com/Supremes/dawn-ai/issues/29) | 原则4：上下文是预算 | Token 计量 + 模型路由（按任务选模型）+ 速率限制与重试 |
-| P1-5 | [#2 Streaming SSE](https://github.com/Supremes/dawn-ai/issues/2) | 原则7：产品化处理第二天 | 流式输出 + Streaming Tool Execution |
+| 阶段   | Issue                                                               | 对标原则         | 核心交付                                                 |
+| ---- | ------------------------------------------------------------------- | ------------ | ---------------------------------------------------- |
+| P1-1 | [#26 Agent 评估系统](https://github.com/Supremes/dawn-ai/issues/26)     | 原则1：不信任模型自觉性 | 评估指标定义 + 标准测试集 + CI 质量门禁                             |
+| P1-2 | [#27 可观测性增强](https://github.com/Supremes/dawn-ai/issues/27)         | 原则7：产品化处理第二天 | OpenTelemetry 全链路 Tracing + Grafana Dashboard + 告警规则 |
+| P1-3 | [#28 Multi-Agent 协作](https://github.com/Supremes/dawn-ai/issues/28) | 原则2：把角色拆开    | Executor/Verifier/Planner 三角色拆分 + 任务委派 + 结果聚合        |
+| P1-4 | [#29 成本控制](https://github.com/Supremes/dawn-ai/issues/29)           | 原则4：上下文是预算   | Token 计量 + 模型路由（按任务选模型）+ 速率限制与重试                     |
+| P1-5 | [#2 Streaming SSE](https://github.com/Supremes/dawn-ai/issues/2)    | 原则7：产品化处理第二天 | 流式输出 + Streaming Tool Execution                      |
 
 **执行顺序**：#26 → #27 → #28 → #29 → #2（先建评估体系，才能量化后续改进效果）
 

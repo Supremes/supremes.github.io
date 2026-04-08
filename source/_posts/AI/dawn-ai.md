@@ -6,8 +6,14 @@ categories:
 cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg
 sticky:
 hidden: false
-updated: 2026-04-02 23:53
+updated: 2026-04-09 00:20
 ---
+# TODO
+
+- [ ] 考虑迁移框架，当前 agentscope 在向量化时，会天然的构造 JSON 数据结构存到向量数据库中，导致相似度阈值偏低
+- [ ] 集成更多的 tools，参考 java-agent 项目
+- [ ] hook llm call，打点和 log
+
 ## **Propmt Engineering**
 - Output Structure：限制LLM 的输出结果符合结构化的格式，适应非概率型的业务场景
 
@@ -31,6 +37,15 @@ updated: 2026-04-02 23:53
 - HNSW (Hierarchical navigable small world) - 分层可导航小世界算法
 - HNSW_PQ / HNSW_SQ
 - DiskANN (Vamana 图)
+
+## **向量数据库**
+
+- Postgresql 插件 - PGVector
+- **Faiss**
+- **Milvus**
+- **Qdrant**
+- **Weaviate**
+- 
 
 ## **Memory Management**
 - 核心记忆 - 用户画像、核心指令等信息，每次都会携带在 System Prompt 里

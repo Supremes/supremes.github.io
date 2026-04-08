@@ -13,15 +13,15 @@ updated: 2026-04-03 15:00
 
 > 对照 [dawn-ai](https://github.com/Supremes/dawn-ai) 仓库代码与规划文档，标注各模块实现状态。
 
-| 模块 | 状态 | 关键代码 | 备注 |
-|------|------|---------|------|
-| Prompt Engineering | ✅ 已实现 | `BeanOutputConverter<RewriteResult>`、`buildSystemPrompt()` | 结构化输出通过 Record(PlanStep) 实现，系统提示词动态构建 |
-| ReAct | ✅ 已实现 | `AgentOrchestrator`、`TaskPlanner`、`application.yml` | max-steps=10, plan-and-resolve 完整, temperature 差异化(TaskPlanner 0.3, QueryRewriter 0.1) |
-| RAG | ✅ 已实现 | `RagService`、`QueryRewriter`、`KnowledgeSearchTool` | Query 重写、Agentic RAG、Chunking(500token/50overlap)、相似度阈值 0.7、max-calls=3、去重机制 |
-| 向量检索算法 | 🔨 部分实现 | `application.yml`(HNSW) | 仅 HNSW 在 pgvector 中已配置；PQ/IVF/DiskANN 受限于 pgvector 版本未实现 |
-| Memory Management | 🔨 部分实现 | `MemoryService` | 短期记忆 Redis List(MAX_HISTORY=20) 可用；摘要压缩/长期记忆固化/遗忘机制仅在设计文档中 |
-| Reflection | ❌ 未实现 | — | 文档已规划（用户画像聚合、底层数据反思生成），代码无对应实现 |
-| Agent 评估系统 | ❌ 未实现 | — | 文档中空白，代码中无评估模块 |
+| 模块                 | 状态      | 关键代码                                                       | 备注                                                                                     |     |
+| ------------------ | ------- | ---------------------------------------------------------- | -------------------------------------------------------------------------------------- | --- |
+| Prompt Engineering | ✅ 已实现   | `BeanOutputConverter<RewriteResult>`、`buildSystemPrompt()` | 结构化输出通过 Record(PlanStep) 实现，系统提示词动态构建                                                  |     |
+| ReAct              | ✅ 已实现   | `AgentOrchestrator`、`TaskPlanner`、`application.yml`        | max-steps=10, plan-and-resolve 完整, temperature 差异化(TaskPlanner 0.3, QueryRewriter 0.1) |     |
+| RAG                | ✅ 已实现   | `RagService`、`QueryRewriter`、`KnowledgeSearchTool`         | Query 重写、Agentic RAG、Chunking(500token/50overlap)、相似度阈值 0.7、max-calls=3、去重机制           |     |
+| 向量检索算法             | 🔨 部分实现 | `application.yml`(HNSW)                                    | 仅 HNSW 在 pgvector 中已配置；PQ/IVF/DiskANN 受限于 pgvector 版本未实现                               |     |
+| Memory Management  | 🔨 部分实现 | `MemoryService`                                            | 短期记忆 Redis List(MAX_HISTORY=20) 可用；摘要压缩/长期记忆固化/遗忘机制仅在设计文档中                             |     |
+| Reflection         | ❌ 未实现   | —                                                          | 文档已规划（用户画像聚合、底层数据反思生成），代码无对应实现                                                         |     |
+| Agent 评估系统         | ❌ 未实现   | —                                                          | 文档中空白，代码中无评估模块                                                                         |     |
 
 ### 文档未覆盖但代码已有的功能
 
