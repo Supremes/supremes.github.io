@@ -6,14 +6,36 @@ categories:
 cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg
 sticky:
 hidden: false
-updated: 2026-04-09 00:20
+updated: 2026-04-09 23:04
 ---
 # TODO
 
-- [ ] 考虑迁移框架，当前 agentscope 在向量化时，会天然的构造 JSON 数据结构存到向量数据库中，导致相似度阈值偏低
-- [ ] 集成更多的 tools，参考 java-agent 项目
-- [ ] hook llm call，打点和 log
+- [x] 考虑迁移框架，当前 agentscope 在向量化时，会天然的构造 JSON 数据结构存到向量数据库中，导致相似度阈值偏低
+	决定集成 SpringAI，仅使用其有限的能力（如 pgvector 等），最大化的从零开始开发 agent 项目
 
+## Issues 
+###  RAG 召回率偏低
+> - “杜俊康” 这种很短的人名 query，对 embedding 模型来说语义信息太少
+> - 当前 /rag/search 没有关键词精确匹配兜底
+> - 阈值 0.7 又偏高
+> - 结果就是：明明文本里有“杜俊康”，但向量相似度没过线，最终返回 0
+
+如果你要这个搜索更符合直觉，最有效的是这三种改法：
+1. 把 similarity-threshold 从 0.7 下调到 0.4 到 0.55，先恢复基础召回。
+2. 给 /rag/search 增加关键词兜底：向量结果为 0 时，再做一次 content 的精确匹配或 LIKE 检索。
+3. 对短 query，尤其是 2 到 6 个字的人名、地名、术语，走混合检索而不是只走向量。
+
+	- 短 query？
+	- 使用query rewrite 来提升召回率？需要实验分析
+
+## P0
+- [ ] 实现 overlap-text-splitter：由于 springai 自带的 textsplitter 不支持设置 chunk overlap size，需要自实现。
+
+## P1
+
+- [ ] 记忆管理
+## P2
+- [ ] 集成更多的 tools，参考 java-agent、openharness 项目
 ## **Propmt Engineering**
 - Output Structure：限制LLM 的输出结果符合结构化的格式，适应非概率型的业务场景
 
