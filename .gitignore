@@ -32,3 +32,6 @@ source/imgs
 
 # Obsidian
 source/.obsidian/workspace.json
+
+# article folder ignored
+source/_posts/others
