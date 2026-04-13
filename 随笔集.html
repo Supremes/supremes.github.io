@@ -6,8 +6,8 @@
 <meta property="og:description" content="![[随笔集.png]] 123456789export STORAGE_LOCATION&#x3D;&#x2F;mnt&#x2F;f&#x2F;work&#x2F;code&#x2F;anything-llm-1.12.0&#x2F;config &amp;&amp; \mkdir -p $STORAGE_LOCATION &amp;&amp; \touch &quot;$STORAGE_LOCATION&#x2F;.env&quot; &amp;&amp; \docker">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/avatar.jpg">
-<meta property="article:published_time" content="2026-04-12T16:38:40.083Z">
-<meta property="article:modified_time" content="2026-04-09T23:22:00.000Z">
+<meta property="article:published_time" content="2026-04-13T09:07:27.398Z">
+<meta property="article:modified_time" content="2026-04-13T16:06:00.000Z">
 <meta property="article:author" content="Supremes">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/avatar.jpg"><script type="application/ld+json"></script><link rel="shortcut icon" href="/favicon/favicon.ico"><link rel="canonical" href="https://supremes.github.io/%E9%9A%8F%E7%AC%94%E9%9B%86.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.2"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
@@ -153,6 +153,151 @@
 <h1 id="vps"><a href="#vps" class="headerlink" title="vps"></a>vps</h1><p>root<br>Dududu951221</p>
 <p>11409</p>
 <p>用户名：root<br>密码：Dududu 951221<br>IP：<br>45.154.14.196<br>2401: e 9 e0:2000:: b 2<br>端口：11409</p>
+<h1 id="mac-降级"><a href="#mac-降级" class="headerlink" title="Mac 降级"></a>Mac 降级</h1><h2 id="solution1"><a href="#solution1" class="headerlink" title="Solution1"></a>Solution1</h2><p>降级 macOS 是一项需要彻底抹掉硬盘（格式化）的操作，苹果不支持“保留数据的无损降级”。针对你的 2019 款 Intel i9 MacBook Pro，降级到 macOS 14 (Sonoma) 或 13 (Ventura) 是完全可行的。</p>
+<p>以下是完整的图文级操作指南。请务必严格按照顺序进行，特别是<strong>第 3 步（T2 芯片设置）</strong>，这是很多人降级翻车的原因。</p>
+<hr>
+<h3 id="第一步：极其重要的备份-⚠️"><a href="#第一步：极其重要的备份-⚠️" class="headerlink" title="第一步：极其重要的备份 ⚠️"></a>第一步：极其重要的备份 ⚠️</h3><p><strong>不要过度依赖 Time Machine（时间机器）！</strong></p>
+<p>你在 macOS 15 (Sequoia) 下创建的时间机器备份，在 macOS 14 或 13 的“迁移助理”中是<strong>无法直接完整恢复</strong>的（苹果不允许系统版本“逆向穿越”）。</p>
+<ul>
+<li><strong>正确做法：</strong> 准备一块外接硬盘，手动把你重要的文件、代码、照片、文档直接<strong>复制粘贴</strong>过去。</li>
+<li>同时记录下你需要重新安装的重要软件清单。</li>
+</ul>
+<h3 id="第二步：下载旧版-macos-安装程序"><a href="#第二步：下载旧版-macos-安装程序" class="headerlink" title="第二步：下载旧版 macOS 安装程序"></a>第二步：下载旧版 macOS 安装程序</h3><p>你需要先在当前的 macOS 15 系统里，把旧版安装包下载到“应用程序”文件夹中。</p>
+<ol>
+<li><p>打开浏览器（建议用 Safari），点击苹果官方的 App Store 隐藏链接：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://apps.apple.com/cn/app/macos-sonoma/id6450717509?mt=12">获取 macOS 14 Sonoma</a></li>
+<li><a target="_blank" rel="noopener" href="https://apps.apple.com/cn/app/macos-ventura/id1638787999?mt=12">获取 macOS 13 Ventura</a></li>
+</ul>
+</li>
+<li><p>点击链接后会跳转到系统设置的“软件更新”页面，提示你下载。</p>
+</li>
+<li><p><strong>下载完成后，如果安装程序自动弹出来，请直接按 <code>Cmd + Q</code> 退出它（不要点击安装）。</strong> 此时，在你的“应用程序”文件夹里，应该能看到一个名为 <code>安装 macOS Sonoma</code>（或 Ventura）的图标。</p>
+</li>
+</ol>
+<h3 id="第三步：修改-t2-芯片安全设置（关键点）🔑"><a href="#第三步：修改-t2-芯片安全设置（关键点）🔑" class="headerlink" title="第三步：修改 T2 芯片安全设置（关键点）🔑"></a>第三步：修改 T2 芯片安全设置（关键点）🔑</h3><p>你的 2019 款 MacBook Pro 配备了 Apple T2 安全芯片。默认情况下，它<strong>禁止从 U 盘启动</strong>。如果你不改这个设置就直接把硬盘抹了，你的电脑就会变成“砖头”，只能去售后求救。</p>
+<ol>
+<li>重启电脑，在屏幕一黑的瞬间，立刻按住键盘上的 <code>Command (⌘) + R</code> 键，直到看到苹果 Logo 和进度条再松手。</li>
+<li>进入恢复模式后，如果要求输入密码，请选择一个管理员账号并输入开机密码。</li>
+<li>在屏幕顶部菜单栏中，点击 <strong>实用工具</strong> &gt; <strong>启动安全性实用工具</strong> (Startup Security Utility)。</li>
+<li>需要再次输入 macOS 密码进行身份验证。</li>
+<li>在弹出的窗口中，将底部“允许的启动介质”修改为：<strong>允许从外部介质或可移动介质启动</strong> (Allow booting from external or removable media)。</li>
+<li>关闭窗口，点击左上角苹果 Logo，选择重启，正常进入你的 macOS 15 系统。</li>
+</ol>
+<h3 id="第四步：制作启动-u-盘"><a href="#第四步：制作启动-u-盘" class="headerlink" title="第四步：制作启动 U 盘"></a>第四步：制作启动 U 盘</h3><ol>
+<li><p>准备一个至少 <strong>16GB</strong> 容量的 U 盘（注意：U 盘里的数据会被全部清空）。</p>
+</li>
+<li><p>插上 U 盘，打开 <strong>磁盘工具</strong>（在“应用程序” &gt; “实用工具”中）。</p>
+</li>
+<li><p>在左侧选中你的 U 盘，点击顶部的“抹掉”。</p>
+<ul>
+<li>名称：输入 <code>MyVolume</code> （注意大小写和拼写，这关乎后面的代码）</li>
+<li>格式：选择 <strong>Mac OS 扩展（日志式）</strong> (Mac OS Extended (Journaled))</li>
+<li>方案：选择 <strong>GUID 分区图</strong></li>
+<li>点击抹掉。</li>
+</ul>
+</li>
+<li><p>抹掉完成后，打开 <strong>终端</strong>（Terminal）。</p>
+</li>
+<li><p>根据你下载的系统，复制以下相应的代码粘贴到终端中，并回车：</p>
+<p> <strong>制作 macOS 14 Sonoma U 盘：</strong></p>
+<p> Bash</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo /Applications/Install\ macOS\ Sonoma.app/Contents/Resources/createinstallmedia --volume /Volumes/MyVolume</span><br></pre></td></tr></table></figure>
+<p> <strong>制作 macOS 13 Ventura U 盘：</strong></p>
+<p> Bash</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo /Applications/Install\ macOS\ Ventura.app/Contents/Resources/createinstallmedia --volume /Volumes/MyVolume</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>终端会要求你输入开机密码（输入时不会显示字符，输完直接回车）。</p>
+</li>
+<li><p>提示 <code>Type Y to continue</code> 时，输入 <code>Y</code> 并回车。等待进度条跑到 100% 并显示 “Install media now available”。</p>
+</li>
+</ol>
+<h3 id="第五步：抹掉硬盘，全新安装"><a href="#第五步：抹掉硬盘，全新安装" class="headerlink" title="第五步：抹掉硬盘，全新安装"></a>第五步：抹掉硬盘，全新安装</h3><ol>
+<li><p>确保电脑插着电源。插好刚才制作的启动 U 盘。</p>
+</li>
+<li><p>重启电脑，在屏幕变黑的瞬间，<strong>立刻长按键盘上的 <code>Option (⌥)</code> 键</strong>不放。</p>
+</li>
+<li><p>直到屏幕出现几个磁盘图标，松开按键。</p>
+</li>
+<li><p>选择你的 U 盘（名称为 <code>Install macOS Sonoma</code> 或 <code>Ventura</code>），按回车键进入。</p>
+</li>
+<li><p>进入恢复界面后，点击 <strong>磁盘工具</strong> (Disk Utility)，点击继续。</p>
+</li>
+<li><p>在左侧点击 <code>Macintosh HD</code>（你的系统盘），点击顶部的 <strong>抹掉</strong>。</p>
+<ul>
+<li>名称：<code>Macintosh HD</code></li>
+<li>格式：<strong>APFS</strong></li>
+<li>点击抹掉（如果看到“抹掉卷宗组”，请选择“抹掉卷宗组”）。</li>
+</ul>
+</li>
+<li><p>抹掉完成后，退出磁盘工具，回到主菜单。</p>
+</li>
+<li><p>选择 <strong>安装 macOS Sonoma</strong>（或 Ventura），点击继续，一路同意，选择你刚刚抹掉的 Macintosh HD 磁盘，耐心等待系统安装完成即可。</p>
+</li>
+</ol>
+<h2 id="solution2"><a href="#solution2" class="headerlink" title="Solution2"></a>Solution2</h2><p>既然你确定要降级到 <strong>macOS 13 Ventura</strong>，这里是专门针对你这台 2019 款 i9 MacBook Pro 的<strong>保姆级降级指南</strong>。</p>
+<p>由于从 15 降级到 13 属于“跨代大版本逆向安装”，<strong>必须格式化全盘</strong>。请严格按照以下步骤操作：</p>
+<h3 id="第一步：备份数据（手动拷贝）"><a href="#第一步：备份数据（手动拷贝）" class="headerlink" title="第一步：备份数据（手动拷贝）"></a>第一步：备份数据（手动拷贝）</h3><p><strong>特别提醒：</strong> 不要指望用 macOS 15 的时间机器（Time Machine）备份恢复到 macOS 13。系统不支持“高版本恢复到低版本”。</p>
+<ul>
+<li>请找一个外接硬盘，将你的个人文件、文档、代码、照片等<strong>手动复制</strong>出来。</li>
+<li>确认你的软件授权（如 Office, Adobe 等）是否已退出或记录好密钥。</li>
+</ul>
+<h3 id="第二步：下载-macos-13-ventura-镜像"><a href="#第二步：下载-macos-13-ventura-镜像" class="headerlink" title="第二步：下载 macOS 13 Ventura 镜像"></a>第二步：下载 macOS 13 Ventura 镜像</h3><ol>
+<li>在 macOS 15 系统中，点击此链接跳转 App Store：<a target="_blank" rel="noopener" href="https://apps.apple.com/cn/app/macos-ventura/id1638787999?mt=12">获取 macOS Ventura</a></li>
+<li>点击“获取”，它会跳转到系统设置进行下载。</li>
+<li>下载完成后，安装程序会自动弹出，请直接按 <code>Command + Q</code> <strong>退出安装程序</strong>。</li>
+<li>确认在你的“应用程序”文件夹中有一个名为 <code>安装 macOS Ventura</code> 的图标。</li>
+</ol>
+<h3 id="第三步：修改-t2-芯片安全设置（核心步骤-🔑）"><a href="#第三步：修改-t2-芯片安全设置（核心步骤-🔑）" class="headerlink" title="第三步：修改 T2 芯片安全设置（核心步骤 🔑）"></a>第三步：修改 T2 芯片安全设置（核心步骤 🔑）</h3><p>你的 2019 款 i9 电脑自带 T2 安全芯片，如果不改这个设置，它会禁止从 U 盘启动。</p>
+<ol>
+<li>重启电脑，黑屏瞬间长按 <code>Command (⌘) + R</code> 进入恢复模式。</li>
+<li>在顶部菜单栏找到 <strong>实用工具</strong> -&gt; <strong>启动安全性实用工具</strong>。</li>
+<li>选择 <strong>允许从外部介质或可移动介质启动</strong>。</li>
+<li>退出并重启，正常回到当前的 macOS 15。</li>
+</ol>
+<h3 id="第四步：制作启动-u-盘-1"><a href="#第四步：制作启动-u-盘-1" class="headerlink" title="第四步：制作启动 U 盘"></a>第四步：制作启动 U 盘</h3><ol>
+<li><p>插入一个 16GB 或以上的 U 盘（数据会被清空）。</p>
+</li>
+<li><p>打开“磁盘工具”，选中 U 盘，点击“抹掉”：</p>
+<ul>
+<li>名称：输入 <code>Ventura</code></li>
+<li>格式：选择 <strong>Mac OS 扩展（日志式）</strong></li>
+</ul>
+</li>
+<li><p>打开“终端”（Terminal），复制粘贴以下命令：</p>
+<p> Bash</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo /Applications/Install\ macOS\ Ventura.app/Contents/Resources/createinstallmedia --volume /Volumes/Ventura</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>输入你的开机密码（输入时不显示），按回车。提示 <code>Y/N</code> 时输入 <code>y</code>。</p>
+</li>
+<li><p>看到 <code>Install media now available</code> 表示制作成功。</p>
+</li>
+</ol>
+<h3 id="第五步：抹掉并安装-macos-13"><a href="#第五步：抹掉并安装-macos-13" class="headerlink" title="第五步：抹掉并安装 macOS 13"></a>第五步：抹掉并安装 macOS 13</h3><ol>
+<li><p>保持 U 盘插入，重启电脑，黑屏瞬间<strong>长按 <code>Option (⌥)</code> 键</strong>。</p>
+</li>
+<li><p>在启动项选择界面，选中那个黄色的 <strong>Install macOS Ventura</strong> 图标。</p>
+</li>
+<li><p>进入安装界面后，先选择 <strong>磁盘工具</strong>。</p>
+</li>
+<li><p>点击左侧顶部的 <code>Macintosh HD</code>（你的系统主盘），点击“抹掉”。</p>
+<ul>
+<li><strong>格式：必须选 APFS</strong></li>
+<li>点击“抹掉卷宗组”。</li>
+</ul>
+</li>
+<li><p>抹掉完成后，关闭磁盘工具，选择 <strong>安装 macOS Ventura</strong>。</p>
+</li>
+<li><p>一路点击继续，选择刚才抹掉的硬盘，等待约 30 分钟。</p>
+</li>
+</ol>
+<hr>
+<h3 id="💡-降级后的建议（针对-i9-散热）："><a href="#💡-降级后的建议（针对-i9-散热）：" class="headerlink" title="💡 降级后的建议（针对 i9 散热）："></a>💡 降级后的建议（针对 i9 散热）：</h3><p>完成降级并进入 macOS 13 系统后，强烈建议你安装以下两个工具，这会让你的 2019 i9 体验脱胎换骨：</p>
+<ol>
+<li><strong>Turbo Boost Switcher:</strong> 这是一个“降温神软”。你可以一键关闭 i9 的睿频（Turbo Boost）。关闭后，CPU 频率会锁定在基频（2.4 GHz 左右），这足以应对 90% 的办公需求，但<strong>发热会瞬间降低 15-20 度，风扇会非常安静</strong>。</li>
+<li><strong>Stats 或 Macs Fan Control:</strong> 用来手动调控风扇转速，防止 i9 积热。</li>
+</ol>
+<p>如果在操作过程中遇到任何报错（比如提示“安装程序副本已损坏”），请告诉我，通常是由于系统时间校验问题导致的，可以提供解决方法。</p>
 </div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Supremes</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">37</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">70</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">12</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/Supremes"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/91a389bb.html" title="RAG">RAG</a><time datetime="2026-04-12T15:15:51.000Z" title="发表于 2026-04-12 15:15 15:15:51">2026-04-12 15:15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/1607ebb8.html" title="dawn-ai 企业级 Agent 整改方案">dawn-ai 企业级 Agent 整改方案</a><time datetime="2026-04-03T16:00:00.000Z" title="发表于 2026-04-03 16:00 16:00:00">2026-04-03 16:00</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/85e8511c.html" title="dawn-ai 增强点记录">dawn-ai 增强点记录</a><time datetime="2026-04-03T15:00:00.000Z" title="发表于 2026-04-03 15:00 15:00:00">2026-04-03 15:00</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/c92b8131.html" title="dawn-ai">dawn-ai</a><time datetime="2026-04-01T22:57:03.000Z" title="发表于 2026-04-01 22:57 22:57:03">2026-04-01 22:57</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3b2987c6.html" title="vibe coding">vibe coding</a><time datetime="2026-03-19T00:38:45.000Z" title="发表于 2026-03-19 00:38 00:38:45">2026-03-19 00:38</time></div></div></div></div><div class="card-widget card-categories"><div class="item-headline">
             <i class="fas fa-folder-open"></i>
             <span>分类</span>
@@ -161,7 +306,7 @@
           </div>
           <ul class="card-category-list" id="aside-cat-list">
             <li class="card-category-list-item "><a class="card-category-list-link" href="/categories/AI/"><span class="card-category-list-name">AI</span><span class="card-category-list-count">7</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Spring/"><span class="card-category-list-name">Spring</span><span class="card-category-list-count">4</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/"><span class="card-category-list-name">后端开发</span><span class="card-category-list-count">16</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/tools/"><span class="card-category-list-name">工具效率</span><span class="card-category-list-count">3</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/database/"><span class="card-category-list-name">数据库</span><span class="card-category-list-count">13</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/diary/"><span class="card-category-list-name">日记</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%9D%82%E4%B8%83%E6%9D%82%E5%85%AB/"><span class="card-category-list-name">杂七杂八</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/message-queue/"><span class="card-category-list-name">消息队列</span><span class="card-category-list-count">2</span></a></li>
-          </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/%E5%8A%A0%E5%AF%86/" style="font-size: 1.1em; color: #999">加密</a> <a href="/tags/SCEP/" style="font-size: 1.1em; color: #999">SCEP</a> <a href="/tags/java/" style="font-size: 1.2em; color: #999da3">java</a> <a href="/tags/Redis/" style="font-size: 1.4em; color: #99a5b6">Redis</a> <a href="/tags/OAuth/" style="font-size: 1.1em; color: #999">OAuth</a> <a href="/tags/OIDC/" style="font-size: 1.1em; color: #999">OIDC</a> <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81/" style="font-size: 1.1em; color: #999">分布式锁</a> <a href="/tags/Kerberos/" style="font-size: 1.1em; color: #999">Kerberos</a> <a href="/tags/ORM/" style="font-size: 1.1em; color: #999">ORM</a> <a href="/tags/database/" style="font-size: 1.1em; color: #999">database</a> <a href="/tags/ReAct/" style="font-size: 1.1em; color: #999">ReAct</a> <a href="/tags/%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97/" style="font-size: 1.1em; color: #999">开发指南</a> <a href="/tags/Objective-C/" style="font-size: 1.1em; color: #999">Objective-C</a> <a href="/tags/Redisson/" style="font-size: 1.1em; color: #999">Redisson</a> <a href="/tags/Function-Calling/" style="font-size: 1.1em; color: #999">Function-Calling</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" style="font-size: 1.1em; color: #999">数据库</a> <a href="/tags/SAML/" style="font-size: 1.1em; color: #999">SAML</a> <a href="/tags/Java/" style="font-size: 1.2em; color: #999da3">Java</a> <a href="/tags/AI/" style="font-size: 1.3em; color: #99a1ac">AI</a> <a href="/tags/%E5%90%91%E9%87%8F%E6%95%B0%E6%8D%AE%E5%BA%93/" style="font-size: 1.1em; color: #999">向量数据库</a> <a href="/tags/PKCS/" style="font-size: 1.1em; color: #999">PKCS</a> <a href="/tags/Token/" style="font-size: 1.1em; color: #999">Token</a> <a href="/tags/iOS/" style="font-size: 1.1em; color: #999">iOS</a> <a href="/tags/X-509/" style="font-size: 1.1em; color: #999">X.509</a> <a href="/tags/%E6%8E%88%E6%9D%83/" style="font-size: 1.1em; color: #999">授权</a> <a href="/tags/Chromium/" style="font-size: 1.1em; color: #999">Chromium</a> <a href="/tags/%E5%AE%9E%E6%88%98/" style="font-size: 1.1em; color: #999">实战</a> <a href="/tags/%E8%AE%A4%E8%AF%81/" style="font-size: 1.2em; color: #999da3">认证</a> <a href="/tags/AOP/" style="font-size: 1.1em; color: #999">AOP</a> <a href="/tags/Category/" style="font-size: 1.1em; color: #999">Category</a> <a href="/tags/LLM/" style="font-size: 1.1em; color: #999">LLM</a> <a href="/tags/PKI/" style="font-size: 1.1em; color: #999">PKI</a> <a href="/tags/Embedding/" style="font-size: 1.1em; color: #999">Embedding</a> <a href="/tags/%E4%B8%80%E8%87%B4%E6%80%A7/" style="font-size: 1.1em; color: #999">一致性</a> <a href="/tags/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/" style="font-size: 1.1em; color: #999">面向对象</a> <a href="/tags/JWT/" style="font-size: 1.1em; color: #999">JWT</a> <a href="/tags/Claude/" style="font-size: 1.1em; color: #999">Claude</a> <a href="/tags/git/" style="font-size: 1.1em; color: #999">git</a> <a href="/tags/JUC/" style="font-size: 1.5em; color: #99a9bf">JUC</a> <a href="/tags/maven/" style="font-size: 1.1em; color: #999">maven</a></div></div><div class="card-widget card-archives">
+          </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/LDAP/" style="font-size: 1.1em; color: #999">LDAP</a> <a href="/tags/%E5%8D%8F%E8%AE%AE%E6%A0%87%E5%87%86/" style="font-size: 1.1em; color: #999">协议标准</a> <a href="/tags/ReAct/" style="font-size: 1.1em; color: #999">ReAct</a> <a href="/tags/Redisson/" style="font-size: 1.1em; color: #999">Redisson</a> <a href="/tags/git/" style="font-size: 1.1em; color: #999">git</a> <a href="/tags/PKI/" style="font-size: 1.1em; color: #999">PKI</a> <a href="/tags/%E5%8A%A0%E5%AF%86/" style="font-size: 1.1em; color: #999">加密</a> <a href="/tags/Obsidian/" style="font-size: 1.1em; color: #999">Obsidian</a> <a href="/tags/LLM/" style="font-size: 1.1em; color: #999">LLM</a> <a href="/tags/OIDC/" style="font-size: 1.1em; color: #999">OIDC</a> <a href="/tags/AI-Agent/" style="font-size: 1.1em; color: #999">AI-Agent</a> <a href="/tags/AI/" style="font-size: 1.37em; color: #99a4b2">AI</a> <a href="/tags/PKCS/" style="font-size: 1.1em; color: #999">PKCS</a> <a href="/tags/JUC/" style="font-size: 1.5em; color: #99a9bf">JUC</a> <a href="/tags/Token/" style="font-size: 1.1em; color: #999">Token</a> <a href="/tags/Protocol/" style="font-size: 1.1em; color: #999">Protocol</a> <a href="/tags/%E6%95%B0%E5%AD%97%E8%AF%81%E4%B9%A6/" style="font-size: 1.1em; color: #999">数字证书</a> <a href="/tags/ACME/" style="font-size: 1.1em; color: #999">ACME</a> <a href="/tags/maven/" style="font-size: 1.1em; color: #999">maven</a> <a href="/tags/Objective-C/" style="font-size: 1.1em; color: #999">Objective-C</a> <a href="/tags/Claude/" style="font-size: 1.1em; color: #999">Claude</a> <a href="/tags/Hibernate/" style="font-size: 1.1em; color: #999">Hibernate</a> <a href="/tags/%E4%B8%80%E8%87%B4%E6%80%A7/" style="font-size: 1.1em; color: #999">一致性</a> <a href="/tags/Spring/" style="font-size: 1.1em; color: #999">Spring</a> <a href="/tags/%E7%BC%93%E5%AD%98/" style="font-size: 1.23em; color: #999ea6">缓存</a> <a href="/tags/Kafka/" style="font-size: 1.1em; color: #999">Kafka</a> <a href="/tags/Category/" style="font-size: 1.1em; color: #999">Category</a> <a href="/tags/MySQL/" style="font-size: 1.37em; color: #99a4b2">MySQL</a> <a href="/tags/JWT/" style="font-size: 1.1em; color: #999">JWT</a> <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/" style="font-size: 1.23em; color: #999ea6">分布式系统</a> <a href="/tags/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/" style="font-size: 1.1em; color: #999">面向对象</a> <a href="/tags/Chromium/" style="font-size: 1.1em; color: #999">Chromium</a> <a href="/tags/SCEP/" style="font-size: 1.1em; color: #999">SCEP</a> <a href="/tags/Java/" style="font-size: 1.23em; color: #999ea6">Java</a> <a href="/tags/%E9%AB%98%E5%8F%AF%E7%94%A8/" style="font-size: 1.1em; color: #999">高可用</a> <a href="/tags/stream/" style="font-size: 1.1em; color: #999">stream</a> <a href="/tags/java/" style="font-size: 1.23em; color: #999ea6">java</a> <a href="/tags/X-509/" style="font-size: 1.1em; color: #999">X.509</a> <a href="/tags/%E5%90%91%E9%87%8F%E6%95%B0%E6%8D%AE%E5%BA%93/" style="font-size: 1.1em; color: #999">向量数据库</a> <a href="/tags/%E9%9B%86%E7%BE%A4/" style="font-size: 1.1em; color: #999">集群</a></div></div><div class="card-widget card-archives">
     <div class="item-headline">
       <i class="fas fa-archive"></i>
       <span>归档</span>
@@ -216,7 +361,7 @@
         </li>
       
     </ul>
-  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站信息</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">37</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总浏览量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2026-04-12T16:38:49.822Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Supremes</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.1</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.2</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.2"></script><script src="/js/main.js?v=5.5.2"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@19.1.3/dist/lazyload.iife.min.js"></script><div class="js-pjax"><script>(() => {
+  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站信息</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">37</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总浏览量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2026-04-13T09:07:37.997Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Supremes</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.1</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.2</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.2"></script><script src="/js/main.js?v=5.5.2"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@19.1.3/dist/lazyload.iife.min.js"></script><div class="js-pjax"><script>(() => {
   const runMermaid = ele => {
     window.loadMermaid = true
     const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
