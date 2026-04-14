@@ -6,7 +6,7 @@ categories:
 cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg
 sticky:
 hidden: false
-updated: 2026-04-10 17:23
+updated: 2026-04-15 00:24
 ---
 
 # Issues 
@@ -24,14 +24,14 @@ updated: 2026-04-10 17:23
 
 ### 整改方案 
 #### P0
-- [ ] 实现 overlap-text-splitter：由于 springai 自带的 textsplitter 不支持设置 chunk overlap size，需要自实现。
+- [x] 实现 overlap-text-splitter：由于 springai 自带的 textsplitter 不支持设置 chunk overlap size，需要自实现。
 - [ ] [线程池定制]为 LLM API 调用和 Rerank 模型调用配置专属的“重度 I/O 密集型” `ThreadPoolExecutor`
 > - 基于公式 `CPU核数 × (1 + WaitTime/ComputeTime)` 计算合理的 `corePoolSize`（预期在几十到上百之间）。
 > - 设定合理的 `BlockingQueue` 大小，防止内存打满。
 > - 编写自定义的 `RejectedExecutionHandler`（拒绝策略），确保在线程池打满时，主业务不会崩溃，且能记录报警日志。
 #### P1
 - [ ] **[多路混合召回]** 
-	- [ ] 引入 ElasticSearch (或同类方案) 提供 BM25 稀疏向量检索，结合向量库，实现 `Dense + Sparse` 双路并发召回。
+	- [x] 引入 ElasticSearch (或同类方案) 提供 BM25 稀疏向量检索，结合向量库，实现 `Dense + Sparse` 双路并发召回。
 	- [ ] **[并发重构]** 使用 `CompletableFuture.supplyAsync()` 将 BM25 检索和向量检索改为**并发执行**，使用 `allOf().join()` 统一收集结果，将串行耗时压缩为最大单路耗时。
 	- [ ] **[超时熔断设计]** 利用 Java 9+ 的 `.completeOnTimeout()` API 为外部 Rerank 模型调用加上严格的 SLA 限制（例如 800ms）。
 	- [ ] **[降级链路实现]** 使用 `.exceptionally()` 或者 resiliency 库编写优雅的 Fallback 逻辑。当 Rerank 失败或 LLM API 阻滞时，能够自动返回未重排的原始召回结果或降级话术。
@@ -39,7 +39,7 @@ updated: 2026-04-10 17:23
 #### P2
 - [ ] **[trunk重构]** 废弃按字数切分的策略。开发基于 AST（抽象语法树）或 Markdown 结构的 **语义级分块 (Semantic Chunking)** 工具。
 - [ ] **[数据模型优化]** 在向量数据库（如 Milvus/Qdrant）中实现 **“父子文档 (Parent-Child)”** 关联映射（类似二级索引回表）。存储子 Chunk 的 Embedding，但保留指向完整父段落的 ID。
-- [ ] **[重排序]** 在业务层接入 BGE-Reranker 等重排序模型，对多路召回的 Top 20 结果进行深度交叉评分，提取真正的 Top 5。
+- [x] **[重排序]** 在业务层接入 BGE-Reranker 等重排序模型，对多路召回的 Top 20 结果进行深度交叉评分，提取真正的 Top 5。
 
 ## Memory
 

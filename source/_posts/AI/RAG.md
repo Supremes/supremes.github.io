@@ -6,7 +6,7 @@ categories:
 cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg
 sticky:
 hidden: false
-updated: 2026-04-13 00:31
+updated: 2026-04-14 23:28
 ---
 Retrieval Argument Generation - 检索增强生成
 
@@ -36,7 +36,7 @@ Chunking:
 
 #### 项目实践
 
-**Sparse recall:**
+##### Sparse recall
 > PostgreSQL 做向量库，FTS 做匹配
 
 ```sql
@@ -56,7 +56,52 @@ LIMIT ?
 - `simple` 配置意味着它不做太激进的词形还原，比较偏“原词匹配”。
 - **`ts_rank_cd` 排序** : 这一步不是严格意义的 BM25，而是 PostgreSQL 自己的 ranking 函数.这是个工程上可接受的近似实现，但不是学术定义 BM25。
 
-**Fusion:**
+###### 详细解析 
+**`to_tsvector('simple', content)`**  
+将文档转为词位（lexeme）集合。`'simple'` 词典意味着：
+
+- 只做小写化（lowercase）
+- **不做词干提取（stemming）**，不做停用词过滤
+- `"Running Docker containers"` → `{'running', 'docker', 'containers'}`
+
+**`websearch_to_tsquery('simple', query)`**  
+将查询解析为布尔匹配表达式，支持 `AND` / `OR` / `NOT` /短语：
+
+- `"GPU docker"` → `'gpu' & 'docker'`（隐式 AND）
+- `"docker OR kubernetes"` → `'docker' | 'kubernetes'`
+- `"\"vector search\""` → `'vector' <-> 'search'`（相邻匹配）
+
+**`ts_rank_cd`**  
+基于词频和文档覆盖度（cover density）打分，是 PostgreSQL 内置的近似 BM25 排名函数。
+
+---
+是否属于"原词匹配"？
+
+**是，但有一步预处理**：用的是 `'simple'` 词典，只做小写化，不做词干提取。
+
+|场景|结果|
+|---|---|
+|query= `"Docker"`, doc 含 `"docker"` |✅ 匹配（大小写不敏感）|
+|query= `"running"`, doc 含 `"run"` |❌ 不匹配（`simple` 不做词干还原）|
+|query= `"GPU containers"`, doc 含两词|✅ 匹配（AND 语义）|
+|query= `"如何语义搜索"`, doc 为英文|❌ 不匹配（中文词无法被 simple 正确分词）|
+
+`'simple'` 是刻意选择，避免英文词干提取干扰中英混合场景，但代价是英文词形变化（run/running/ran）无法召回。
+
+###### TODO
+
+与真正 BM25 的差异
+
+|特性|当前实现 (ts_rank_cd)|真正 BM25|
+|---|---|---|
+|词频归一化|部分（cover density）|完整（文档长度归一化）|
+|IDF 加权|无|有（罕见词权重更高）|
+|词干提取|不做（`simple`）|取决于分析器配置|
+|中文支持|❌ 需要 zhparser 扩展|需要中文分词器|
+
+如果要升级到真正的 BM25，可以引入 **`pg_bm25`（ParadeDB）** 扩展，或者在 Infinity 服务上启用 SPLADE 稀疏向量来替代传统关键词召回。
+
+##### Fusion
 
 项目实践中的fusion 不用 dense 和 sparse recall 中的分数，而是名词。
 核心公式: 属于经典的 RRF 思路
@@ -151,108 +196,14 @@ matchedTokens / queryTokens.size ()
 `metadataBoost`: 如果请求本身带 metadata 条件，而文档 metadata 也匹配，就给额外加分。
 `orginalRnakBoost`: 保留一个“原始排序先验”。也就是说 rerank 不是完全推翻上一阶段，而是让上一阶段排名继续有影响。
 
-## Eveluation
+## Evaluation
 
-```
-我先补两项你需要的内容：一是适配你当前 Ubuntu 24.04 的 `nvidia-container-toolkit` 安装命令，二是安装完成后的逐步验证链路。
+## 参考
 
-Ran terminal command:  source /etc/os-release && printf 'ID=%s\nVERSION_ID=%s\n' "$ID" "$VERSION_ID" && printf '\n' && (systemctl is-active docker || true)
+### Infinity
 
-Ran terminal command:  cd /mnt/f/work/code/dawn-ai && docker compose -f docker-compose.yml -f docker-compose.gpu.yml config | sed -n '1,120p'
-
-我已经确认你的系统是 Ubuntu 24.04，`systemd` 管理 Docker 也正常，所以可以直接按原生 Docker Engine 的方式安装 `nvidia-container-toolkit`，然后再验证 `bge-m3` 的 GPU 启动链路。
-
-Ran terminal command:  cd /mnt/f/work/code/dawn-ai && printf 'ready-for-user-steps\n'
-
-已整理出适配你当前环境的安装与验证步骤：先给 `nvidia-container-toolkit` 的命令，再给 GPU 容器和 `bge-m3` 服务的验证命令。
-
-Inserted into memory file [](file:///root/.vscode-server/data/User/workspaceStorage/551e815fccfbaf9609d2288cfd090274/GitHub.copilot-chat/memory-tool/memories/repo/dawn-ai-notes.md)
-
-按你当前环境，直接做这两步就行。
-
-**2. 安装 `nvidia-container-toolkit`**
-你现在是 Ubuntu 24.04，Docker 由 `systemd` 管理，这套命令可以直接用：
-
-```bash
-curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey \
-  | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
-
-curl -fsSL https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list \
-  | sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' \
-  | sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list > /dev/null
-
-sudo apt-get update
-sudo apt-get install -y nvidia-container-toolkit
-
-sudo nvidia-ctk runtime configure --runtime=docker
-sudo systemctl restart docker
-```
-
-装完先做基础验证：
-
-```bash
-nvidia-ctk --version
-docker info | sed -n '/Runtimes/,+8p'
-docker run --rm --gpus all nvidia/cuda:12.6.3-base-ubuntu22.04 nvidia-smi
-```
-
-你要看到两件事才算通了：
-- `nvidia-ctk` 不再报 `command not found`
-- `docker run --gpus all ... nvidia-smi` 能在容器里打印显卡信息
-
-如果这一步还不通，先不要启动项目里的 GPU compose，因为 `gpus: all` 还是会失败。
-
-**3. 验证 GPU 容器和 `bge-m3`**
-基础 GPU runtime 通了以后，再启动你项目里的 GPU 版 embedding：
-
-```bash
-cd /mnt/f/work/code/dawn-ai
-docker compose down embedding app
-docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d --force-recreate embedding app
-```
-
-先看服务状态：
-
-```bash
-docker compose ps
-```
-
-再看 embedding 日志，确认模型开始加载：
-
-```bash
-docker compose logs -f embedding
-```
-
-正常情况下你应该能看到 `BAAI/bge-m3` 下载或加载相关日志，而不是立刻退出。
-
-然后测一下容器是不是已经能提供 embeddings 接口。等日志里显示服务 ready 后执行：
-
-```bash
-curl -s http://localhost:7997/docs | head
-```
-
-如果能返回 Swagger HTML，说明 Infinity HTTP 服务已经起来了。
-
-再做一个实际 embedding 请求测试：
-
-```bash
-curl -s http://localhost:7997/v1/embeddings \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "model": "BAAI/bge-m3",
-    "input": "退款政策是什么？"
-  }'
-```
-
-如果成功，返回里会有 embedding 向量数据。接着再看应用日志，确认 Spring Boot 连到了本地 embedding 服务：
-
-```bash
-docker compose logs --tail=100 app
-```
-
-你这个项目现在已经拆成了独立 embedding 地址配置，所以 GPU 版真正生效时，应用会继续走云端 chat，同时走本地 `bge-m3` embeddings。相关入口分别在 docker-compose.yml、docker-compose.gpu.yml 和 application.yml。
-
-如果你执行完安装命令后，我可以继续帮你做两件事：
-1. 帮你判断 `nvidia-container-toolkit` 是否已经装成功
-2. 带你逐条检查 `embedding` 容器日志，确认 `bge-m3` 是否真的跑在 GPU 上
-```
+一款**高性能、低延迟的开源推理引擎**，专门用于部署文本向量化（Text-Embeddings）、重排序（Reranking）、视觉向量化（CLIP/ColPali）等模型。是目前 RAG（检索增强生成）架构中非常流行的后端组件，其主要优势包括：
+- **高性能吞吐**：采用动态批处理（Dynamic Batching）技术，能够像 NVIDIA 的 `text-embeddings-inference` (TEI) 一样高效地榨干 GPU 性能。
+- **多框架支持**：后端支持 PyTorch、ONNX (Optimum) 和 CTranslate2，可在 NVIDIA GPU、AMD ROCm、Apple Silicon (MPS) 和 CPU 上运行。
+- **兼容 OpenAI API**：对外提供 REST API，接口格式完全兼容 OpenAI，可以无缝集成到 LangChain、LlamaIndex 或你的自定义 RAG 流动中。
+- **模型广泛**：支持 HuggingFace 上几乎所有的 Sentence-Transformers 模型。
