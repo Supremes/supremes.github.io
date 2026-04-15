@@ -6,7 +6,7 @@ categories:
 cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg
 sticky:
 hidden: false
-updated: 2026-04-14 23:28
+updated: 2026-04-16 00:28
 ---
 Retrieval Argument Generation - 检索增强生成
 
@@ -198,6 +198,29 @@ matchedTokens / queryTokens.size ()
 
 ## Evaluation
 
+- Recall：关注找的全不全
+- MRR: 关注第一个结果准不准
+- NDCG：关注整体排序是否理想
+
+| **指标**       | **含义**                                                                                                               | **关注点** | **排序敏感度**        | **典型应用**           |
+| ------------ | -------------------------------------------------------------------------------------------------------------------- | ------- | ---------------- | ------------------ |
+| **Recall@K** | (召回率)，在返回的前 $K$ 个结果中，包含的相关文档数量占系统中所有相关文档总数的比例。                                                                       | 查全率     | 低（只要进了 Top-K 即可） | 向量检索、粗排阶段          |
+| **MRR@K**    | (Mean Reciprocal Rank, 平均倒数排名)，衡量算法将“第一个相关结果”排在多靠前的位置。它是所有查询请求中，第一个相关结果排名倒数的平均值。                                     | 首个结果的位置 | 极高（只看第一个相关的）     | 智能客服、Fact-checking |
+| **NDCG@K**   | (Normalized Discounted Cumulative Gain, 归一化折损增益)，一种综合考虑了“结果相关性得分”和“排名顺序”的指标。它通过将实际搜索结果的得分（DCG）除以理想状态下的最高得分（IDCG）来计算。 | 整体排序质量  | 高（按相关度阶梯式衰减）     | 推荐系统、精排模型          |
+﻿ 项目里的 RAG 评估机制目前主要分三层：
+
+1. 离线检索评估：核心是 RetrievalEvaluator，基于标注数据集 retrieval-eval-dataset.json 计算
+  Recall@K、MRR@K、NDCG@K，用于比较 dense / hybrid 等检索策略优劣。
+2. 组件级验证：通过
+  RetrievalRouterTest、HeuristicRetrievalRerankerTest、CrossEncoderRetrievalRerankerTest、KnowledgeSearchToolTest
+  等，分别验证路由、rerank、query rewrite、dedup、metadata filter 等关键环节是否按预期工作。
+3. 线上观测指标：通过 Micrometer 暴露
+  ai.rag.retrieval.total、ai.rag.retrieval.filtered_count、ai.rag.calls_per_session、ai.rag.dedup.skipped
+  等指标，持续观察召回是否有效、是否有噪音、是否存在重复检索。
+
+  结论上，这个项目当前评估的重点是 retrieval quality，也就是“能不能找对、排对文档”；还没有形成完整的 answer-level RAG 
+  评估，例如 Faithfulness、Answer
+  Relevance、Ragas 或 LLM-as-a-judge 这一层。
 ## 参考
 
 ### Infinity
