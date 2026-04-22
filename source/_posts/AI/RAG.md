@@ -6,7 +6,7 @@ categories:
 cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg
 sticky:
 hidden: false
-updated: 2026-04-16 00:28
+updated: 2026-04-21 23:30
 ---
 Retrieval Argument Generation - 检索增强生成
 
@@ -221,6 +221,13 @@ matchedTokens / queryTokens.size ()
   结论上，这个项目当前评估的重点是 retrieval quality，也就是“能不能找对、排对文档”；还没有形成完整的 answer-level RAG 
   评估，例如 Faithfulness、Answer
   Relevance、Ragas 或 LLM-as-a-judge 这一层。
+
+## TODO
+
+- [ ] 多路归并：使用 completableFuture 来做并发重构，提升性能 - 将 BM25检索和向量加密锁改为并发执行
+- [ ] 超时熔断设计：利用 Java 9+ 的 .completeOnTimeout() API 为外部 Rerank 模型调用加上严格的 SLA 限制（例如 800ms）。
+- [ ] 降级链路实现：使用 .exceptionally() 编写优雅的 Fallback 逻辑。当 Rerank 失败或 LLM API 阻滞时，能够自动返回未重排的原始召回结果或降级话术
+
 ## 参考
 
 ### Infinity

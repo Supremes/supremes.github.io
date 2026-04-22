@@ -3,7 +3,7 @@ title: Java新特性简介
 tags:
   - 面试
 categories:
-  - 后端开发
+  - Java
 cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/covers/JAVA8.webp
 hidden: false
 updated: 2025-12-16 11:24

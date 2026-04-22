@@ -6,7 +6,7 @@ categories:
 cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg
 sticky:
 hidden: false
-updated: 2026-04-15 00:24
+updated: 2026-04-22 00:09
 ---
 
 # Issues 
@@ -40,6 +40,27 @@ updated: 2026-04-15 00:24
 - [ ] **[trunk重构]** 废弃按字数切分的策略。开发基于 AST（抽象语法树）或 Markdown 结构的 **语义级分块 (Semantic Chunking)** 工具。
 - [ ] **[数据模型优化]** 在向量数据库（如 Milvus/Qdrant）中实现 **“父子文档 (Parent-Child)”** 关联映射（类似二级索引回表）。存储子 Chunk 的 Embedding，但保留指向完整父段落的 ID。
 - [x] **[重排序]** 在业务层接入 BGE-Reranker 等重排序模型，对多路召回的 Top 20 结果进行深度交叉评分，提取真正的 Top 5。
+
+## SSE
+
+### Issues
+
+多线程之间的上下文传递问题：streaming 模式下，threadlocal 跨线程失效, 导致 NPE.
+
+> [!Important]
+> StepCollector 中的 MAX_STEPS 变量没有设置默认值
+
+```java
+chatStreamExecutor 线程 A
+  └─ StepCollector.init(maxSteps)     ← MAX_STEPS 写入线程 A 的 ThreadLocal
+  └─ chatClient.stream()...blockLast() ← 阻塞线程 A
+        └─ Reactor worker 线程 B (WebClient 回调)
+              └─ KnowledgeSearchTool.apply()
+                    └─ ToolExecutionAspect
+                          └─ StepCollector.getAndIncreaseStepNumber()
+                                └─ MAX_STEPS.get() → null ← 线程 B 从未 init()
+                                └─ next > null → NullPointerException 💥
+```
 
 ## Memory
 

@@ -26,6 +26,7 @@ menu:
     AI: /categories/AI/ || fas fa-robot
     工具效率: /categories/tools/ || fas fa-tools
     Spring: /categories/Spring/ || fas fa-leaf
+    Java: /categories/Java/ || fas fa-coffee
     JUC: /tags/JUC/ || fas fa-book
     #面试: /tags/Interview/ || fas fa-book
     数据库: /categories/database/ || fas fa-database
