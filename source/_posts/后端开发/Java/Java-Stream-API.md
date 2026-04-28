@@ -6,7 +6,8 @@ tags:
 categories:
   - Java
 hidden: true
-updated: 2026-04-09 14:54
+updated: '2026-04-09 14:54'
+abbrlink: 39c40f71
 ---
 
 # Java Stream API 常用方法速查

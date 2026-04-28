@@ -1,7 +1,8 @@
 ---
-updated: 2026-03-20 17:10
+updated: '2026-03-20 17:10'
 title: java env setup
 hidden: true
+abbrlink: f1fa76fa
 ---
 # Java & Maven 编译环境维护指南
 

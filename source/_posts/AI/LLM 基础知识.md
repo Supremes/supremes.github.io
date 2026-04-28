@@ -1,13 +1,14 @@
 ---
 title: LLM 基础知识
-date: 2026-03-16 23:25:16
 tags: []
 categories:
   - AI
+hidden: false
+updated: '2026-03-25 22:54'
+abbrlink: b4688e1e
+date: 2026-03-16 23:25:16
 cover:
 sticky:
-hidden: false
-updated: 2026-03-25 22:54
 ---
 ## Transformer
 

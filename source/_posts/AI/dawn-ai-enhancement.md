@@ -1,12 +1,16 @@
 ---
 title: dawn-ai 增强点记录
-date: 2026-04-03 15:00:00
-tags: [AI, Agent, Architecture]
-categories:
-cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg
-sticky:
+tags:
+  - AI
+  - Agent
+  - Architecture
+cover: 'https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg'
 hidden: false
-updated: 2026-04-03 15:00
+updated: '2026-04-03 15:00'
+abbrlink: 85e8511c
+date: 2026-04-03 15:00:00
+categories:
+sticky:
 ---
 
 ## 代码与文档差距分析

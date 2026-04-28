@@ -1,12 +1,13 @@
 ---
 title: dawn-ai
-date: 2026-04-01 22:57:03
 tags: []
-categories:
-cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg
-sticky:
+cover: 'https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg'
 hidden: false
-updated: 2026-04-22 00:09
+updated: '2026-04-22 00:09'
+abbrlink: c92b8131
+date: 2026-04-01 22:57:03
+categories:
+sticky:
 ---
 
 # Issues 

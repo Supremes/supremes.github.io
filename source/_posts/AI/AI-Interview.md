@@ -1,12 +1,13 @@
 ---
 title: AI-Interview
-date: 2026-03-17 11:00:25
 tags: []
-categories:
-cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg
-sticky:
+cover: 'https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg'
 hidden: false
-updated: 2026-03-17 17:54
+updated: '2026-03-17 17:54'
+abbrlink: 6c5038c3
+date: 2026-03-17 11:00:25
+categories:
+sticky:
 ---
 
 > [!Interview]

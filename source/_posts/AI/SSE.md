@@ -1,13 +1,14 @@
 ---
 title: Server-Sent Events
-date: 2026-04-22 00:27:12
 tags: []
 categories:
   - AI
-cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg
-sticky:
+cover: 'https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg'
 hidden: false
-updated: 2026-04-22 17:56
+updated: '2026-04-22 17:56'
+abbrlink: f6ad9462
+date: 2026-04-22 00:27:12
+sticky:
 ---
 SSE 实现方案：
 1. Spring WebMVC (阻塞模型，基于 Servlet API) + SseEmitter

@@ -6,7 +6,8 @@ tags:
 categories:
   - 工具效率
 hidden: true
-updated: 2026-04-09 13:50
+updated: '2026-04-09 13:50'
+abbrlink: 59ffd22f
 ---
 
 # Maven 命令速查表

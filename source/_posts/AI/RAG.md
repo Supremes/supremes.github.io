@@ -1,12 +1,13 @@
 ---
 title: RAG
-date: 2026-04-12 15:15:51
 tags: []
-categories:
-cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg
-sticky:
+cover: 'https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg'
 hidden: false
-updated: 2026-04-21 23:30
+updated: '2026-04-21 23:30'
+abbrlink: 91a389bb
+date: 2026-04-12 15:15:51
+categories:
+sticky:
 ---
 Retrieval Argument Generation - 检索增强生成
 

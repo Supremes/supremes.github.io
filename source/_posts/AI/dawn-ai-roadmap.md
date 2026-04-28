@@ -1,12 +1,16 @@
 ---
 title: dawn-ai 企业级 Agent 整改方案
-date: 2026-04-03 16:00:00
-tags: [AI, Agent, Architecture]
-categories:
-cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg
-sticky:
+tags:
+  - AI
+  - Agent
+  - Architecture
+cover: 'https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg'
 hidden: false
-updated: 2026-04-03 16:00
+updated: '2026-04-03 16:00'
+abbrlink: 1607ebb8
+date: 2026-04-03 16:00:00
+categories:
+sticky:
 ---
 
 > 参考 [Claude Code 源码架构深度解析 V2.0](https://x.com/tvytlx) 提炼的 7 大设计原则，结合 dawn-ai 现状，制定从 prototype 到 enterprise-grade agent 的整改路线。

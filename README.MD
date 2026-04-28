@@ -104,7 +104,16 @@ git push origin main
 
 如果更换了新 Mac 或重装系统，按照以下步骤恢复博客环境：
 
-1.  **安装环境**：安装 Node.js 和 Git。
+1.  **安装环境**：
+  - 安装 Node.js: 
+  ```bash
+    安装 nvm（如果未安装）：curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+    安装 Node.js：nvm install stable
+  ```
+  - 安装 Hexo CLI：
+    ```bash
+    npm install -g hexo-cli
+    ```
 2.  **克隆源码**（注意是 clone 你的 main 分支）：
     ```bash
     git clone [https://github.com/YourName/YourName.github.io.git](https://github.com/YourName/YourName.github.io.git) myblog
