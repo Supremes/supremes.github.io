@@ -1,7 +1,10 @@
 ---
 title: RAG
 tags: []
-cover: 'https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg'
+categories:
+  - AI
+cover: https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg
+sticky:
 hidden: false
 updated: '2026-04-21 23:30'
 abbrlink: 91a389bb
@@ -238,3 +241,7 @@ matchedTokens / queryTokens.size ()
 - **多框架支持**：后端支持 PyTorch、ONNX (Optimum) 和 CTranslate2，可在 NVIDIA GPU、AMD ROCm、Apple Silicon (MPS) 和 CPU 上运行。
 - **兼容 OpenAI API**：对外提供 REST API，接口格式完全兼容 OpenAI，可以无缝集成到 LangChain、LlamaIndex 或你的自定义 RAG 流动中。
 - **模型广泛**：支持 HuggingFace 上几乎所有的 Sentence-Transformers 模型。
+
+## Citrix
+
+![[RAG - flow citrix.png]]

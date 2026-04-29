@@ -85,42 +85,41 @@ redis (会话级别的上下文短期记忆) + 向量库（长期记忆）
     `最终相关性 = 向量相似度 * a + 时间衰减 * b + 重要性评分 * c`
 - 越近、越重要的记忆优先召回
 
-# TODO
-
-- [x] 考虑迁移框架，当前 agentscope 在向量化时，会天然的构造 JSON 数据结构存到向量数据库中，导致相似度阈值偏低
-	决定集成 SpringAI，仅使用其有限的能力（如 pgvector 等），最大化的从零开始开发 agent 项目
-## P0
-
-## P1
-
-- [ ] 记忆管理
-## P2
-- [ ] 集成更多的 tools，参考 java-agent、openharness 项目
-## **Propmt Engineering**
+# Harness Engineering
+## Tools
+- [ ] 集成更多的 tools，参考 java-agent、openharness、claude-code 项目
+## Propmt Engineering
 - Output Structure：限制LLM 的输出结果符合结构化的格式，适应非概率型的业务场景
 
-## **ReAct**
+## ReAct
 - max-steps: 单次对话 tool 最多调用次数，避免 LLM <-> AGENT 陷入死循环
 - plan-and-resovle: 
 - llm params optimization:
 	- temperature
 	- ...
 
-## **RAG**
-- Query 重写
-- Agentic RAG (LLM 驱动), Max-rag-calls (每次请求，RAG 工具最多调用次数)
-- Embedding、Chunk、Overlap
-- 召回率
-- HYDE - Hypothetical Document Embeddings
+## RAG
+- [x] Query 重写
+- [x] Agentic RAG (LLM 驱动), Max-rag-calls (每次请求，RAG 工具最多调用次数)
+- [x] Embedding、Chunk、Overlap
 
-## **向量检索算法**
+### 提升召回率 
+- [x] sparse + dense retrieval, 多路归并
+- [x] rerank
+- [x] evaluation
+- [ ] HYDE - Hypothetical Document Embeddings
+
+### 向量检索算法
 - IVF (Inverted File System) - 缩小搜索范围
 - PQ (Product Quantization) - 压缩向量体积
 - HNSW (Hierarchical navigable small world) - 分层可导航小世界算法
 - HNSW_PQ / HNSW_SQ
 - DiskANN (Vamana 图)
 
-## **向量数据库**
+### 向量数据库
+
+> [!Note]
+> 当前使用的 Posgress 提供的 PgVector
 
 - Postgresql 插件 - PGVector
 - **Faiss**
@@ -129,7 +128,8 @@ redis (会话级别的上下文短期记忆) + 向量库（长期记忆）
 - **Weaviate**
 - 
 
-## **Memory Management**
+## Memory Management
+
 - 核心记忆 - 用户画像、核心指令等信息，每次都会携带在 System Prompt 里
 - 短期记忆 - 对话历史
 	> - **存储内容**：当前 Session（会话）中最近发生的 N 轮对话历史。
@@ -149,6 +149,6 @@ redis (会话级别的上下文短期记忆) + 向量库（长期记忆）
 	    - `最终相关性 = 向量相似度权重 * a + 时间衰减权重 * b + 重要性评分权重 * c`
 	    - 这意味着：越近发生的事、以及被 LLM 判定为越“重要”的事（比如用户的医疗过敏史 vs 用户昨天中午吃了什么），越容易被回忆起来。
 
-## **Reflection**
+## Reflection
 
-## **Agent 评估系统**
+## Agent 评估系统
