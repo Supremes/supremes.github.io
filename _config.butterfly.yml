@@ -20,6 +20,7 @@ nav:
 menu:
   主页: / || fas fa-home
   时间线: /archives/ || fas fa-archive
+  AI Agent: /ai-agent/ || fas fa-robot
   # Tags: /tags/ || fas fa-tags
   # 需要区分大小写
   分类 || fas fa-folder-open:

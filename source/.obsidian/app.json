@@ -4,5 +4,6 @@
   "newLinkFormat": "shortest",
   "useMarkdownLinks": false,
   "showLineNumber": true,
-  "spellcheck": false
+  "spellcheck": false,
+  "readableLineLength": false
 }
