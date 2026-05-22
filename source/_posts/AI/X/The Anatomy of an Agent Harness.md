@@ -1,14 +1,17 @@
 ---
 title: The Anatomy of an Agent Harness
-source: https://x.com/akshay_pachaar/status/2041146899319971922
+source: 'https://x.com/akshay_pachaar/status/2041146899319971922'
 author:
-  - "[[@akshay_pachaar]]"
-published: 2026-04-06
-created: 2026-04-27
-description: A deep dive into what Anthropic, OpenAI, Perplexity and LangChain are actually building. Covering the orchestration loop, tools, memory, con...
-tags:
+  - '[[@akshay_pachaar]]'
+description: >-
+  A deep dive into what Anthropic, OpenAI, Perplexity and LangChain are actually
+  building. Covering the orchestration loop, tools, memory, con...
 Categories:
   - AI
+abbrlink: e7eabe30
+published: 2026-04-06 00:00:00
+created: 2026-04-27 00:00:00
+tags:
 ---
 ![图像](https://pbs.twimg.com/media/HFOWvmAaIAAzGHg?format=jpg&name=large)
 

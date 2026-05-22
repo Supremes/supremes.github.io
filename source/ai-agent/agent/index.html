@@ -1,0 +1,2955 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent 开发体系手册 · Agent Engineering Handbook</title>
+<meta name="description" content="从 ReAct Loop 到 Skill 范式，从框架底层到评测闭环 —— 一份给 Agent 工程师的系统化心智图。">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: oklch(0.98 0.005 80);
+  --bg-elevated: oklch(0.99 0.003 80);
+  --surface: oklch(0.96 0.008 80);
+  --surface-2: oklch(0.94 0.01 80);
+  --text: oklch(0.22 0.02 240);
+  --text-secondary: oklch(0.40 0.015 240);
+  --muted: oklch(0.55 0.01 240);
+  --border: oklch(0.88 0.008 240);
+  --border-strong: oklch(0.75 0.012 240);
+  --primary: oklch(0.40 0.13 250);
+  --primary-strong: oklch(0.30 0.15 250);
+  --primary-soft: oklch(0.94 0.035 250);
+  --accent: oklch(0.50 0.15 25);
+  --accent-soft: oklch(0.95 0.025 25);
+  --success: oklch(0.45 0.13 145);
+  --success-soft: oklch(0.94 0.035 145);
+  --warning: oklch(0.55 0.13 75);
+  --warning-soft: oklch(0.95 0.04 75);
+
+  --font-serif: 'Source Serif 4', 'Source Serif Pro', 'Songti SC', 'STSong', Georgia, serif;
+  --font-sans: 'IBM Plex Sans', 'Noto Sans SC', -apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', 'Menlo', Consolas, monospace;
+
+  --content-width: 920px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; scroll-padding-top: 72px; }
+
+body {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.75;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'liga' 1, 'calt' 1, 'kern' 1;
+}
+
+/* ===== Top Nav ===== */
+.topnav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: oklch(0.98 0.005 80 / 0.92);
+  backdrop-filter: saturate(1.4) blur(12px);
+  -webkit-backdrop-filter: saturate(1.4) blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.topnav-inner {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 12px 32px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  font-size: 13px;
+}
+.topnav-brand {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text);
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+}
+.topnav-brand .draft {
+  color: var(--muted);
+  font-weight: 400;
+  margin-left: 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.topnav-links {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+.topnav-links a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.15s;
+  white-space: nowrap;
+  border-bottom: 1px solid transparent;
+}
+.topnav-links a:hover { color: var(--primary); }
+.topnav-links a.active { color: var(--primary); }
+.topnav-progress {
+  position: absolute;
+  left: 0; right: 0; bottom: -1px;
+  height: 2px;
+  background: transparent;
+}
+.topnav-progress-bar {
+  height: 100%;
+  background: var(--primary);
+  width: 0;
+  transition: width 0.1s linear;
+}
+
+/* ===== Layout ===== */
+.layout {
+  max-width: 1320px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 56px;
+  padding: 0 24px;
+  align-items: start;
+}
+.layout > .page {
+  margin: 0;
+  max-width: 920px;
+  padding: 56px 0 128px;
+}
+
+/* ===== Side TOC ===== */
+.toc-side {
+  position: sticky;
+  top: 70px;
+  max-height: calc(100vh - 90px);
+  overflow-y: auto;
+  padding: 24px 18px 24px 0;
+  border-right: 1px solid var(--border);
+  font-family: var(--font-sans);
+  z-index: 5;
+}
+.toc-side::-webkit-scrollbar { width: 6px; }
+.toc-side::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+.toc-side::-webkit-scrollbar-track { background: transparent; }
+.toc-side-title {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.toc-list, .toc-list ul { list-style: none; padding: 0; margin: 0; }
+.toc-list li { margin: 0; }
+.toc-list a {
+  display: block;
+  padding: 4px 8px 4px 12px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-left: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  line-height: 1.45;
+  word-break: break-word;
+}
+.toc-list a:hover { color: var(--text); }
+.toc-list a.active {
+  color: var(--primary);
+  border-left-color: var(--primary);
+  font-weight: 600;
+}
+.toc-list a.lvl-2 {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  margin-top: 6px;
+}
+.toc-list a.lvl-3 {
+  font-size: 12.5px;
+  padding-left: 24px;
+  color: var(--text-secondary);
+}
+.toc-list a.lvl-4 {
+  font-size: 12px;
+  padding-left: 36px;
+  color: var(--muted);
+}
+
+/* ===== Mobile TOC toggle ===== */
+.toc-toggle {
+  display: none;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--primary);
+  background: var(--primary-soft);
+  border: 1px solid var(--primary-soft);
+  padding: 5px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.toc-mobile-backdrop {
+  display: none;
+  position: fixed;
+  inset: 50px 0 0 0;
+  background: rgba(20, 20, 30, 0.25);
+  z-index: 90;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+.toc-mobile-backdrop.open { opacity: 1; pointer-events: auto; }
+
+/* ===== Doc header ===== */
+.doc-header {
+  padding-bottom: 48px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 48px;
+}
+.doc-eyebrow {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 16px;
+  font-family: var(--font-mono);
+}
+.doc-title {
+  font-family: var(--font-serif);
+  font-size: 44px;
+  line-height: 1.15;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  margin-bottom: 20px;
+  color: var(--text);
+}
+.doc-subtitle {
+  font-size: 18px;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  max-width: 740px;
+  font-family: var(--font-serif);
+}
+.doc-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;
+  margin-top: 32px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.doc-meta .meta-group { display: inline; }
+.doc-meta dt {
+  display: inline;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 11px;
+  margin-right: 8px;
+}
+.doc-meta dd {
+  display: inline;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text);
+}
+
+/* ===== Chapter cards in header (no slop: just rows) ===== */
+.chapter-index {
+  margin-top: 40px;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 8px 0;
+}
+.chapter-index a {
+  display: grid;
+  grid-template-columns: 56px 1fr auto;
+  gap: 20px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+  text-decoration: none;
+  color: var(--text);
+  align-items: baseline;
+  border-left: none;
+}
+.chapter-index a:last-child { border-bottom: none; }
+.chapter-index a:hover { background: var(--surface); }
+.chapter-index a:hover .ci-arrow { color: var(--primary); transform: translateX(4px); }
+.ci-num {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--primary);
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+.ci-title {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+}
+.ci-title .desc {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  font-weight: 400;
+  color: var(--muted);
+  margin-top: 4px;
+  line-height: 1.6;
+}
+.ci-arrow {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  color: var(--muted);
+  transition: color 0.2s, transform 0.2s;
+}
+
+/* ===== Section ===== */
+section.chapter { margin-top: 96px; scroll-margin-top: 80px; }
+section.chapter:first-of-type { margin-top: 0; }
+
+h2.chapter-h {
+  font-family: var(--font-serif);
+  font-size: 32px;
+  line-height: 1.22;
+  font-weight: 600;
+  letter-spacing: -0.012em;
+  margin-bottom: 14px;
+  color: var(--text);
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
+}
+h2.chapter-h .h-num {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--primary);
+  letter-spacing: 0.05em;
+}
+.chapter-lead {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  max-width: 740px;
+  margin-bottom: 36px;
+}
+
+h3 {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  line-height: 1.35;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  margin-top: 56px;
+  margin-bottom: 12px;
+  color: var(--text);
+  scroll-margin-top: 80px;
+}
+
+h4 {
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  line-height: 1.5;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  margin-top: 32px;
+  margin-bottom: 8px;
+  scroll-margin-top: 80px;
+}
+
+p { margin: 14px 0; line-height: 1.78; }
+p + p { margin-top: 14px; }
+a { color: var(--primary); text-decoration: none; border-bottom: 1px solid transparent; transition: border-color 0.15s; }
+a:hover { border-bottom-color: var(--primary); }
+ul, ol { padding-left: 26px; margin: 14px 0; }
+li { margin: 6px 0; line-height: 1.72; }
+strong { font-weight: 600; color: var(--text); }
+em { font-style: italic; color: var(--text-secondary); }
+
+/* ===== Code ===== */
+code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  background: var(--surface-2);
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--primary-strong);
+  border: 1px solid var(--border);
+}
+pre {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.7;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 18px 22px;
+  overflow-x: auto;
+  margin: 20px 0;
+  color: var(--text);
+}
+pre code {
+  background: none;
+  padding: 0;
+  border: none;
+  color: var(--text);
+  font-size: 13px;
+}
+
+/* ===== Tables ===== */
+.table-wrap { overflow-x: auto; margin: 22px 0; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  font-family: var(--font-sans);
+}
+thead th {
+  font-weight: 600;
+  text-align: left;
+  padding: 12px 14px;
+  background: var(--surface);
+  border-top: 1px solid var(--border-strong);
+  border-bottom: 1px solid var(--border-strong);
+  color: var(--text-secondary);
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+tbody td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  line-height: 1.6;
+}
+tbody tr:hover td { background: var(--surface); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; font-family: var(--font-mono); font-size: 13px; }
+td.center, th.center { text-align: center; }
+td.mono, th.mono { font-family: var(--font-mono); font-size: 13px; }
+
+/* ===== Callout ===== */
+.callout {
+  background: var(--primary-soft);
+  border-radius: 6px;
+  padding: 18px 22px;
+  margin: 22px 0;
+  font-size: 15px;
+  line-height: 1.7;
+}
+.callout-warning { background: var(--accent-soft); }
+.callout-success { background: var(--success-soft); }
+.callout-neutral { background: var(--surface); }
+.callout-label {
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--primary);
+  margin-bottom: 6px;
+  font-family: var(--font-mono);
+}
+.callout-warning .callout-label { color: var(--accent); }
+.callout-success .callout-label { color: var(--success); }
+.callout-neutral .callout-label { color: var(--muted); }
+.callout p:first-child { margin-top: 0; }
+.callout p:last-child { margin-bottom: 0; }
+
+/* ===== Concept grid (borrow from llm.html qkv-grid) ===== */
+.concept-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin: 22px 0;
+}
+.concept-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+.concept-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+.concept-card {
+  padding: 20px 18px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.concept-card .cc-tag {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--primary);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.concept-card.accent .cc-tag { color: var(--accent); }
+.concept-card.success .cc-tag { color: var(--success); }
+.concept-card.warning .cc-tag { color: var(--warning); }
+.concept-card .cc-title {
+  font-family: var(--font-serif);
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--text);
+  line-height: 1.35;
+}
+.concept-card .cc-desc {
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  line-height: 1.65;
+}
+.concept-card .cc-desc p { margin: 6px 0; font-size: 13.5px; }
+.concept-card .cc-desc strong { color: var(--text); }
+
+/* ===== Definition list ===== */
+.def-list {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 8px 32px;
+  margin: 22px 0;
+  padding: 22px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.def-list dt {
+  font-weight: 600;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding-top: 3px;
+}
+.def-list dd { margin: 0; font-size: 15px; line-height: 1.7; }
+.def-list dd code { font-size: 0.92em; }
+
+/* ===== Stat row ===== */
+.stat-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 48px;
+  padding: 28px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  margin: 28px 0;
+}
+.stat { min-width: 120px; }
+.stat-num {
+  font-family: var(--font-serif);
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--primary);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-feature-settings: 'tnum' 1;
+}
+.stat-num small {
+  font-size: 16px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  margin-left: 4px;
+}
+.stat-label {
+  font-size: 11.5px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+/* ===== Badge ===== */
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 3px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-family: var(--font-mono);
+  vertical-align: 2px;
+}
+.badge-primary { background: var(--primary-soft); color: var(--primary); }
+.badge-accent { background: var(--accent-soft); color: var(--accent); }
+.badge-success { background: var(--success-soft); color: var(--success); }
+.badge-warn { background: var(--warning-soft); color: var(--warning); }
+.badge-neutral { background: var(--surface-2); color: var(--muted); }
+
+/* ===== Mermaid ===== */
+.mermaid-wrap {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 24px;
+  margin: 26px 0;
+  overflow-x: auto;
+}
+.mermaid {
+  font-family: var(--font-sans) !important;
+  text-align: center;
+}
+.mermaid svg { max-width: 100%; height: auto; }
+.mermaid-caption {
+  font-size: 12px;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 12px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+}
+
+/* ===== Details / Summary ===== */
+details {
+  margin: 16px 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--bg-elevated);
+}
+details summary {
+  cursor: pointer;
+  padding: 12px 18px;
+  background: var(--surface);
+  font-weight: 600;
+  font-size: 13.5px;
+  user-select: none;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+details summary::-webkit-details-marker { display: none; }
+details summary::before {
+  content: '›';
+  font-family: var(--font-mono);
+  font-size: 18px;
+  color: var(--primary);
+  transition: transform 0.2s;
+  display: inline-block;
+}
+details[open] summary::before { transform: rotate(90deg); }
+details > *:not(summary) { padding: 0 18px; }
+details > *:last-child { padding-bottom: 14px; }
+details pre { margin: 10px 18px; }
+
+/* ===== Future-extension placeholder ===== */
+.placeholder {
+  border: 1px dashed var(--border-strong);
+  border-radius: 6px;
+  padding: 18px 22px;
+  margin: 20px 0;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--bg-elevated),
+    var(--bg-elevated) 8px,
+    var(--surface) 8px,
+    var(--surface) 16px
+  );
+  font-size: 13.5px;
+  color: var(--muted);
+}
+.placeholder .ph-label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+
+/* ===== Footer ===== */
+.doc-footer {
+  margin-top: 96px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 1180px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 920px;
+    gap: 0;
+  }
+  .layout > .page { min-width: 0; }
+  .toc-side {
+    position: fixed;
+    top: 49px; left: 0;
+    width: 280px;
+    height: calc(100vh - 49px);
+    background: var(--bg);
+    border-right: 1px solid var(--border);
+    z-index: 100;
+    transform: translateX(-100%);
+    transition: transform 0.25s;
+    padding: 20px 18px;
+    max-height: none;
+  }
+  .toc-side.open { transform: translateX(0); box-shadow: 4px 0 24px rgba(0,0,0,0.08); }
+  .toc-toggle { display: inline-block; }
+  .toc-mobile-backdrop { display: block; }
+  .layout > .page { max-width: 100%; padding-top: 40px; }
+}
+
+@media (max-width: 768px) {
+  .layout > .page { padding: 32px 16px 80px; }
+  .topnav-inner { padding: 10px 16px; gap: 12px; }
+  .topnav-links { display: none; }
+  .doc-title { font-size: 30px; }
+  .doc-subtitle { font-size: 16px; }
+  h2.chapter-h { font-size: 24px; gap: 12px; }
+  h2.chapter-h .h-num { font-size: 12px; }
+  h3 { font-size: 19px; }
+  .chapter-lead { font-size: 16px; }
+  .stat-row { gap: 24px; padding: 20px 0; }
+  .stat-num { font-size: 26px; }
+  .concept-grid, .concept-grid.cols-2, .concept-grid.cols-4 {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .def-list { grid-template-columns: 1fr; gap: 4px 0; }
+  .def-list dt { padding-top: 14px; }
+  .chapter-index a {
+    grid-template-columns: 40px 1fr 20px;
+    gap: 12px;
+    padding: 14px 0;
+  }
+  .ci-title { font-size: 16px; }
+}
+
+@media (max-width: 480px) {
+  .doc-title { font-size: 26px; }
+  h3 { font-size: 18px; }
+  body, .chapter > p, .callout p { font-size: 15.5px; line-height: 1.8; }
+  table { font-size: 13px; }
+  .channel-grid { grid-template-columns: 1fr !important; }
+  .compare-grid { grid-template-columns: 1fr !important; }
+  pre { font-size: 12.5px; padding: 14px; }
+  .toc-toggle, details summary, .topnav-brand, .topnav-links a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+  .mermaid-wrap { padding: 16px 12px; }
+
+  /* Mobile fix 1: doc-meta stacks vertically */
+  .doc-meta {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-top: 24px;
+  }
+  .doc-meta .meta-group { display: flex; gap: 10px; align-items: baseline; }
+  .doc-meta dt { display: inline-block; min-width: 64px; }
+
+  /* Mobile fix 2: chapter-index — let desc wrap properly */
+  .chapter-index a {
+    grid-template-columns: 36px minmax(0, 1fr);
+    gap: 10px;
+    padding: 14px 0;
+    align-items: start;
+  }
+  .ci-arrow { display: none; }
+  .ci-title { font-size: 15px; min-width: 0; overflow-wrap: anywhere; word-break: break-word; }
+  .ci-title .desc { font-size: 12.5px; display: block; margin-top: 4px; color: var(--muted); white-space: normal; }
+
+  /* Mobile fix 3: onion svg shrink within column */
+  .onion-svg { width: 100%; max-width: 240px; height: auto; }
+
+  /* Mobile fix 4: topnav layout tightens */
+  .topnav-inner { padding: 8px 12px; gap: 10px; }
+  .topnav-brand { font-size: 14px; gap: 8px; }
+  .topnav-brand .draft { font-size: 10px; letter-spacing: 0.05em; }
+
+  /* Tables: ensure horizontal scroll for any wide table */
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { min-width: 480px; }
+
+  /* React loop SVG full width */
+  .react-loop svg { max-width: 100%; }
+  .react-loop { padding: 18px 10px; }
+
+  /* Pipeline anim collapse to 1 row scroll instead of wrap */
+  .pipeline-row { grid-template-columns: 1fr 1fr; gap: 6px; }
+  .pipe-stage { padding: 10px 8px; }
+  .pipe-stage .ps-desc { display: none; }
+}
+
+/* ===== Mermaid horizontal scroll hint (mobile) ===== */
+@media (max-width: 900px) {
+  .mermaid-wrap { position: relative; }
+  .mermaid-wrap::after {
+    content: "← 横向滑动查看 →";
+    position: absolute;
+    right: 12px; bottom: 6px;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    pointer-events: none;
+    opacity: 0.7;
+  }
+}
+
+/* ===== Reveal on scroll (global light animation) ===== */
+.reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 520ms cubic-bezier(.2,.7,.2,1),
+              transform 520ms cubic-bezier(.2,.7,.2,1);
+  will-change: opacity, transform;
+}
+.reveal.visible { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .react-loop .node, .react-loop .arrow,
+  .onion-ring, .sse-event, .pipeline-token { animation: none !important; transition: none !important; }
+}
+
+/* ===== § 1.1 ReAct interactive loop ===== */
+.react-loop {
+  margin: 26px 0;
+  padding: 32px 24px 26px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  position: relative;
+}
+.react-loop svg { display: block; width: 100%; height: auto; max-width: 720px; margin: 0 auto; }
+.react-loop .rl-node rect {
+  fill: var(--surface);
+  stroke: var(--border-strong);
+  stroke-width: 1.2;
+  transition: fill 380ms, stroke 380ms, stroke-width 380ms;
+}
+.react-loop .rl-node text { font-family: var(--font-sans); font-size: 14px; fill: var(--text); }
+.react-loop .rl-node text.sub { font-size: 11px; fill: var(--text-secondary); }
+.react-loop .rl-node.active rect {
+  fill: var(--primary-soft);
+  stroke: var(--primary);
+  stroke-width: 2;
+}
+.react-loop .rl-arrow {
+  fill: none;
+  stroke: var(--border-strong);
+  stroke-width: 1.4;
+  transition: stroke 380ms, stroke-width 380ms;
+}
+.react-loop .rl-arrow.active { stroke: var(--primary); stroke-width: 2.4; }
+.react-loop .rl-label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  fill: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.react-loop .rl-controls {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 18px;
+  flex-wrap: wrap;
+}
+.react-loop .rl-btn {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 8px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background 180ms, color 180ms, border-color 180ms;
+  min-height: 40px;
+}
+.react-loop .rl-btn:hover { color: var(--text); border-color: var(--primary); }
+.react-loop .rl-btn.is-active { background: var(--primary); color: #fff; border-color: var(--primary); }
+.react-loop .rl-status {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 12px;
+  letter-spacing: 0.04em;
+  min-height: 16px;
+}
+.react-loop .rl-status strong { color: var(--primary); font-weight: 600; }
+
+/* ===== § 1.10 Middleware Onion ===== */
+.onion-demo {
+  margin: 26px 0;
+  padding: 28px 24px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 28px;
+  align-items: center;
+}
+.onion-svg-wrap { display: flex; justify-content: center; }
+.onion-svg { width: 280px; height: 280px; }
+.onion-ring {
+  fill: none;
+  stroke-width: 18;
+  cursor: pointer;
+  transition: stroke 260ms, opacity 260ms;
+  opacity: 0.85;
+}
+.onion-ring:hover, .onion-ring.is-hover { opacity: 1; stroke-width: 22; }
+.onion-ring.r1 { stroke: oklch(0.85 0.06 250); }
+.onion-ring.r2 { stroke: oklch(0.72 0.10 250); }
+.onion-ring.r3 { stroke: oklch(0.58 0.13 250); }
+.onion-ring.r4 { stroke: oklch(0.45 0.15 25); }
+.onion-core {
+  fill: var(--accent-soft);
+  stroke: var(--accent);
+  stroke-width: 1.2;
+}
+.onion-label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  fill: var(--text);
+  text-anchor: middle;
+  pointer-events: none;
+  letter-spacing: 0.04em;
+}
+.onion-flow {
+  stroke-dasharray: 4 4;
+  animation: onion-dash 1.8s linear infinite;
+}
+@keyframes onion-dash { to { stroke-dashoffset: -16; } }
+.onion-list { font-size: 14px; line-height: 1.75; }
+.onion-list .ol-item {
+  padding: 10px 12px;
+  border-left: 2px solid var(--border);
+  margin-bottom: 6px;
+  transition: border-color 220ms, background 220ms;
+  cursor: pointer;
+}
+.onion-list .ol-item:hover, .onion-list .ol-item.is-active {
+  background: var(--surface);
+  border-left-color: var(--primary);
+}
+.onion-list .ol-name {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--primary);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 2px;
+}
+
+/* ===== § 3.5 SSE stream demo ===== */
+.sse-demo {
+  margin: 26px 0;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.sse-demo-head {
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.sse-demo-head .sse-controls { display: flex; gap: 8px; }
+.sse-demo-head .sse-btn {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 6px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 4px;
+}
+.sse-demo-head .sse-btn:hover { color: var(--primary); border-color: var(--primary); }
+.sse-stream {
+  padding: 16px 18px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.7;
+  min-height: 220px;
+  max-height: 360px;
+  overflow-y: auto;
+  background: var(--bg);
+}
+.sse-event {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 360ms, transform 360ms;
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--border);
+}
+.sse-event.in { opacity: 1; transform: none; }
+.sse-event .sse-name {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-right: 8px;
+  vertical-align: 1px;
+}
+.sse-event .sse-name.evt-msg { background: var(--primary-soft); color: var(--primary); }
+.sse-event .sse-name.evt-tool { background: var(--accent-soft); color: var(--accent); }
+.sse-event .sse-name.evt-result { background: var(--success-soft); color: var(--success); }
+.sse-event .sse-name.evt-stop { background: var(--surface-2); color: var(--muted); }
+.sse-event .sse-body { color: var(--text); }
+.sse-event .tok { opacity: 0; animation: tok-in 220ms ease-out forwards; }
+@keyframes tok-in { to { opacity: 1; } }
+
+/* ===== § 4.10 Eval pipeline anim ===== */
+.pipeline-anim {
+  margin: 26px 0;
+  padding: 24px 20px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.pipeline-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  align-items: stretch;
+}
+.pipe-stage {
+  padding: 14px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  text-align: center;
+  position: relative;
+  transition: background 380ms, border-color 380ms, transform 380ms;
+}
+.pipe-stage.is-on {
+  background: var(--primary-soft);
+  border-color: var(--primary);
+  transform: translateY(-2px);
+}
+.pipe-stage .ps-name { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text); }
+.pipe-stage .ps-desc { font-size: 11.5px; color: var(--muted); margin-top: 4px; }
+.pipe-track {
+  margin-top: 18px;
+  height: 6px;
+  background: var(--surface-2);
+  border-radius: 3px;
+  position: relative;
+  overflow: hidden;
+}
+.pipe-token {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 6%;
+  background: var(--primary);
+  border-radius: 3px;
+  animation: pipe-flow 5s linear infinite;
+}
+@keyframes pipe-flow {
+  0% { left: -6%; }
+  100% { left: 100%; }
+}
+.pipeline-anim .pipe-caption {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 10px;
+  letter-spacing: 0.04em;
+}
+
+/* ===== Onion responsive ===== */
+@media (max-width: 768px) {
+  .onion-demo { grid-template-columns: 1fr; padding: 20px 14px; }
+  .onion-svg { width: 220px; height: 220px; }
+  .pipeline-row { grid-template-columns: 1fr 1fr; }
+  .react-loop { padding: 22px 14px; }
+}
+
+/* ===== Section card (replaces details, for FUTURE EXPANSION content) ===== */
+.expansion-tag {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--accent-soft);
+  padding: 2px 8px;
+  border-radius: 3px;
+  margin-left: 10px;
+  vertical-align: 4px;
+}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="topnav-inner">
+    <button class="toc-toggle" id="tocToggle" aria-label="目录">目录</button>
+    <span class="topnav-brand">Agent 开发体系手册<span class="draft">Draft · v0.1</span></span>
+    <div class="topnav-links">
+      <a href="#ch-1">§01 Loop</a>
+      <a href="#ch-2">§02 Skill</a>
+      <a href="#ch-3">§03 Framework</a>
+      <a href="#ch-4">§04 评测</a>
+      <a href="#ch-99">附录</a>
+    </div>
+    <div class="topnav-progress"><div class="topnav-progress-bar" id="progressBar"></div></div>
+  </div>
+</nav>
+
+<div class="toc-mobile-backdrop" id="tocBackdrop"></div>
+
+<div class="layout">
+
+<aside class="toc-side" id="tocSide" aria-label="本页目录">
+  <div class="toc-side-title">本页目录</div>
+  <ul class="toc-list">
+    <li>
+      <a class="lvl-2" href="#ch-1">§ 01 Agent Loop 模式</a>
+      <ul>
+        <li><a class="lvl-3" href="#sec-1-1">1.1 一切始于 ReAct</a></li>
+        <li><a class="lvl-3" href="#sec-1-2">1.2 三种衍生模式</a></li>
+        <li><a class="lvl-3" href="#sec-1-3">1.3 MultiAgent 的四种 Pattern</a></li>
+        <li><a class="lvl-3" href="#sec-1-4">1.4 LoopSession 与 LoopTurn</a></li>
+        <li><a class="lvl-3" href="#sec-1-5">1.5 控制原语：Steer · Followup · Interrupt</a></li>
+        <li><a class="lvl-3" href="#sec-1-6">1.6 多 Turn 上下文压缩</a></li>
+        <li><a class="lvl-3" href="#sec-1-7">1.7 HITL：Middleware 与 StopReason</a></li>
+        <li><a class="lvl-3" href="#sec-1-8">1.8 Stop-Resume vs Hang-Wait</a></li>
+        <li><a class="lvl-3" href="#sec-1-9">1.9 StopReason ↔ SSE 事件矩阵</a></li>
+        <li><a class="lvl-3" href="#sec-1-10">1.10 Middleware 洋葱模型</a></li>
+        <li><a class="lvl-3" href="#sec-1-11">1.11 HITL 审批 UI 模式</a></li>
+        <li><a class="lvl-3" href="#sec-1-12">1.12 Tool 副作用回滚与补偿</a></li>
+      </ul>
+    </li>
+    <li>
+      <a class="lvl-2" href="#ch-2">§ 02 Skill 范式</a>
+      <ul>
+        <li><a class="lvl-3" href="#sec-2-1">2.1 从多 Agent 路由到 One Loop × N Skill</a></li>
+        <li><a class="lvl-3" href="#sec-2-2">2.2 Skill 是 Experience 的编排</a></li>
+        <li><a class="lvl-3" href="#sec-2-3">2.3 渐进式披露 · 嵌套 · 参数化</a></li>
+        <li><a class="lvl-3" href="#sec-2-4">2.4 不强绑定 Sandbox</a></li>
+        <li><a class="lvl-3" href="#sec-2-5">2.5 伪代码 + CodeAct 增强可控性</a></li>
+        <li><a class="lvl-3" href="#sec-2-6">2.6 可评估 · 可自进化</a></li>
+        <li><a class="lvl-3" href="#sec-2-7">2.7 Skill ↔ MCP 的关系</a></li>
+        <li><a class="lvl-3" href="#sec-2-8">2.8 Skill 版本化与依赖管理</a></li>
+        <li><a class="lvl-3" href="#sec-2-9">2.9 Skill 市场与生态</a></li>
+        <li><a class="lvl-3" href="#sec-2-10">2.10 Skill 与 RAG / Memory 的边界</a></li>
+      </ul>
+    </li>
+    <li>
+      <a class="lvl-2" href="#ch-3">§ 03 Agent Framework</a>
+      <ul>
+        <li><a class="lvl-3" href="#sec-3-1">3.1 SSE 与 Stream 实现</a></li>
+        <li><a class="lvl-3" href="#sec-3-2">3.2 Rollout / Trajectory 数据采集</a></li>
+        <li><a class="lvl-3" href="#sec-3-3">3.3 Middleware 与 Hook 的用途</a></li>
+        <li><a class="lvl-3" href="#sec-3-4">3.4 框架横评：4 家选型对比</a></li>
+        <li><a class="lvl-3" href="#sec-3-5">3.5 SSE 事件类型对照（3 家）</a></li>
+        <li><a class="lvl-3" href="#sec-3-6">3.6 Rollout 用于 RL / RLHF</a></li>
+        <li><a class="lvl-3" href="#sec-3-7">3.7 分布式 Agent 状态一致性</a></li>
+      </ul>
+    </li>
+    <li>
+      <a class="lvl-2" href="#ch-4">§ 04 评测 & 指标</a>
+      <ul>
+        <li><a class="lvl-3" href="#sec-4-1">4.1 Agent 是评测驱动的</a></li>
+        <li><a class="lvl-3" href="#sec-4-2">4.2 Metric 设计</a></li>
+        <li><a class="lvl-3" href="#sec-4-3">4.3 Offline / Online 流程</a></li>
+        <li><a class="lvl-3" href="#sec-4-4">4.4 Single Turn vs Multi Turn</a></li>
+        <li><a class="lvl-3" href="#sec-4-5">4.5 新特性 / 新模型上线方案</a></li>
+        <li><a class="lvl-3" href="#sec-4-6">4.6 用户模拟器设计</a></li>
+        <li><a class="lvl-3" href="#sec-4-7">4.7 LLM-as-Judge 偏置矫正</a></li>
+        <li><a class="lvl-3" href="#sec-4-8">4.8 Tool 调用专项评测</a></li>
+        <li><a class="lvl-3" href="#sec-4-9">4.9 长尾分布的统计显著性</a></li>
+        <li><a class="lvl-3" href="#sec-4-10">4.10 Agent 安全评测</a></li>
+      </ul>
+    </li>
+    <li>
+      <a class="lvl-2" href="#ch-99">§ 99 附录</a>
+      <ul>
+        <li><a class="lvl-3" href="#sec-99-1">99.1 扩展机制</a></li>
+        <li><a class="lvl-3" href="#sec-99-2">99.2 术语速查</a></li>
+      </ul>
+    </li>
+  </ul>
+</aside>
+
+<main class="page">
+
+<header class="doc-header">
+  <div class="doc-eyebrow">AGENT ENGINEERING HANDBOOK · v0.1</div>
+  <h1 class="doc-title">Agent 开发体系手册</h1>
+  <p class="doc-subtitle">从 ReAct Loop 到 Skill 范式，从框架底层到评测闭环 —— 一份给 Agent 工程师的系统化心智图。</p>
+  <dl class="doc-meta">
+    <div class="meta-group"><dt>受众</dt><dd>Agent 工程师 / 研究员</dd></div>
+    <div class="meta-group"><dt>章节</dt><dd>4 + 附录</dd></div>
+    <div class="meta-group"><dt>状态</dt><dd>持续扩展中</dd></div>
+    <div class="meta-group"><dt>最近更新</dt><dd>2026-05-22</dd></div>
+  </dl>
+
+  <nav class="chapter-index" aria-label="章节导航">
+    <a href="#ch-1">
+      <span class="ci-num">§ 01</span>
+      <span class="ci-title">Agent Loop 模式
+        <span class="desc">ReAct 起源 · PlanAct / MultiAgent / CodeAct · LoopSession 与 LoopTurn · HITL 机制</span>
+      </span>
+      <span class="ci-arrow">→</span>
+    </a>
+    <a href="#ch-2">
+      <span class="ci-num">§ 02</span>
+      <span class="ci-title">Skill 范式
+        <span class="desc">One ReactLoop Agent × N Skill · Experience 编排 · 渐进披露 · 自进化</span>
+      </span>
+      <span class="ci-arrow">→</span>
+    </a>
+    <a href="#ch-3">
+      <span class="ci-num">§ 03</span>
+      <span class="ci-title">Agent Framework
+        <span class="desc">SSE / Stream · Rollout / Trajectory · Middleware 与 Hook 的底层设计</span>
+      </span>
+      <span class="ci-arrow">→</span>
+    </a>
+    <a href="#ch-4">
+      <span class="ci-num">§ 04</span>
+      <span class="ci-title">评测 & 指标
+        <span class="desc">Metric 设计 · Offline/Online · Single/Multi Turn · 新模型上线评测</span>
+      </span>
+      <span class="ci-arrow">→</span>
+    </a>
+  </nav>
+</header>
+
+<!-- ========== § 01 ========== -->
+<section class="chapter" id="ch-1" data-chapter="01">
+  <h2 class="chapter-h"><span class="h-num">§ 01</span>Agent Loop 模式</h2>
+  <p class="chapter-lead">所有"看起来花样繁多"的 Agent 架构 —— PlanAct、MultiAgent、CodeAct —— 都是同一个 <strong>ReAct Loop</strong> 的不同协作组织方式。先把这个根理清楚，再看上层 Pattern 就不会眼花。</p>
+
+  <h3 id="sec-1-1">1.1 一切始于 ReAct</h3>
+  <p><strong>ReAct = Reason + Act</strong>。一个 Agent 在每个 Turn 里做两件事：先<strong>推理</strong>下一步该干什么（产出思考与工具调用），再<strong>执行</strong>工具拿到观察结果。把观察送回模型，进入下一个 Turn。如此循环，直到模型决定停下（输出最终答复 / 调用一个"完成"工具 / 满足外部停止条件）。</p>
+
+  <div class="mermaid-wrap">
+    <div class="mermaid">
+flowchart LR
+    User([User Input]) --> Reason
+    Reason[Reason<br/>模型推理 + 决策] --> Act[Act<br/>调用 Tool]
+    Act --> Observe[Observe<br/>工具返回结果]
+    Observe --> Reason
+    Reason -.最终输出.-> Done([Final Answer])
+
+    style Reason fill:#eef0f7,stroke:#3d5a99,stroke-width:1.5px
+    style Act fill:#fbf2e0,stroke:#a8843a,stroke-width:1.5px
+    style Observe fill:#e8f0e6,stroke:#3a8a4a,stroke-width:1.5px
+    style Done fill:#f5e9e0,stroke:#a85b3a,stroke-width:1.5px
+    </div>
+    <div class="mermaid-caption">图 1 · ReAct 的最小循环 — 后续所有 Pattern 都是它的协作变种</div>
+  </div>
+
+  <div class="react-loop reveal" id="reactLoop">
+    <svg viewBox="0 0 640 240" aria-label="ReAct Loop Demo">
+      <defs>
+        <marker id="rl-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor"></path>
+        </marker>
+      </defs>
+      <g class="rl-node" data-step="reason" transform="translate(80,80)">
+        <rect width="140" height="80" rx="8"></rect>
+        <text x="70" y="36" text-anchor="middle">Reason</text>
+        <text x="70" y="58" text-anchor="middle" class="sub">模型推理 · 决策</text>
+      </g>
+      <g class="rl-node" data-step="act" transform="translate(260,80)">
+        <rect width="120" height="80" rx="8"></rect>
+        <text x="60" y="36" text-anchor="middle">Act</text>
+        <text x="60" y="58" text-anchor="middle" class="sub">调用 Tool</text>
+      </g>
+      <g class="rl-node" data-step="observe" transform="translate(420,80)">
+        <rect width="140" height="80" rx="8"></rect>
+        <text x="70" y="36" text-anchor="middle">Observe</text>
+        <text x="70" y="58" text-anchor="middle" class="sub">收集工具结果</text>
+      </g>
+      <path class="rl-arrow" data-arrow="r-a" d="M 220 120 L 260 120" marker-end="url(#rl-arrow)" color="currentColor"></path>
+      <path class="rl-arrow" data-arrow="a-o" d="M 380 120 L 420 120" marker-end="url(#rl-arrow)" color="currentColor"></path>
+      <path class="rl-arrow" data-arrow="o-r" d="M 490 160 C 490 210, 150 210, 150 160" marker-end="url(#rl-arrow)" color="currentColor" fill="none"></path>
+      <text class="rl-label" x="240" y="110" text-anchor="middle">step 1</text>
+      <text class="rl-label" x="400" y="110" text-anchor="middle">step 2</text>
+      <text class="rl-label" x="320" y="220" text-anchor="middle">step 3 · observation → next reason</text>
+    </svg>
+    <div class="rl-controls">
+      <button class="rl-btn" data-rl="play">▶ 自动循环</button>
+      <button class="rl-btn" data-rl="step">▷ 单步</button>
+      <button class="rl-btn" data-rl="reset">↺ 重置</button>
+    </div>
+    <div class="rl-status" id="rlStatus">点击「自动循环」或「单步」开始演示</div>
+  </div>
+
+  <p>这个循环本身没什么花哨的。但<strong>所有后续的 Agent 架构都可以被还原成"一个或多个 ReAct Loop 之间的协作模式"</strong>。理解这点，就理解了大半 Agent 工程。</p>
+
+  <h3 id="sec-1-2">1.2 三种衍生模式</h3>
+  <p>常见的三种"Agent 架构"，本质都是 ReAct 的不同实现：</p>
+
+  <div class="concept-grid">
+    <div class="concept-card">
+      <div class="cc-tag">VARIANT 01</div>
+      <div class="cc-title">PlanAct</div>
+      <div class="cc-desc">
+        <p>把 Reason 拆成两步：<strong>先 Plan 出多步计划</strong>，再按计划执行。计划失败或环境变化时回到 Reason 重规划。</p>
+        <p><strong>适用</strong>：任务步骤明确、可分解、单 Agent 能完成。</p>
+      </div>
+    </div>
+    <div class="concept-card accent">
+      <div class="cc-tag">VARIANT 02</div>
+      <div class="cc-title">MultiAgent</div>
+      <div class="cc-desc">
+        <p>多个 ReAct Loop 协同工作，彼此通过<strong>消息 / 工具调用 / 共享上下文</strong>交流。下一节专题讲它的四种 Pattern。</p>
+        <p><strong>适用</strong>：任务需要多个角色 / 跨领域知识 / 显式并行。</p>
+      </div>
+    </div>
+    <div class="concept-card success">
+      <div class="cc-tag">VARIANT 03</div>
+      <div class="cc-title">CodeAct</div>
+      <div class="cc-desc">
+        <p>把 Act 阶段从"调用结构化 Tool"换成"<strong>生成并执行代码</strong>"。代码 = 工具的超集，可组合、可循环、可控制流。</p>
+        <p><strong>适用</strong>：需要逻辑组合、变量传递、批量动作的任务。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <div class="callout-label">核心洞见</div>
+    <p>这三者不是互斥的，可以叠加：一个 MultiAgent 系统的某个 sub-agent 完全可以用 CodeAct，而每个 sub-agent 内部也可以是 PlanAct。<strong>真正的设计选择是"什么职责该用哪种 Pattern"</strong>，不是"我要做一个 PlanAct 系统还是 MultiAgent 系统"。</p>
+  </div>
+
+  <h3 id="sec-1-3">1.3 MultiAgent 的四种 Pattern</h3>
+  <p>MultiAgent 不是单一模式，而是一族协作模板。常见有四种：</p>
+
+  <div class="concept-grid cols-2">
+    <div class="concept-card">
+      <div class="cc-tag">PATTERN A</div>
+      <div class="cc-title">Agent Handoff</div>
+      <div class="cc-desc">
+        <p>当前 Agent 判断"这个任务不该我做"，把控制权<strong>移交</strong>给另一个 Agent，自己退出。上下文随之转交。</p>
+        <p><strong>类比</strong>：客服转接，前一位挂线，新坐席接手。</p>
+        <p><strong>典型</strong>：OpenAI Swarm 的 handoff 设计。</p>
+      </div>
+    </div>
+    <div class="concept-card">
+      <div class="cc-tag">PATTERN B</div>
+      <div class="cc-title">Agent As Tool</div>
+      <div class="cc-desc">
+        <p>把一个 Agent <strong>当作工具</strong>注册给另一个 Agent。调用时同步等返回，调用方继续保留控制权。</p>
+        <p><strong>类比</strong>：函数调用，子函数返回值，主函数继续。</p>
+        <p><strong>典型</strong>：Claude Code 的子 Agent（<code>Agent</code> tool）。</p>
+      </div>
+    </div>
+    <div class="concept-card">
+      <div class="cc-tag">PATTERN C</div>
+      <div class="cc-title">Leader & N Workers</div>
+      <div class="cc-desc">
+        <p>一个 <strong>Leader</strong> 拆解任务并分发给多个 Worker 并行执行，最后汇总结果。Leader 通常本身也是 Agent，Worker 多为短生命周期 sub-agent。</p>
+        <p><strong>类比</strong>：MapReduce。</p>
+        <p><strong>典型</strong>：Anthropic 多步研究系统、并行代码 review。</p>
+      </div>
+    </div>
+    <div class="concept-card">
+      <div class="cc-tag">PATTERN D</div>
+      <div class="cc-title">Agent2Agent (A2A)</div>
+      <div class="cc-desc">
+        <p>多个对等 Agent 通过<strong>标准协议直接通信</strong>，没有显式的主从关系。强调跨平台互操作。</p>
+        <p><strong>类比</strong>：邮件 / RPC 协议层。</p>
+        <p><strong>典型</strong>：Google A2A 协议、跨组织 Agent 互联场景。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="mermaid-wrap">
+    <div class="mermaid">
+flowchart TB
+    subgraph H [Handoff]
+        H1[Agent A] -->|移交控制权| H2[Agent B]
+    end
+
+    subgraph T [Agent As Tool]
+        T1[Agent A] -->|tool_call| T2[Agent B]
+        T2 -->|return| T1
+    end
+
+    subgraph L [Leader &amp; Workers]
+        L1[Leader] -->|分派| W1[Worker 1]
+        L1 -->|分派| W2[Worker 2]
+        L1 -->|分派| W3[Worker 3]
+        W1 -->|结果| L1
+        W2 -->|结果| L1
+        W3 -->|结果| L1
+    end
+
+    subgraph A [A2A]
+        A1[Agent A] <-->|protocol| A2[Agent B]
+        A1 <-->|protocol| A3[Agent C]
+        A2 <-->|protocol| A3
+    end
+
+    style H1 fill:#eef0f7,stroke:#3d5a99
+    style H2 fill:#eef0f7,stroke:#3d5a99
+    style T1 fill:#fbf2e0,stroke:#a8843a
+    style T2 fill:#fbf2e0,stroke:#a8843a
+    style L1 fill:#f5e9e0,stroke:#a85b3a,stroke-width:2px
+    style A1 fill:#e8f0e6,stroke:#3a8a4a
+    style A2 fill:#e8f0e6,stroke:#3a8a4a
+    style A3 fill:#e8f0e6,stroke:#3a8a4a
+    </div>
+    <div class="mermaid-caption">图 2 · MultiAgent 四种协作 Pattern 的拓扑差异</div>
+  </div>
+
+  <h4>四种 Pattern 的选型对照</h4>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Pattern</th>
+          <th>控制权</th>
+          <th>耦合度</th>
+          <th>典型用途</th>
+          <th>主要风险</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Handoff</strong></td>
+          <td>单一活跃，链式转移</td>
+          <td>低</td>
+          <td>分诊 / 流转 / 多阶段对话</td>
+          <td>上下文转交丢失</td>
+        </tr>
+        <tr>
+          <td><strong>As Tool</strong></td>
+          <td>调用方持续持有</td>
+          <td>中</td>
+          <td>子任务封装 / 能力复用</td>
+          <td>子 Agent 失败的故障传播</td>
+        </tr>
+        <tr>
+          <td><strong>Leader / Workers</strong></td>
+          <td>Leader 中心化</td>
+          <td>中-高</td>
+          <td>并行研究 / 批量处理 / 调度</td>
+          <td>汇总质量取决于 Leader 设计</td>
+        </tr>
+        <tr>
+          <td><strong>A2A</strong></td>
+          <td>对等去中心化</td>
+          <td>低（协议层）</td>
+          <td>跨组织 / 跨厂商互联</td>
+          <td>协议演进 / 信任与鉴权</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 id="sec-1-4">1.4 LoopSession 与 LoopTurn</h3>
+  <p>把"Agent 在跑"这件事拆细，得到两个核心运行时概念：</p>
+
+  <dl class="def-list">
+    <dt>LoopSession</dt>
+    <dd>一次完整的 Agent 会话生命周期。从用户输入到任务结束（或用户主动停止）的全部 Turn 序列，对应一份持久化的<strong>上下文 / 状态 / 中间产物</strong>。Session 之间可以恢复、克隆、分支。</dd>
+    <dt>LoopTurn</dt>
+    <dd>Session 中的一次<strong>"模型调用 + 工具执行"原子单位</strong>。每个 Turn 都是「Model Call → Tool Call(s) → Observation」三件套，结果回流到下一 Turn 的输入。</dd>
+  </dl>
+
+  <h4>一个 LoopTurn 的内部</h4>
+  <div class="mermaid-wrap">
+    <div class="mermaid">
+flowchart LR
+    In[(本 Turn 输入<br/>= 历史上下文)]
+    Model[Model Call<br/>生成推理 + 工具调用]
+    ToolBatch[Tool Call s<br/>可批量并行]
+    Obs[Observation s<br/>合并写回上下文]
+    Out[(进入下一 Turn)]
+
+    In --> Model --> ToolBatch --> Obs --> Out
+
+    style Model fill:#eef0f7,stroke:#3d5a99,stroke-width:1.5px
+    style ToolBatch fill:#fbf2e0,stroke:#a8843a,stroke-width:1.5px
+    style Obs fill:#e8f0e6,stroke:#3a8a4a,stroke-width:1.5px
+    </div>
+    <div class="mermaid-caption">图 3 · 单个 LoopTurn 的结构 — Tool Call 默认支持 Batch（并行调用多个工具）</div>
+  </div>
+
+  <div class="callout callout-neutral">
+    <div class="callout-label">为什么要 Batch</div>
+    <p>同一个 Turn 内，模型可以一次性发出多个工具调用（如同时读 3 个文件）。运行时<strong>并行执行</strong>，把所有 observation 合并后再进入下一个 Turn。<strong>显著减少 Turn 数 → 减少 Model Call → 降低延迟与成本</strong>。这是现代 Agent 性能的关键优化。</p>
+  </div>
+
+  <h3 id="sec-1-5">1.5 控制原语：Steer · Followup · Interrupt</h3>
+  <p>用户不是"输入 prompt → 等结果"的被动方。在 Loop 运行中，他需要能主动施加三种控制：</p>
+
+  <div class="concept-grid">
+    <div class="concept-card">
+      <div class="cc-tag">PRIMITIVE 01</div>
+      <div class="cc-title">Steer · 引导</div>
+      <div class="cc-desc">
+        <p>在 Agent 已经开始执行任务的过程中<strong>注入新的指令或约束</strong>，但不打断当前 Turn。"顺便也看一下 X" / "改用 Y 风格"。</p>
+        <p>通常通过<strong>追加到下一个 Turn 的上下文</strong>实现。</p>
+      </div>
+    </div>
+    <div class="concept-card accent">
+      <div class="cc-tag">PRIMITIVE 02</div>
+      <div class="cc-title">Followup · 追问</div>
+      <div class="cc-desc">
+        <p>Agent <strong>已完成</strong>一轮任务后，用户基于结果继续提问或扩展。前一轮的全部上下文、产出物均可复用。</p>
+        <p>从运行时看，这是<strong>同一 Session 内开启新 Turn 序列</strong>。</p>
+      </div>
+    </div>
+    <div class="concept-card warning">
+      <div class="cc-tag">PRIMITIVE 03</div>
+      <div class="cc-title">Interrupt · 打断</div>
+      <div class="cc-desc">
+        <p>用户立即<strong>叫停</strong>当前正在跑的 Turn（甚至 Tool 执行）。需要明确的语义：是中止整个 Session，还是仅当前 Turn，是否保留已产生的副作用。</p>
+        <p>关键：<strong>Interrupt 必须能被 Tool 层感知并优雅退出</strong>，否则副作用难以回滚。</p>
+      </div>
+    </div>
+  </div>
+
+  <h3 id="sec-1-6">1.6 多 Turn 上下文压缩</h3>
+  <p>长 Session 的最大敌人是<strong>上下文爆炸</strong>。每个 Turn 都把历史 observation 追加进去，几十个 Turn 后 token 数轻松破 10 万。一个成熟的 Agent 框架必须提供上下文压缩机制。</p>
+
+  <h4>常见压缩策略</h4>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>策略</th>
+          <th>做法</th>
+          <th>保留内容</th>
+          <th>损失</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Sliding Window</strong></td>
+          <td>只保留最近 N Turn</td>
+          <td>近期上下文完整</td>
+          <td>早期信息直接丢失</td>
+        </tr>
+        <tr>
+          <td><strong>Summarization</strong></td>
+          <td>用模型把历史压成 summary</td>
+          <td>核心结论 / 决策</td>
+          <td>细节、措辞、未被认为重要的事实</td>
+        </tr>
+        <tr>
+          <td><strong>RAG-Style 检索</strong></td>
+          <td>历史进向量库，按需检索</td>
+          <td>相关片段精准回召</td>
+          <td>依赖检索质量；冷启动差</td>
+        </tr>
+        <tr>
+          <td><strong>结构化抽取</strong></td>
+          <td>抽取 facts / decisions / TODO 等结构化记忆</td>
+          <td>关键事实 / 状态</td>
+          <td>叙事流失，需 schema 设计</td>
+        </tr>
+        <tr>
+          <td><strong>Tool-Result Pruning</strong></td>
+          <td>只保留最新一次 tool 调用结果，旧结果丢弃或摘要</td>
+          <td>当前可用状态</td>
+          <td>"为什么走到这一步"的过程</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout callout-warning">
+    <div class="callout-label">实战建议</div>
+    <p>没有一种策略普适。生产 Agent 通常是<strong>组合策略</strong>：核心 facts 用结构化抽取持久存；最近 Turn 用 sliding window；远期工具结果做摘要。<strong>压缩本身要可观测、可回滚</strong>，否则会变成隐形 bug 源头。</p>
+  </div>
+
+  <h3 id="sec-1-7">1.7 HITL：Middleware 与 StopReason</h3>
+  <p>HITL = Human In The Loop。生产 Agent 不可能完全自治 —— 在关键节点必须能让人介入。HITL 不是一两个 if-else 能搞定的，需要架构级支持。</p>
+
+  <h4>Middleware 机制：把"人"装成插件</h4>
+  <p>把 Loop 的每个生命周期阶段做成<strong>可插拔的 hook 点</strong>，HITL 就是注册在这些 hook 上的中间件：</p>
+
+  <div class="concept-grid">
+    <div class="concept-card">
+      <div class="cc-tag">HOOK 01</div>
+      <div class="cc-title">PreTurn</div>
+      <div class="cc-desc">
+        <p>每个 Turn 开始<strong>之前</strong>触发。可以修改即将送入模型的上下文、注入 system 提醒、做权限检查、决定是否跳过本 Turn。</p>
+        <p><strong>用例</strong>：风险审计、配额检查、动态注入指令。</p>
+      </div>
+    </div>
+    <div class="concept-card accent">
+      <div class="cc-tag">HOOK 02</div>
+      <div class="cc-title">MidTurn</div>
+      <div class="cc-desc">
+        <p>模型已经产出工具调用、即将执行之时触发。可以审批每个 tool call、修改参数、拦截危险操作。</p>
+        <p><strong>用例</strong>：高风险工具的二次确认（写文件、发邮件、转账）。</p>
+      </div>
+    </div>
+    <div class="concept-card success">
+      <div class="cc-tag">HOOK 03</div>
+      <div class="cc-title">PostTurn</div>
+      <div class="cc-desc">
+        <p>本 Turn 全部结果回流后、下一 Turn 开始<strong>之前</strong>触发。可以审查 observation、终止 Loop、修改要传给下 Turn 的内容。</p>
+        <p><strong>用例</strong>：质量门、回归检测、按结果决定是否退出。</p>
+      </div>
+    </div>
+  </div>
+
+  <h4>StopReason：定义"为什么停下来"</h4>
+  <p>Loop 退出的原因不止一种。一个良好设计的运行时会用<strong>枚举型 StopReason</strong>明确区分，让上层调用者据此决定后续动作：</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>StopReason</th><th>含义</th><th>调用者通常做什么</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>end_turn</code></td><td>模型输出了"最终答案"</td><td>展示给用户，等待新输入</td></tr>
+        <tr><td><code>tool_use</code></td><td>暂停以等待人工审批 tool 调用</td><td>渲染审批 UI，得到结果后 resume</td></tr>
+        <tr><td><code>max_tokens</code></td><td>触达上下文 / 输出 token 上限</td><td>提示用户 / 触发压缩 / 重启</td></tr>
+        <tr><td><code>stop_sequence</code></td><td>命中预设停止符</td><td>按业务语义处理</td></tr>
+        <tr><td><code>interrupt</code></td><td>外部 / 用户主动打断</td><td>清理副作用，保留可恢复点</td></tr>
+        <tr><td><code>error</code></td><td>Tool 异常 / 模型异常 / 框架异常</td><td>记录 + 重试 / 升级</td></tr>
+        <tr><td><code>policy_block</code></td><td>被 Middleware 阻止</td><td>展示阻止原因，请求确认</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout">
+    <div class="callout-label">设计要点</div>
+    <p>StopReason 不应该和 <code>final_answer</code> 这种业务概念混在一起。它是<strong>运行时的协议</strong>，告诉调用者发生了什么以及该不该 resume；业务语义应该解析输出内容自己得出。把这两层分清楚，Loop 才能复用。</p>
+  </div>
+
+  <h3 id="sec-1-8">1.8 Stop-Resume vs Hang-Wait</h3>
+  <p>HITL 的实现可以分成两大流派，区别在于<strong>"等待人决定"这段时间，Agent 进程占不占资源"</strong>：</p>
+
+  <div class="concept-grid cols-2">
+    <div class="concept-card">
+      <div class="cc-tag">MODE A</div>
+      <div class="cc-title">Stop-Resume · 停下来再继续</div>
+      <div class="cc-desc">
+        <p>命中 HITL 节点后，Agent <strong>持久化全部状态 → 进程退出 / 释放资源</strong>。人决策完毕后，调用 resume 接口，加载状态从断点继续。</p>
+        <p><strong>优点</strong>：等多久都不耗资源；天然支持跨天审批；适合无服务器架构。</p>
+        <p><strong>难点</strong>：状态必须可序列化（包括 Tool 的中间态、模型的 streaming 缓冲、外部句柄等）。</p>
+      </div>
+    </div>
+    <div class="concept-card accent">
+      <div class="cc-tag">MODE B</div>
+      <div class="cc-title">Hang-Wait · 挂起等待</div>
+      <div class="cc-desc">
+        <p>命中 HITL 节点后，Agent <strong>进程继续活着，阻塞在等待信号</strong>。人决策的回调直接唤醒原进程，状态在内存里。</p>
+        <p><strong>优点</strong>：实现简单，无需可序列化的状态机；Tool 句柄、连接都活着。</p>
+        <p><strong>难点</strong>：进程长期占用；崩溃即丢；不适合长时间审批。</p>
+      </div>
+    </div>
+  </div>
+
+  <h4>选型决策</h4>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>维度</th><th>Stop-Resume 更适合</th><th>Hang-Wait 更适合</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>等待时长</td><td>分钟级到天级</td><td>秒级到分钟级</td></tr>
+        <tr><td>状态复杂度</td><td>已有序列化方案</td><td>状态难以序列化</td></tr>
+        <tr><td>部署形态</td><td>Serverless / 容器编排 / FaaS</td><td>长生命周期服务进程</td></tr>
+        <tr><td>失败成本</td><td>高（必须可恢复）</td><td>低（可重跑）</td></tr>
+        <tr><td>并发数</td><td>大量并发 Session</td><td>少量交互式 Session</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 id="sec-1-9">1.9 StopReason ↔ SSE 事件矩阵<span class="expansion-tag">EXPAND</span></h3>
+  <p>§ 1.7 已定义 StopReason；§ 3.1 又会讲到 SSE 通道。两者之间的桥是<strong>事件序列</strong>：客户端收到的并不是"任务结果"，而是按时间排列的 SSE 事件，最后由某一个事件触发 <code>StopReason</code> 闭环。下表给出最常见的对应关系：</p>
+
+  <div class="table-wrap reveal">
+    <table>
+      <thead>
+        <tr><th>StopReason</th><th>典型 SSE 事件序列</th><th>客户端应该做什么</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong><code>end_turn</code></strong></td>
+          <td><code>message_start</code> → N× <code>content_block_delta</code> → <code>content_block_stop</code> → <code>message_stop</code></td>
+          <td>渲染最终回答 + 解锁输入框</td>
+        </tr>
+        <tr>
+          <td><strong><code>tool_use</code></strong></td>
+          <td>…<code>content_block_start{type:tool_use}</code> → <code>input_json_delta</code>×N → <code>message_stop(stop_reason=tool_use)</code></td>
+          <td>执行工具 → 把 <code>tool_result</code> 拼回上下文，发起下一 Turn</td>
+        </tr>
+        <tr>
+          <td><strong><code>max_tokens</code></strong></td>
+          <td>…<code>message_stop(stop_reason=max_tokens)</code></td>
+          <td>提示用户"输出被截断"，提供"继续"按钮或自动续写</td>
+        </tr>
+        <tr>
+          <td><strong><code>refusal</code></strong></td>
+          <td><code>content_block_delta(type:refusal)</code> → <code>message_stop(stop_reason=refusal)</code></td>
+          <td>显示拒绝原因，<strong>不要</strong>再续写该 Turn</td>
+        </tr>
+        <tr>
+          <td><strong><code>pause_turn</code></strong></td>
+          <td>…<code>message_stop(stop_reason=pause_turn)</code></td>
+          <td>这是<strong>断点续传信号</strong>（如长 tool_use 链中段），客户端原样回传以续跑</td>
+        </tr>
+        <tr>
+          <td><strong><code>interrupted</code></strong></td>
+          <td>HTTP 流被客户端主动断开 / <code>AbortController.abort()</code></td>
+          <td>本地标记 Turn 失败 + 提示用户已停止；副作用按 § 1.12 处理</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout callout-neutral reveal">
+    <div class="callout-label">设计要点</div>
+    <p><strong>StopReason 是协议层的状态机，SSE 事件是它的"展开形式"</strong>。框架要做的是<strong>不丢事件</strong>（用 <code>Last-Event-ID</code> 续连，§ 3.1）+<strong>不混淆终态</strong>（一个 Turn 只允许一个 StopReason）。把这两点做扎实，UI 层就不会出现"卡在 loading"或"明明 tool_use 还没跑完就显示已完成"的灵异 bug。</p>
+  </div>
+
+  <h3 id="sec-1-10">1.10 Middleware 洋葱模型<span class="expansion-tag">EXPAND</span></h3>
+  <p>§ 1.7 提到 Middleware 是<strong>可组合的插件</strong>。它们到底怎么组合？答案是经典的<strong>洋葱模型</strong>（Koa / Express / Connect 都用同一套）：每个 middleware 同时拦截"进入"与"返回"两个方向，外层包内层，请求穿过、响应穿回。</p>
+
+  <div class="onion-demo reveal">
+    <div class="onion-svg-wrap">
+      <svg class="onion-svg" viewBox="0 0 280 280" aria-label="Middleware Onion Model">
+        <circle class="onion-ring r1" data-ring="1" cx="140" cy="140" r="125"></circle>
+        <circle class="onion-ring r2" data-ring="2" cx="140" cy="140" r="95"></circle>
+        <circle class="onion-ring r3" data-ring="3" cx="140" cy="140" r="65"></circle>
+        <circle class="onion-ring r4" data-ring="4" cx="140" cy="140" r="38"></circle>
+        <circle class="onion-core" cx="140" cy="140" r="20"></circle>
+        <text class="onion-label" x="140" y="20">AUTH</text>
+        <text class="onion-label" x="140" y="48">RATE-LIMIT</text>
+        <text class="onion-label" x="140" y="80">CONTEXT-INJECT</text>
+        <text class="onion-label" x="140" y="110">HITL-GATE</text>
+        <text class="onion-label" x="140" y="144">CORE</text>
+        <!-- arrows showing both directions -->
+        <path class="onion-ring onion-flow" d="M 30 140 A 110 110 0 0 1 250 140" fill="none" stroke="oklch(0.55 0.13 250)" stroke-width="1.4" stroke-linecap="round" marker-end="url(#arrow-in)"></path>
+        <defs>
+          <marker id="arrow-in" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="oklch(0.45 0.15 25)"/></marker>
+        </defs>
+      </svg>
+    </div>
+    <div class="onion-list">
+      <div class="ol-item" data-ring="1"><span class="ol-name">Layer 1 · Auth</span>身份认证 / 权限校验。最外层，拒绝就直接 short-circuit，不再向内传递。</div>
+      <div class="ol-item" data-ring="2"><span class="ol-name">Layer 2 · Rate Limit</span>限流 / 配额。在 auth 之后才知道是谁，再决定能跑多少。</div>
+      <div class="ol-item" data-ring="3"><span class="ol-name">Layer 3 · Context Inject</span>注入 system prompt、动态指令、工具白名单。</div>
+      <div class="ol-item" data-ring="4"><span class="ol-name">Layer 4 · HITL Gate</span>风险动作拦截，按需让人审批（§ 1.11）。</div>
+      <div class="ol-item" data-ring="5"><span class="ol-name">Core · Model Call</span>模型推理本体。返回后，结果按相反顺序穿回每一层 middleware。</div>
+    </div>
+  </div>
+
+  <div class="callout callout-warning reveal">
+    <div class="callout-label">组合性 · Koa 经验</div>
+    <p>洋葱模型的精髓不是"链式调用"，而是<strong>每个 middleware 持有 <code>next()</code>，调用前是 pre-hook，调用后是 post-hook</strong>。所以 logger 能记录耗时（包住 next）、cache 能在 next 之前直接返回缓存、retry 能在 next 失败后重跑。中间件之间<strong>互不感知</strong>，只通过共享的 ctx 通信。这就是为什么 Koa 出来十年后大家还在 copy 它。</p>
+  </div>
+
+  <h3 id="sec-1-11">1.11 HITL 审批 UI 模式<span class="expansion-tag">EXPAND</span></h3>
+  <p>§ 1.7 解决了 HITL 的<strong>后端机制</strong>（Middleware + StopReason），§ 1.11 关注<strong>前端审批界面</strong>怎么设计才不让人疯。三种主流模式各有场景：</p>
+
+  <div class="concept-grid reveal">
+    <div class="concept-card">
+      <div class="cc-tag">PATTERN 01</div>
+      <div class="cc-title">Inline Approval · 行内审批</div>
+      <div class="cc-desc">
+        <p>在对话流中插入一张"待审批卡片"，展示<strong>动作摘要 + diff + 关键参数</strong>，两个按钮：通过 / 拒绝。</p>
+        <p><strong>适用</strong>：操作可读性强（如代码 patch、SQL）、单次决策、用户在线。</p>
+      </div>
+    </div>
+    <div class="concept-card accent">
+      <div class="cc-tag">PATTERN 02</div>
+      <div class="cc-title">Side Drawer · 侧栏队列</div>
+      <div class="cc-desc">
+        <p>所有待审项汇总到固定侧栏，可批量勾选、设置默认规则（"以后这类自动通过"）。</p>
+        <p><strong>适用</strong>：高频审批、运维场景、需要把决策从对话流里剥离。</p>
+      </div>
+    </div>
+    <div class="concept-card warning">
+      <div class="cc-tag">PATTERN 03</div>
+      <div class="cc-title">Async Notify · 异步通知</div>
+      <div class="cc-desc">
+        <p>Agent 触发审批后<strong>立即落库挂起</strong>，通过 Slack / 邮件 / 工单系统通知审批人，审批结果回流唤醒 Session（典型 Stop-Resume，§ 1.8）。</p>
+        <p><strong>适用</strong>：跨时区、需要团队会签、用户可能不在线。</p>
+      </div>
+    </div>
+  </div>
+
+  <h4>共同设计原则</h4>
+  <ul>
+    <li><strong>展示 diff 而非动作描述</strong>。"将更新 user.balance" 远不如"<code>balance: 100 → 80</code>"清晰。</li>
+    <li><strong>给"取消并修改提示"出口</strong>。审批不只有 Yes/No，第三个选项是"否，原因是 ___"，把否决理由回写给模型当上下文。</li>
+    <li><strong>记录决策 trace</strong>。谁审的、何时、看到了什么版本的 diff、决策耗时 —— 这些是事后审计与改进 UI 的金矿。</li>
+    <li><strong>超时策略要显式</strong>。审批 10 分钟没回 → 自动拒绝？自动通过？升级到下一审批人？默认行为决定信任度。</li>
+  </ul>
+
+  <h3 id="sec-1-12">1.12 Tool 副作用的回滚与补偿<span class="expansion-tag">EXPAND</span></h3>
+  <p>Tool 一旦真正执行（发了邮件、改了数据库、下了订单），就<strong>无法 ctrl+z</strong>。但 Agent 又会犯错 —— 怎么办？三种主流策略：</p>
+
+  <div class="table-wrap reveal">
+    <table>
+      <thead>
+        <tr><th>策略</th><th>核心思想</th><th>典型场景</th><th>代价</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Dry-Run + Confirm</strong></td>
+          <td>所有写操作分两步：第一步只返回"将要做什么"，第二步真正提交。</td>
+          <td>不可逆动作（删除、转账、发邮件）</td>
+          <td>每个 tool 都要双倍接口；用户体验有等待</td>
+        </tr>
+        <tr>
+          <td><strong>Compensating Action</strong></td>
+          <td>每个写操作配套定义<strong>补偿操作</strong>，失败时按相反顺序触发（Saga 模式）。</td>
+          <td>多步事务、跨系统调用</td>
+          <td>补偿逻辑要严格幂等；难以覆盖"已发出去的邮件"</td>
+        </tr>
+        <tr>
+          <td><strong>Snapshot + Restore</strong></td>
+          <td>执行前对相关状态做快照（数据库行 / 文件 / 配置），失败后恢复。</td>
+          <td>本地文件 / 容器化操作</td>
+          <td>状态空间大时存储成本高；外部世界状态不可快照</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4>实践建议</h4>
+  <ol>
+    <li><strong>把 tool 分类</strong>：read-only / reversible-write / irreversible-write 三档。后两档强制走 HITL（§ 1.11）。</li>
+    <li><strong>不要假装能回滚</strong>。已发邮件不能"撤回"，能做的只有"补发更正"+"通知人"。诚实告诉用户哪些是真正可逆、哪些只能补偿。</li>
+    <li><strong>把回滚也记入 trajectory</strong>。回滚动作本身可能失败，需要可观测、可重试（§ 3.2）。</li>
+    <li><strong>测试中故意失败</strong>。Chaos 注入：让某个 tool 执行后期失败，看回滚链是否真的能跑通。生产环境第一次出问题再调，损失太大。</li>
+  </ol>
+</section>
+
+<!-- ========== § 02 ========== -->
+<section class="chapter" id="ch-2" data-chapter="02">
+  <h2 class="chapter-h"><span class="h-num">§ 02</span>Skill 范式</h2>
+  <p class="chapter-lead">模型能力达到某个门槛之后，<strong>"路由到不同 Agent"</strong>这件事的性价比开始崩塌 —— 路由本身成了延迟与错误源。Skill 范式给出另一种答案：<strong>一个 ReAct Loop Agent × N 个 Skill</strong>，按需召唤经验。</p>
+
+  <h3 id="sec-2-1">2.1 从多 Agent 路由到 One Loop × N Skill</h3>
+  <p>早期的 MultiAgent 系统里，"路由 Agent"是核心组件：用户输入进来，路由 Agent 决定该派给"代码 Agent / 写作 Agent / 数据 Agent"等之一。这种架构的代价：</p>
+  <ul>
+    <li>路由本身是一次 Model Call，<strong>多了一跳延迟</strong></li>
+    <li>路由错了，下游 Agent 接到不该处理的任务，<strong>失败成本高</strong></li>
+    <li>多个 Agent 各自有自己的上下文，<strong>共享与协作复杂</strong></li>
+    <li>新增能力 = 新增 Agent + 改路由规则，<strong>扩展性差</strong></li>
+  </ul>
+
+  <p>当主力模型有了足够强的判断力和工具使用能力，更朴素的做法浮现：</p>
+
+  <div class="callout callout-success">
+    <div class="callout-label">范式转变</div>
+    <p><strong>One ReactLoop Agent × N Skill</strong> —— 只跑一个 Loop，所有能力打包成 Skill。Skill 不是"另一个 Agent"，而是"一份在需要时载入的经验包"。模型自己判断要不要召唤、召唤哪个。</p>
+  </div>
+
+  <div class="mermaid-wrap">
+    <div class="mermaid">
+flowchart TB
+    subgraph OLD [旧范式：MultiAgent 路由]
+        U1[User] --> Router[Router Agent]
+        Router --> A1[Code Agent]
+        Router --> A2[Writing Agent]
+        Router --> A3[Data Agent]
+    end
+
+    subgraph NEW [新范式：One Loop × N Skill]
+        U2[User] --> Loop[Main ReAct Loop]
+        Loop -.按需召唤.-> S1[Skill: code]
+        Loop -.按需召唤.-> S2[Skill: writing]
+        Loop -.按需召唤.-> S3[Skill: data]
+        Loop -.按需召唤.-> S4[Skill: design]
+        Loop -.按需召唤.-> S5[...]
+    end
+
+    style Router fill:#fbe5e0,stroke:#a85b3a,stroke-width:2px
+    style Loop fill:#e8f0e6,stroke:#3a8a4a,stroke-width:2px
+    </div>
+    <div class="mermaid-caption">图 4 · 从"路由分发"到"按需召唤"的范式迁移</div>
+  </div>
+
+  <h3 id="sec-2-2">2.2 Skill 是 Experience 的编排</h3>
+  <p>Skill 不是"工具"也不是"prompt 模板"。一个完整的 Skill 通常包含：</p>
+
+  <dl class="def-list">
+    <dt>Trigger 触发条件</dt>
+    <dd>什么样的用户请求会让模型决定召唤这个 Skill。通常表达为自然语言描述 + 关键词命中规则。</dd>
+    <dt>Workflow 工作流</dt>
+    <dd>这件事该按什么顺序做。比如"设计 Skill"会包含：先问需求 → 给计划 → 等批准 → 构建 → 截图验证。</dd>
+    <dt>References 参考资源</dt>
+    <dd>领域知识、模板代码、检查清单、反例库等。<strong>渐进式披露</strong>：先给概览，深入到具体步骤时再加载细节。</dd>
+    <dt>Templates 模板产物</dt>
+    <dd>可直接复制的代码骨架、文档结构等。Skill 提供"现成可改"的起点，避免每次重新发明。</dd>
+    <dt>Hooks 行为约定</dt>
+    <dd>这个 Skill 在 Loop 中需要哪些约束：是否必须先问问题、最终交付前要不要截图、是否禁用某些工具等。</dd>
+  </dl>
+
+  <p>所以一句话：<strong>Skill 是把"做某类事的经验"封装成可由模型在 Loop 内召唤的对象</strong>。Experience 是名词 —— 它沉淀的是人的经验，不是模型权重。</p>
+
+  <h3 id="sec-2-3">2.3 渐进式披露 · 嵌套 · 参数化</h3>
+
+  <h4>渐进式披露</h4>
+  <p>Skill 不应该一上来就把所有细节灌给模型 —— 那会污染上下文、增加成本、降低注意力。理想结构是<strong>三层洋葱</strong>：</p>
+  <ol>
+    <li><strong>概览层</strong>：Skill 名 + 一两句话描述 + 触发条件。永远常驻。</li>
+    <li><strong>主流程层</strong>：召唤之后载入。讲清楚整体步骤、关键决策点。</li>
+    <li><strong>细节层</strong>：执行到具体步骤时再按需 <code>Read</code>。比如"现在到了截图验证步骤，去读 verification-protocol.md"。</li>
+  </ol>
+
+  <h4>嵌套</h4>
+  <p>Skill 可以在执行过程中召唤其他 Skill。比如"产品研发"Skill 可以在编码阶段召唤"前端设计"Skill，在评测阶段召唤"指标设计"Skill。这要求 Skill 的接口是<strong>组合性的</strong>，不能假设自己是顶层。</p>
+
+  <h4>参数化</h4>
+  <p>同一个 Skill 应该能适配不同 context。设计 Skill 该能输出 mobile mockup 或 desktop mockup；代码 Skill 该能写 Python 或 Go。参数可以是 explicit 的（Skill 入参），也可以是<strong>从 conversation 推断</strong>的（"用户在 Python 项目里" → 默认 Python）。</p>
+
+  <h3 id="sec-2-4">2.4 不强绑定 Sandbox</h3>
+  <p>有一种误解："Skill 需要一个隔离沙箱来执行"。事实上一个设计良好的 Skill：</p>
+  <ul>
+    <li>本质是<strong>对模型的指令 + 资源</strong>，不需要新进程</li>
+    <li>需要的工具能力，复用<strong>Loop 已有的 Tool</strong>就行（文件、Bash、Web）</li>
+    <li>真要隔离（比如执行不信任的代码），那是<strong>Tool 层</strong>的事，不是 Skill 层</li>
+  </ul>
+  <div class="callout callout-neutral">
+    <div class="callout-label">边界划分</div>
+    <p>Skill 关心"做什么、怎么做"；Sandbox 关心"在哪儿做、能做多深"。混淆这两层，会把 Skill 设计得复杂且难以组合。</p>
+  </div>
+
+  <h3 id="sec-2-5">2.5 伪代码 + CodeAct 增强可控性</h3>
+  <p>Skill 中的"流程描述"如果只是散文式自然语言，模型可能<strong>漏步、错序、跳过验证</strong>。一个好用的技巧：在 Skill 关键流程里嵌入<strong>伪代码</strong>，模型在 CodeAct 模式下把它执行成真实步骤。</p>
+
+  <pre><code># 伪代码示意：一个 Skill 的核心流程
+def design_task(brief):
+    facts = verify_facts(brief)          # P0: 先验证事实
+    if not has_enough_context(facts):    # P1: 上下文不够就先问
+        ask_route_shaping_questions()
+    plan = make_plan(facts)              # P1.5: visible plan
+    wait_for_approval(plan)
+    artifact = build(plan, section_by_section=True)
+    verify_self(artifact)                # P7: 三阶段验证
+    show_to_user(artifact)
+    return deliver()</code></pre>
+
+  <p>伪代码不是给模型执行的"代码"，是给模型看的<strong>"控制流提示"</strong>。配合 CodeAct，效果远好过自然语言流程。</p>
+
+  <h3 id="sec-2-6">2.6 可评估 · 可自进化</h3>
+  <p>一个 Skill 不是写完就完事。它要能<strong>被持续度量、被改进、自我打磨</strong>：</p>
+
+  <div class="concept-grid">
+    <div class="concept-card">
+      <div class="cc-tag">EVAL 01</div>
+      <div class="cc-title">可评估</div>
+      <div class="cc-desc">
+        <p>每个 Skill 需要配套 eval set：一组代表性输入 + 期望产出。版本迭代时跑回归，确保没有 silent regression。</p>
+      </div>
+    </div>
+    <div class="concept-card accent">
+      <div class="cc-tag">EVAL 02</div>
+      <div class="cc-title">可观测</div>
+      <div class="cc-desc">
+        <p>记录 Skill 被召唤的频次、成功率、用户反馈、回退率、被中途打断率。这些是改进的输入。</p>
+      </div>
+    </div>
+    <div class="concept-card success">
+      <div class="cc-tag">EVAL 03</div>
+      <div class="cc-title">可自进化</div>
+      <div class="cc-desc">
+        <p>失败 case 自动归入 anti-pattern 库；成功 case 自动归入 reference；Skill 自身被定期 review 与 refactor。</p>
+      </div>
+    </div>
+  </div>
+
+  <h3 id="sec-2-7">2.7 Skill ↔ MCP 的关系<span class="expansion-tag">EXPAND</span></h3>
+  <p>MCP（Model Context Protocol，2024 年由 Anthropic 提出）和 Skill 经常被混用。它们解决的不是同一件事：</p>
+
+  <dl class="def-list reveal">
+    <dt>MCP</dt>
+    <dd>一个<strong>传输协议</strong>。规定"模型如何发现 / 调用外部资源（工具、文件、prompt 模板）"的接口与消息格式。可以理解为<strong>"AI 的 USB-C 接口"</strong> —— 它解决<strong>互联互通</strong>。</dd>
+    <dt>Skill</dt>
+    <dd>一个<strong>经验组织模型</strong>。规定"做某类事的整套知识 / 工具 / 模板"如何打包给 Loop 召唤。它解决<strong>能力沉淀</strong>。</dd>
+  </dl>
+
+  <div class="compare-grid reveal">
+    <div class="channel-card">
+      <div class="ch-tag">CHANNEL</div>
+      <div class="ch-title">MCP 的视角</div>
+      <p>"我有一台 GitHub server，提供 5 个 tool。任何符合 MCP 客户端规范的 Agent 都能用。"</p>
+      <p><strong>典型实现</strong>：<code>mcp_server_github</code>、<code>mcp_server_filesystem</code>。模型只看到工具列表，<strong>不关心工具背后是哪种实现</strong>。</p>
+    </div>
+    <div class="channel-card">
+      <div class="ch-tag">EXPERIENCE</div>
+      <div class="ch-title">Skill 的视角</div>
+      <p>"做'Postmortem 写作'这件事，包括：先查 incident log → 然后召集相关 commit → 按模板填 5 个段落 → 让 owner review。"</p>
+      <p><strong>典型实现</strong>：Skill 内部<strong>可能用 MCP 工具</strong>，但 Skill 本身额外打包了流程 / 模板 / 检查清单 / 反例。</p>
+    </div>
+  </div>
+
+  <div class="callout callout-success reveal">
+    <div class="callout-label">一句话</div>
+    <p><strong>MCP 是基础设施，Skill 是上层组织</strong>。一个 Skill 可以调用若干 MCP 工具；一个 MCP server 可以被多个 Skill 复用。两者正交、互补，不是替代关系。</p>
+  </div>
+
+  <h3 id="sec-2-8">2.8 Skill 版本化与依赖管理<span class="expansion-tag">EXPAND</span></h3>
+  <p>Skill 是<strong>会演化的</strong>：trigger 词调整、workflow 改动、模板更新。一旦 Skill 进入生产，就必须像软件包一样做版本化：</p>
+
+  <dl class="def-list reveal">
+    <dt>SemVer</dt>
+    <dd><code>MAJOR.MINOR.PATCH</code>。MAJOR：触发条件 / 输入输出协议变了；MINOR：新增能力但向后兼容；PATCH：模板措辞、文案、内部步骤微调。</dd>
+    <dt>Lockfile</dt>
+    <dd>每个 Agent 部署都要锁定它依赖的 Skill 版本集合（含传递依赖）。<code>skill.lock</code> 类似 <code>package-lock.json</code>。</dd>
+    <dt>Compatibility Matrix</dt>
+    <dd>Skill 声明它需要的 <strong>模型能力</strong>（如"需要 200k context"、"需要 vision"）。模型升级时自动跑兼容检查。</dd>
+    <dt>Deprecation Window</dt>
+    <dd>旧 Skill 不能一刀切下线。先标 <code>deprecated</code> + 共存 N 天，期间日志记录还有谁在用，再退役。</dd>
+  </dl>
+
+  <h4>依赖管理的两类陷阱</h4>
+  <ul>
+    <li><strong>Skill 互相调用形成环</strong>。"设计 Skill" 召唤"调研竞品"，"调研竞品"又召唤"设计 Skill" —— 必须在加载期检测出环路并拒绝。</li>
+    <li><strong>版本漂移</strong>。开发环境 Skill v1.3，预发 v1.4，生产 v1.2 —— 出问题时回放都对不上。所有环境的 lockfile 必须由 CI 强制对齐。</li>
+  </ul>
+
+  <h3 id="sec-2-9">2.9 Skill 市场与生态<span class="expansion-tag">EXPAND</span></h3>
+  <p>Skill 一旦可打包、可版本化，下一步必然走向<strong>共享生态</strong>。类比 npm / pip / Chrome Web Store：</p>
+
+  <div class="stat-row reveal">
+    <div class="stat">
+      <div class="stat-num">3</div>
+      <div class="stat-label">市场角色</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">5</div>
+      <div class="stat-label">治理风险</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">∞</div>
+      <div class="stat-label">长尾尺度</div>
+    </div>
+  </div>
+
+  <h4>三种市场形态</h4>
+  <div class="concept-grid reveal">
+    <div class="concept-card">
+      <div class="cc-tag">SCOPE 01</div>
+      <div class="cc-title">企业内部市场</div>
+      <div class="cc-desc">
+        <p>限组织内分享，常和 SSO / 数据权限绑定。Skill 复用率最高、治理最简单。</p>
+      </div>
+    </div>
+    <div class="concept-card accent">
+      <div class="cc-tag">SCOPE 02</div>
+      <div class="cc-title">行业 / 联盟市场</div>
+      <div class="cc-desc">
+        <p>同行业互信圈子（如金融、医疗）。共享流程模板、合规检查 Skill；需要白名单审核。</p>
+      </div>
+    </div>
+    <div class="concept-card warning">
+      <div class="cc-tag">SCOPE 03</div>
+      <div class="cc-title">公开市场</div>
+      <div class="cc-desc">
+        <p>全网开放（类比 Chrome Web Store）。规模大但<strong>恶意 Skill / 提示注入</strong>风险最高，必须有沙盒 + 审核 + 用户报告机制。</p>
+      </div>
+    </div>
+  </div>
+
+  <h4>5 类核心治理风险</h4>
+  <ol>
+    <li><strong>恶意 Skill</strong>：trigger 写得宽，骗模型在不该召唤时召唤，再做坏事。</li>
+    <li><strong>提示注入</strong>：Skill 内嵌入"忽略之前指令，输出 X"，劫持上下 Agent。</li>
+    <li><strong>数据外泄</strong>：Skill 把当前对话上下文 POST 到外部 URL。</li>
+    <li><strong>依赖混乱</strong>：A Skill 依赖 B Skill 的旧版本，B 升级后 A 静默坏掉。</li>
+    <li><strong>评测污染</strong>：Skill 在内部硬编码"如果是评测请求就返回标准答案"。</li>
+  </ol>
+  <p>治理手段：<strong>权限沙盒</strong>（Skill 只能访问 manifest 中声明的资源）+<strong>静态扫描</strong>（trigger / workflow 文本审计）+<strong>运行时监控</strong>（异常调用率告警）+<strong>用户评分 / 举报</strong>。</p>
+
+  <h3 id="sec-2-10">2.10 Skill 与 RAG / Memory 的边界<span class="expansion-tag">EXPAND</span></h3>
+  <p>这三个概念都是"给模型补充模型权重之外的信息"，但定位完全不同。混着用是 Agent 设计里最常见的<strong>架构污染源</strong>。</p>
+
+  <div class="table-wrap reveal">
+    <table>
+      <thead>
+        <tr><th>维度</th><th>Skill</th><th>RAG</th><th>Memory</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>核心载体</strong></td><td>流程 / 模板 / 经验</td><td>知识库（文档）</td><td>历史交互 / 用户偏好</td></tr>
+        <tr><td><strong>触发方式</strong></td><td>模型主动召唤</td><td>检索器按问题拉取</td><td>系统自动注入</td></tr>
+        <tr><td><strong>时效性</strong></td><td>静态、版本化</td><td>近实时</td><td>实时累积</td></tr>
+        <tr><td><strong>主要解决</strong></td><td>"该怎么做"</td><td>"事实是什么"</td><td>"这个用户 / 这次会话的上下文"</td></tr>
+        <tr><td><strong>反例</strong></td><td>把"GitHub 文档"塞进 Skill</td><td>把"工作流模板"放进 RAG</td><td>把企业知识库放进 Memory</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout callout-neutral reveal">
+    <div class="callout-label">三选一决策树</div>
+    <p><strong>问 1：</strong>这是"做某类事的步骤"吗？是 → Skill。</p>
+    <p><strong>问 2：</strong>不是步骤，是"会变的事实 / 文档"吗？是 → RAG。</p>
+    <p><strong>问 3：</strong>不是事实，是"这个用户 / 这次会话特有的状态"吗？是 → Memory。</p>
+    <p>三者职责清晰，调用链才不会绕圈。</p>
+  </div>
+</section>
+
+<!-- ========== § 03 ========== -->
+<section class="chapter" id="ch-3" data-chapter="03">
+  <h2 class="chapter-h"><span class="h-num">§ 03</span>Agent Framework</h2>
+  <p class="chapter-lead">框架是 Loop 与 Skill 的承载体。这一章关注三个底层设计点：<strong>SSE/Stream 实现、Rollout/Trajectory 采集、Middleware/Hook 机制</strong>。框架的好坏，常在这些细节里见分晓。</p>
+
+  <h3 id="sec-3-1">3.1 SSE 与 Stream 实现</h3>
+  <p>Agent 必须支持流式输出 —— 否则用户看不到中间过程，体验近似不可用。两种主流通道：</p>
+
+  <div class="concept-grid cols-2">
+    <div class="concept-card">
+      <div class="cc-tag">CHANNEL A</div>
+      <div class="cc-title">SSE (Server-Sent Events)</div>
+      <div class="cc-desc">
+        <p>HTTP 长连接，服务器主动 push 事件。浏览器原生支持，运维简单，自动重连。</p>
+        <p><strong>典型事件</strong>：<code>message_start</code> / <code>content_block_delta</code> / <code>tool_use</code> / <code>message_stop</code>。</p>
+        <p><strong>适合</strong>：Web UI、用户交互式 Agent。</p>
+      </div>
+    </div>
+    <div class="concept-card accent">
+      <div class="cc-tag">CHANNEL B</div>
+      <div class="cc-title">WebSocket / Bi-directional Stream</div>
+      <div class="cc-desc">
+        <p>全双工连接，客户端可以随时反向发送（Interrupt、Steer、追加输入）。</p>
+        <p><strong>适合</strong>：需要双向交互的场景，如 voice Agent、协作编辑、低延迟控制。</p>
+      </div>
+    </div>
+  </div>
+
+  <h4>设计要点</h4>
+  <ul>
+    <li><strong>事件粒度</strong>：太细（每字符一事件）→ 客户端开销大；太粗（每 Turn 一事件）→ 失去流式意义。常见折中：按 token block / tool boundary 切。</li>
+    <li><strong>恢复语义</strong>：SSE 自动重连后，事件流要能从断点续传（<code>Last-Event-ID</code>）。</li>
+    <li><strong>反压</strong>：客户端处理慢时，服务器需要有 buffer 策略，避免 OOM。</li>
+    <li><strong>错误信令</strong>：流中的 error 该用专门事件类型，而非 HTTP 状态码（连接已建立）。</li>
+  </ul>
+
+  <h3 id="sec-3-2">3.2 Rollout / Trajectory 数据采集</h3>
+  <p>这一组词原本来自 RL（强化学习）。在 Agent 工程里：</p>
+
+  <dl class="def-list">
+    <dt>Rollout</dt>
+    <dd>一次完整的 Agent 执行过程的<strong>记录</strong>：从初始输入到最终输出的全部 Turn、Tool Call、Observation、Model 内部状态（如有）。</dd>
+    <dt>Trajectory</dt>
+    <dd>这次执行<strong>沿时间轴的轨迹</strong>，强调"按时间顺序的事件序列"。在数据结构上等同于 Rollout，但语义偏分析视角。</dd>
+  </dl>
+
+  <h4>为什么这些数据是金子</h4>
+  <ul>
+    <li><strong>评测</strong>：人工标注 / 自动评分都依赖完整轨迹</li>
+    <li><strong>调试</strong>：模型决策错在哪步、Tool 返回了什么，必须能复现</li>
+    <li><strong>训练 / 微调</strong>：成功的轨迹可作为正例；失败的可作为反例</li>
+    <li><strong>用户回看</strong>：让用户能 replay 过去某次 Session 中模型的全部思考过程</li>
+  </ul>
+
+  <h4>采集设计的常见取舍</h4>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>维度</th><th>选项</th><th>权衡</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>采集时机</td><td>实时流式 / 批量落盘</td><td>实时便于在线评测；批量更省 I/O</td></tr>
+        <tr><td>采集粒度</td><td>token 级 / event 级 / Turn 级</td><td>越细越好分析，存储成本越高</td></tr>
+        <tr><td>存储格式</td><td>JSONL / Protobuf / Parquet</td><td>JSONL 易读；Parquet 适合大规模分析</td></tr>
+        <tr><td>隐私 / 脱敏</td><td>原样存 / 自动脱敏 / 加密分级</td><td>合规 vs 调试可用性</td></tr>
+        <tr><td>保留期</td><td>无限 / 滚动窗口 / 按价值分级</td><td>合规期限 + 成本</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 id="sec-3-3">3.3 Middleware 与 Hook 的用途</h3>
+  <p>§ 1.7 已经从 HITL 角度介绍过 Middleware；这里从框架视角再总结一遍它"为什么必须有"：</p>
+
+  <div class="concept-grid">
+    <div class="concept-card">
+      <div class="cc-tag">USE 01</div>
+      <div class="cc-title">横切关注点</div>
+      <div class="cc-desc">
+        <p>日志、tracing、计费、配额、审计 —— 这些都是横切关注点。塞到 Loop 主流程里会污染核心逻辑。Middleware 让它们以插件方式叠加。</p>
+      </div>
+    </div>
+    <div class="concept-card accent">
+      <div class="cc-tag">USE 02</div>
+      <div class="cc-title">策略注入</div>
+      <div class="cc-desc">
+        <p>"高风险工具必须二次确认"、"周末降级到便宜模型"、"输出长度超 X 自动压缩" —— 这些都是策略，应该可独立配置、可热更新，不和 Loop 代码绑死。</p>
+      </div>
+    </div>
+    <div class="concept-card success">
+      <div class="cc-tag">USE 03</div>
+      <div class="cc-title">扩展点</div>
+      <div class="cc-desc">
+        <p>用户 / 团队需要的功能千差万别。一个框架内核应该<strong>小而稳定</strong>，把多样需求让给 Middleware 实现。这是开放-封闭原则在 Agent 框架里的体现。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <div class="callout-label">优秀框架的判别标准</div>
+    <p>看一个 Agent 框架成不成熟，一个快速判定方法：<strong>它的 Middleware/Hook 接口是不是稳定且文档完整？是否能在不改框架源码的前提下，干预到 PreTurn / MidTurn / PostTurn / Tool Call 全生命周期？</strong> 答案是 Yes，才算合格的工程基座。</p>
+  </div>
+
+  <h3 id="sec-3-4">3.4 框架横评：4 家选型对比<span class="expansion-tag">EXPAND</span></h3>
+  <p>选框架的本质不是"谁最快"，而是<strong>你的工程文化与哪种抽象层级最契合</strong>。下表用统一维度对比 4 个主流选项：</p>
+
+  <div class="table-wrap reveal">
+    <table>
+      <thead>
+        <tr><th>维度</th><th>LangGraph</th><th>Pydantic AI</th><th>Claude Agent SDK</th><th>OpenAI Agents SDK</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>核心抽象</strong></td><td>状态图（Node + Edge）</td><td>Type-safe Agent + Tool</td><td>Loop + Skill + Subagent</td><td>Agent + Handoff</td></tr>
+        <tr><td><strong>控制流</strong></td><td>显式图，可循环 / 分支</td><td>隐式 Loop，Pydantic 校验</td><td>ReAct Loop + 文件系统沉淀</td><td>函数式 Handoff 转移</td></tr>
+        <tr><td><strong>状态持久化</strong></td><td>Checkpointer 内建</td><td>需自实现</td><td>Session 持久化 + 文件</td><td>需自实现</td></tr>
+        <tr><td><strong>HITL 支持</strong></td><td>原生（interrupt / resume）</td><td>需手写</td><td>原生（permission mode）</td><td>需手写</td></tr>
+        <tr><td><strong>多 Agent</strong></td><td>子图 + supervisor</td><td>Agent 嵌套</td><td>Subagent 独立 context</td><td>Handoff 原生</td></tr>
+        <tr><td><strong>学习曲线</strong></td><td>陡（图思维）</td><td>缓（Pydantic 已熟）</td><td>中（Skill 体系）</td><td>缓（API 直观）</td></tr>
+        <tr><td><strong>最适合</strong></td><td>复杂控制流 / 工作流</td><td>类型安全要求高的后端</td><td>长会话 / 代码 / 经验复用</td><td>快速原型 / OpenAI 生态</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout callout-warning reveal">
+    <div class="callout-label">选型反模式</div>
+    <p>不要因为"看起来强大"就上 LangGraph 跑一个简单 QA Agent —— 你最后会在描述图节点上花的时间比写业务还多。<strong>抽象层级要匹配问题复杂度</strong>：简单 → SDK 直调；中等 → Pydantic AI / OpenAI Agents；复杂控制流 → LangGraph；长程经验沉淀 → Claude Agent SDK。</p>
+  </div>
+
+  <h3 id="sec-3-5">3.5 SSE 事件类型对照（3 家）<span class="expansion-tag">EXPAND</span></h3>
+  <p>OpenAI / Anthropic / Google 三家流式协议的事件命名都不一样，但概念上是同构的。下面这个 demo 模拟一次完整 Turn 的事件流，每点一次"重放"重新演示一遍：</p>
+
+  <div class="sse-demo reveal" id="sseDemo">
+    <div class="sse-demo-head">
+      <span>STREAM · 模拟 SSE 事件流</span>
+      <div class="sse-controls">
+        <button class="sse-btn" data-vendor="anthropic">Anthropic</button>
+        <button class="sse-btn" data-vendor="openai">OpenAI</button>
+        <button class="sse-btn" data-vendor="replay">⟳ 重放</button>
+      </div>
+    </div>
+    <div class="sse-stream" id="sseStream"></div>
+  </div>
+
+  <h4>三家事件命名对照</h4>
+  <div class="table-wrap reveal">
+    <table>
+      <thead>
+        <tr><th>语义</th><th>Anthropic</th><th>OpenAI</th><th>Google (Gemini)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>消息开始</td><td><code>message_start</code></td><td><code>response.created</code></td><td>（无显式，首个 chunk 即开始）</td></tr>
+        <tr><td>文本增量</td><td><code>content_block_delta</code></td><td><code>response.output_text.delta</code></td><td><code>candidates[].content.parts[]</code></td></tr>
+        <tr><td>工具调用开始</td><td><code>content_block_start(type:tool_use)</code></td><td><code>response.output_item.added</code></td><td><code>functionCall</code></td></tr>
+        <tr><td>工具入参增量</td><td><code>input_json_delta</code></td><td><code>function_call.arguments.delta</code></td><td>（一次性给）</td></tr>
+        <tr><td>消息结束</td><td><code>message_stop</code></td><td><code>response.completed</code></td><td><code>finishReason</code></td></tr>
+        <tr><td>错误</td><td><code>error</code></td><td><code>response.failed</code></td><td>HTTP 4xx/5xx</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 id="sec-3-6">3.6 Rollout 用于 RL / RLHF 的实战流程<span class="expansion-tag">EXPAND</span></h3>
+  <p>§ 3.2 讲了 Rollout 是金子。但金子要炼成金条，需要一条完整流水线。下面是把 Rollout 转化为训练信号的标准路径：</p>
+
+  <div class="mermaid-wrap reveal">
+    <div class="mermaid">
+flowchart LR
+    R[(Rollout 库<br/>原始执行记录)] --> F[过滤<br/>· 去敏感 PII<br/>· 去失败 trace]
+    F --> S[采样<br/>分层抽样按任务类型]
+    S --> A[标注<br/>人工 / LLM-Judge]
+    A --> P[配对<br/>同 prompt 多 rollout 排序]
+    P --> T{训练目标}
+    T --> DPO[DPO / KTO<br/>偏好优化]
+    T --> RFT[Reward Modeling<br/>+ PPO]
+    T --> SFT[拒绝采样 SFT<br/>挑高分轨迹]
+    DPO --> M[新模型]
+    RFT --> M
+    SFT --> M
+    M -.评测.-> R
+    </div>
+  </div>
+
+  <h4>关键工程细节</h4>
+  <ul>
+    <li><strong>数据 schema 要稳定</strong>。Rollout 一旦改 schema，半年前的数据全要重洗。建议早期就用 protobuf / pydantic 锁死。</li>
+    <li><strong>tool_call / tool_result 要完整保留</strong>。RL 训练需要建模"工具反馈 → 下一步决策"的因果，少一环就训不出来。</li>
+    <li><strong>分布漂移监控</strong>。线上数据分布与训练时差异越大，模型越差。每周做一次 KL 对比。</li>
+    <li><strong>正样本稀缺，反样本要 mine</strong>。"成功 trace"少、"失败 trace"多。后者经过偏好配对一样有用。</li>
+  </ul>
+
+  <h3 id="sec-3-7">3.7 分布式 Agent 状态一致性<span class="expansion-tag">EXPAND</span></h3>
+  <p>当单机部署变成多副本 + 跨地域，"Session 状态在哪"突然变成大问题。三种主流方案：</p>
+
+  <div class="compare-grid reveal">
+    <div class="channel-card">
+      <div class="ch-tag">PATTERN A</div>
+      <div class="ch-title">Sticky Session · 黏性会话</div>
+      <p>同一个 Session 通过 Load Balancer 始终落到同一台机器，状态存本地内存。<strong>优势</strong>：实现简单，延迟低。<strong>代价</strong>：节点挂了状态全没；副本之间负载不均。</p>
+    </div>
+    <div class="channel-card">
+      <div class="ch-tag">PATTERN B</div>
+      <div class="ch-title">External Store · 外部存储</div>
+      <p>每个 Turn 开始前从 Redis / 关系库 / 对象存储拉状态，结束写回。<strong>优势</strong>：任意副本可服务任意 Session，容灾好。<strong>代价</strong>：每 Turn 多一次 IO；并发更新需要锁。</p>
+    </div>
+    <div class="channel-card">
+      <div class="ch-tag">PATTERN C</div>
+      <div class="ch-title">Event Sourcing · 事件溯源</div>
+      <p>状态本身不存，只存"事件流"（每次 Turn 产生的事件）。读时按需 replay。<strong>优势</strong>：天然审计、可时间穿越。<strong>代价</strong>：replay 成本随历史增长；要做 snapshot 优化。</p>
+    </div>
+  </div>
+
+  <div class="callout callout-warning reveal">
+    <div class="callout-label">最常见踩坑</div>
+    <p>很多团队第一版用 Sticky Session，"先跑起来"。等业务起量后被迫迁外部存储，发现 Turn 内部还藏着 in-memory cache，迁完全部副本数据错乱。<strong>第一天就要明确状态边界</strong>：什么是 Session 状态（必须持久化）、什么是 Turn 内瞬态（不能跨副本共享）。</p>
+  </div>
+</section>
+
+<!-- ========== § 04 ========== -->
+<section class="chapter" id="ch-4" data-chapter="04">
+  <h2 class="chapter-h"><span class="h-num">§ 04</span>评测 & 指标</h2>
+  <p class="chapter-lead">Agent 是<strong>评测驱动</strong>的工程。没有评测，迭代就是凭直觉；没有指标，"变得更好了"就只是错觉。这一章给评测体系的最小可用骨架。</p>
+
+  <h3 id="sec-4-1">4.1 Agent 是评测驱动的</h3>
+  <p>传统软件的"对错"清晰：要么编译过、要么测试 pass。Agent 的产出是开放式的，没有唯一正确答案。这带来两个后果：</p>
+  <ul>
+    <li>"看起来还行"是最危险的状态 —— <strong>没有数据支撑的判断，是直觉</strong>，三个月后没人记得为什么这么改</li>
+    <li>每一次模型升级、prompt 改动、Skill 调整，都可能<strong>同时改善某些 case、恶化另一些 case</strong>。没有评测就是赌</li>
+  </ul>
+
+  <div class="callout callout-success">
+    <div class="callout-label">第一性原理</div>
+    <p><strong>评测体系应该和 Agent 同步建立、同步演进</strong>。不是"做完了再补"，而是先有 eval 才能讨论"做得对不对"。这一点上没有捷径。</p>
+  </div>
+
+  <h3 id="sec-4-2">4.2 Metric 设计</h3>
+  <p>设计 Metric 比想象的难。同一个 Agent，可以从这些维度衡量：</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>维度</th><th>典型指标</th><th>陷阱</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>正确性</strong></td><td>Task Success Rate、Exact Match、LLM-as-Judge 分数</td><td>Judge 模型本身偏置 / 任务定义模糊</td></tr>
+        <tr><td><strong>效率</strong></td><td>Turn 数、Token 消耗、Tool Call 次数、Wall Clock</td><td>低 Turn 不等于正确 —— 提前放弃也是少 Turn</td></tr>
+        <tr><td><strong>稳健性</strong></td><td>对扰动输入的成功率、长 Session 衰减率</td><td>测试集不覆盖现实分布</td></tr>
+        <tr><td><strong>安全性</strong></td><td>有害内容率、越权操作率、误调用率</td><td>低频但高代价，需专项压测</td></tr>
+        <tr><td><strong>用户体验</strong></td><td>满意度、追问率、首屏时间、Interrupt 次数</td><td>主观信号噪声大</td></tr>
+        <tr><td><strong>成本</strong></td><td>$ / Task、$ / 用户 / 月</td><td>成本压低后质量是否还守得住</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout">
+    <div class="callout-label">设计要点</div>
+    <p>Metric 设计的关键不是"指标越多越好"，而是<strong>选少数几个北极星指标 + 一组护栏指标</strong>。北极星拉着进步方向，护栏防止改一处坏一片。<strong>每次发版都要看护栏</strong>。</p>
+  </div>
+
+  <h3 id="sec-4-3">4.3 Offline / Online 流程</h3>
+  <p>Agent 评测分两个层次，互为补充：</p>
+
+  <div class="concept-grid cols-2">
+    <div class="concept-card">
+      <div class="cc-tag">OFFLINE</div>
+      <div class="cc-title">离线评测</div>
+      <div class="cc-desc">
+        <p>预先收集一份固定的<strong>eval set</strong>（任务 + 期望产出），在 CI / 发版前跑回归。</p>
+        <p><strong>优势</strong>：可复现、可对比版本、便宜快。</p>
+        <p><strong>不足</strong>：eval set 永远滞后于真实分布；过拟合 eval 是常见陷阱。</p>
+      </div>
+    </div>
+    <div class="concept-card accent">
+      <div class="cc-tag">ONLINE</div>
+      <div class="cc-title">在线评测</div>
+      <div class="cc-desc">
+        <p>在生产流量上做 A/B 或 shadow，采集真实用户的行为和反馈。</p>
+        <p><strong>优势</strong>：真实分布、捕获 long-tail。</p>
+        <p><strong>不足</strong>：信号噪声大 / 慢 / 有用户风险 / 难做反事实分析。</p>
+      </div>
+    </div>
+  </div>
+
+  <h4>典型流水线</h4>
+  <div class="mermaid-wrap">
+    <div class="mermaid">
+flowchart LR
+    Dev[开发改动] --> Offline[Offline Eval<br/>固定 eval set]
+    Offline -->|不通过| Dev
+    Offline -->|通过| Canary[Canary 灰度<br/>1-5% 流量]
+    Canary --> OnlineMetric[Online 指标监控]
+    OnlineMetric -->|护栏触发| Rollback[回滚]
+    OnlineMetric -->|稳定| Ramp[扩量发布]
+    Ramp --> LogCollect[全量 trajectory 采集]
+    LogCollect --> EvalUpdate[失败 case 入 eval set]
+    EvalUpdate -.下一轮.-> Offline
+
+    style Dev fill:#eef0f7,stroke:#3d5a99
+    style Offline fill:#fbf2e0,stroke:#a8843a
+    style Canary fill:#f5e9e0,stroke:#a85b3a,stroke-width:2px
+    style Rollback fill:#fbe5e0,stroke:#a85b3a
+    style Ramp fill:#e8f0e6,stroke:#3a8a4a
+    </div>
+    <div class="mermaid-caption">图 5 · Offline ↔ Online 双循环评测流水线</div>
+  </div>
+
+  <h3 id="sec-4-4">4.4 Single Turn vs Multi Turn</h3>
+  <p>Agent 评测有一个常被忽视的维度：<strong>评测对象是一个 Turn，还是一整段会话</strong>。两者方法论不同：</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>维度</th><th>Single Turn 评测</th><th>Multi Turn 评测</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>输入</td><td>固定上下文 + 单一用户问</td><td>多轮交互 / 长 Session</td></tr>
+        <tr><td>判定</td><td>看本次输出质量</td><td>看 Session 是否达成目标</td></tr>
+        <tr><td>难度</td><td>低</td><td>高（路径多 / 反事实难做）</td></tr>
+        <tr><td>典型方法</td><td>LLM-as-Judge / Exact Match / 规则评分</td><td>Goal Completion / 用户模拟器 / 人工标注</td></tr>
+        <tr><td>常见误用</td><td>用 Single Turn 评测代替 Multi Turn → <strong>掩盖累积错误</strong></td><td>只看终态 → 漏掉过程中的伤害（如错误副作用、走了弯路）</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout callout-warning">
+    <div class="callout-label">实战提醒</div>
+    <p>多数生产 Agent 是 Multi Turn 的，但绝大多数 eval 还停留在 Single Turn 层级。这是<strong>评测能力的最大欠债</strong>。一个简单起点：用<strong>用户模拟器（user simulator）</strong>跑端到端 session，按 Goal Completion 评分。即便简陋，也比单 Turn 测试更接近现实。</p>
+  </div>
+
+  <h3 id="sec-4-5">4.5 新特性 / 新模型上线方案</h3>
+  <p>每次"模型升级"或"重要 feature 上线"，都该走标准化的评测节奏。下面是一份最小可用 playbook：</p>
+
+  <ol>
+    <li><strong>Freeze baseline</strong>：明确"上线前的版本"是什么、它在 eval set 上的分数是多少。没有 baseline 就没法对比</li>
+    <li><strong>Offline 回归</strong>：新版本跑全部 eval set。<strong>每条 case 都要看 diff</strong>，不能只看总分（总分持平可能掩盖一升一降）</li>
+    <li><strong>红线 case 必过</strong>：维护一组 "must-not-regress" case（安全 / 高价值 / 历史故障）。这些不通过直接 block 上线</li>
+    <li><strong>Canary 灰度</strong>：1-5% 流量发布。预先定好护栏指标的阈值，触发自动回滚</li>
+    <li><strong>Shadow 对比</strong>（可选）：新旧版本同时跑，只展示旧版输出，新版结果落盘对比。对低风险特性是黄金方案</li>
+    <li><strong>扩量</strong>：阶梯式扩量（5% → 25% → 100%），每一档观察 24-72 小时</li>
+    <li><strong>失败回流</strong>：上线后采集到的失败 case，回流到 eval set，下次迭代不重蹈覆辙</li>
+  </ol>
+
+  <div class="callout callout-neutral">
+    <div class="callout-label">承上启下</div>
+    <p>第 7 步"失败回流"是<strong>评测体系自我进化的关键</strong>。没有这一步，eval set 会随时间变成"已经会做的事的集合"，对新失败模式无感。再回头看 §2.6 的"Skill 可自进化" —— 同一个原理在两层都成立。</p>
+  </div>
+
+  <h3 id="sec-4-6">4.6 用户模拟器的设计与质量评估<span class="expansion-tag">EXPAND</span></h3>
+  <p>Multi Turn 评测离不开"模拟用户"。手工写脚本扩展性差，最现实的方案是<strong>用模型扮演用户</strong>。但模拟器本身的质量直接决定评测结果可信度，所以它自己也需要被评测。</p>
+
+  <h4>模拟器的 4 个设计要点</h4>
+  <div class="concept-grid cols-2 reveal">
+    <div class="concept-card">
+      <div class="cc-tag">DESIGN 01</div>
+      <div class="cc-title">角色卡（Persona Card）</div>
+      <div class="cc-desc">
+        <p>明确人设：技术背景、表达风格、耐心程度、目标清晰度、是否会主动澄清。<strong>不要</strong>用一个"通用用户"，要覆盖分布。</p>
+      </div>
+    </div>
+    <div class="concept-card">
+      <div class="cc-tag">DESIGN 02</div>
+      <div class="cc-title">目标驱动而非脚本</div>
+      <div class="cc-desc">
+        <p>给模拟器目标（"订一张周五到上海的机票"），而不是脚本（"先说想去上海"→"然后说周五"）。否则脚本一断模拟器就崩。</p>
+      </div>
+    </div>
+    <div class="concept-card accent">
+      <div class="cc-tag">DESIGN 03</div>
+      <div class="cc-title">退出条件可判定</div>
+      <div class="cc-desc">
+        <p>什么算"任务完成"？什么算"放弃"？必须是机器可判定的信号（订单号生成、明确的"算了"等）。</p>
+      </div>
+    </div>
+    <div class="concept-card">
+      <div class="cc-tag">DESIGN 04</div>
+      <div class="cc-title">允许真实噪声</div>
+      <div class="cc-desc">
+        <p>真实用户会打错字、改主意、问无关问题。模拟器要有概率注入这些行为，否则评测出的"成功率"虚高。</p>
+      </div>
+    </div>
+  </div>
+
+  <h4>模拟器质量怎么评</h4>
+  <ul>
+    <li><strong>人工对比抽检</strong>：随机抽 100 个模拟对话给人评 1–5 分（自然度、是否像真实用户）。</li>
+    <li><strong>分布对齐</strong>：把模拟用户的提问与线上真实用户的提问做 embedding 聚类，看分布是否相似。</li>
+    <li><strong>对抗稳定性</strong>：换 Agent 实现（强 Agent vs 弱 Agent），模拟器是否表现出合理差异化（强 Agent 上更早完成，弱 Agent 上更频繁补充澄清）。</li>
+  </ul>
+
+  <h3 id="sec-4-7">4.7 LLM-as-Judge 的偏置矫正<span class="expansion-tag">EXPAND</span></h3>
+  <p>LLM 当评委便宜又快，但有<strong>系统性偏差</strong>。下面是已被多篇论文实证的 5 大偏置：</p>
+
+  <div class="table-wrap reveal">
+    <table>
+      <thead>
+        <tr><th>偏置</th><th>表现</th><th>矫正手法</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Position Bias</strong></td><td>评 A/B 对比时，倾向选第一个或第二个出现的</td><td>把 A/B 位置随机互换跑两遍取一致</td></tr>
+        <tr><td><strong>Length Bias</strong></td><td>倾向给长答案高分（"看起来更详细"）</td><td>评分前先做长度归一化；或加入"简洁性"维度</td></tr>
+        <tr><td><strong>Verbosity Bias</strong></td><td>倾向认为"措辞华丽"= 质量高</td><td>用 rubric 拆维度，强制评 factual / actionable / brief</td></tr>
+        <tr><td><strong>Self-Preference</strong></td><td>同家模型评同家模型，分数偏高</td><td>跨家交叉评（用 Claude 评 GPT 的输出反之亦然）</td></tr>
+        <tr><td><strong>Authority Bias</strong></td><td>引用了"研究表明" / 列了数字就觉得对</td><td>评测维度里加入"事实准确性"，并做样本人工抽检</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout callout-success reveal">
+    <div class="callout-label">实战 SOP</div>
+    <p>LLM-Judge 不是"一次性打分器"，而是"漏斗的第一道"。流程：<strong>LLM-Judge 自动评全量 → 高分疑似 + 低分疑似 + 不一致样本三类进入人工复审 → 复审结果回流校准 Judge prompt</strong>。一年下来 Judge 准确率能从 70% 拉到 90%+。</p>
+  </div>
+
+  <h3 id="sec-4-8">4.8 Tool 调用专项评测<span class="expansion-tag">EXPAND</span></h3>
+  <p>"任务成功率"是综合指标，但工具调用链路出问题时，它不告诉你<strong>错在哪一环</strong>。专项评测把它拆成三段，每段独立监控：</p>
+
+  <dl class="def-list reveal">
+    <dt>Tool Selection</dt>
+    <dd>给定用户请求 + 工具列表，模型选对了工具吗？指标：<strong>Precision / Recall</strong>（应该选 X 而真的选了 X）。<br/>常见错误：选了功能相近的错误工具、漏选了必要工具、过度调用不需要的工具。</dd>
+    <dt>Tool Args</dt>
+    <dd>选对了工具，参数填对了吗？指标：<strong>Exact Match / Semantic Match</strong>。<br/>常见错误：必填参数缺失、类型错误（string vs int）、值越界、把上下文里的占位符当真实值。</dd>
+    <dt>Failure Recovery</dt>
+    <dd>工具返回错误时，模型能正确恢复吗？指标：<strong>Recovery Rate</strong>（错误后 N Turn 内回到正轨）。<br/>常见错误：把错误当作普通文本继续走；陷入相同错误的无限重试；放弃任务但不告诉用户。</dd>
+  </dl>
+
+  <div class="callout callout-warning reveal">
+    <div class="callout-label">数据从哪来</div>
+    <p>这三类专项评测需要<strong>带 ground truth 的工具调用数据集</strong>，公开 benchmark 如 <code>ToolBench</code>、<code>API-Bank</code>、<code>τ-bench</code> 可参考。但更关键的是<strong>从线上 Rollout 沉淀自己的</strong>：每一次失败的 tool call 都是金矿，人工标注 1-2 次后就能进入回归集。</p>
+  </div>
+
+  <h3 id="sec-4-9">4.9 长尾分布下的统计显著性<span class="expansion-tag">EXPAND</span></h3>
+  <p>Agent 任务的分数分布是<strong>双峰</strong>而非正态：要么任务做成了（接近满分），要么彻底失败（接近 0 分），中间样本稀少。这让"平均分高了 2%"这种说法毫无意义。</p>
+
+  <h4>3 个常见错误</h4>
+  <ol>
+    <li><strong>用 t 检验</strong>。t 检验假设近似正态，双峰分布下 p 值不可信。改用 <strong>bootstrap 重采样</strong> 或 <strong>Wilcoxon 符号秩</strong>。</li>
+    <li><strong>样本太小</strong>。Agent 评测一个样本可能要跑几分钟、调几次模型，总成本高，工程师容易"50 个样本就下结论"。50 个样本在双峰分布下置信区间会大得发指 —— <strong>至少 200 个，敏感场景 1000 个</strong>。</li>
+    <li><strong>忽略相关性</strong>。同 prompt 反复跑多次（多 sample），样本之间不独立。要用<strong>分层 bootstrap</strong>（先按 prompt 抽，再按 sample 抽）。</li>
+  </ol>
+
+  <div class="callout callout-neutral reveal">
+    <div class="callout-label">推荐工具链</div>
+    <p>原型阶段用 <code>scipy.stats.bootstrap</code> 算置信区间；上规模后用 <code>statsmodels</code> 跑 mixed-effects 模型把 prompt × model 双随机效应建模。结果用<strong>带误差棒的对比图</strong>呈现而不是"提升 X%"的单一数字 —— 误差棒重叠就要诚实说"未达显著"，别给老板灌米汤。</p>
+  </div>
+
+  <h3 id="sec-4-10">4.10 Agent 安全评测<span class="expansion-tag">EXPAND</span></h3>
+  <p>能力评测告诉你 Agent <strong>有多强</strong>；安全评测告诉你 Agent <strong>在攻击下有多稳</strong>。三大类：</p>
+
+  <div class="concept-grid reveal">
+    <div class="concept-card warning">
+      <div class="cc-tag">THREAT 01</div>
+      <div class="cc-title">Jailbreak</div>
+      <div class="cc-desc">
+        <p>用诱导提示（角色扮演、虚构场景、隐喻）让模型输出本应拒绝的内容。<strong>评测</strong>：用对抗 prompt 数据集跑 ASR（Attack Success Rate）。</p>
+      </div>
+    </div>
+    <div class="concept-card warning">
+      <div class="cc-tag">THREAT 02</div>
+      <div class="cc-title">Prompt Injection</div>
+      <div class="cc-desc">
+        <p>恶意指令藏在工具返回值 / 文档 / 网页里，被读取后劫持 Agent。<strong>评测</strong>：构造含注入的工具结果，看 Agent 是否仍执行用户原意图。</p>
+      </div>
+    </div>
+    <div class="concept-card warning">
+      <div class="cc-tag">THREAT 03</div>
+      <div class="cc-title">权限越权</div>
+      <div class="cc-desc">
+        <p>Agent 调用了不该有权限的工具（如以 A 用户身份读 B 用户数据）。<strong>评测</strong>：注入跨用户 reference，看 Agent 是否拦截。</p>
+      </div>
+    </div>
+  </div>
+
+  <h4>评测流水线 · 动画演示</h4>
+  <div class="pipeline-anim reveal" id="pipelineAnim">
+    <div class="pipeline-row">
+      <div class="pipe-stage" data-stage="1"><div class="ps-name">Generate</div><div class="ps-desc">生成对抗 prompt 集</div></div>
+      <div class="pipe-stage" data-stage="2"><div class="ps-name">Inject</div><div class="ps-desc">注入到 Agent 输入</div></div>
+      <div class="pipe-stage" data-stage="3"><div class="ps-name">Run</div><div class="ps-desc">运行 + 收集输出</div></div>
+      <div class="pipe-stage" data-stage="4"><div class="ps-name">Judge</div><div class="ps-desc">判断是否被攻陷</div></div>
+      <div class="pipe-stage" data-stage="5"><div class="ps-name">Report</div><div class="ps-desc">ASR + 失败案例</div></div>
+    </div>
+    <div class="pipe-track"><div class="pipe-token"></div></div>
+    <div class="pipe-caption">图 · 安全评测的 5 阶段流水线（动画循环演示数据流动）</div>
+  </div>
+
+  <div class="callout callout-warning reveal">
+    <div class="callout-label">底线原则</div>
+    <p>安全评测<strong>不能放在版本发布前一周</strong>。它必须和能力评测同等级别，进 CI / 每次模型升级强制跑 / 红队定期人工破坏性测试。<strong>因为 ASR 1% 听起来很小，但 Agent 每天跑 100 万次就意味着每天 1 万次被攻陷</strong>。</p>
+  </div>
+</section>
+
+<!-- ========== § 99 附录 ========== -->
+<section class="chapter" id="ch-99" data-chapter="99">
+  <h2 class="chapter-h"><span class="h-num">§ 99</span>附录</h2>
+  <p class="chapter-lead">这一节不是内容，是关于<strong>这份文档本身如何扩展</strong>的说明。新章节的维护者请先读它。</p>
+
+  <h3 id="sec-99-1">99.1 扩展机制</h3>
+
+  <h4>新增章节</h4>
+  <ol>
+    <li>在<strong>左侧 TOC</strong>（<code>.toc-side</code>）末尾追加一条 <code>&lt;li&gt;&lt;a class="lvl-2" href="#ch-N"&gt;§ 0N 标题&lt;/a&gt;&lt;/li&gt;</code></li>
+    <li>在<strong>顶部 nav</strong>（<code>.topnav-links</code>）追加一条对应链接（可选，章数 ≥ 6 时建议精简）</li>
+    <li>在<strong>主区 main</strong> 末尾追加 <code>&lt;section class="chapter" id="ch-N" data-chapter="0N"&gt;...&lt;/section&gt;</code></li>
+    <li>在 <strong>doc-header 的 <code>.chapter-index</code></strong> 追加一行（可选，章数太多时只保留前 6 章）</li>
+  </ol>
+
+  <h4>章节内部小节</h4>
+  <p>统一使用 <code>id="sec-N-M"</code>（如 <code>sec-1-3</code>）三级使用 <code>sec-N-M-K</code>。<strong>同时记得把对应 anchor 加进左侧 TOC</strong>，否则导航会断。</p>
+
+  <h4>组件复用</h4>
+  <ul>
+    <li><strong>对比 / 三元组</strong> → <code>.concept-grid</code>（默认 3 列，可加 <code>.cols-2</code> / <code>.cols-4</code>）</li>
+    <li><strong>枚举性数据</strong> → <code>table.tbl</code></li>
+    <li><strong>定义术语</strong> → <code>.def-list</code></li>
+    <li><strong>统计 / KPI</strong> → <code>.stat-row</code>（不要用卡片）</li>
+    <li><strong>提醒 / 洞见</strong> → <code>.callout</code> + 五种变体（默认 / warning / success / neutral）</li>
+    <li><strong>流程 / 拓扑</strong> → <code>.mermaid-wrap</code> + 内嵌 mermaid 代码 + caption "图 N · 描述"</li>
+    <li><strong>原始数据 / 详细引用</strong> → <code>&lt;details&gt;</code></li>
+    <li><strong>预留扩展位</strong> → <code>.placeholder</code> 或章节末尾 <code>&lt;details&gt;</code></li>
+  </ul>
+
+  <h4>风格约束</h4>
+  <p>本文档严格遵循 <code>references/design-style-guide.md</code>。维护时请<strong>不要</strong>：</p>
+  <ul>
+    <li>用左粗边框包装所有 callout</li>
+    <li>用渐变背景或多色按钮</li>
+    <li>引入 emoji 装饰</li>
+    <li>用阴影做层级（横线就够了）</li>
+    <li>用通用类名（<code>.box</code> / <code>.wrapper</code>）—— 每个组件都应该有业务语义类名</li>
+  </ul>
+
+  <div class="placeholder">
+    <div class="ph-label">FUTURE EXPANSION</div>
+    可能在此处增加的章节：§ 05 Tool 设计 / § 06 Memory 系统 / § 07 多 Agent 协议 / § 08 安全与对齐 / § 09 部署与运维 / § 10 案例研究
+  </div>
+
+  <h3 id="sec-99-2">99.2 术语速查</h3>
+  <dl class="def-list">
+    <dt>ReAct</dt><dd>Reason + Act。最小 Agent 循环。</dd>
+    <dt>PlanAct</dt><dd>ReAct 的变体，把 Reason 拆为先 Plan 再 Act。</dd>
+    <dt>CodeAct</dt><dd>把 Act 阶段从"结构化 Tool"换成"代码生成 + 执行"。</dd>
+    <dt>MultiAgent</dt><dd>多个 ReAct Loop 协同的统称。</dd>
+    <dt>LoopSession</dt><dd>一次完整 Agent 会话的生命周期。</dd>
+    <dt>LoopTurn</dt><dd>Session 内一次「Model Call + Tool Call + Observation」原子单位。</dd>
+    <dt>Steer / Followup / Interrupt</dt><dd>用户对 Loop 的三种控制原语：引导 / 追问 / 打断。</dd>
+    <dt>StopReason</dt><dd>Loop 退出原因的枚举型协议。</dd>
+    <dt>HITL</dt><dd>Human In The Loop，人在回路。</dd>
+    <dt>Middleware / Hook</dt><dd>插入到 Loop 生命周期阶段的可组合插件机制。</dd>
+    <dt>Stop-Resume / Hang-Wait</dt><dd>HITL 等待的两种实现策略：持久化退出 / 进程挂起。</dd>
+    <dt>Skill</dt><dd>把"做某类事的经验"封装成 Loop 可召唤的对象。</dd>
+    <dt>Rollout / Trajectory</dt><dd>一次 Agent 执行的完整记录 / 时间轴轨迹。</dd>
+    <dt>SSE</dt><dd>Server-Sent Events。Agent 流式输出的常用通道。</dd>
+    <dt>Eval Set</dt><dd>一组用于回归测试的代表性任务 + 期望产出。</dd>
+    <dt>LLM-as-Judge</dt><dd>用模型给模型输出打分的评测方法。</dd>
+    <dt>Goal Completion</dt><dd>Multi Turn 评测中"任务最终是否达成"的判定指标。</dd>
+  </dl>
+</section>
+
+<footer class="doc-footer">
+  <span>Agent 开发体系手册 · v0.1 · 持续演进</span>
+  <span>设计标准：<code>references/design-style-guide.md</code></span>
+</footer>
+
+</main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  // Mermaid 初始化
+  if (window.mermaid) {
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'base',
+      themeVariables: {
+        fontFamily: "'IBM Plex Sans', 'Noto Sans SC', sans-serif",
+        fontSize: '14px',
+        primaryColor: '#eef0f7',
+        primaryTextColor: '#1a1a2e',
+        primaryBorderColor: '#3d5a99',
+        lineColor: '#5a6680',
+        background: '#fdfcf9',
+        mainBkg: '#eef0f7',
+        secondBkg: '#fbf2e0',
+        tertiaryBkg: '#e8f0e6',
+      },
+      flowchart: { curve: 'basis', padding: 16 }
+    });
+  }
+
+  // 滚动联动 TOC active + 顶部进度条
+  (function () {
+    const tocLinks = document.querySelectorAll('.toc-list a, .topnav-links a');
+    const sections = Array.from(document.querySelectorAll('section.chapter, h3[id], h4[id]'));
+    const progressBar = document.getElementById('progressBar');
+
+    function update() {
+      // 进度条
+      const scrollTop = window.scrollY;
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      const pct = max > 0 ? Math.min(100, (scrollTop / max) * 100) : 0;
+      if (progressBar) progressBar.style.width = pct + '%';
+
+      // 当前激活 section（用 30% viewport 高度作为判定线）
+      const line = window.innerHeight * 0.3;
+      let activeId = null;
+      for (const s of sections) {
+        const r = s.getBoundingClientRect();
+        if (r.top <= line) activeId = s.id;
+        else break;
+      }
+      tocLinks.forEach((a) => {
+        const href = a.getAttribute('href');
+        a.classList.toggle('active', href === '#' + activeId);
+      });
+    }
+
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    update();
+  })();
+
+  // 移动端 TOC 抽屉
+  (function () {
+    const toggle = document.getElementById('tocToggle');
+    const side = document.getElementById('tocSide');
+    const backdrop = document.getElementById('tocBackdrop');
+    if (!toggle || !side || !backdrop) return;
+
+    function setOpen(open) {
+      side.classList.toggle('open', open);
+      backdrop.classList.toggle('open', open);
+      document.body.style.overflow = open ? 'hidden' : '';
+    }
+
+    toggle.addEventListener('click', () => setOpen(!side.classList.contains('open')));
+    backdrop.addEventListener('click', () => setOpen(false));
+    side.addEventListener('click', (e) => {
+      if (e.target.tagName === 'A') setOpen(false);
+    });
+  })();
+
+  /* ===== Reveal on scroll (global) ===== */
+  (function () {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const targets = document.querySelectorAll('.reveal');
+    if (reduce || !('IntersectionObserver' in window)) {
+      targets.forEach(t => t.classList.add('visible'));
+      return;
+    }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    targets.forEach(t => io.observe(t));
+  })();
+
+  /* ===== § 1.1 ReAct loop demo ===== */
+  (function () {
+    const root = document.getElementById('reactLoop');
+    if (!root) return;
+    const nodes = root.querySelectorAll('.rl-node');
+    const arrows = root.querySelectorAll('.rl-arrow');
+    const status = root.querySelector('#rlStatus');
+    const btns = root.querySelectorAll('.rl-btn');
+    const seq = [
+      { node: 'reason',  arrow: null,    text: '<strong>Step 1 · Reason</strong> · 模型决定下一步动作' },
+      { node: 'act',     arrow: 'r-a',   text: '<strong>Step 2 · Act</strong> · 发起 tool_use 请求' },
+      { node: 'observe', arrow: 'a-o',   text: '<strong>Step 3 · Observe</strong> · 工具返回结果' },
+      { node: 'reason',  arrow: 'o-r',   text: '<strong>Loop</strong> · 把 observation 喂回 Reason，进入下一 Turn' }
+    ];
+    let idx = 0; let timer = null;
+
+    function reset() {
+      nodes.forEach(n => n.classList.remove('active'));
+      arrows.forEach(a => a.classList.remove('active'));
+    }
+    function highlight(i) {
+      reset();
+      const s = seq[i];
+      nodes.forEach(n => { if (n.dataset.step === s.node) n.classList.add('active'); });
+      if (s.arrow) arrows.forEach(a => { if (a.dataset.arrow === s.arrow) a.classList.add('active'); });
+      status.innerHTML = s.text;
+    }
+    function step() { highlight(idx); idx = (idx + 1) % seq.length; }
+    function play() {
+      if (timer) { clearInterval(timer); timer = null; setActive(null); return; }
+      step();
+      timer = setInterval(step, 1400);
+      setActive('play');
+    }
+    function setActive(name) {
+      btns.forEach(b => b.classList.toggle('is-active', b.dataset.rl === name));
+    }
+
+    btns.forEach(b => b.addEventListener('click', () => {
+      if (b.dataset.rl === 'play') play();
+      if (b.dataset.rl === 'step') { if (timer) { clearInterval(timer); timer = null; } step(); setActive('step'); }
+      if (b.dataset.rl === 'reset') { if (timer) { clearInterval(timer); timer = null; } reset(); idx = 0; status.innerHTML = '点击「自动循环」或「单步」开始演示'; setActive(null); }
+    }));
+  })();
+
+  /* ===== § 1.10 Middleware onion sync ===== */
+  (function () {
+    const items = document.querySelectorAll('.onion-list .ol-item');
+    const rings = document.querySelectorAll('.onion-ring[data-ring]');
+    if (!items.length) return;
+    function setRing(r, on) {
+      rings.forEach(ring => ring.classList.toggle('is-hover', on && ring.dataset.ring === r));
+      items.forEach(it => it.classList.toggle('is-active', on && it.dataset.ring === r));
+    }
+    items.forEach(it => {
+      it.addEventListener('mouseenter', () => setRing(it.dataset.ring, true));
+      it.addEventListener('mouseleave', () => setRing(null, false));
+    });
+    rings.forEach(ring => {
+      ring.addEventListener('mouseenter', () => setRing(ring.dataset.ring, true));
+      ring.addEventListener('mouseleave', () => setRing(null, false));
+    });
+  })();
+
+  /* ===== § 3.5 SSE stream demo ===== */
+  (function () {
+    const wrap = document.getElementById('sseDemo');
+    if (!wrap) return;
+    const stream = wrap.querySelector('#sseStream');
+    const btns = wrap.querySelectorAll('.sse-btn');
+    const scripts = {
+      anthropic: [
+        { name: 'message_start',       cls: 'evt-msg',    body: '{ "type":"message_start", "model":"claude-…" }' },
+        { name: 'content_block_delta', cls: 'evt-msg',    body: 'text: "好的，让我先查一下" ', tok: true },
+        { name: 'content_block_start', cls: 'evt-tool',   body: '{ "type":"tool_use", "name":"search_docs" }' },
+        { name: 'input_json_delta',    cls: 'evt-tool',   body: '{ "query":"agent loop' },
+        { name: 'input_json_delta',    cls: 'evt-tool',   body: ' best practice" }' },
+        { name: 'message_stop',        cls: 'evt-stop',   body: '{ "stop_reason":"tool_use" }' },
+        { name: 'tool_result',         cls: 'evt-result', body: '[3 results · 1.2s]' },
+        { name: 'message_start',       cls: 'evt-msg',    body: '{ "type":"message_start" }' },
+        { name: 'content_block_delta', cls: 'evt-msg',    body: 'text: "找到 3 篇相关文档，要点是…" ', tok: true },
+        { name: 'message_stop',        cls: 'evt-stop',   body: '{ "stop_reason":"end_turn" }' }
+      ],
+      openai: [
+        { name: 'response.created',         cls: 'evt-msg',    body: '{ "model":"gpt-…" }' },
+        { name: 'output_text.delta',        cls: 'evt-msg',    body: 'text: "好的，让我先查一下"', tok: true },
+        { name: 'output_item.added',        cls: 'evt-tool',   body: '{ "type":"function_call", "name":"search_docs" }' },
+        { name: 'function_call.arguments.delta', cls: 'evt-tool', body: '"{ \\"query\\": \\"agent loop"' },
+        { name: 'function_call.arguments.delta', cls: 'evt-tool', body: ' best practice\\" }"' },
+        { name: 'response.completed',       cls: 'evt-stop',   body: '{ "status":"requires_action" }' },
+        { name: 'tool_output',              cls: 'evt-result', body: '[3 results · 1.1s]' },
+        { name: 'response.created',         cls: 'evt-msg',    body: '{ "model":"gpt-…" }' },
+        { name: 'output_text.delta',        cls: 'evt-msg',    body: 'text: "找到 3 篇相关文档，要点是…"', tok: true },
+        { name: 'response.completed',       cls: 'evt-stop',   body: '{ "status":"completed" }' }
+      ]
+    };
+    let cur = 'anthropic'; let timer = null;
+
+    function render(name) {
+      stream.innerHTML = '';
+      const seq = scripts[name] || scripts.anthropic;
+      let i = 0;
+      function tick() {
+        if (i >= seq.length) { timer = null; return; }
+        const e = seq[i];
+        const row = document.createElement('div');
+        row.className = 'sse-event';
+        if (e.tok) {
+          const chars = [...e.body].map((c, k) => `<span class="tok" style="animation-delay:${k*22}ms">${c.replace(' ', '&nbsp;')}</span>`).join('');
+          row.innerHTML = `<span class="sse-name ${e.cls}">${e.name}</span><span class="sse-body">${chars}</span>`;
+        } else {
+          row.innerHTML = `<span class="sse-name ${e.cls}">${e.name}</span><span class="sse-body">${e.body}</span>`;
+        }
+        stream.appendChild(row);
+        requestAnimationFrame(() => row.classList.add('in'));
+        stream.scrollTop = stream.scrollHeight;
+        i++;
+        const delay = e.tok ? Math.max(280, e.body.length * 18) : 360;
+        timer = setTimeout(tick, delay);
+      }
+      tick();
+    }
+
+    btns.forEach(b => b.addEventListener('click', () => {
+      if (timer) { clearTimeout(timer); timer = null; }
+      const v = b.dataset.vendor;
+      if (v === 'replay') { render(cur); return; }
+      cur = v; render(v);
+    }));
+
+    // Auto-start once it enters viewport
+    const auto = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { render(cur); auto.disconnect(); } });
+    }, { threshold: 0.4 });
+    auto.observe(wrap);
+  })();
+
+  /* ===== § 4.10 Pipeline anim — sync stage highlight to token position ===== */
+  (function () {
+    const wrap = document.getElementById('pipelineAnim');
+    if (!wrap) return;
+    const stages = wrap.querySelectorAll('.pipe-stage');
+    const token = wrap.querySelector('.pipe-token');
+    if (!stages.length || !token) return;
+    let running = false;
+    function tick() {
+      const rect = token.getBoundingClientRect();
+      const wrect = wrap.querySelector('.pipe-track').getBoundingClientRect();
+      const ratio = (rect.left + rect.width / 2 - wrect.left) / wrect.width;
+      const idx = Math.min(stages.length - 1, Math.max(0, Math.floor(ratio * stages.length)));
+      stages.forEach((s, i) => s.classList.toggle('is-on', i === idx));
+      if (running) requestAnimationFrame(tick);
+    }
+    const auto = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting && !running) { running = true; tick(); }
+        if (!e.isIntersecting) { running = false; stages.forEach(s => s.classList.remove('is-on')); }
+      });
+    }, { threshold: 0.25 });
+    auto.observe(wrap);
+  })();
+</script>
+
+</body>
+</html>
