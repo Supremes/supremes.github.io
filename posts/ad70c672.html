@@ -1,0 +1,438 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>JAXB 速通：写给 Spring Boot 开发者的指南 | Supremes</title><meta name="author" content="Supremes"><meta name="copyright" content="Supremes"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="老大，下面这份文档放在回复里输出（不创建文件，因为您前面规则里说过非显式要求不写 .md 文件；如果您想我保存成文件，告诉我路径即可）。整篇以 Spring Boot 开发者熟悉的 Jackson、Spring 容器、OpenAPI Generator 等概念做类比，把前文出现的名词全部串起来。  JAXB 速通：写给 Spring Boot 开发者的指南一、一句话定位JAXB ≈ XML 世界的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JAXB 速通：写给 Spring Boot 开发者的指南">
+<meta property="og:url" content="https://supremes.github.io/posts/ad70c672.html">
+<meta property="og:site_name" content="Supremes">
+<meta property="og:description" content="老大，下面这份文档放在回复里输出（不创建文件，因为您前面规则里说过非显式要求不写 .md 文件；如果您想我保存成文件，告诉我路径即可）。整篇以 Spring Boot 开发者熟悉的 Jackson、Spring 容器、OpenAPI Generator 等概念做类比，把前文出现的名词全部串起来。  JAXB 速通：写给 Spring Boot 开发者的指南一、一句话定位JAXB ≈ XML 世界的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg">
+<meta property="article:published_time" content="2026-05-25T15:09:47.000Z">
+<meta property="article:modified_time" content="2026-05-25T15:10:00.000Z">
+<meta property="article:author" content="Supremes">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "JAXB 速通：写给 Spring Boot 开发者的指南",
+  "url": "https://supremes.github.io/posts/ad70c672.html",
+  "image": "https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg",
+  "datePublished": "2026-05-25T15:09:47.000Z",
+  "dateModified": "2026-05-25T15:10:00.000Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Supremes",
+      "url": "https://supremes.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/favicon/favicon.ico"><link rel="canonical" href="https://supremes.github.io/posts/ad70c672.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.2"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"pagination":{"enable":true,"hitsPerPage":10},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: true,
+  isAnchor: true,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'JAXB 速通：写给 Spring Boot 开发者的指南',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-webfont/style.css" /><meta name="generator" content="Hexo 8.1.1"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">40</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">72</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">13</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><a class="site-page" href="/ai-agent/"><i class="fa-fw fas fa-robot"></i><span> AI Agent</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/AI/"><i class="fa-fw fas fa-robot"></i><span> AI</span></a></li><li><a class="site-page child" href="/categories/tools/"><i class="fa-fw fas fa-tools"></i><span> 工具效率</span></a></li><li><a class="site-page child" href="/categories/Spring/"><i class="fa-fw fas fa-leaf"></i><span> Spring</span></a></li><li><a class="site-page child" href="/categories/Java/"><i class="fa-fw fas fa-coffee"></i><span> Java</span></a></li><li><a class="site-page child" href="/tags/JUC/"><i class="fa-fw fas fa-book"></i><span> JUC</span></a></li><li><a class="site-page child" href="/categories/database/"><i class="fa-fw fas fa-database"></i><span> 数据库</span></a></li><li><a class="site-page child" href="/categories/security/"><i class="fa-fw fas fa-shield-alt"></i><span> 网络安全</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 关于</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/about/about_me"><i class="fa-fw fas fa-user"></i><span> 关于我</span></a></li><li><a class="site-page child" href="/about/my_notes"><i class="fa-fw fas fa-note-sticky"></i><span> 备忘录</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Supremes</span></a><a class="nav-page-title" href="/"><span class="site-name">JAXB 速通：写给 Spring Boot 开发者的指南</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><a class="site-page" href="/ai-agent/"><i class="fa-fw fas fa-robot"></i><span> AI Agent</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/AI/"><i class="fa-fw fas fa-robot"></i><span> AI</span></a></li><li><a class="site-page child" href="/categories/tools/"><i class="fa-fw fas fa-tools"></i><span> 工具效率</span></a></li><li><a class="site-page child" href="/categories/Spring/"><i class="fa-fw fas fa-leaf"></i><span> Spring</span></a></li><li><a class="site-page child" href="/categories/Java/"><i class="fa-fw fas fa-coffee"></i><span> Java</span></a></li><li><a class="site-page child" href="/tags/JUC/"><i class="fa-fw fas fa-book"></i><span> JUC</span></a></li><li><a class="site-page child" href="/categories/database/"><i class="fa-fw fas fa-database"></i><span> 数据库</span></a></li><li><a class="site-page child" href="/categories/security/"><i class="fa-fw fas fa-shield-alt"></i><span> 网络安全</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 关于</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/about/about_me"><i class="fa-fw fas fa-user"></i><span> 关于我</span></a></li><li><a class="site-page child" href="/about/my_notes"><i class="fa-fw fas fa-note-sticky"></i><span> 备忘录</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">JAXB 速通：写给 Spring Boot 开发者的指南</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-05-25T15:09:47.000Z" title="发表于 2026-05-25 15:09 15:09:47">2026-05-25 15:09</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-05-25T15:10:00.000Z" title="更新于 2026-05-25 15:10 15:10:00">2026-05-25 15:10</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>老大，下面这份文档放在回复里输出（不创建文件，因为您前面规则里说过非显式要求不写 <code>.md</code> 文件；如果您想我保存成文件，告诉我路径即可）。整篇以 Spring Boot 开发者熟悉的 Jackson、Spring 容器、OpenAPI Generator 等概念做类比，把前文出现的名词全部串起来。</p>
+<hr>
+<h1 id="jaxb-速通：写给-spring-boot-开发者的指南"><a href="#jaxb-速通：写给-spring-boot-开发者的指南" class="headerlink" title="JAXB 速通：写给 Spring Boot 开发者的指南"></a>JAXB 速通：写给 Spring Boot 开发者的指南</h1><h2 id="一、一句话定位"><a href="#一、一句话定位" class="headerlink" title="一、一句话定位"></a>一、一句话定位</h2><p><strong>JAXB ≈ XML 世界的 Jackson</strong>。</p>
+<table>
+<thead>
+<tr>
+<th>Jackson 干的事</th>
+<th>JAXB 干的事</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>ObjectMapper.writeValueAsString(obj)</code> → JSON</td>
+<td><code>Marshaller.marshal(obj, ...)</code> → XML</td>
+</tr>
+<tr>
+<td><code>ObjectMapper.readValue(json, Foo.class)</code></td>
+<td><code>Unmarshaller.unmarshal(xml)</code> → Java 对象</td>
+</tr>
+<tr>
+<td><code>@JsonProperty(&quot;name&quot;)</code></td>
+<td><code>@XmlElement(name=&quot;name&quot;)</code></td>
+</tr>
+<tr>
+<td>注解驱动 + 反射</td>
+<td>注解驱动 + 反射</td>
+</tr>
+</tbody></table>
+<p>Spring Boot 默认带 Jackson，所以你可能从没主动接触过它的”配置层”。JAXB 在 Spring Boot 里也是一样——<strong>只要不写复杂场景，它就是隐身的</strong>。</p>
+<hr>
+<h2 id="二、为什么-spring-boot-开发者会”突然”遇到-jaxb"><a href="#二、为什么-spring-boot-开发者会”突然”遇到-jaxb" class="headerlink" title="二、为什么 Spring Boot 开发者会”突然”遇到 JAXB"></a>二、为什么 Spring Boot 开发者会”突然”遇到 JAXB</h2><p>平时你可能根本不知道 JAXB 存在。但在这些场景，它会跳出来打你：</p>
+<ol>
+<li><strong>对接 SOAP 服务</strong>（WSDL、<code>&lt;soap:Envelope&gt;</code> 那一套）</li>
+<li><strong>对接政企&#x2F;银行&#x2F;电信的标准 XSD</strong>（保险 ACORD、医疗 HL7、税务接口、PKI 证书规范……）</li>
+<li><strong>Spring Boot 2 升 3</strong> —— <code>javax.xml.bind</code> 全部要换成 <code>jakarta.xml.bind</code>，老代码爆炸</li>
+<li><strong>维护 10 年+ 的老项目</strong> —— 凡是用 Apache CXF、Axis、JAX-WS 的，底层都靠 JAXB</li>
+</ol>
+<p>→ 现代项目自己启新服务时基本用 JSON，不会主动选 XML。<strong>遇到 JAXB 八成是历史包袱或外部约定</strong>。</p>
+<hr>
+<h2 id="三、三层架构：用-servlet-的方式理解"><a href="#三、三层架构：用-servlet-的方式理解" class="headerlink" title="三、三层架构：用 Servlet 的方式理解"></a>三、三层架构：用 Servlet 的方式理解</h2><p>Spring Boot 开发者最熟悉的模式：<strong>规范 &#x2F; API &#x2F; 实现</strong>三层分离。</p>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>Servlet 世界</th>
+<th>JAXB 世界</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>规范</td>
+<td>Servlet Spec &#x2F; Jakarta Servlet Spec</td>
+<td>JAXB Spec &#x2F; Jakarta XML Binding Spec</td>
+</tr>
+<tr>
+<td>API（接口）</td>
+<td><code>jakarta.servlet.*</code></td>
+<td><code>jakarta.xml.bind.*</code></td>
+</tr>
+<tr>
+<td>实现（运行时）</td>
+<td>Tomcat &#x2F; Jetty &#x2F; Undertow</td>
+<td><strong>Glassfish JAXB</strong>（<code>org.glassfish.jaxb:jaxb-runtime</code>）&#x2F; EclipseLink MOXy</td>
+</tr>
+</tbody></table>
+<p>跟 Servlet 一样：</p>
+<ul>
+<li>你的代码只 import API（<code>jakarta.xml.bind.Marshaller</code>）</li>
+<li>运行时由实现类（Glassfish JAXB）真正干活</li>
+<li>必须<strong>API + 实现</strong>都在 classpath，否则 <code>ClassNotFoundException</code></li>
+</ul>
+<p>Spring Boot 的 starter（如 <code>spring-boot-starter-web</code>）会按需把这两个 jar 一起拉进来，所以你平时感觉不到。</p>
+<hr>
+<h2 id="四、核心概念词典（spring-boot-开发者翻译版）"><a href="#四、核心概念词典（spring-boot-开发者翻译版）" class="headerlink" title="四、核心概念词典（Spring Boot 开发者翻译版）"></a>四、核心概念词典（Spring Boot 开发者翻译版）</h2><h3 id="xsd（xml-schema-definition）"><a href="#xsd（xml-schema-definition）" class="headerlink" title="XSD（XML Schema Definition）"></a><code>XSD</code>（XML Schema Definition）</h3><p><strong>类比</strong>：OpenAPI 的 <code>openapi.yaml</code>、Protobuf 的 <code>.proto</code>。<br><strong>作用</strong>：用 XML 写的”接口契约文件”，定义某个 XML 文档长什么样、哪些字段必填、类型是什么。<br><strong>何时遇到</strong>：对方接口方甩给你一个 <code>.xsd</code> 让你”按这个生成代码”。</p>
+<h3 id="xjb-文件（jaxb-binding-customization）"><a href="#xjb-文件（jaxb-binding-customization）" class="headerlink" title=".xjb 文件（JAXB Binding Customization）"></a><code>.xjb</code> 文件（JAXB Binding Customization）</h3><p><strong>类比</strong>：<code>openapi-generator</code> 的 <code>config.yaml</code>，或 Jackson 的 <code>Mixin</code>。<br><strong>作用</strong>：你不想&#x2F;不能改原始 <code>.xsd</code>，但又想定制生成出来的 Java 类（改包名、改类名、把某个 XSD 类型映射到你已有的 Java 类）——就写一个 <code>.xjb</code> 文件放在旁边。<br><strong>关键例子</strong>：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bindings</span> <span class="attr">scd</span>=<span class="string">&quot;/type::gpki:csr&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">javaType</span> <span class="attr">name</span>=<span class="string">&quot;com.example.CsrParameter&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bindings</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>意思：”碰到 <code>csr</code> 这个 XSD 类型时，不要生成新类，直接复用我已有的 <code>CsrParameter</code>“。</p>
+<h3 id="xjc（xml-to-java-compiler）"><a href="#xjc（xml-to-java-compiler）" class="headerlink" title="XJC（XML to Java Compiler）"></a><code>XJC</code>（XML to Java Compiler）</h3><p><strong>类比</strong>：<code>openapi-generator-cli generate -i api.yaml -o ./src</code> 里的 generator 部分。<br><strong>作用</strong>：吃 <code>.xsd</code>（+ 可选的 <code>.xjb</code>），吐 Java 类。<strong>构建期工具</strong>，不是运行时。<br><strong>通常如何调用</strong>：通过 Maven&#x2F;Gradle 插件触发，不会手动跑命令行。</p>
+<h3 id="jxc-schemagen"><a href="#jxc-schemagen" class="headerlink" title="JXC &#x2F; schemagen"></a><code>JXC</code> &#x2F; <code>schemagen</code></h3><p><strong>类比</strong>：从 Java 类反向生成 OpenAPI spec。<br><strong>作用</strong>：跟 XJC 反向，从 Java 类生成 <code>.xsd</code>。<strong>几乎用不到</strong>，知道有就行。</p>
+<h3 id="jaxbcontext"><a href="#jaxbcontext" class="headerlink" title="JAXBContext"></a><code>JAXBContext</code></h3><p><strong>类比</strong>：<code>ObjectMapper</code>。<br><strong>作用</strong>：JAXB 的入口对象，重量级、线程安全、应当复用单例。从它创建 <code>Marshaller</code> &#x2F; <code>Unmarshaller</code>。</p>
+<h3 id="marshaller-unmarshaller"><a href="#marshaller-unmarshaller" class="headerlink" title="Marshaller &#x2F; Unmarshaller"></a><code>Marshaller</code> &#x2F; <code>Unmarshaller</code></h3><p><strong>类比</strong>：<code>ObjectMapper.writeValueAsString</code> &#x2F; <code>readValue</code> 的具体执行器。<br><strong>注意</strong>：<strong>不是线程安全</strong>，跟 <code>JAXBContext</code> 不同。</p>
+<h3 id="jaxb-index-文件"><a href="#jaxb-index-文件" class="headerlink" title="jaxb.index 文件"></a><code>jaxb.index</code> 文件</h3><p><strong>类比</strong>：Spring 的 <code>META-INF/spring.factories</code>、Java 的 <code>META-INF/services</code>。<br><strong>作用</strong>：放在某个包里的纯文本文件，列出”这个包里有哪些 JAXB 实体类”，让 <code>JAXBContext.newInstance(&quot;com.example.pkg&quot;)</code> 找得到它们。</p>
+<hr>
+<h2 id="五、构建工具：maven-gradle-插件"><a href="#五、构建工具：maven-gradle-插件" class="headerlink" title="五、构建工具：Maven&#x2F;Gradle 插件"></a>五、构建工具：Maven&#x2F;Gradle 插件</h2><p>JAXB 的代码生成（XJC）必须靠构建插件，<strong>Spring Boot starter 不管这一层</strong>。</p>
+<table>
+<thead>
+<tr>
+<th>插件</th>
+<th>Maven&#x2F;Gradle</th>
+<th>时代</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>jaxb2-maven-plugin</code>（mojohaus）</td>
+<td>Maven</td>
+<td>老</td>
+<td>只支持 <code>javax</code> 命名空间</td>
+</tr>
+<tr>
+<td><code>maven-jaxb2-plugin</code>（highsource）</td>
+<td>Maven</td>
+<td>老但功能强</td>
+<td>社区维护</td>
+</tr>
+<tr>
+<td><code>jaxb-maven-plugin</code> 4. x（glassfish）</td>
+<td>Maven</td>
+<td><strong>新</strong>，支持 jakarta</td>
+<td>推荐</td>
+</tr>
+<tr>
+<td><code>org.unbroken-dome.xjc</code></td>
+<td>Gradle</td>
+<td>常用</td>
+<td>配置简洁</td>
+</tr>
+<tr>
+<td>手写 ant task 调 <code>com.sun.tools.xjc.XJC2Task</code></td>
+<td>Gradle</td>
+<td>老项目常见</td>
+<td>你前面 xm-server 项目就是这种</td>
+</tr>
+</tbody></table>
+<p><strong>类比 Spring Boot 开发者熟悉的世界</strong>：</p>
+<ul>
+<li>这一层等同于 <code>openapi-generator-maven-plugin</code> 或 <code>protobuf-maven-plugin</code></li>
+<li>都是”构建期把 IDL 转成 Java 代码”的工具，套路一模一样</li>
+</ul>
+<hr>
+<h2 id="六、最大的坑：javax-→-jakarta-迁移"><a href="#六、最大的坑：javax-→-jakarta-迁移" class="headerlink" title="六、最大的坑：javax → jakarta 迁移"></a>六、最大的坑：<code>javax</code> → <code>jakarta</code> 迁移</h2><p>这是 Spring Boot 2 → 3 升级时<strong>所有人</strong>都会撞上的坑。</p>
+<h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>Oracle 把 Java EE 捐给 Eclipse 基金会，要求所有包名从 <code>javax.*</code> 改成 <code>jakarta.*</code>。Spring Boot 3 起全面切换。</p>
+<h3 id="jaxb-涉及的三个同步变更"><a href="#jaxb-涉及的三个同步变更" class="headerlink" title="JAXB 涉及的三个同步变更"></a>JAXB 涉及的三个同步变更</h3><p><strong>这三个必须同时改，改一半必出问题</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>旧（Spring Boot 2 时代）</th>
+<th>新（Spring Boot 3 时代）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Java import</td>
+<td><code>javax.xml.bind.*</code></td>
+<td><code>jakarta.xml.bind.*</code></td>
+</tr>
+<tr>
+<td>Maven 依赖</td>
+<td><code>javax.xml.bind:jaxb-api</code></td>
+<td><code>jakarta.xml.bind:jakarta.xml.bind-api</code></td>
+</tr>
+<tr>
+<td>运行时</td>
+<td><code>com.sun.xml.bind:jaxb-impl</code> 2. x</td>
+<td><code>org.glassfish.jaxb:jaxb-runtime</code> 4. x</td>
+</tr>
+<tr>
+<td><code>.xjb</code> 命名空间</td>
+<td><code>http://java.sun.com/xml/ns/jaxb</code></td>
+<td><code>https://jakarta.ee/xml/ns/jaxb</code></td>
+</tr>
+<tr>
+<td><code>.xjb</code> version 属性</td>
+<td><code>&quot;2.0&quot;</code> &#x2F; <code>&quot;2.1&quot;</code> &#x2F; <code>&quot;3.0&quot;</code> 都行</td>
+<td><strong>只能 <code>&quot;3.0&quot;</code></strong></td>
+</tr>
+<tr>
+<td>XJC 工具版本</td>
+<td>2. x</td>
+<td>3. x 或 4. x</td>
+</tr>
+</tbody></table>
+<h3 id="半迁移的典型症状"><a href="#半迁移的典型症状" class="headerlink" title="半迁移的典型症状"></a>半迁移的典型症状</h3><p>只改一半 → 编译时不一定报错 → <strong>运行时静默失败</strong>或 <code>NoClassDefFoundError</code>。</p>
+<p>最常见的”半迁移”：</p>
+<ul>
+<li>只改了 import，没改 <code>.xjb</code> 命名空间</li>
+<li>只改了 <code>.xjb</code> 命名空间，version 还是 <code>&quot;2.1&quot;</code></li>
+<li>只改了 API 依赖，运行时还是老的 <code>jaxb-impl</code></li>
+</ul>
+<p>→ <strong>这正是您 xm-server 项目里 gpki-bindings. jxb 文件踩的坑</strong>。</p>
+<hr>
+<h2 id="七、spring-boot-项目里的典型场景"><a href="#七、spring-boot-项目里的典型场景" class="headerlink" title="七、Spring Boot 项目里的典型场景"></a>七、Spring Boot 项目里的典型场景</h2><h3 id="场景-a：你只是想做-xml-序列化"><a href="#场景-a：你只是想做-xml-序列化" class="headerlink" title="场景 A：你只是想做 XML 序列化"></a>场景 A：你只是想做 XML 序列化</h3><p><strong>Spring Boot 帮你搞定</strong>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@XmlRootElement</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">User</span> &#123;</span><br><span class="line">    <span class="meta">@XmlElement</span> <span class="keyword">private</span> String name;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>spring-boot-starter-web</code> 会自动注册 <code>Jaxb2RootElementHttpMessageConverter</code>，REST 接口直接返回 <code>Accept: application/xml</code> 就走 JAXB。<strong>你不需要碰 XJC、<code>.xjb</code>、JAXBContext</strong>。</p>
+<h3 id="场景-b：对接-soap-wsdl"><a href="#场景-b：对接-soap-wsdl" class="headerlink" title="场景 B：对接 SOAP &#x2F; WSDL"></a>场景 B：对接 SOAP &#x2F; WSDL</h3><p><strong>Spring Boot 帮不了你</strong>，要自己上 Apache CXF 或 Spring Web Services。</p>
+<ul>
+<li>用 <code>cxf-codegen-plugin</code> 从 WSDL 生成客户端代码</li>
+<li>WSDL 里嵌的 XSD 定义会触发 XJC</li>
+<li>这时 <code>.xjb</code> 文件可能出现</li>
+</ul>
+<h3 id="场景-c：维护老项目升级-spring-boot-3"><a href="#场景-c：维护老项目升级-spring-boot-3" class="headerlink" title="场景 C：维护老项目升级 Spring Boot 3"></a>场景 C：维护老项目升级 Spring Boot 3</h3><p><strong>这是最痛苦的场景</strong>。</p>
+<p>需要做的事：</p>
+<ol>
+<li>全局搜索替换 <code>javax.xml.bind</code> → <code>jakarta.xml.bind</code></li>
+<li><code>pom.xml</code> &#x2F; <code>build.gradle</code> 依赖换名换版本</li>
+<li>找出所有 <code>.xjb</code> &#x2F; <code>.xsd</code> 文件，更新命名空间和 version</li>
+<li>XJC 插件升级到 4. x</li>
+<li><strong>重新生成所有 JAXB 代码</strong>（旧的生成代码用的是 <code>javax</code> 注解，不重新生成就编译不过）</li>
+<li>跑全量回归测试，重点测序列化场景</li>
+</ol>
+<p>工具推荐：可以用 <a target="_blank" rel="noopener" href="https://projects.eclipse.org/projects/technology.transformer">Eclipse Transformer</a> 或 OpenRewrite 的 <code>org.openrewrite.java.migrate.jakarta</code> recipe 自动化大部分替换。</p>
+<hr>
+<h2 id="八、速查表（请收藏）"><a href="#八、速查表（请收藏）" class="headerlink" title="八、速查表（请收藏）"></a>八、速查表（请收藏）</h2><h3 id="该用哪个依赖？"><a href="#该用哪个依赖？" class="headerlink" title="该用哪个依赖？"></a>该用哪个依赖？</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- Spring Boot 3+ / Jakarta EE 9+ --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>jakarta.xml.bind<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jakarta.xml.bind-api<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>4.0.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.glassfish.jaxb<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jaxb-runtime<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>4.0.5<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- Spring Boot 2 / 旧项目 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>javax.xml.bind<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jaxb-api<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.3.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.sun.xml.bind<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jaxb-impl<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.3.6<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="xjb-文件头怎么写？"><a href="#xjb-文件头怎么写？" class="headerlink" title=".xjb 文件头怎么写？"></a><code>.xjb</code> 文件头怎么写？</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- Spring Boot 3+ --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bindings</span> <span class="attr">xmlns</span>=<span class="string">&quot;https://jakarta.ee/xml/ns/jaxb&quot;</span> <span class="attr">version</span>=<span class="string">&quot;3.0&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- Spring Boot 2 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bindings</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://java.sun.com/xml/ns/jaxb&quot;</span> <span class="attr">version</span>=<span class="string">&quot;2.1&quot;</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>记忆口诀</strong>：命名空间含 <code>jakarta</code> 就配 <code>3.0</code>，含 <code>java.sun.com</code> 就配 <code>2.x</code>。<strong>绝不能混搭</strong>。</p>
+<hr>
+<h2 id="九、避坑清单"><a href="#九、避坑清单" class="headerlink" title="九、避坑清单"></a>九、避坑清单</h2><ul>
+<li>❌ Jakarta 命名空间 + version&#x3D;”2.1”（前文那个 bug）</li>
+<li>❌ 升级时只改 import 不改 <code>.xjb</code></li>
+<li>❌ 一个工程同时有 <code>javax.xml.bind</code> 和 <code>jakarta.xml.bind</code>（依赖冲突）</li>
+<li>❌ 多线程共享 <code>Marshaller</code> &#x2F; <code>Unmarshaller</code></li>
+<li>❌ 每次都 <code>JAXBContext.newInstance(...)</code>（极慢，应当缓存为单例）</li>
+<li>✅ <code>JAXBContext</code> 按 package 创建一次，应用全局复用</li>
+<li>✅ 升级时<strong>重新生成</strong>所有 XJC 代码，别想着改 import 应付</li>
+<li>✅ 运行时 <code>.jxb</code>（CXF 动态客户端场景）和构建期 <code>.xjb</code> 都要遵守命名空间&#x2F;版本规则</li>
+</ul>
+<hr>
+<h2 id="附录：与-jpa-的-entitymanagerfactory-没有关系"><a href="#附录：与-jpa-的-entitymanagerfactory-没有关系" class="headerlink" title="附录：与 JPA 的 EntityManagerFactory 没有关系"></a>附录：与 JPA 的 <code>EntityManagerFactory</code> 没有关系</h2><p>前几轮聊到的 <code>@PersistenceContext</code>、<code>EntityManagerFactory</code> 是 <strong>JPA</strong>（数据库 ORM）的东西，跟 JAXB（XML 序列化）完全无关。两者唯一的相似点是：都从 <code>javax.*</code> 迁到了 <code>jakarta.*</code>，Spring Boot 3 升级时一起爆炸。</p>
+<hr>
+<p>文档到这。如果哪一节您觉得还需要展开（比如 SOAP 场景的完整示例、<code>JAXBContext</code> 缓存的最佳实践、OpenRewrite 自动迁移脚本），告诉我一声继续补。</p>
+<hr>
+<p><strong>提问纠正</strong>：「我感到非常陌生和费解」表达准确。「以一个 springboot 开发者的视角」中 <strong>Spring Boot</strong> 是两个单词的产品名，规范写法应为 <code>Spring Boot</code>（含空格、首字母大写）。「撰写一篇文档，来介绍 JAXB 及其上述提到的各类」里「其上述」略生硬，「其」指代关系不清——是「JAXB 自身」还是「上述名词」？更清晰的说法是「介绍 JAXB <strong>以及前文提到的各类相关名词</strong>」，去掉「其」字。</p>
+</article><div class="tag_share"><div class="post-share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/cover.jpg" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/posts/0.html" title="leetcode-top100-quickstart"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">leetcode-top100-quickstart</div></div><div class="info-2"><div class="info-item-1">LeetCode Hot 100 快速入门报告 视角：多年未刷算法的工程师目标：两到四周内把手感找回来，能从容应对面试中 80% 的中等题语言：Python（语法干净，省下的时间留给思考）   0. 写在前面：这份报告是什么如果你曾经会写树的递归、会推 DP 转移方程，但工作几年后看到 dfs(node.left) 都要愣两秒——这份报告就是给你的。 它不是题解集，也不打算让你刷完 100 道。它做三件事：  帮你重建套路地图：知道哪类问题对应哪种解法，而不是每题都从零想。 给你一份40 题的最小可行集：刷完这 40 道，剩下 60 道大多是变种。 提供逐类模板代码：背下来不是耻辱，是效率。面试官想看你解决问题，不是发明轮子。  读完本报告需要 30 分钟，配套刷题约 40-80 小时（4 周 × 每天 1.5-3 小时）。  1. 你失去的 vs 你还剩的久疏战阵的人最容易犯两个错：高估自己（”我以前会的，看一眼就行”）或低估自己（”完全不会了，得从头学”）。事实是：    你失去的 你还剩的    边界条件的肌肉记忆（off-by-one、空指针） 工程能力（命名、调试、拆解...</div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/assets/loading.gif" data-lazy-src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Supremes</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">40</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">72</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">13</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/Supremes"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#jaxb-%E9%80%9F%E9%80%9A%EF%BC%9A%E5%86%99%E7%BB%99-spring-boot-%E5%BC%80%E5%8F%91%E8%80%85%E7%9A%84%E6%8C%87%E5%8D%97"><span class="toc-text">JAXB 速通：写给 Spring Boot 开发者的指南</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E4%B8%80%E5%8F%A5%E8%AF%9D%E5%AE%9A%E4%BD%8D"><span class="toc-text">一、一句话定位</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E4%B8%BA%E4%BB%80%E4%B9%88-spring-boot-%E5%BC%80%E5%8F%91%E8%80%85%E4%BC%9A%E2%80%9D%E7%AA%81%E7%84%B6%E2%80%9D%E9%81%87%E5%88%B0-jaxb"><span class="toc-text">二、为什么 Spring Boot 开发者会”突然”遇到 JAXB</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E4%B8%89%E5%B1%82%E6%9E%B6%E6%9E%84%EF%BC%9A%E7%94%A8-servlet-%E7%9A%84%E6%96%B9%E5%BC%8F%E7%90%86%E8%A7%A3"><span class="toc-text">三、三层架构：用 Servlet 的方式理解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5%E8%AF%8D%E5%85%B8%EF%BC%88spring-boot-%E5%BC%80%E5%8F%91%E8%80%85%E7%BF%BB%E8%AF%91%E7%89%88%EF%BC%89"><span class="toc-text">四、核心概念词典（Spring Boot 开发者翻译版）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#xsd%EF%BC%88xml-schema-definition%EF%BC%89"><span class="toc-text">XSD（XML Schema Definition）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#xjb-%E6%96%87%E4%BB%B6%EF%BC%88jaxb-binding-customization%EF%BC%89"><span class="toc-text">.xjb 文件（JAXB Binding Customization）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#xjc%EF%BC%88xml-to-java-compiler%EF%BC%89"><span class="toc-text">XJC（XML to Java Compiler）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#jxc-schemagen"><span class="toc-text">JXC &#x2F; schemagen</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#jaxbcontext"><span class="toc-text">JAXBContext</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#marshaller-unmarshaller"><span class="toc-text">Marshaller &#x2F; Unmarshaller</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#jaxb-index-%E6%96%87%E4%BB%B6"><span class="toc-text">jaxb.index 文件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E6%9E%84%E5%BB%BA%E5%B7%A5%E5%85%B7%EF%BC%9Amaven-gradle-%E6%8F%92%E4%BB%B6"><span class="toc-text">五、构建工具：Maven&#x2F;Gradle 插件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E6%9C%80%E5%A4%A7%E7%9A%84%E5%9D%91%EF%BC%9Ajavax-%E2%86%92-jakarta-%E8%BF%81%E7%A7%BB"><span class="toc-text">六、最大的坑：javax → jakarta 迁移</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%83%8C%E6%99%AF"><span class="toc-text">背景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#jaxb-%E6%B6%89%E5%8F%8A%E7%9A%84%E4%B8%89%E4%B8%AA%E5%90%8C%E6%AD%A5%E5%8F%98%E6%9B%B4"><span class="toc-text">JAXB 涉及的三个同步变更</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8D%8A%E8%BF%81%E7%A7%BB%E7%9A%84%E5%85%B8%E5%9E%8B%E7%97%87%E7%8A%B6"><span class="toc-text">半迁移的典型症状</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81spring-boot-%E9%A1%B9%E7%9B%AE%E9%87%8C%E7%9A%84%E5%85%B8%E5%9E%8B%E5%9C%BA%E6%99%AF"><span class="toc-text">七、Spring Boot 项目里的典型场景</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9C%BA%E6%99%AF-a%EF%BC%9A%E4%BD%A0%E5%8F%AA%E6%98%AF%E6%83%B3%E5%81%9A-xml-%E5%BA%8F%E5%88%97%E5%8C%96"><span class="toc-text">场景 A：你只是想做 XML 序列化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9C%BA%E6%99%AF-b%EF%BC%9A%E5%AF%B9%E6%8E%A5-soap-wsdl"><span class="toc-text">场景 B：对接 SOAP &#x2F; WSDL</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9C%BA%E6%99%AF-c%EF%BC%9A%E7%BB%B4%E6%8A%A4%E8%80%81%E9%A1%B9%E7%9B%AE%E5%8D%87%E7%BA%A7-spring-boot-3"><span class="toc-text">场景 C：维护老项目升级 Spring Boot 3</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E9%80%9F%E6%9F%A5%E8%A1%A8%EF%BC%88%E8%AF%B7%E6%94%B6%E8%97%8F%EF%BC%89"><span class="toc-text">八、速查表（请收藏）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%A5%E7%94%A8%E5%93%AA%E4%B8%AA%E4%BE%9D%E8%B5%96%EF%BC%9F"><span class="toc-text">该用哪个依赖？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#xjb-%E6%96%87%E4%BB%B6%E5%A4%B4%E6%80%8E%E4%B9%88%E5%86%99%EF%BC%9F"><span class="toc-text">.xjb 文件头怎么写？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E9%81%BF%E5%9D%91%E6%B8%85%E5%8D%95"><span class="toc-text">九、避坑清单</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%99%84%E5%BD%95%EF%BC%9A%E4%B8%8E-jpa-%E7%9A%84-entitymanagerfactory-%E6%B2%A1%E6%9C%89%E5%85%B3%E7%B3%BB"><span class="toc-text">附录：与 JPA 的 EntityManagerFactory 没有关系</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/ad70c672.html" title="JAXB 速通：写给 Spring Boot 开发者的指南">JAXB 速通：写给 Spring Boot 开发者的指南</a><time datetime="2026-05-25T15:09:47.000Z" title="发表于 2026-05-25 15:09 15:09:47">2026-05-25 15:09</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/0.html" title="leetcode-top100-quickstart">leetcode-top100-quickstart</a><time datetime="2026-05-25T07:21:15.956Z" title="发表于 2026-05-25 07:21 07:21:15">2026-05-25 07:21</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/e7eabe30.html" title="The Anatomy of an Agent Harness">The Anatomy of an Agent Harness</a><time datetime="2026-05-25T07:21:15.938Z" title="发表于 2026-05-25 07:21 07:21:15">2026-05-25 07:21</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/f6ad9462.html" title="Server-Sent Events">Server-Sent Events</a><time datetime="2026-04-22T00:27:12.000Z" title="发表于 2026-04-22 00:27 00:27:12">2026-04-22 00:27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/1607ebb8.html" title="dawn-ai 企业级 Agent 整改方案">dawn-ai 企业级 Agent 整改方案</a><time datetime="2026-04-03T16:00:00.000Z" title="发表于 2026-04-03 16:00 16:00:00">2026-04-03 16:00</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Supremes</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.1</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.2</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.2"></script><script src="/js/main.js?v=5.5.2"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@19.1.3/dist/lazyload.iife.min.js"></script><div class="js-pjax"><script>(() => {
+  const runMermaid = ele => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    ele.forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const config = mermaidSrc.dataset.config ? JSON.parse(mermaidSrc.dataset.config) : {}
+      if (!config.theme) {
+        config.theme = theme
+      }
+      const mermaidThemeConfig = `%%{init: ${JSON.stringify(config)}}%%\n`
+      const mermaidID = `mermaid-${index}`
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+      const renderMermaid = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      // mermaid v9 and v10 compatibility
+      typeof renderFn === 'string' ? renderMermaid(renderFn) : renderFn.then(({ svg }) => renderMermaid(svg))
+    })
+  }
+
+  const codeToMermaid = () => {
+    const codeMermaidEle = document.querySelectorAll('pre > code.mermaid')
+    if (codeMermaidEle.length === 0) return
+
+    codeMermaidEle.forEach(ele => {
+      const preEle = document.createElement('pre')
+      preEle.className = 'mermaid-src'
+      preEle.hidden = true
+      preEle.textContent = ele.textContent
+      const newEle = document.createElement('div')
+      newEle.className = 'mermaid-wrap'
+      newEle.appendChild(preEle)
+      ele.parentNode.replaceWith(newEle)
+    })
+  }
+
+  const loadMermaid = () => {
+    if (true) codeToMermaid()
+    const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+    if ($mermaid.length === 0) return
+
+    const runMermaidFn = () => runMermaid($mermaid)
+    btf.addGlobalFn('themeChange', runMermaidFn, 'mermaid')
+    window.loadMermaid ? runMermaidFn() : btf.getScript('https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.min.js').then(runMermaidFn)
+  }
+
+  btf.addGlobalFn('encrypt', loadMermaid, 'mermaid')
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="/"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章标题和内容..." type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.5.2"></script></div></div></body></html>
