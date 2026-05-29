@@ -41,7 +41,7 @@ def build_search_index():
             'category': a['category'],
             'summary': a['summary'],
             'tags': a['tags'],
-            'date': a['date'],
+            'date': a['updated'],
             # 截前 2KB 原文用于全文匹配，大小写预归一
             'text': a['raw'][:2000].lower(),
         })

@@ -11,13 +11,13 @@
 
   {% set ns = namespace(current_year='') %}
   {% for a in articles %}
-    {% set year = a.date[:4] if a.date else '未知' %}
+    {% set year = a.updated[:4] if a.updated else '未知' %}
     {% if year != ns.current_year %}
       {% set ns.current_year = year %}
       <h2 class="timeline-year">{{ year }}</h2>
     {% endif %}
     <a href="/article/{{ a.slug }}" class="timeline-item">
-      <span class="timeline-date">{{ a.date[5:] if a.date else '' }}</span>
+      <span class="timeline-date">{{ a.updated[5:] if a.updated else '' }}</span>
       <span class="timeline-title">{{ a.title }}</span>
       <span class="article-row-cat">{{ a.category }}</span>
     </a>

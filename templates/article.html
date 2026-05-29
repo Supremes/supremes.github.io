@@ -11,11 +11,14 @@
         {% if article.date %}
         <span>📅 {{ article.date }}</span>
         {% endif %}
+        {% if article.updated and article.updated != article.date %}
+        <span>✏️ 更新于 {{ article.updated }}</span>
+        {% endif %}
         <span>📁 <a href="/category/{{ article.category }}" style="color: var(--accent);">{{ article.category }}</a></span>
         {% if article.tags %}
-        <span>
+        <span class="article-meta-tags">
           {% for tag in article.tags %}
-          <a href="/tag/{{ tag }}" class="tag" style="margin-left: 4px;">{{ tag }}</a>
+          <a href="/tag/{{ tag }}" class="tag">{{ tag }}</a>
           {% endfor %}
         </span>
         {% endif %}

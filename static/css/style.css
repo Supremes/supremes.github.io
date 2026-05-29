@@ -541,16 +541,26 @@ img { max-width: 100%; height: auto; }
 
 .article-meta {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
-  gap: var(--space-lg);
+  align-items: center;
+  gap: var(--space-sm) var(--space-lg);
   color: var(--ink-muted);
   font-size: 0.9rem;
 }
 
-.article-meta span {
-  display: flex;
+.article-meta > span {
+  display: inline-flex;
   align-items: center;
   gap: 4px;
+  white-space: nowrap;
+}
+
+.article-meta-tags {
+  flex-wrap: wrap;
+  white-space: normal !important;
+  gap: 4px !important;
+  justify-content: center;
 }
 
 /* 文章内容 */
@@ -1111,4 +1121,143 @@ img { max-width: 100%; height: auto; }
 
 @media (max-width: 768px) {
   .toc-mobile-btn { display: flex; }
+}
+
+/* ──────── 侧边栏（文件树）──────── */
+.sidebar-toggle { display: none; font-size: 1.3rem; line-height: 1; padding: 6px 10px; }
+.sidebar-close  { display: none; }
+
+.sidebar {
+  position: fixed;
+  top: 64px;
+  left: 0;
+  bottom: 0;
+  width: 260px;
+  background: var(--bg-elevated);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  z-index: 50;
+  transition: transform 0.25s ease;
+}
+.sidebar-backdrop { display: none; }
+
+body.has-sidebar .site-main { margin-left: 260px; }
+body.no-sidebar .sidebar,
+body.no-sidebar .sidebar-backdrop,
+body.no-sidebar .sidebar-toggle { display: none !important; }
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-title { font-weight: 600; font-size: 0.95rem; color: var(--ink); }
+
+.file-tree { padding: var(--space-sm) var(--space-md) var(--space-2xl); }
+
+.tree-node { margin: 2px 0; }
+.tree-node > summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 6px 8px;
+  border-radius: 6px;
+  transition: background var(--transition);
+  user-select: none;
+}
+.tree-node > summary::-webkit-details-marker { display: none; }
+.tree-node > summary:hover { background: var(--border-light); }
+
+.tree-arrow {
+  display: inline-block;
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+  transition: transform 0.15s ease;
+  width: 12px;
+}
+.tree-node[open] > summary > .tree-arrow { transform: rotate(90deg); }
+
+.tree-cat-name { flex: 1; font-weight: 500; font-size: 0.92rem; color: var(--ink); }
+.tree-cat-count {
+  font-size: 0.72rem;
+  color: var(--ink-muted);
+  background: var(--bg);
+  padding: 1px 8px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+
+.tree-articles {
+  list-style: none;
+  padding: 0;
+  margin: 2px 0 var(--space-sm) 0;
+}
+
+/* 嵌套子目录缩进：每深一层，children 容器右移 14px */
+.tree-node:not(.depth-0) > .tree-children { padding-left: 14px; }
+.tree-article {
+  display: block;
+  padding: 5px 10px 5px 30px;
+  font-size: 0.85rem;
+  color: var(--ink-secondary);
+  border-radius: 6px;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: background var(--transition), color var(--transition);
+}
+.tree-article:hover { background: var(--border-light); color: var(--ink); }
+.tree-article.active {
+  background: var(--accent-light);
+  color: var(--accent-hover);
+  font-weight: 500;
+}
+[data-theme="dark"] .tree-article.active {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--accent);
+}
+
+.tree-cat-link a {
+  display: block;
+  padding: 4px 10px 4px 30px;
+  font-size: 0.78rem;
+  color: var(--ink-muted);
+  text-decoration: none;
+}
+.tree-cat-link a:hover { color: var(--accent); }
+
+/* 响应式：drawer 模式 */
+@media (max-width: 1100px) {
+  body.has-sidebar .site-main { margin-left: 0; }
+  .sidebar {
+    transform: translateX(-100%);
+    box-shadow: 2px 0 12px rgba(0,0,0,0.15);
+  }
+  .sidebar.open { transform: translateX(0); }
+  body.has-sidebar .sidebar-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .sidebar-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 64px 0 0 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 40;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  .sidebar-backdrop.open { opacity: 1; pointer-events: auto; }
 }

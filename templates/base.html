@@ -14,10 +14,11 @@
   <link rel="stylesheet" href="/static/css/style.css">
   {% block head %}{% endblock %}
 </head>
-<body>
+<body class="{% block body_class %}has-sidebar{% endblock %}">
   <!-- ───── 导航栏 ───── -->
   <header class="site-header">
     <div class="container header-inner">
+      <button class="sidebar-toggle icon-btn" id="sidebar-toggle" aria-label="切换文件树">☰</button>
       <a href="/" class="logo">
         <span class="logo-icon">📚</span>
         <span class="logo-text">知识库</span>
@@ -46,6 +47,8 @@
       </div>
     </div>
   </header>
+
+  {% block sidebar %}{% include '_sidebar.html' %}{% endblock %}
 
   <!-- ───── 主内容 ───── -->
   <main class="site-main">

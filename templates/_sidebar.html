@@ -1,0 +1,48 @@
+{% macro render_node(node, depth=0) %}
+  {# 当前节点是否在 current_path 祖先链上 → 自动展开 #}
+  {% set is_ancestor = current_path and (current_path + '/').startswith(node.path + '/') %}
+  <details class="tree-node depth-{{ depth }}" data-cat="{{ node.path }}" {% if is_ancestor %}open{% endif %}>
+    <summary class="tree-cat">
+      <span class="tree-arrow">▸</span>
+      <span class="tree-cat-name">{{ node.name }}</span>
+      <span class="tree-cat-count">{{ node.total }}</span>
+    </summary>
+    <div class="tree-children">
+      {# 先渲染子目录（folder 优先），再渲染当前节点直接挂的文章 #}
+      {% for _, child in node.children.items() %}
+        {{ render_node(child, depth + 1) }}
+      {% endfor %}
+      {% if node.articles %}
+        <ul class="tree-articles">
+          {% for a in node.articles %}
+          <li>
+            <a href="/article/{{ a.slug }}"
+               class="tree-article{% if a.slug == current_slug %} active{% endif %}"
+               title="{{ a.title }}">
+              {{ a.title }}
+            </a>
+          </li>
+          {% endfor %}
+          {% if depth == 0 %}
+          <li class="tree-cat-link">
+            <a href="/category/{{ node.name }}">查看 {{ node.name }} 分类页 →</a>
+          </li>
+          {% endif %}
+        </ul>
+      {% endif %}
+    </div>
+  </details>
+{% endmacro %}
+
+<aside class="sidebar" id="sidebar" aria-label="文件树导航">
+  <div class="sidebar-header">
+    <span class="sidebar-title">📂 知识库</span>
+    <button class="sidebar-close icon-btn" id="sidebar-close" aria-label="关闭导航">✕</button>
+  </div>
+  <nav class="file-tree">
+    {% for _, node in cat_tree.items() %}
+      {{ render_node(node, 0) }}
+    {% endfor %}
+  </nav>
+</aside>
+<div class="sidebar-backdrop" id="sidebar-backdrop"></div>

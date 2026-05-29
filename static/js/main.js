@@ -269,4 +269,40 @@
     updateActive();
   })();
 
+  // ───── 文件树侧边栏 ─────
+  (function () {
+    const sidebar = document.getElementById('sidebar');
+    if (!sidebar) return;
+
+    // 移动端：汉堡按钮 + 关闭按钮 + 遮罩 + ESC
+    const toggleBtn = document.getElementById('sidebar-toggle');
+    const closeBtn = document.getElementById('sidebar-close');
+    const backdrop = document.getElementById('sidebar-backdrop');
+    const open = () => { sidebar.classList.add('open'); backdrop && backdrop.classList.add('open'); };
+    const close = () => { sidebar.classList.remove('open'); backdrop && backdrop.classList.remove('open'); };
+
+    toggleBtn && toggleBtn.addEventListener('click', () => {
+      sidebar.classList.contains('open') ? close() : open();
+    });
+    closeBtn && closeBtn.addEventListener('click', close);
+    backdrop && backdrop.addEventListener('click', close);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+
+    // sessionStorage 记忆分类展开/折叠状态
+    sidebar.querySelectorAll('details.tree-node').forEach(d => {
+      const cat = d.dataset.cat;
+      if (!cat) return;
+      const key = 'tree:open:' + cat;
+      const saved = sessionStorage.getItem(key);
+      if (saved !== null) d.open = saved === '1';
+      d.addEventListener('toggle', () => {
+        sessionStorage.setItem(key, d.open ? '1' : '0');
+      });
+    });
+
+    // 把当前文章滚到可视区域
+    const active = sidebar.querySelector('.tree-article.active');
+    if (active) active.scrollIntoView({ block: 'center' });
+  })();
+
 })();

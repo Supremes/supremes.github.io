@@ -19,8 +19,8 @@
         {% endif %}
       </div>
       <div class="article-row-meta">
-        {% if a.date %}
-        <span class="article-row-date">{{ a.date }}</span>
+        {% if a.updated %}
+        <span class="article-row-date">{{ a.updated }}</span>
         {% endif %}
         {% for tag in a.tags[:3] %}
         <a href="/tag/{{ tag }}" class="tag" onclick="event.stopPropagation()">{{ tag }}</a>

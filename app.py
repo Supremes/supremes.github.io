@@ -5,17 +5,60 @@ import os
 import re
 import json
 import glob
+import subprocess
 from datetime import datetime
 from flask import Flask, render_template, abort, request, jsonify
 import markdown
 from pygments.formatters import HtmlFormatter
 
 app = Flask(__name__)
-CONTENT_DIR = os.path.join(os.path.dirname(__file__), 'content')
+REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
+CONTENT_DIR = os.path.join(REPO_ROOT, 'content')
 
 @app.context_processor
 def inject_now():
     return {'now': datetime.now}
+
+
+def build_cat_tree(articles):
+    """按 content/ 下目录层级构建嵌套树。
+    返回 dict {dirname: {name, path, articles, children, total}}。"""
+    root = {'children': {}, 'articles': [], 'total': 0}
+    for a in articles:
+        parts = a['path'].replace(os.sep, '/').split('/')
+        dirs = parts[:-1]  # 去掉文件名
+        node = root
+        path_acc = ''
+        for d in dirs:
+            path_acc = f'{path_acc}/{d}' if path_acc else d
+            if d not in node['children']:
+                node['children'][d] = {
+                    'name': d, 'path': path_acc,
+                    'articles': [], 'children': {}, 'total': 0,
+                }
+            node = node['children'][d]
+        node['articles'].append(a)
+
+    def count(n):
+        c = len(n['articles'])
+        for ch in n['children'].values():
+            c += count(ch)
+        n['total'] = c
+        return c
+    count(root)
+
+    def sort_children(n):
+        n['children'] = dict(sorted(n['children'].items()))
+        for ch in n['children'].values():
+            sort_children(ch)
+    sort_children(root)
+
+    return root['children']
+
+
+@app.context_processor
+def inject_cat_tree():
+    return {'cat_tree': build_cat_tree(ARTICLES)}
 
 # ──────────────────────────────── 内容加载 ────────────────────────────────
 
@@ -39,6 +82,9 @@ def process_callouts(text):
             'danger': ('🚨', '#ef4444', '#fef2f2'),
             'note': ('📝', '#6366f1', '#eef2ff'),
             'quote': ('💬', '#8b5cf6', '#f5f3ff'),
+            # GitHub callout 兼容
+            'important': ('❗', '#8b5cf6', '#f5f3ff'),
+            'caution': ('🛑', '#ef4444', '#fef2f2'),
         }
         
         icon, border_color, bg_color = type_config.get(callout_type, ('ℹ️', '#3b82f6', '#eff6ff'))
@@ -86,9 +132,38 @@ def process_sublists(text):
     return '\n'.join(result)
 
 
+def load_git_updated_map():
+    """一次性扫 git 历史，返回 {repo相对路径: 最近 commit 的 YYYY-MM-DD}"""
+    result = {}
+    try:
+        out = subprocess.run(
+            ['git', '-C', REPO_ROOT, 'log', '--pretty=format:%aI', '--name-only'],
+            capture_output=True, text=True, timeout=15,
+        )
+        if out.returncode != 0:
+            return result
+        current_date = None
+        for line in out.stdout.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            if 'T' in line and ':' in line and line[0].isdigit():
+                current_date = line[:10]
+            elif current_date and line.endswith('.md'):
+                # git log 默认时序倒序，第一次见到的就是最新
+                if line not in result:
+                    result[line] = current_date
+    except (subprocess.SubprocessError, FileNotFoundError):
+        pass
+    return result
+
+
 def load_articles():
     """扫描 content/ 下所有 .md 文件，返回文章列表"""
     articles = []
+    git_dates = load_git_updated_map()
+    today = datetime.now().strftime('%Y-%m-%d')
+
     for md_path in glob.glob(os.path.join(CONTENT_DIR, '**', '*.md'), recursive=True):
         rel = os.path.relpath(md_path, CONTENT_DIR)
         parts = rel.split(os.sep)
@@ -113,11 +188,19 @@ def load_articles():
             }
         )
 
+        date = meta.get('date', '')
+        repo_rel = os.path.join('content', rel).replace(os.sep, '/')
+        if git_dates:
+            updated = git_dates.get(repo_rel) or today
+        else:
+            updated = date or today
+
         articles.append({
             'slug': slug,
             'category': category,
             'title': meta.get('title', slug),
-            'date': meta.get('date', ''),
+            'date': date,
+            'updated': updated,
             'tags': meta.get('tags', []) if isinstance(meta.get('tags'), list) else [t.strip() for t in meta.get('tags', '').split(',') if t.strip()],
             'summary': meta.get('summary', ''),
             'content': html_body,
@@ -125,7 +208,7 @@ def load_articles():
             'path': rel,
         })
 
-    articles.sort(key=lambda a: a['date'], reverse=True)
+    articles.sort(key=lambda a: (a['updated'], a['date']), reverse=True)
     return articles
 
 
@@ -222,6 +305,7 @@ def category(name):
         abort(404)
     return render_template('category.html',
                            category=name, articles=arts,
+                           current_path=name,
                            categories=CATEGORIES, all_tags=ALL_TAGS)
 
 
@@ -234,8 +318,12 @@ def article(slug):
             idx = ARTICLES.index(a)
             prev_a = ARTICLES[idx + 1] if idx + 1 < len(ARTICLES) else None
             next_a = ARTICLES[idx - 1] if idx > 0 else None
+            # current_path: 文章所在目录的完整相对路径，如 'AI' 或 'AI/ai-agent'
+            dir_parts = a['path'].replace(os.sep, '/').split('/')[:-1]
+            current_path = '/'.join(dir_parts)
             return render_template('article.html',
                                    article=a, prev=prev_a, next=next_a,
+                                   current_slug=a['slug'], current_path=current_path,
                                    categories=CATEGORIES, all_tags=ALL_TAGS)
     abort(404)
 
