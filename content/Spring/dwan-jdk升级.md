@@ -1,0 +1,15 @@
+---
+title: Dwan - JDK升级
+date: 2026-01-31
+tags: []
+---
+将项目中使用的 JDK 从 1.8 升级到 17，springboot 从 2 升级到 3，做出了如下变更：
+- 包名变化：javax  -> jakara
+- maven 依赖库
+	- 替换升级为日志添加traceid spanid 的库：spring-cloud-starter-sleuth 移除，使用micrometer-tracing-bridge-brave
+	- loki-appender
+	- mybatisplus
+	- mysql-connector
+	- jjwt
+- Spring security 配置类写法变化：
+	继承 `WebSecurityConfigurerAdapter` => 使用 `SecurityFilterChain` Bean
