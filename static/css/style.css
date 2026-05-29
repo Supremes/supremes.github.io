@@ -282,9 +282,30 @@ img { max-width: 100%; height: auto; }
 /* ───── Hero 区域 ───── */
 .hero {
   background: var(--bg-hero);
+  background-image: url('/static/images/hero-bg.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   color: #fff;
   padding: var(--space-4xl) 0;
   text-align: center;
+  position: relative;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 0;
+}
+
+.hero > .container {
+  position: relative;
+  z-index: 1;
 }
 
 .hero h1 {
