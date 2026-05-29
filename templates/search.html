@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}搜索「{{ query }}」— 知识库{% endblock %}
+
+{% block content %}
+<div class="search-page">
+  <h1>搜索 <span class="query">「{{ query }}」</span></h1>
+  <p class="result-count">找到 {{ results|length }} 篇相关文章</p>
+
+  {% if results %}
+  <div class="article-list">
+    {% for a in results %}
+    <a href="/article/{{ a.slug }}" class="article-row">
+      <div class="article-row-body">
+        <h3>{{ a.title }}</h3>
+        {% if a.snippet %}
+        <p>{{ a.snippet }}</p>
+        {% endif %}
+      </div>
+      <div class="article-row-meta">
+        {% if a.date %}
+        <span class="article-row-date">{{ a.date }}</span>
+        {% endif %}
+        <span class="article-row-cat">{{ a.category }}</span>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div style="text-align: center; padding: var(--space-3xl) 0;">
+    <p style="font-size: 2rem; margin-bottom: var(--space-md);">🔍</p>
+    <p style="color: var(--ink-secondary);">没有找到匹配的文章，试试其他关键词？</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

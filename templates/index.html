@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}知识库 — 记录、整理、分享{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<section class="hero">
+  <div class="container">
+    <h1>我的知识库</h1>
+    <p>记录所学，整理所思，分享所悟。一个属于自己的知识花园。</p>
+    <div class="hero-stats">
+      <a href="#articles" class="hero-stat hero-stat-link">
+        <div class="hero-stat-num">{{ total }}</div>
+        <div class="hero-stat-label">篇文章</div>
+      </a>
+      <a href="#categories" class="hero-stat hero-stat-link">
+        <div class="hero-stat-num">{{ categories|length }}</div>
+        <div class="hero-stat-label">个分类</div>
+      </a>
+      <a href="#tags" class="hero-stat hero-stat-link">
+        <div class="hero-stat-num">{{ all_tags|length }}</div>
+        <div class="hero-stat-label">个标签</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- 分类 -->
+<section class="section" id="categories">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">知识分类</h2>
+    </div>
+    <div class="category-grid">
+      {% set icons = {'技术笔记': '💻', '读书笔记': '📖', '工作方法': '⚙️', '思考随笔': '💭'} %}
+      {% set descs = {
+        '技术笔记': '编程、架构、工具链的技术积累',
+        '读书笔记': '阅读精华提炼与个人感悟',
+        '工作方法': '效率、协作、项目管理的方法论',
+        '思考随笔': '对世界和生活的独立思考'
+      } %}
+      {% for cat in categories %}
+      <a href="/category/{{ cat }}" class="category-card">
+        <div class="category-card-icon">{{ icons.get(cat, '📁') }}</div>
+        <h3>{{ cat }}</h3>
+        <p>{{ descs.get(cat, '') }}</p>
+        <span class="count">{{ cat_counts[cat] }} 篇</span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- 最新文章 -->
+<section class="section" id="articles" style="padding-top: 0;">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">最新文章</h2>
+    </div>
+    <div class="article-list">
+      {% for a in recent %}
+      <a href="/article/{{ a.slug }}" class="article-row">
+        <div class="article-row-body">
+          <h3>{{ a.title }}</h3>
+          {% if a.summary %}
+          <p>{{ a.summary }}</p>
+          {% endif %}
+        </div>
+        <div class="article-row-meta">
+          {% if a.date %}
+          <span class="article-row-date">{{ a.date }}</span>
+          {% endif %}
+          <span class="article-row-cat">{{ a.category }}</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- 标签 -->
+{% if all_tags %}
+<section class="section" id="tags" style="padding-top: 0;">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">标签</h2>
+    </div>
+    <div class="tag-cloud">
+      {% for tag in all_tags %}
+      <a href="/tag/{{ tag }}" class="tag">{{ tag }}</a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

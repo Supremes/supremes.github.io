@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}{{ article.title }} — 知识库{% endblock %}
+
+{% block content %}
+<article>
+  <header class="article-header">
+    <div class="container">
+      <h1>{{ article.title }}</h1>
+      <div class="article-meta">
+        {% if article.date %}
+        <span>📅 {{ article.date }}</span>
+        {% endif %}
+        <span>📁 <a href="/category/{{ article.category }}" style="color: var(--accent);">{{ article.category }}</a></span>
+        {% if article.tags %}
+        <span>
+          {% for tag in article.tags %}
+          <a href="/tag/{{ tag }}" class="tag" style="margin-left: 4px;">{{ tag }}</a>
+          {% endfor %}
+        </span>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  <div class="article-content">
+    {{ article.content | safe }}
+  </div>
+
+  {% if prev or next %}
+  <nav class="article-nav">
+    {% if prev %}
+    <a href="/article/{{ prev.slug }}">
+      <div class="article-nav-label">← 上一篇</div>
+      <div class="article-nav-title">{{ prev.title }}</div>
+    </a>
+    {% else %}
+    <div></div>
+    {% endif %}
+
+    {% if next %}
+    <a href="/article/{{ next.slug }}" style="text-align: right;">
+      <div class="article-nav-label">下一篇 →</div>
+      <div class="article-nav-title">{{ next.title }}</div>
+    </a>
+    {% endif %}
+  </nav>
+  {% endif %}
+</article>
+{% endblock %}

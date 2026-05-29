@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}{{ category }} — 知识库{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: var(--space-3xl); padding-bottom: var(--space-3xl);">
+  <div class="section-header">
+    <h1 class="section-title">{{ category }}</h1>
+    <span style="color: var(--ink-muted); font-size: 0.9rem;">{{ articles|length }} 篇文章</span>
+  </div>
+
+  <div class="article-list">
+    {% for a in articles %}
+    <a href="/article/{{ a.slug }}" class="article-row">
+      <div class="article-row-body">
+        <h3>{{ a.title }}</h3>
+        {% if a.summary %}
+        <p>{{ a.summary }}</p>
+        {% endif %}
+      </div>
+      <div class="article-row-meta">
+        {% if a.date %}
+        <span class="article-row-date">{{ a.date }}</span>
+        {% endif %}
+        {% for tag in a.tags[:3] %}
+        <a href="/tag/{{ tag }}" class="tag" onclick="event.stopPropagation()">{{ tag }}</a>
+        {% endfor %}
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}知识库{% endblock %}</title>
+  <meta name="description" content="个人知识库 — 记录、整理、分享">
+
+  <!-- 字体：霞鹜文楷 + Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="/static/css/style.css">
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <!-- ───── 导航栏 ───── -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="/" class="logo">
+        <span class="logo-icon">📚</span>
+        <span class="logo-text">知识库</span>
+      </a>
+
+      <nav class="main-nav">
+        <a href="/" class="nav-link">首页</a>
+        <div class="nav-dropdown">
+          <button class="nav-link nav-dropbtn">分类 ▾</button>
+          <div class="dropdown-content">
+            {% for cat in categories %}
+            <a href="/category/{{ cat }}">{{ cat }}</a>
+            {% endfor %}
+          </div>
+        </div>
+      </nav>
+
+      <div class="header-actions">
+        <div class="search-box">
+          <input type="text" id="search-input" placeholder="搜索文章..." autocomplete="off">
+          <div id="search-results" class="search-dropdown"></div>
+        </div>
+        <button id="theme-toggle" class="icon-btn" aria-label="切换主题">
+          <span class="theme-icon">☀️</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ───── 主内容 ───── -->
+  <main class="site-main">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- ───── 页脚 ───── -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-left">
+        <span class="footer-logo">📚 知识库</span>
+        <p class="footer-desc">记录、整理、分享</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h4>分类</h4>
+          {% for cat in categories %}
+          <a href="/category/{{ cat }}">{{ cat }}</a>
+          {% endfor %}
+        </div>
+        <div class="footer-col">
+          <h4>标签</h4>
+          <div class="tag-cloud">
+            {% for tag in all_tags[:12] %}
+            <a href="/tag/{{ tag }}" class="tag">{{ tag }}</a>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© {{ now().year if now is defined else 2026 }} · 知识库</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/static/js/main.js"></script>
+  
+  <!-- MathJax for LaTeX rendering -->
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+  
+  {% block scripts %}{% endblock %}
+</body>
+</html>
