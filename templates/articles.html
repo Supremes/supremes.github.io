@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}全部文章 — 知识库{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: var(--space-3xl); padding-bottom: var(--space-3xl);">
+  <div class="section-header">
+    <h1 class="section-title">全部文章</h1>
+    <span style="color: var(--ink-muted); font-size: 0.9rem;">共 {{ articles|length }} 篇</span>
+  </div>
+
+  {% set ns = namespace(current_year='') %}
+  {% for a in articles %}
+    {% set year = a.date[:4] if a.date else '未知' %}
+    {% if year != ns.current_year %}
+      {% set ns.current_year = year %}
+      <h2 class="timeline-year">{{ year }}</h2>
+    {% endif %}
+    <a href="/article/{{ a.slug }}" class="timeline-item">
+      <span class="timeline-date">{{ a.date[5:] if a.date else '' }}</span>
+      <span class="timeline-title">{{ a.title }}</span>
+      <span class="article-row-cat">{{ a.category }}</span>
+    </a>
+  {% endfor %}
+</div>
+{% endblock %}

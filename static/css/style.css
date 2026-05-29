@@ -27,8 +27,8 @@
   --transition:    0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
   /* 字体 */
-  --font-cn:   'LXGW WenKai', 'Noto Serif SC', serif;
-  --font-en:   'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-cn:   'LXGW WenKai Screen', 'LXGW WenKai', 'Noto Serif SC', serif;
+  --font-en:   'LXGW WenKai Screen', 'LXGW WenKai', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 
   /* 间距 */
@@ -84,9 +84,9 @@ body {
   transition: background var(--transition), color var(--transition);
 }
 
-/* 英文用 Inter */
-code, pre, .nav-link, .logo-text, h1, h2, h3 {
-  font-family: var(--font-en);
+/* 等宽字体 */
+code, pre {
+  font-family: var(--font-mono);
 }
 
 a {
@@ -798,9 +798,6 @@ img { max-width: 100%; height: auto; }
   font-size: 0.85rem;
   font-weight: 600;
   margin-bottom: var(--space-md);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-family: var(--font-en);
 }
 
 .footer-col a {
@@ -905,6 +902,48 @@ img { max-width: 100%; height: auto; }
 ::selection {
   background: var(--accent);
   color: #fff;
+}
+
+/* ───── 全部文章时间线 ───── */
+.timeline-year {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: var(--space-xl) 0 var(--space-md);
+  padding-bottom: var(--space-sm);
+  border-bottom: 1px solid var(--border-light);
+  color: var(--ink);
+}
+
+.timeline-year:first-of-type {
+  margin-top: var(--space-md);
+}
+
+.timeline-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: 10px var(--space-md);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition);
+  text-decoration: none;
+  color: inherit;
+}
+
+.timeline-item:hover {
+  background: var(--bg-elevated);
+}
+
+.timeline-date {
+  font-size: 0.85rem;
+  color: var(--ink-muted);
+  min-width: 50px;
+  white-space: nowrap;
+}
+
+.timeline-title {
+  flex: 1;
+  font-size: 0.95rem;
+  font-weight: 500;
 }
 
 /* ───── 文章目录 (TOC) ───── */

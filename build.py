@@ -62,6 +62,9 @@ def main():
     # 首页
     write_page(client, '/', 'index.html')
 
+    # 全部文章页
+    write_page(client, '/articles', 'articles/index.html')
+
     # 文章详情
     for a in ARTICLES:
         slug = a['slug']

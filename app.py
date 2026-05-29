@@ -52,6 +52,40 @@ def process_callouts(text):
     pattern = r'^>\s*\[!(\w+)\]\s*\n((?:^>.*$\n?)+)'
     return re.sub(pattern, replace_callout, text, flags=re.MULTILINE)
 
+
+def process_sublists(text):
+    """将 tab 缩进的 a. b. c. 子列表转换为标准 Markdown 嵌套列表，
+    并确保列表前有空行以被正确解析"""
+    import re
+    # 处理 \t\ta. 或 \ta. 或多空格+a. 格式 → 转为 4空格缩进的 - 
+    def convert_sublist(match):
+        content = match.group(2)
+        return f'    - {content}'
+    
+    text = re.sub(r'^[\t ]{1,}([a-z])\.\s+(.*)', convert_sublist, text, flags=re.MULTILINE)
+    
+    # 确保列表项前有空行（无序 -/* 和有序 1. 2. 等）
+    lines = text.split('\n')
+    result = []
+    for i, line in enumerate(lines):
+        if i > 0:
+            is_list_start = re.match(r'^[\-\*]\s', line) or re.match(r'^\d+\.\s', line)
+            if is_list_start:
+                prev = lines[i-1]
+                prev_stripped = prev.strip()
+                # 前一行非空、非列表项、非引用、非标题、非代码块 → 插入空行
+                prev_is_list = re.match(r'^[\-\*]\s', prev) or re.match(r'^\d+\.\s', prev) or re.match(r'^\s+[\-\*]\s', prev)
+                if (prev_stripped and
+                    not prev_is_list and
+                    not prev_stripped.startswith('>') and
+                    not prev_stripped.startswith('#') and
+                    not prev_stripped.startswith('```')):
+                    result.append('')
+        result.append(line)
+    
+    return '\n'.join(result)
+
+
 def load_articles():
     """扫描 content/ 下所有 .md 文件，返回文章列表"""
     articles = []
@@ -68,6 +102,8 @@ def load_articles():
         meta, body = parse_frontmatter(raw)
         # 预处理 Obsidian 风格的 callout 语法
         body = process_callouts(body)
+        # 预处理 tab 缩进子列表
+        body = process_sublists(body)
         html_body = markdown.markdown(
             body,
             extensions=['fenced_code', 'codehilite', 'toc', 'tables', 'attr_list'],
@@ -168,6 +204,14 @@ def index():
                            featured=featured, recent=recent,
                            categories=CATEGORIES, cat_counts=cat_counts,
                            all_tags=ALL_TAGS, total=len(ARTICLES))
+
+
+@app.route('/articles')
+def all_articles():
+    reload_if_changed()
+    return render_template('articles.html',
+                           articles=ARTICLES,
+                           categories=CATEGORIES, all_tags=ALL_TAGS)
 
 
 @app.route('/category/<name>')
