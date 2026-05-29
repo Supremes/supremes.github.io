@@ -66,10 +66,11 @@ def process_callouts(text):
     """将 Obsidian 风格的 > [!info] callout 转换为 HTML"""
     import re
     
-    # 匹配 > [!type]\n> content 格式
+    # 匹配 > [!type] optional title\n> content 格式
     def replace_callout(match):
         callout_type = match.group(1).lower()
-        content = match.group(2)
+        title = match.group(2).strip() if match.group(2) else ''
+        content = match.group(3)
         # 移除每行开头的 > 
         content = re.sub(r'^>\s?', '', content, flags=re.MULTILINE)
         content = content.strip()
@@ -82,6 +83,10 @@ def process_callouts(text):
             'danger': ('🚨', '#ef4444', '#fef2f2'),
             'note': ('📝', '#6366f1', '#eef2ff'),
             'quote': ('💬', '#8b5cf6', '#f5f3ff'),
+            'abstract': ('📋', '#6366f1', '#eef2ff'),
+            'success': ('✅', '#10b981', '#ecfdf5'),
+            'question': ('❓', '#f59e0b', '#fffbeb'),
+            'example': ('🧪', '#8b5cf6', '#f5f3ff'),
             # GitHub callout 兼容
             'important': ('❗', '#8b5cf6', '#f5f3ff'),
             'caution': ('🛑', '#ef4444', '#fef2f2'),
@@ -89,13 +94,16 @@ def process_callouts(text):
         
         icon, border_color, bg_color = type_config.get(callout_type, ('ℹ️', '#3b82f6', '#eff6ff'))
         
+        # 标题行：如果有自定义标题则用自定义标题，否则用类型名
+        header_text = title if title else callout_type.upper()
+        
         return f'''<div style="border-left: 4px solid {border_color}; background: {bg_color}; padding: 16px 20px; margin: 20px 0; border-radius: 0 8px 8px 0;">
-<div style="font-weight: 600; margin-bottom: 8px; color: {border_color};">{icon} {callout_type.upper()}</div>
+<div style="font-weight: 600; margin-bottom: 8px; color: {border_color};">{icon} {header_text}</div>
 <div>{content}</div>
 </div>'''
     
-    # 匹配模式：> [!type] 后跟多行 > 开头的内容
-    pattern = r'^>\s*\[!(\w+)\]\s*\n((?:^>.*$\n?)+)'
+    # 匹配模式：> [!type] optional title 后跟多行 > 开头的内容
+    pattern = r'^>\s*\[!(\w+)\]\s*(.*?)\n((?:^>.*$\n?)+)'
     return re.sub(pattern, replace_callout, text, flags=re.MULTILINE)
 
 
