@@ -25,7 +25,38 @@
     applyTheme(html.dataset.theme === 'dark' ? 'light' : 'dark');
   });
 
-  // ───── 实时搜索 ─────
+  // ───── 搜索（纯前端，基于 search-index.json）─────
+  let _indexPromise = null;
+  function loadIndex() {
+    if (!_indexPromise) {
+      _indexPromise = fetch('/search-index.json').then(r => r.json()).catch(() => []);
+    }
+    return _indexPromise;
+  }
+
+  function matchArticles(index, q) {
+    const ql = q.toLowerCase();
+    const hits = [];
+    for (const a of index) {
+      if (
+        a.title.toLowerCase().includes(ql) ||
+        (a.summary || '').toLowerCase().includes(ql) ||
+        (a.text || '').includes(ql) ||
+        (a.tags || []).some(t => t.toLowerCase().includes(ql))
+      ) {
+        // 摘取片段
+        const src = a.text || '';
+        const i = src.indexOf(ql);
+        const snippet = i >= 0
+          ? '...' + src.slice(Math.max(0, i - 50), i + ql.length + 50).replace(/\n/g, ' ') + '...'
+          : (a.summary || '');
+        hits.push({ ...a, snippet });
+      }
+    }
+    return hits;
+  }
+
+  // 顶部下拉搜索
   const searchInput = document.getElementById('search-input');
   const searchDropdown = document.getElementById('search-results');
   let debounceTimer = null;
@@ -41,31 +72,27 @@
       }
 
       debounceTimer = setTimeout(async () => {
-        try {
-          const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
-          const data = await res.json();
+        const index = await loadIndex();
+        const data = matchArticles(index, q).slice(0, 10);
 
-          if (data.length === 0) {
-            searchDropdown.innerHTML = '<div class="search-item"><div class="search-item-title" style="color:var(--ink-muted)">没有找到相关文章</div></div>';
-          } else {
-            searchDropdown.innerHTML = data.map(item => `
-              <a href="${item.url}" class="search-item">
-                <div class="search-item-title">${escHtml(item.title)}</div>
-                <div class="search-item-cat">${escHtml(item.category)} · ${escHtml(item.summary)}</div>
-              </a>
-            `).join('');
-          }
-          searchDropdown.classList.add('active');
-        } catch (e) {
-          searchDropdown.classList.remove('active');
+        if (data.length === 0) {
+          searchDropdown.innerHTML = '<div class="search-item"><div class="search-item-title" style="color:var(--ink-muted)">没有找到相关文章</div></div>';
+        } else {
+          searchDropdown.innerHTML = data.map(item => `
+            <a href="/article/${encodeURIComponent(item.slug)}/" class="search-item">
+              <div class="search-item-title">${escHtml(item.title)}</div>
+              <div class="search-item-cat">${escHtml(item.category)} · ${escHtml((item.summary || '').slice(0, 100))}</div>
+            </a>
+          `).join('');
         }
-      }, 200);
+        searchDropdown.classList.add('active');
+      }, 150);
     });
 
     // 回车跳转搜索页
     searchInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && searchInput.value.trim()) {
-        window.location.href = `/search?q=${encodeURIComponent(searchInput.value.trim())}`;
+        window.location.href = `/search/?q=${encodeURIComponent(searchInput.value.trim())}`;
       }
     });
 
@@ -76,6 +103,49 @@
       }
     });
   }
+
+  // 搜索结果页（/search/?q=xxx）渲染
+  (async function initSearchPage() {
+    const page = document.querySelector('[data-search-page]');
+    if (!page) return;
+
+    const params = new URLSearchParams(window.location.search);
+    const q = (params.get('q') || '').trim();
+
+    const qEl = document.getElementById('search-page-query');
+    const countEl = document.getElementById('search-page-count');
+    const listEl = document.getElementById('search-page-results');
+    const emptyEl = document.getElementById('search-page-empty');
+
+    if (!q) return;
+
+    qEl.textContent = `「${q}」`;
+    document.title = `搜索「${q}」— 知识库`;
+    if (searchInput) searchInput.value = q;
+
+    const index = await loadIndex();
+    const hits = matchArticles(index, q);
+
+    countEl.textContent = `找到 ${hits.length} 篇相关文章`;
+
+    if (hits.length === 0) {
+      emptyEl.style.display = '';
+      return;
+    }
+
+    listEl.innerHTML = hits.map(a => `
+      <a href="/article/${encodeURIComponent(a.slug)}/" class="article-row">
+        <div class="article-row-body">
+          <h3>${escHtml(a.title)}</h3>
+          ${a.snippet ? `<p>${escHtml(a.snippet)}</p>` : ''}
+        </div>
+        <div class="article-row-meta">
+          ${a.date ? `<span class="article-row-date">${escHtml(a.date)}</span>` : ''}
+          <span class="article-row-cat">${escHtml(a.category)}</span>
+        </div>
+      </a>
+    `).join('');
+  })();
 
   // ───── 工具函数 ─────
   function escHtml(str) {
