@@ -170,8 +170,12 @@
     const content = document.querySelector('.article-content');
     if (!content) return;
 
-    const headings = content.querySelectorAll('h2, h3');
-    if (headings.length < 2) return;  // 标题太少不显示目录
+    // 收集所有可用标题：优先 h2/h3，不够则包含 h1/h4
+    let headings = content.querySelectorAll('h2, h3');
+    if (headings.length < 1) {
+      headings = content.querySelectorAll('h1, h2, h3, h4');
+    }
+    if (headings.length < 1) return;
 
     // 生成目录 HTML
     function buildTocHtml() {
@@ -179,7 +183,10 @@
       headings.forEach((h, i) => {
         const id = h.id || h.textContent.trim().replace(/\s+/g, '-').toLowerCase();
         if (!h.id) h.id = id;
-        const cls = h.tagName === 'H3' ? ' class="toc-h3"' : '';
+        let cls = '';
+        if (h.tagName === 'H1') cls = ' class="toc-h1"';
+        else if (h.tagName === 'H3') cls = ' class="toc-h3"';
+        else if (h.tagName === 'H4') cls = ' class="toc-h4"';
         html += `<li${cls}><a href="#${id}" data-index="${i}">${h.textContent.replace(/¶$/, '').trim()}</a></li>`;
       });
       html += '</ul>';
@@ -209,6 +216,15 @@
     btn.textContent = '📑';
     btn.setAttribute('aria-label', '目录');
     document.body.appendChild(btn);
+
+    // 响应式布局：JS 控制显隐（兼容微信等内置浏览器）
+    function updateTocLayout() {
+      const isMobile = window.innerWidth <= 1100;
+      sidebar.style.display = isMobile ? 'none' : 'block';
+      btn.style.display = isMobile ? 'flex' : 'none';
+    }
+    updateTocLayout();
+    window.addEventListener('resize', updateTocLayout);
 
     // 移动端交互
     function openDrawer() {
@@ -306,3 +322,22 @@
   })();
 
 })();
+
+/* ───── 首页折叠交互 ───── */
+function toggleExtra(type) {
+  if (type === 'cats') {
+    const extras = document.querySelectorAll('.category-card-extra');
+    const btn = document.getElementById('btn-expand-cats');
+    const isHidden = extras[0] && extras[0].classList.contains('hidden');
+    extras.forEach(el => el.classList.toggle('hidden'));
+    if (btn) btn.textContent = isHidden ? '收起 ▴' : '展开全部 ' + extras.length + ' 个分类 ▾';
+  } else if (type === 'tags') {
+    const cloud = document.getElementById('tag-cloud-body');
+    const btn = document.getElementById('btn-expand-tags');
+    if (!cloud) return;
+    const isCollapsed = cloud.classList.contains('tag-cloud-collapsed');
+    cloud.classList.toggle('tag-cloud-collapsed');
+    cloud.classList.toggle('tag-cloud-expanded');
+    if (btn) btn.textContent = isCollapsed ? '收起 ▴' : '展开 ' + cloud.children.length + ' 个标签 ▾';
+  }
+}

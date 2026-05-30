@@ -15,6 +15,15 @@ app = Flask(__name__)
 REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
 CONTENT_DIR = os.path.join(REPO_ROOT, 'content')
 
+@app.after_request
+def add_no_cache_headers(response):
+    """强制浏览器不缓存静态文件，避免移动端缓存旧版 CSS/JS"""
+    if request.path.startswith('/static/'):
+        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+    return response
+
 @app.context_processor
 def inject_now():
     return {'now': datetime.now}
@@ -291,9 +300,10 @@ def index():
     featured = ARTICLES[:6]
     recent = ARTICLES[:10]
     cat_counts = {c: sum(1 for a in ARTICLES if a['category'] == c) for c in CATEGORIES}
+    sorted_cats = sorted(CATEGORIES, key=lambda c: cat_counts.get(c, 0), reverse=True)
     return render_template('index.html',
                            featured=featured, recent=recent,
-                           categories=CATEGORIES, cat_counts=cat_counts,
+                           categories=sorted_cats, cat_counts=cat_counts,
                            all_tags=ALL_TAGS, total=len(ARTICLES))
 
 

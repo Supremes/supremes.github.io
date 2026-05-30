@@ -27,8 +27,36 @@
   </div>
 </section>
 
-<!-- 分类 -->
-<section class="section" id="categories">
+<!-- 最新文章（提前） -->
+<section class="section" id="articles">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">最新文章</h2>
+      <a href="/articles" class="btn btn-outline">全部文章 →</a>
+    </div>
+    <div class="article-list">
+      {% for a in recent %}
+      <a href="/article/{{ a.slug }}" class="article-row">
+        <div class="article-row-body">
+          <h3>{{ a.title }}</h3>
+          {% if a.summary %}
+          <p>{{ a.summary }}</p>
+          {% endif %}
+        </div>
+        <div class="article-row-meta">
+          {% if a.updated %}
+          <span class="article-row-date">{{ a.updated }}</span>
+          {% endif %}
+          <span class="article-row-cat">{{ a.category }}</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- 分类（可折叠） -->
+<section class="section" id="categories" style="padding-top: 0;">
   <div class="container">
     <div class="section-header">
       <h2 class="section-title">知识分类</h2>
@@ -61,7 +89,7 @@
         '面试': '面试准备与知识整理'
       } %}
       {% for cat in categories %}
-      <a href="/category/{{ cat }}" class="category-card">
+      <a href="/category/{{ cat }}" class="category-card{% if loop.index > 8 %} category-card-extra hidden{% endif %}">
         <div class="category-card-icon">{{ icons.get(cat, '📁') }}</div>
         <h3>{{ cat }}</h3>
         <p>{{ descs.get(cat, '') }}</p>
@@ -69,45 +97,27 @@
       </a>
       {% endfor %}
     </div>
+    {% if categories|length > 8 %}
+    <div class="expand-bar">
+      <button class="btn-expand" id="btn-expand-cats" onclick="toggleExtra('cats')">
+        展开全部 {{ categories|length }} 个分类 ▾
+      </button>
+    </div>
+    {% endif %}
   </div>
 </section>
 
-<!-- 最新文章 -->
-<section class="section" id="articles" style="padding-top: 0;">
-  <div class="container">
-    <div class="section-header">
-      <h2 class="section-title">最新文章</h2>
-      <a href="/articles" class="btn btn-outline">全部文章 →</a>
-    </div>
-    <div class="article-list">
-      {% for a in recent %}
-      <a href="/article/{{ a.slug }}" class="article-row">
-        <div class="article-row-body">
-          <h3>{{ a.title }}</h3>
-          {% if a.summary %}
-          <p>{{ a.summary }}</p>
-          {% endif %}
-        </div>
-        <div class="article-row-meta">
-          {% if a.updated %}
-          <span class="article-row-date">{{ a.updated }}</span>
-          {% endif %}
-          <span class="article-row-cat">{{ a.category }}</span>
-        </div>
-      </a>
-      {% endfor %}
-    </div>
-  </div>
-</section>
-
-<!-- 标签 -->
+<!-- 标签（默认折叠） -->
 {% if all_tags %}
 <section class="section" id="tags" style="padding-top: 0;">
   <div class="container">
-    <div class="section-header">
+    <div class="section-header collapsible-header" onclick="toggleExtra('tags')">
       <h2 class="section-title">标签</h2>
+      <button class="btn-expand btn-expand-inline" id="btn-expand-tags">
+        展开 {{ all_tags|length }} 个标签 ▾
+      </button>
     </div>
-    <div class="tag-cloud">
+    <div class="tag-cloud tag-cloud-collapsed" id="tag-cloud-body">
       {% for tag in all_tags %}
       <a href="/tag/{{ tag }}" class="tag">{{ tag }}</a>
       {% endfor %}
