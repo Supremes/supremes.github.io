@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta name="portal-title" content="AI Agent 架构全景图">
+  <meta name="portal-subtitle" content="From Tool Use to Multi-Agent">
+  <meta name="portal-desc" content="从单 Agent 到多 Agent 协作，从 Tool Use 到 Memory 系统 — 可拖拽、可缩放的架构可视化。">
+  <meta name="portal-category" content="Agent 探索">
+  <meta name="portal-tags" content="Agent, Multi-Agent, Tool Use">
+  <meta name="portal-icon" content="🤖">
+  <meta name="portal-color" content="#8b5cf6">
+  <meta name="portal-date" content="2026-05-31">
+  <meta name="portal-difficulty" content="进阶">
+  <meta name="portal-duration" content="20 min">
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Agent 架构全景图</title>
+  <style>
+    /* ============ Reset & Base ============ */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #0f0f23;
+      color: #e2e8f0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    a { color: inherit; }
+
+    /* ============ Canvas Background ============ */
+    .bg-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ============ Content Wrapper ============ */
+    .content {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ============ Back Navigation ============ */
+    .back-nav {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      background: rgba(15, 15, 35, 0.8);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      border-radius: 12px;
+      color: #a78bfa;
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      backdrop-filter: blur(12px);
+      transition: all 0.3s ease;
+    }
+
+    .back-nav:hover {
+      background: rgba(139, 92, 246, 0.15);
+      border-color: rgba(139, 92, 246, 0.5);
+      transform: translateX(-4px);
+      box-shadow: 0 0 20px rgba(139, 92, 246, 0.15);
+    }
+
+    .back-nav .arrow {
+      font-size: 1.1rem;
+      transition: transform 0.3s ease;
+    }
+
+    .back-nav:hover .arrow {
+      transform: translateX(-3px);
+    }
+
+    /* ============ Header ============ */
+    .header {
+      text-align: center;
+      padding: 90px 20px 40px;
+      position: relative;
+    }
+
+    .header::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 300px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #8b5cf6, #06b6d4, #8b5cf6, transparent);
+    }
+
+    .header h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      background: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 50%, #8b5cf6 100%);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradientShift 4s ease infinite;
+      font-weight: 800;
+      letter-spacing: -1px;
+      line-height: 1.2;
+    }
+
+    .header .subtitle {
+      color: #94a3b8;
+      font-size: 1.15rem;
+      margin-top: 12px;
+      font-weight: 400;
+      letter-spacing: 0.5px;
+    }
+
+    @keyframes gradientShift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    /* ============ Stats Bar ============ */
+    .stats-bar {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      padding: 20px;
+      flex-wrap: wrap;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 1.8rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: #64748b;
+      margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* ============ Toggle Bar ============ */
+    .toggle-bar {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin: 24px auto;
+      padding: 0 20px;
+    }
+
+    .toggle-btn {
+      padding: 12px 32px;
+      border-radius: 12px;
+      border: 1px solid rgba(139, 92, 246, 0.25);
+      background: rgba(139, 92, 246, 0.06);
+      color: #94a3b8;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .toggle-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.1), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .toggle-btn:hover::before {
+      left: 100%;
+    }
+
+    .toggle-btn:hover {
+      border-color: rgba(139, 92, 246, 0.4);
+      color: #c4b5fd;
+    }
+
+    .toggle-btn.active {
+      background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+      color: #fff;
+      border-color: #8b5cf6;
+      box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3);
+    }
+
+    /* ============ Diagram Container ============ */
+    .diagram-wrap {
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 20px;
+      position: relative;
+    }
+
+    .diagram-wrap svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* ============ SVG Node Styles ============ */
+    .node-group {
+      cursor: pointer;
+    }
+
+    .node-group:hover .node-ring {
+      opacity: 0.6 !important;
+    }
+
+    .node-group:hover .node-bg {
+      stroke-width: 3 !important;
+    }
+
+    .node-group.dimmed {
+      opacity: 0.2;
+      transition: opacity 0.3s ease;
+    }
+
+    .node-group:not(.dimmed) {
+      transition: opacity 0.3s ease;
+    }
+
+    /* ============ Connection Labels ============ */
+    .conn-label {
+      font-size: 10px;
+      fill: #475569;
+      text-anchor: middle;
+      pointer-events: none;
+    }
+
+    /* ============ Detail Panel ============ */
+    .detail-panel {
+      position: fixed;
+      top: 50%;
+      right: 30px;
+      transform: translateY(-50%) translateX(40px);
+      width: 380px;
+      max-height: 80vh;
+      overflow-y: auto;
+      background: rgba(15, 15, 35, 0.97);
+      border: 1px solid rgba(139, 92, 246, 0.35);
+      border-radius: 20px;
+      padding: 32px;
+      backdrop-filter: blur(24px);
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 0 60px rgba(139, 92, 246, 0.1),
+                  inset 0 0 30px rgba(139, 92, 246, 0.03);
+    }
+
+    .detail-panel.visible {
+      opacity: 1;
+      pointer-events: all;
+      transform: translateY(-50%) translateX(0);
+    }
+
+    .detail-panel .close-btn {
+      position: absolute;
+      top: 16px;
+      right: 18px;
+      background: none;
+      border: none;
+      color: #475569;
+      font-size: 1.4rem;
+      cursor: pointer;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .detail-panel .close-btn:hover {
+      background: rgba(139, 92, 246, 0.1);
+      color: #a78bfa;
+    }
+
+    .detail-icon {
+      font-size: 2.5rem;
+      margin-bottom: 12px;
+    }
+
+    .detail-panel h3 {
+      color: #e2e8f0;
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+
+    .detail-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .detail-tag {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      background: rgba(139, 92, 246, 0.12);
+      color: #c4b5fd;
+      border: 1px solid rgba(139, 92, 246, 0.2);
+    }
+
+    .detail-desc {
+      color: #94a3b8;
+      line-height: 1.8;
+      margin: 16px 0;
+      font-size: 0.9rem;
+    }
+
+    .detail-section-title {
+      color: #a78bfa;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 20px 0 10px;
+    }
+
+    .detail-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .detail-list li {
+      color: #94a3b8;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      padding: 6px 0 6px 20px;
+      position: relative;
+      border-bottom: 1px solid rgba(139, 92, 246, 0.06);
+    }
+
+    .detail-list li::before {
+      content: '▸';
+      position: absolute;
+      left: 0;
+      color: #8b5cf6;
+    }
+
+    .detail-list li:last-child {
+      border-bottom: none;
+    }
+
+    /* ============ Insight Cards ============ */
+    .insights {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    .insight-card {
+      background: rgba(15, 15, 35, 0.6);
+      border: 1px solid rgba(139, 92, 246, 0.15);
+      border-radius: 16px;
+      padding: 24px;
+      transition: all 0.3s ease;
+    }
+
+    .insight-card:hover {
+      border-color: rgba(139, 92, 246, 0.35);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(139, 92, 246, 0.1);
+    }
+
+    .insight-card .card-icon {
+      font-size: 2rem;
+      margin-bottom: 12px;
+    }
+
+    .insight-card h4 {
+      color: #e2e8f0;
+      font-size: 1.05rem;
+      margin-bottom: 8px;
+    }
+
+    .insight-card p {
+      color: #64748b;
+      font-size: 0.85rem;
+      line-height: 1.7;
+    }
+
+    /* ============ Timeline ============ */
+    .timeline-section {
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 0 20px;
+    }
+
+    .timeline-title {
+      text-align: center;
+      color: #e2e8f0;
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 30px;
+    }
+
+    .timeline {
+      position: relative;
+      padding-left: 30px;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 8px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(180deg, #8b5cf6, #06b6d4, transparent);
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 28px;
+      padding-left: 20px;
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -26px;
+      top: 6px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #8b5cf6;
+      box-shadow: 0 0 10px rgba(139, 92, 246, 0.4);
+    }
+
+    .timeline-year {
+      color: #8b5cf6;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .timeline-text {
+      color: #94a3b8;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .timeline-text strong {
+      color: #e2e8f0;
+    }
+
+    /* ============ Footer ============ */
+    .footer {
+      text-align: center;
+      padding: 50px 20px 30px;
+      color: #334155;
+      font-size: 0.85rem;
+    }
+
+    .footer .divider {
+      width: 100px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #8b5cf6, transparent);
+      margin: 0 auto 20px;
+    }
+
+    /* ============ Responsive ============ */
+    @media (max-width: 768px) {
+      .back-nav {
+        top: 12px;
+        left: 12px;
+        padding: 8px 14px;
+        font-size: 0.85rem;
+      }
+
+      .header {
+        padding: 70px 16px 30px;
+      }
+
+      .stats-bar {
+        gap: 20px;
+      }
+
+      .stat-number {
+        font-size: 1.4rem;
+      }
+
+      .toggle-btn {
+        padding: 10px 20px;
+        font-size: 0.85rem;
+      }
+
+      .detail-panel {
+        position: fixed;
+        top: auto;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        width: 100%;
+        max-height: 55vh;
+        transform: translateY(100%);
+        border-radius: 20px 20px 0 0;
+      }
+
+      .detail-panel.visible {
+        transform: translateY(0);
+      }
+
+      .insights {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ============ Scrollbar ============ */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #0f0f23;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #8b5cf6;
+      border-radius: 3px;
+    }
+
+    /* ============ Keyframes ============ */
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.6; }
+      50% { transform: scale(1.05); opacity: 0.9; }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in {
+      animation: fadeInUp 0.6s ease forwards;
+    }
+  </style>
+</head>
+<body>
+
+  <canvas class="bg-canvas" id="bgCanvas"></canvas>
+
+  <div class="content">
+    <!-- Back Navigation -->
+    <a href="/portal" class="back-nav">
+      <span class="arrow">←</span>
+      <span>返回 Portal</span>
+    </a>
+
+    <!-- Header -->
+    <header class="header">
+      <h1>AI Agent 架构全景图</h1>
+      <p class="subtitle">From Tool Use to Multi-Agent Systems</p>
+    </header>
+
+    <!-- Stats Bar -->
+    <div class="stats-bar">
+      <div class="stat-item">
+        <div class="stat-number">5</div>
+        <div class="stat-label">核心模块</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">4</div>
+        <div class="stat-label">推理策略</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">∞</div>
+        <div class="stat-label">工具组合</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">N</div>
+        <div class="stat-label">Agent 协作</div>
+      </div>
+    </div>
+
+    <!-- View Toggle -->
+    <div class="toggle-bar">
+      <button class="toggle-btn active" id="btnSingle" onclick="switchView('single')">
+        🔧 单体 Agent
+      </button>
+      <button class="toggle-btn" id="btnMulti" onclick="switchView('multi')">
+        🌐 多 Agent 协作
+      </button>
+    </div>
+
+    <!-- SVG Diagram -->
+    <div class="diagram-wrap">
+      <svg id="archSvg" viewBox="0 0 1000 680" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <!-- Glow Filter -->
+          <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="6" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+          <filter id="glowSoft" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="3" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+          <!-- Gradients -->
+          <linearGradient id="gPurple" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#a78bfa" />
+            <stop offset="100%" stop-color="#7c3aed" />
+          </linearGradient>
+          <linearGradient id="gCyan" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#22d3ee" />
+            <stop offset="100%" stop-color="#0891b2" />
+          </linearGradient>
+          <linearGradient id="gAmber" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#fbbf24" />
+            <stop offset="100%" stop-color="#d97706" />
+          </linearGradient>
+          <linearGradient id="gGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#34d399" />
+            <stop offset="100%" stop-color="#059669" />
+          </linearGradient>
+          <linearGradient id="gRose" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#fb7185" />
+            <stop offset="100%" stop-color="#e11d48" />
+          </linearGradient>
+          <linearGradient id="gBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#60a5fa" />
+            <stop offset="100%" stop-color="#2563eb" />
+          </linearGradient>
+        </defs>
+        <!-- Layers drawn by JS -->
+        <g id="layerConns"></g>
+        <g id="layerParticles"></g>
+        <g id="layerLabels"></g>
+        <g id="layerNodes"></g>
+      </svg>
+    </div>
+
+    <!-- Detail Panel -->
+    <div class="detail-panel" id="detailPanel">
+      <button class="close-btn" onclick="closeDetail()" aria-label="关闭">✕</button>
+      <div class="detail-icon" id="dIcon"></div>
+      <h3 id="dTitle"></h3>
+      <div class="detail-tags" id="dTags"></div>
+      <p class="detail-desc" id="dDesc"></p>
+      <div id="dContent"></div>
+    </div>
+
+    <!-- Insight Cards -->
+    <div class="insights">
+      <div class="insight-card">
+        <div class="card-icon">🧠</div>
+        <h4>LLM 作为通用推理引擎</h4>
+        <p>现代 LLM 不再仅是文本生成器，而是具备规划、推理、工具使用能力的通用认知引擎，是 Agent 系统的核心驱动力。</p>
+      </div>
+      <div class="insight-card">
+        <div class="card-icon">🔄</div>
+        <h4>ReAct 范式</h4>
+        <p>Reasoning + Acting 交替循环：LLM 先推理决定行动，执行后观察结果，再推理下一步。这种循环是 Agent 自主性的基础。</p>
+      </div>
+      <div class="insight-card">
+        <div class="card-icon">🧩</div>
+        <h4>MCP 协议标准化</h4>
+        <p>Model Context Protocol 提供了标准化的工具接口，让 Agent 能即插即用各类外部工具与数据源，降低了集成成本。</p>
+      </div>
+      <div class="insight-card">
+        <div class="card-icon">🤝</div>
+        <h4>多 Agent 协作范式</h4>
+        <p>从单一 Agent 到多 Agent 系统：Orchestrator 模式、Debate 模式、Swarm 模式，各 Agent 精通不同领域，协作完成复杂任务。</p>
+      </div>
+    </div>
+
+    <!-- Evolution Timeline -->
+    <div class="timeline-section">
+      <h3 class="timeline-title">⏳ Agent 架构演进</h3>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-year">2022</div>
+          <div class="timeline-text"><strong>LLM + Tool Use</strong> — ChatGPT 插件系统发布，Function Calling 范式确立，LLM 开始具备行动能力。</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">2023 Q1</div>
+          <div class="timeline-text"><strong>AutoGPT / BabyAGI</strong> — 自主 Agent 概念爆发，ReAct + Planning + Memory 三件套成为标配。</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">2023 Q3</div>
+          <div class="timeline-text"><strong>LangChain / LlamaIndex</strong> — Agent 框架生态成熟，RAG 与向量数据库成为长期记忆标配。</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">2024</div>
+          <div class="timeline-text"><strong>Multi-Agent 系统</strong> — CrewAI、AutoGen、MetaGPT 推动多 Agent 协作，MCP 协议标准化工具接口。</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">2025</div>
+          <div class="timeline-text"><strong>Agentic OS</strong> — Agent 操作系统化，Computer Use、浏览器自动化、持久记忆，Agent 融入日常工作流。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <div class="divider"></div>
+      <p>AI Agent Architecture Explorer • 点击节点查看详情</p>
+    </div>
+  </div>
+
+  <script>
+    /* ============================================================
+       DATA: Node definitions for both views
+       ============================================================ */
+    const NODES = {
+      single: [
+        {
+          id: 'llm', label: 'LLM Core', icon: '🧠',
+          x: 500, y: 310, r: 72, grad: 'gPurple',
+          title: 'LLM 核心引擎',
+          tags: ['GPT-4o', 'Claude 3.5', 'Gemini', 'Llama 3', 'Qwen'],
+          desc: 'LLM 作为 Agent 的"大脑"，负责理解自然语言指令、推理决策、生成回复。通过 System Prompt 设定角色与行为边界，支持 Function Calling 实现结构化工具调用。是整个 Agent 架构的中心枢纽。',
+          points: [
+            '上下文窗口: 128K → 1M tokens',
+            '多模态输入: 文本 / 图像 / 音频 / 视频',
+            '推理模式: Chain-of-Thought, ReAct',
+            '输出控制: JSON Mode, Structured Output',
+            'Function Calling: 结构化工具调用协议'
+          ]
+        },
+        {
+          id: 'memory', label: 'Memory', icon: '💾',
+          x: 240, y: 175, r: 56, grad: 'gCyan',
+          title: '记忆系统 (Memory)',
+          tags: ['短期记忆', '长期记忆', '工作记忆', '向量数据库'],
+          desc: '记忆系统让 Agent 拥有持久化上下文能力。短期记忆保存对话历史，长期记忆存储知识与经验，工作记忆维护当前任务状态，是 Agent 实现连贯交互的关键。',
+          points: [
+            '短期记忆: 对话窗口内的 Context',
+            '长期记忆: RAG + 向量数据库',
+            '工作记忆: Scratchpad 临时推理空间',
+            '情景记忆: 过往交互经验回溯',
+            '记忆检索: 语义相似度 + 时效性排序'
+          ]
+        },
+        {
+          id: 'tools', label: 'Tools', icon: '🔧',
+          x: 760, y: 175, r: 56, grad: 'gAmber',
+          title: '工具集 (Tools)',
+          tags: ['API调用', '代码执行', '搜索引擎', '数据库', 'MCP'],
+          desc: '工具集赋予 Agent 行动能力。通过 Function Calling / Tool Use / MCP 协议，Agent 可调用外部 API、执行代码、检索信息、操作文件系统等，将推理转化为实际动作。',
+          points: [
+            'Function Calling: 结构化工具调用',
+            '代码沙箱: 安全执行 Python / JS',
+            'Web 搜索: 实时信息检索',
+            '文件 I/O: 读写本地与云端文件',
+            'MCP 协议: 标准化工具接口'
+          ]
+        },
+        {
+          id: 'planning', label: 'Planning', icon: '📋',
+          x: 240, y: 460, r: 56, grad: 'gGreen',
+          title: '规划模块 (Planning)',
+          tags: ['任务分解', 'ReAct', 'Tree-of-Thought', 'Reflexion'],
+          desc: '规划模块负责将复杂任务拆解为可执行的子步骤。支持多种推理策略，从简单的线性计划到复杂的树状搜索与自我反思纠正。',
+          points: [
+            'ReAct: 推理-行动交替循环',
+            'Plan-and-Solve: 先规划后执行',
+            'Tree-of-Thought: 多路径探索',
+            'Reflexion: 从失败中学习纠正',
+            'Self-Consistency: 多数投票一致性'
+          ]
+        },
+        {
+          id: 'observe', label: 'Observation', icon: '👁️',
+          x: 760, y: 460, r: 56, grad: 'gRose',
+          title: '感知模块 (Observation)',
+          tags: ['环境反馈', '状态解析', '错误检测', '结果评估'],
+          desc: '感知模块负责解析环境反馈、工具执行结果和外部状态变化。将原始数据转化为 LLM 可理解的结构化观察，驱动下一步决策循环。',
+          points: [
+            '输出解析: JSON / XML / Text 结构化',
+            '错误检测: 异常识别与自动重试',
+            '结果评估: 目标达成度判断',
+            '环境感知: 外部系统状态监控',
+            '反馈格式化: 统一观察表示'
+          ]
+        }
+      ],
+      multi: [
+        {
+          id: 'orch', label: 'Orchestrator', icon: '🎯',
+          x: 500, y: 310, r: 72, grad: 'gPurple',
+          title: '编排器 (Orchestrator)',
+          tags: ['任务路由', '负载均衡', '结果聚合', '冲突解决'],
+          desc: '编排器是多 Agent 系统的核心协调者。负责将用户请求智能路由到合适的 Agent、管理跨 Agent 通信、聚合输出结果，并在 Agent 间产生分歧时进行仲裁。',
+          points: [
+            '中央调度: 任务分配与优先级管理',
+            '结果聚合: 多 Agent 输出融合',
+            '冲突解决: 意见分歧时的仲裁机制',
+            '状态监控: 全局任务进度追踪',
+            '容错处理: Agent 失败时的任务重分配'
+          ]
+        },
+        {
+          id: 'research', label: 'Researcher', icon: '🔍',
+          x: 250, y: 160, r: 52, grad: 'gCyan',
+          title: '研究员 Agent',
+          tags: ['信息检索', '知识整合', '事实核查'],
+          desc: '专注于信息搜集与研究分析。利用搜索引擎、学术数据库、API 等工具收集信息，进行事实核查和知识整合，为其他 Agent 提供可靠信息支撑。',
+          points: [
+            '多源检索: Web / 数据库 / API',
+            '信息筛选: 相关性与可信度评估',
+            '知识图谱: 结构化知识构建',
+            '引用溯源: 信息来源验证'
+          ]
+        },
+        {
+          id: 'coder', label: 'Coder', icon: '💻',
+          x: 750, y: 160, r: 52, grad: 'gGreen',
+          title: '编码 Agent',
+          tags: ['代码生成', '调试', '测试', '重构'],
+          desc: '专注于代码编写与软件工程任务。能生成、调试、测试和重构代码，支持多种编程语言和框架，具备完整的软件开发生命周期能力。',
+          points: [
+            '代码生成: 需求到实现的转换',
+            '自动化测试: 单元测试 / 集成测试',
+            '代码审查: 质量分析与优化建议',
+            '版本控制: Git 操作与 PR 管理'
+          ]
+        },
+        {
+          id: 'analyst', label: 'Analyst', icon: '📊',
+          x: 250, y: 480, r: 52, grad: 'gAmber',
+          title: '分析 Agent',
+          tags: ['数据分析', '可视化', '洞察提取'],
+          desc: '专注于数据分析与洞察提取。处理结构化和非结构化数据，自动生成图表和报告，发现数据中的模式、趋势和异常。',
+          points: [
+            '数据处理: 清洗 / 转换 / 聚合',
+            '可视化: 自动生成交互图表',
+            '预测建模: 趋势分析与预测',
+            '报告生成: 结构化分析报告'
+          ]
+        },
+        {
+          id: 'reviewer', label: 'Reviewer', icon: '✅',
+          x: 750, y: 480, r: 52, grad: 'gRose',
+          title: '审核 Agent',
+          tags: ['质量检查', '合规审查', '反馈生成'],
+          desc: '专注于输出质量审核。对其他 Agent 的产出进行多维度质量检查、一致性验证和合规审查，提供具体的改进建议。',
+          points: [
+            '质量评估: 多维度打分体系',
+            '一致性检查: 逻辑自洽性验证',
+            '安全审查: 内容安全与合规',
+            '反馈循环: 改进建议 → 重新执行'
+          ]
+        }
+      ]
+    };
+
+    /* ============================================================
+       DATA: Connections for both views
+       ============================================================ */
+    const CONNECTIONS = {
+      single: [
+        { from: 'llm', to: 'memory', label: '读写记忆' },
+        { from: 'llm', to: 'tools', label: '工具调用' },
+        { from: 'llm', to: 'planning', label: '规划指令' },
+        { from: 'llm', to: 'observe', label: '感知反馈' },
+        { from: 'planning', to: 'observe', label: '执行结果' },
+        { from: 'observe', to: 'tools', label: '执行工具' }
+      ],
+      multi: [
+        { from: 'orch', to: 'research', label: '任务分派' },
+        { from: 'orch', to: 'coder', label: '编码任务' },
+        { from: 'orch', to: 'analyst', label: '分析任务' },
+        { from: 'orch', to: 'reviewer', label: '审核任务' },
+        { from: 'research', to: 'orch', label: '研究结果' },
+        { from: 'coder', to: 'reviewer', label: '提交代码' },
+        { from: 'reviewer', to: 'coder', label: '反馈修改' },
+        { from: 'analyst', to: 'orch', label: '分析报告' }
+      ]
+    };
+
+    /* ============================================================
+       STATE
+       ============================================================ */
+    let currentView = 'single';
+    let flowParticles = [];
+    let selectedNodeId = null;
+    let rafId = null;
+
+    /* ============================================================
+       SVG HELPERS
+       ============================================================ */
+    const SVG_NS = 'http://www.w3.org/2000/svg';
+
+    function svgEl(tag, attrs) {
+      const el = document.createElementNS(SVG_NS, tag);
+      for (const [k, v] of Object.entries(attrs || {})) {
+        el.setAttribute(k, v);
+      }
+      return el;
+    }
+
+    /* ============================================================
+       RENDER DIAGRAM
+       ============================================================ */
+    function renderDiagram() {
+      const nodes = NODES[currentView];
+      const conns = CONNECTIONS[currentView];
+
+      const layerConns = document.getElementById('layerConns');
+      const layerParticles = document.getElementById('layerParticles');
+      const layerLabels = document.getElementById('layerLabels');
+      const layerNodes = document.getElementById('layerNodes');
+
+      layerConns.innerHTML = '';
+      layerParticles.innerHTML = '';
+      layerLabels.innerHTML = '';
+      layerNodes.innerHTML = '';
+      flowParticles = [];
+
+      // Draw connections
+      conns.forEach(c => {
+        const nf = nodes.find(n => n.id === c.from);
+        const nt = nodes.find(n => n.id === c.to);
+        if (!nf || !nt) return;
+
+        const line = svgEl('line', {
+          x1: nf.x, y1: nf.y,
+          x2: nt.x, y2: nt.y,
+          stroke: 'rgba(139,92,246,0.12)',
+          'stroke-width': '2',
+          'stroke-dasharray': '8,5'
+        });
+        layerConns.appendChild(line);
+
+        // Connection label
+        const mx = (nf.x + nt.x) / 2;
+        const my = (nf.y + nt.y) / 2;
+        const lbl = svgEl('text', {
+          x: mx, y: my - 8,
+          class: 'conn-label'
+        });
+        lbl.textContent = c.label;
+        layerLabels.appendChild(lbl);
+
+        // Flow particle track
+        flowParticles.push({
+          fx: nf.x, fy: nf.y,
+          tx: nt.x, ty: nt.y,
+          t: Math.random(),
+          speed: 0.002 + Math.random() * 0.003
+        });
+      });
+
+      // Draw nodes
+      nodes.forEach(n => {
+        const g = svgEl('g', { class: 'node-group', 'data-id': n.id });
+
+        // Outer glow ring
+        const ring = svgEl('circle', {
+          cx: n.x, cy: n.y, r: n.r + 10,
+          fill: 'none',
+          stroke: `url(#${n.grad})`,
+          'stroke-width': '1.5',
+          opacity: '0.25',
+          filter: 'url(#glow)',
+          class: 'node-ring'
+        });
+        g.appendChild(ring);
+
+        // Main background
+        const bg = svgEl('circle', {
+          cx: n.x, cy: n.y, r: n.r,
+          fill: 'rgba(15,15,35,0.92)',
+          stroke: `url(#${n.grad})`,
+          'stroke-width': '2.5',
+          class: 'node-bg'
+        });
+        g.appendChild(bg);
+
+        // Icon
+        const icon = svgEl('text', {
+          x: n.x, y: n.y - 6,
+          'text-anchor': 'middle',
+          'dominant-baseline': 'central',
+          'font-size': n.r > 65 ? '30' : '24'
+        });
+        icon.textContent = n.icon;
+        g.appendChild(icon);
+
+        // Label
+        const label = svgEl('text', {
+          x: n.x, y: n.y + 22,
+          'text-anchor': 'middle',
+          fill: '#e2e8f0',
+          'font-size': '13',
+          'font-weight': '600'
+        });
+        label.textContent = n.label;
+        g.appendChild(label);
+
+        // Click handler
+        g.addEventListener('click', () => showDetail(n));
+
+        layerNodes.appendChild(g);
+      });
+    }
+
+    /* ============================================================
+       DETAIL PANEL
+       ============================================================ */
+    function showDetail(n) {
+      selectedNodeId = n.id;
+
+      document.getElementById('dIcon').textContent = n.icon;
+      document.getElementById('dTitle').textContent = n.title;
+      document.getElementById('dTags').innerHTML = n.tags
+        .map(t => `<span class="detail-tag">${t}</span>`).join('');
+      document.getElementById('dDesc').textContent = n.desc;
+      document.getElementById('dContent').innerHTML = `
+        <div class="detail-section-title">核心能力</div>
+        <ul class="detail-list">
+          ${n.points.map(p => `<li>${p}</li>`).join('')}
+        </ul>
+      `;
+
+      document.getElementById('detailPanel').classList.add('visible');
+
+      // Dim other nodes
+      document.querySelectorAll('.node-group').forEach(g => {
+        g.classList.toggle('dimmed', g.dataset.id !== n.id);
+      });
+    }
+
+    function closeDetail() {
+      document.getElementById('detailPanel').classList.remove('visible');
+      selectedNodeId = null;
+      document.querySelectorAll('.node-group').forEach(g => {
+        g.classList.remove('dimmed');
+      });
+    }
+
+    /* ============================================================
+       VIEW TOGGLE
+       ============================================================ */
+    function switchView(view) {
+      currentView = view;
+      document.getElementById('btnSingle').classList.toggle('active', view === 'single');
+      document.getElementById('btnMulti').classList.toggle('active', view === 'multi');
+      closeDetail();
+      renderDiagram();
+    }
+
+    /* ============================================================
+       SVG FLOW PARTICLES ANIMATION
+       ============================================================ */
+    function animateFlowParticles() {
+      const layer = document.getElementById('layerParticles');
+      layer.innerHTML = '';
+
+      flowParticles.forEach(p => {
+        p.t += p.speed;
+        if (p.t > 1) p.t -= 1;
+
+        const x = p.fx + (p.tx - p.fx) * p.t;
+        const y = p.fy + (p.ty - p.fy) * p.t;
+
+        const dot = svgEl('circle', {
+          cx: x, cy: y, r: '3.5',
+          fill: '#8b5cf6',
+          opacity: '0.75',
+          filter: 'url(#glowSoft)'
+        });
+        layer.appendChild(dot);
+
+        // Trailing smaller dot
+        const t2 = p.t - 0.06;
+        if (t2 > 0) {
+          const x2 = p.fx + (p.tx - p.fx) * t2;
+          const y2 = p.fy + (p.ty - p.fy) * t2;
+          const trail = svgEl('circle', {
+            cx: x2, cy: y2, r: '2',
+            fill: '#8b5cf6',
+            opacity: '0.35'
+          });
+          layer.appendChild(trail);
+        }
+      });
+
+      rafId = requestAnimationFrame(animateFlowParticles);
+    }
+
+    /* ============================================================
+       BACKGROUND CANVAS PARTICLES
+       ============================================================ */
+    const bgCanvas = document.getElementById('bgCanvas');
+    const bgCtx = bgCanvas.getContext('2d');
+    let bgDots = [];
+
+    function initBgCanvas() {
+      bgCanvas.width = window.innerWidth;
+      bgCanvas.height = window.innerHeight;
+      bgDots = [];
+      const count = Math.min(80, Math.floor(window.innerWidth / 15));
+      for (let i = 0; i < count; i++) {
+        bgDots.push({
+          x: Math.random() * bgCanvas.width,
+          y: Math.random() * bgCanvas.height,
+          r: Math.random() * 1.5 + 0.3,
+          vx: (Math.random() - 0.5) * 0.25,
+          vy: (Math.random() - 0.5) * 0.25,
+          alpha: Math.random() * 0.4 + 0.1
+        });
+      }
+    }
+
+    function drawBgCanvas() {
+      bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+
+      // Update positions
+      bgDots.forEach(d => {
+        d.x += d.vx;
+        d.y += d.vy;
+        if (d.x < 0 || d.x > bgCanvas.width) d.vx *= -1;
+        if (d.y < 0 || d.y > bgCanvas.height) d.vy *= -1;
+
+        bgCtx.beginPath();
+        bgCtx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+        bgCtx.fillStyle = `rgba(139,92,246,${d.alpha})`;
+        bgCtx.fill();
+      });
+
+      // Nearby connections
+      for (let i = 0; i < bgDots.length; i++) {
+        for (let j = i + 1; j < bgDots.length; j++) {
+          const dx = bgDots[i].x - bgDots[j].x;
+          const dy = bgDots[i].y - bgDots[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 130) {
+            bgCtx.beginPath();
+            bgCtx.moveTo(bgDots[i].x, bgDots[i].y);
+            bgCtx.lineTo(bgDots[j].x, bgDots[j].y);
+            bgCtx.strokeStyle = `rgba(139,92,246,${0.06 * (1 - dist / 130)})`;
+            bgCtx.lineWidth = 0.5;
+            bgCtx.stroke();
+          }
+        }
+      }
+
+      requestAnimationFrame(drawBgCanvas);
+    }
+
+    /* ============================================================
+       EVENT LISTENERS
+       ============================================================ */
+    window.addEventListener('resize', () => {
+      bgCanvas.width = window.innerWidth;
+      bgCanvas.height = window.innerHeight;
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeDetail();
+    });
+
+    // Click outside panel to close
+    document.addEventListener('click', (e) => {
+      const panel = document.getElementById('detailPanel');
+      if (panel.classList.contains('visible') &&
+          !panel.contains(e.target) &&
+          !e.target.closest('.node-group')) {
+        closeDetail();
+      }
+    });
+
+    /* ============================================================
+       INIT
+       ============================================================ */
+    initBgCanvas();
+    drawBgCanvas();
+    renderDiagram();
+    animateFlowParticles();
+  </script>
+</body>
+</html>

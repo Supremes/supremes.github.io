@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta name="portal-title" content="AI 知识图谱探索器">
+  <meta name="portal-subtitle" content="Connected Knowledge">
+  <meta name="portal-desc" content="AI 领域核心概念的关系网络 — 从 RAG 到 Agent，从 Embedding 到 Fine-tuning，点击节点深入探索。">
+  <meta name="portal-category" content="AI 全景">
+  <meta name="portal-tags" content="知识图谱, RAG, Fine-tuning">
+  <meta name="portal-icon" content="🌐">
+  <meta name="portal-color" content="#ec4899">
+  <meta name="portal-date" content="2026-05-31">
+  <meta name="portal-difficulty" content="入门">
+  <meta name="portal-duration" content="8 min">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>AI 知识图谱探索器</title>
+<style>
+/* ===== Reset & Base ===== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #0f0f23;
+  color: #e2e8f0;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* ===== Background stars effect ===== */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,.15), transparent),
+    radial-gradient(1px 1px at 40% 70%, rgba(255,255,255,.1), transparent),
+    radial-gradient(1px 1px at 60% 20%, rgba(255,255,255,.12), transparent),
+    radial-gradient(1px 1px at 80% 50%, rgba(255,255,255,.08), transparent);
+  background-size: 200px 200px, 300px 300px, 250px 250px, 350px 350px;
+  pointer-events: none;
+  z-index: 0;
+  animation: starsDrift 120s linear infinite;
+}
+
+@keyframes starsDrift {
+  from { transform: translateY(0); }
+  to { transform: translateY(-200px); }
+}
+
+/* ===== Back Link ===== */
+#back-link {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 100;
+  color: #ec4899;
+  text-decoration: none;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  opacity: .8;
+  transition: opacity .2s, transform .2s;
+  background: rgba(15,15,35,.8);
+  backdrop-filter: blur(8px);
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(236,72,153,.2);
+}
+
+#back-link:hover {
+  opacity: 1;
+  transform: translateX(-2px);
+}
+
+#back-link svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ===== Header ===== */
+#header {
+  text-align: center;
+  padding: 16px 20px 8px;
+  position: relative;
+  z-index: 10;
+  pointer-events: none;
+}
+
+#header h1 {
+  font-size: clamp(20px, 4vw, 32px);
+  background: linear-gradient(135deg, #ec4899, #8b5cf6, #06b6d4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 800;
+  letter-spacing: -.5px;
+  text-shadow: 0 0 40px rgba(236,72,153,.3);
+}
+
+#header p {
+  color: #64748b;
+  font-size: 12px;
+  margin-top: 2px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+/* ===== Search ===== */
+#search-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 100;
+}
+
+#search-input {
+  background: rgba(255,255,255,.06);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(236,72,153,.3);
+  border-radius: 24px;
+  padding: 10px 16px 10px 38px;
+  color: #e2e8f0;
+  font-size: 13px;
+  width: 220px;
+  outline: none;
+  transition: all .3s;
+}
+
+#search-input:focus {
+  border-color: #ec4899;
+  width: 280px;
+  background: rgba(255,255,255,.1);
+  box-shadow: 0 0 20px rgba(236,72,153,.15);
+}
+
+#search-input::placeholder {
+  color: #475569;
+}
+
+#search-icon {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #64748b;
+  width: 15px;
+  height: 15px;
+  pointer-events: none;
+}
+
+#search-results {
+  position: absolute;
+  top: 46px;
+  right: 0;
+  background: rgba(26,26,46,.95);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(236,72,153,.2);
+  border-radius: 12px;
+  max-height: 240px;
+  overflow-y: auto;
+  display: none;
+  width: 280px;
+  box-shadow: 0 10px 40px rgba(0,0,0,.4);
+}
+
+.search-result-item {
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 13px;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+  transition: background .15s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.search-result-item:last-child { border-bottom: none; }
+.search-result-item:hover { background: rgba(236,72,153,.12); }
+
+.search-result-item .sr-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.search-result-item .sr-label {
+  flex: 1;
+}
+
+.search-result-item .sr-cat {
+  font-size: 10px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ===== Canvas ===== */
+#canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  position: relative;
+  z-index: 1;
+}
+
+#canvas.dragging {
+  cursor: grabbing;
+}
+
+/* ===== Detail Panel ===== */
+#detail-panel {
+  position: fixed;
+  right: -380px;
+  top: 0;
+  width: 360px;
+  height: 100vh;
+  background: linear-gradient(180deg, rgba(26,26,46,.98) 0%, rgba(22,22,42,.98) 100%);
+  backdrop-filter: blur(20px);
+  border-left: 1px solid rgba(236,72,153,.15);
+  z-index: 50;
+  transition: right .4s cubic-bezier(.4,0,.2,1);
+  padding: 28px 24px;
+  overflow-y: auto;
+  box-shadow: -10px 0 60px rgba(0,0,0,.5);
+}
+
+#detail-panel.open { right: 0; }
+
+#detail-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.1);
+  color: #64748b;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .2s;
+}
+
+#detail-close:hover {
+  color: #ec4899;
+  border-color: #ec4899;
+  background: rgba(236,72,153,.1);
+}
+
+#detail-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  margin-bottom: 16px;
+}
+
+#detail-panel h2 {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  background: linear-gradient(135deg, #ec4899, #8b5cf6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+#detail-category {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+  padding: 3px 10px;
+  border-radius: 10px;
+  display: inline-block;
+}
+
+#detail-desc {
+  font-size: 14px;
+  line-height: 1.8;
+  color: #94a3b8;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+
+#detail-stats {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.stat-box {
+  flex: 1;
+  background: rgba(255,255,255,.04);
+  border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+}
+
+.stat-box .stat-num {
+  font-size: 22px;
+  font-weight: 700;
+  color: #ec4899;
+}
+
+.stat-box .stat-label {
+  font-size: 10px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 2px;
+}
+
+#detail-connections h3 {
+  font-size: 13px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+
+.conn-tag {
+  display: inline-block;
+  background: rgba(236,72,153,.1);
+  border: 1px solid rgba(236,72,153,.2);
+  border-radius: 18px;
+  padding: 5px 14px;
+  margin: 3px;
+  font-size: 12px;
+  color: #f0abfc;
+  cursor: pointer;
+  transition: all .2s;
+}
+
+.conn-tag:hover {
+  background: rgba(236,72,153,.25);
+  border-color: #ec4899;
+  transform: translateY(-1px);
+}
+
+/* ===== Legend ===== */
+#legend {
+  position: fixed;
+  bottom: 16px;
+  left: 16px;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  max-width: 400px;
+  background: rgba(15,15,35,.7);
+  backdrop-filter: blur(8px);
+  padding: 8px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.05);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+/* ===== Zoom Controls ===== */
+#zoom-controls {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+#zoom-controls button {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(15,15,35,.7);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,.1);
+  color: #e2e8f0;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .2s;
+}
+
+#zoom-controls button:hover {
+  background: rgba(236,72,153,.2);
+  border-color: #ec4899;
+  transform: scale(1.05);
+}
+
+/* ===== Stats Bar ===== */
+#stats-bar {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  color: #475569;
+  z-index: 10;
+  background: rgba(15,15,35,.7);
+  backdrop-filter: blur(8px);
+  padding: 6px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.05);
+  white-space: nowrap;
+}
+
+/* ===== Tooltip ===== */
+#tooltip {
+  position: fixed;
+  z-index: 80;
+  background: rgba(26,26,46,.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(236,72,153,.25);
+  border-radius: 10px;
+  padding: 8px 14px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .15s;
+  box-shadow: 0 4px 20px rgba(0,0,0,.3);
+  max-width: 200px;
+}
+
+#tooltip.visible { opacity: 1; }
+
+#tooltip .tt-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+#tooltip .tt-cat {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 2px;
+}
+
+/* ===== Mobile ===== */
+@media (max-width: 640px) {
+  #detail-panel {
+    width: 100%;
+    right: -100%;
+  }
+  #search-input { width: 160px; }
+  #search-input:focus { width: 200px; }
+  #search-results { width: 200px; }
+  #header h1 { font-size: 20px; }
+  #legend { max-width: 260px; font-size: 10px; }
+  #back-link { padding: 6px 10px; font-size: 12px; }
+}
+
+/* ===== Scrollbar ===== */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(236,72,153,.3); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(236,72,153,.5); }
+</style>
+</head>
+<body>
+
+<!-- Back Link -->
+<a href="/portal" id="back-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M19 12H5M12 19l-7-7 7-7"/>
+  </svg>
+  返回 Portal
+</a>
+
+<!-- Header -->
+<div id="header">
+  <h1>AI 知识图谱探索器</h1>
+  <p>Connected Knowledge</p>
+</div>
+
+<!-- Search -->
+<div id="search-container">
+  <svg id="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+  </svg>
+  <input id="search-input" type="text" placeholder="搜索节点..." autocomplete="off" spellcheck="false">
+  <div id="search-results"></div>
+</div>
+
+<!-- Canvas -->
+<canvas id="canvas"></canvas>
+
+<!-- Tooltip -->
+<div id="tooltip">
+  <div class="tt-name"></div>
+  <div class="tt-cat"></div>
+</div>
+
+<!-- Detail Panel -->
+<div id="detail-panel">
+  <button id="detail-close">&times;</button>
+  <div id="detail-icon"></div>
+  <h2 id="detail-title"></h2>
+  <div id="detail-category"></div>
+  <div id="detail-desc"></div>
+  <div id="detail-stats">
+    <div class="stat-box">
+      <div class="stat-num" id="stat-conn">0</div>
+      <div class="stat-label">关联</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num" id="stat-depth">0</div>
+      <div class="stat-label">深度</div>
+    </div>
+  </div>
+  <div id="detail-connections">
+    <h3>关联概念</h3>
+    <div id="conn-list"></div>
+  </div>
+</div>
+
+<!-- Legend -->
+<div id="legend"></div>
+
+<!-- Zoom Controls -->
+<div id="zoom-controls">
+  <button id="zoom-in" title="放大">+</button>
+  <button id="zoom-out" title="缩小">−</button>
+  <button id="zoom-fit" title="适应视图">⊡</button>
+</div>
+
+<!-- Stats -->
+<div id="stats-bar"></div>
+
+<script>
+// ====================================================================
+// DATA: Categories with colors and icons
+// ====================================================================
+const CATEGORIES = {
+  arch:    { color: '#ec4899', label: '架构',     icon: '🏗️' },
+  tech:    { color: '#8b5cf6', label: '技术',     icon: '⚙️' },
+  model:   { color: '#06b6d4', label: '模型',     icon: '🤖' },
+  method:  { color: '#f59e0b', label: '方法',     icon: '📐' },
+  infra:   { color: '#10b981', label: '基础设施', icon: '🔧' },
+  concept: { color: '#f97316', label: '概念',     icon: '💡' }
+};
+
+// ====================================================================
+// DATA: Nodes with descriptions
+// ====================================================================
+const nodes = [
+  { id: 'LLM',               cat: 'arch',    desc: '大语言模型，基于Transformer架构在海量文本数据上预训练的生成式AI系统，具备理解和生成自然语言的能力。GPT、Claude、Llama等都属于大语言模型。' },
+  { id: 'Agent',             cat: 'concept', desc: 'AI智能体，能够自主规划、决策和执行任务的系统，通常结合LLM作为推理引擎，具备工具调用和环境交互能力。代表了AI从被动响应到主动行动的范式转变。' },
+  { id: 'RAG',               cat: 'tech',    desc: '检索增强生成（Retrieval-Augmented Generation），通过在生成前检索相关文档来增强LLM输出的准确性，减少幻觉并引入外部知识。是企业AI落地的关键技术。' },
+  { id: 'Fine-tuning',       cat: 'method',  desc: '微调技术，在预训练模型基础上使用特定领域数据继续训练，使模型适应特定任务或风格。包括全量微调、LoRA、QLoRA等方法。' },
+  { id: 'Embedding',         cat: 'tech',    desc: '嵌入表示，将文本、图像等高维数据映射到低维连续向量空间的技术，是语义搜索、相似度计算和RAG的基础。' },
+  { id: 'Transformer',       cat: 'arch',    desc: 'Transformer架构，2017年Google在"Attention is All You Need"论文中提出的基于自注意力机制的神经网络架构，彻底改变了NLP和CV领域。' },
+  { id: 'RLHF',              cat: 'method',  desc: '基于人类反馈的强化学习（Reinforcement Learning from Human Feedback），通过人类偏好数据训练奖励模型来优化LLM输出，使AI行为更符合人类期望。' },
+  { id: 'Prompt Engineering',cat: 'method',  desc: '提示工程，设计和优化输入提示以引导LLM产生期望输出的技术，包括零样本、少样本、思维链等策略。是与AI交互的核心技能。' },
+  { id: 'Vector DB',         cat: 'infra',   desc: '向量数据库，专门用于存储和高效检索高维向量的数据库系统。Pinecone、Milvus、Weaviate等是RAG和语义搜索的关键基础设施。' },
+  { id: 'Tokenization',      cat: 'tech',    desc: '分词技术，将文本分割为模型可处理的token单元的过程。常见方法包括BPE（字节对编码）、WordPiece和SentencePiece。' },
+  { id: 'Attention',         cat: 'arch',    desc: '注意力机制，允许模型在处理序列时动态关注不同位置信息的核心机制。自注意力、多头注意力和交叉注意力是其主要变体。' },
+  { id: 'GPT',               cat: 'model',   desc: 'GPT（Generative Pre-trained Transformer）系列模型，OpenAI开发的生成式预训练Transformer，从GPT-1到GPT-4不断突破语言理解和生成能力。' },
+  { id: 'BERT',              cat: 'model',   desc: 'BERT（Bidirectional Encoder Representations from Transformers），Google开发的双向编码器模型，通过掩码语言模型预训练，擅长文本理解任务。' },
+  { id: 'Diffusion',         cat: 'arch',    desc: '扩散模型，通过逐步去噪过程生成数据的生成模型。Stable Diffusion、DALL-E等在图像生成领域取得突破性进展。' },
+  { id: 'Multi-Modal',       cat: 'concept', desc: '多模态AI，能够处理和理解多种数据类型（文本、图像、音频、视频）的AI系统。GPT-4V、Gemini等实现了跨模态理解和生成。' },
+  { id: 'Tool Use',          cat: 'tech',    desc: '工具使用能力，LLM调用外部工具（计算器、搜索引擎、API等）来扩展自身能力。Function Calling是其实现的关键技术。' },
+  { id: 'Memory',            cat: 'tech',    desc: 'AI记忆系统，使LLM能够保持上下文和长期记忆的机制。包括短期工作记忆（上下文窗口）和长期持久化记忆（向量存储）。' },
+  { id: 'Chain-of-Thought',  cat: 'method',  desc: '思维链推理（CoT），通过让模型展示逐步推理过程来提升复杂问题求解能力的提示技术。是涌现能力的重要触发方式。' },
+  { id: 'Self-Play',         cat: 'method',  desc: '自我博弈，AI系统通过与自身对弈来不断提升能力的训练方法。AlphaGo和OpenAI Five在博弈和推理任务中展示了其威力。' },
+  { id: 'Mixture of Experts', cat: 'arch',   desc: '混合专家模型（MoE），通过多个专家子网络和门控机制实现条件计算。在保持推理效率的同时大幅扩大模型容量，Mixtral是其代表。' },
+  { id: 'Neural Network',    cat: 'arch',    desc: '神经网络，受生物神经系统启发的计算模型，由多层互联的神经元组成。从感知机到深度网络，是所有深度学习的基础。' },
+  { id: 'Gradient Descent',  cat: 'method',  desc: '梯度下降法，通过计算损失函数梯度来迭代更新模型参数的核心优化算法。Adam、SGD等是其重要变体。' },
+  { id: 'Transfer Learning', cat: 'method',  desc: '迁移学习，将在一个任务上学到的知识应用到相关任务上的学习范式。预训练+微调的核心思想极大降低了AI应用门槛。' },
+  { id: 'Reinforcement Learning', cat: 'concept', desc: '强化学习，智能体通过与环境交互获取奖励信号来学习最优策略的机器学习范式。是RLHF和游戏AI的基础。' },
+  { id: 'Generative AI',     cat: 'concept', desc: '生成式AI，能够创造新内容（文本、图像、代码、音乐等）的人工智能技术总称。以LLM和Diffusion为代表，是当前AI革命的核心驱动力。' }
+];
+
+// ====================================================================
+// DATA: Edges (relationships)
+// ====================================================================
+const edges = [
+  ['LLM', 'Transformer'],       ['LLM', 'Fine-tuning'],
+  ['LLM', 'RLHF'],              ['LLM', 'Tokenization'],
+  ['LLM', 'Generative AI'],     ['LLM', 'Prompt Engineering'],
+  ['Agent', 'LLM'],             ['Agent', 'Tool Use'],
+  ['Agent', 'Memory'],          ['Agent', 'Chain-of-Thought'],
+  ['RAG', 'Embedding'],         ['RAG', 'Vector DB'],
+  ['RAG', 'LLM'],
+  ['Fine-tuning', 'Gradient Descent'], ['Fine-tuning', 'Transfer Learning'],
+  ['Embedding', 'Transformer'],  ['Embedding', 'Vector DB'],
+  ['Transformer', 'Attention'],  ['Transformer', 'Neural Network'],
+  ['RLHF', 'Reinforcement Learning'], ['RLHF', 'LLM'],
+  ['Prompt Engineering', 'LLM'], ['Prompt Engineering', 'Chain-of-Thought'],
+  ['Tokenization', 'LLM'],       ['Tokenization', 'BERT'],
+  ['Attention', 'Transformer'],   ['Attention', 'Neural Network'],
+  ['GPT', 'LLM'],                ['GPT', 'Transformer'],
+  ['GPT', 'Generative AI'],
+  ['BERT', 'Transformer'],       ['BERT', 'Embedding'],
+  ['Diffusion', 'Neural Network'], ['Diffusion', 'Generative AI'],
+  ['Multi-Modal', 'LLM'],        ['Multi-Modal', 'Diffusion'],
+  ['Multi-Modal', 'Embedding'],
+  ['Tool Use', 'Agent'],          ['Memory', 'Agent'],
+  ['Chain-of-Thought', 'Prompt Engineering'], ['Chain-of-Thought', 'LLM'],
+  ['Self-Play', 'Reinforcement Learning'], ['Self-Play', 'LLM'],
+  ['Mixture of Experts', 'Transformer'], ['Mixture of Experts', 'LLM'],
+  ['Neural Network', 'Gradient Descent'], ['Transfer Learning', 'Fine-tuning'],
+  ['Transfer Learning', 'LLM'],  ['Reinforcement Learning', 'Neural Network'],
+  ['Generative AI', 'Multi-Modal'], ['Generative AI', 'Diffusion'],
+  ['RAG', 'Prompt Engineering'], ['Mixture of Experts', 'Neural Network'],
+  ['Self-Play', 'Reinforcement Learning'], ['GPT', 'Fine-tuning']
+];
+
+// Deduplicate edges
+const edgeSet = new Set();
+const uniqueEdges = [];
+edges.forEach(([a, b]) => {
+  const key = [a, b].sort().join('|');
+  if (!edgeSet.has(key)) { edgeSet.add(key); uniqueEdges.push([a, b]); }
+});
+
+// ====================================================================
+// CANVAS SETUP
+// ====================================================================
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+let W, H, dpr;
+let camera = { x: 0, y: 0, zoom: 1 };
+let dragging = null, panning = false;
+let panStart = { x: 0, y: 0 }, camStart = { x: 0, y: 0 };
+let mouseScreen = { x: 0, y: 0 };
+let selectedNode = null, hoveredNode = null;
+let simAlpha = 1;
+let animTime = 0;
+
+function resize() {
+  dpr = window.devicePixelRatio || 1;
+  W = window.innerWidth;
+  H = window.innerHeight;
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+window.addEventListener('resize', resize);
+resize();
+
+// ====================================================================
+// INITIALIZE NODE POSITIONS
+// ====================================================================
+const centerX = 0, centerY = 0;
+nodes.forEach((n, i) => {
+  const angle = (i / nodes.length) * Math.PI * 2 + (Math.random() - 0.5) * 0.3;
+  const ring = n.cat === 'arch' ? 180 : n.cat === 'concept' ? 220 : 140 + Math.random() * 80;
+  n.x = centerX + Math.cos(angle) * ring;
+  n.y = centerY + Math.sin(angle) * ring;
+  n.vx = 0;
+  n.vy = 0;
+  n.radius = 16 + Math.random() * 6;
+  // Pulse phase for glow animation
+  n.pulsePhase = Math.random() * Math.PI * 2;
+});
+
+const nodeMap = {};
+nodes.forEach(n => { nodeMap[n.id] = n; });
+const edgeList = uniqueEdges.map(([a, b]) => ({ source: nodeMap[a], target: nodeMap[b] }));
+
+// Build adjacency
+const adjacency = {};
+nodes.forEach(n => { adjacency[n.id] = new Set(); });
+edgeList.forEach(e => {
+  adjacency[e.source.id].add(e.target.id);
+  adjacency[e.target.id].add(e.source.id);
+});
+
+// ====================================================================
+// COORDINATE TRANSFORMS
+// ====================================================================
+function worldToScreen(wx, wy) {
+  return {
+    x: (wx - camera.x) * camera.zoom + W / 2,
+    y: (wy - camera.y) * camera.zoom + H / 2
+  };
+}
+
+function screenToWorld(sx, sy) {
+  return {
+    x: (sx - W / 2) / camera.zoom + camera.x,
+    y: (sy - H / 2) / camera.zoom + camera.y
+  };
+}
+
+// ====================================================================
+// PHYSICS SIMULATION
+// ====================================================================
+function simulate() {
+  if (simAlpha < 0.001) return;
+  simAlpha *= 0.996;
+  const decay = simAlpha;
+
+  // Center gravity — pull towards origin
+  nodes.forEach(n => {
+    n.vx += (centerX - n.x) * 0.00025 * decay;
+    n.vy += (centerY - n.y) * 0.00025 * decay;
+  });
+
+  // Edge springs
+  edgeList.forEach(e => {
+    const dx = e.target.x - e.source.x;
+    const dy = e.target.y - e.source.y;
+    const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+    const ideal = 130;
+    const force = (dist - ideal) * 0.004 * decay;
+    const fx = (dx / dist) * force;
+    const fy = (dy / dist) * force;
+    e.source.vx += fx;
+    e.source.vy += fy;
+    e.target.vx -= fx;
+    e.target.vy -= fy;
+  });
+
+  // Repulsion between all pairs
+  for (let i = 0; i < nodes.length; i++) {
+    for (let j = i + 1; j < nodes.length; j++) {
+      const a = nodes[i], b = nodes[j];
+      let dx = b.x - a.x, dy = b.y - a.y;
+      const distSq = dx * dx + dy * dy;
+      const minDist = 100;
+      if (distSq < minDist * minDist * 4) {
+        const dist = Math.sqrt(distSq) || 1;
+        const force = 600 * decay / (distSq + 100);
+        const fx = (dx / dist) * force;
+        const fy = (dy / dist) * force;
+        a.vx -= fx;
+        a.vy -= fy;
+        b.vx += fx;
+        b.vy += fy;
+      }
+    }
+  }
+
+  // Category clustering — mild pull towards category centroid
+  const catCenters = {};
+  Object.keys(CATEGORIES).forEach(c => { catCenters[c] = { x: 0, y: 0, cnt: 0 }; });
+  nodes.forEach(n => {
+    catCenters[n.cat].x += n.x;
+    catCenters[n.cat].y += n.y;
+    catCenters[n.cat].cnt++;
+  });
+  Object.values(catCenters).forEach(c => {
+    if (c.cnt > 0) { c.x /= c.cnt; c.y /= c.cnt; }
+  });
+
+  // Apply velocity + damping + bouncing
+  const bounds = 550;
+  nodes.forEach(n => {
+    if (n === dragging) return;
+    n.vx *= 0.82;
+    n.vy *= 0.82;
+    n.x += n.vx;
+    n.y += n.vy;
+
+    // Soft boundary bounce
+    if (n.x < -bounds) { n.x = -bounds; n.vx = Math.abs(n.vx) * 0.4; }
+    if (n.x > bounds)  { n.x = bounds;  n.vx = -Math.abs(n.vx) * 0.4; }
+    if (n.y < -bounds) { n.y = -bounds; n.vy = Math.abs(n.vy) * 0.4; }
+    if (n.y > bounds)  { n.y = bounds;  n.vy = -Math.abs(n.vy) * 0.4; }
+  });
+}
+
+// ====================================================================
+// HELPER: Get connected node IDs
+// ====================================================================
+function getConnected(nodeId) {
+  return adjacency[nodeId] || new Set();
+}
+
+// ====================================================================
+// DRAWING
+// ====================================================================
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+  animTime += 0.016;
+
+  // Background gradient
+  const bgGrad = ctx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.max(W, H) * 0.7);
+  bgGrad.addColorStop(0, '#141428');
+  bgGrad.addColorStop(1, '#0f0f23');
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0, 0, W, H);
+
+  const conn = selectedNode ? getConnected(selectedNode) : null;
+
+  // ---- Draw Edges ----
+  edgeList.forEach(e => {
+    const s = worldToScreen(e.source.x, e.source.y);
+    const t = worldToScreen(e.target.x, e.target.y);
+    const isActive = selectedNode && (e.source.id === selectedNode || e.target.id === selectedNode);
+    const isRelated = conn && (conn.has(e.source.id) || conn.has(e.target.id)) &&
+                      (e.source.id === selectedNode || e.target.id === selectedNode);
+
+    ctx.beginPath();
+    ctx.moveTo(s.x, s.y);
+    ctx.lineTo(t.x, t.y);
+
+    if (isRelated) {
+      // Animated glow for active connections
+      ctx.strokeStyle = 'rgba(236, 72, 153, 0.5)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      // Glow layer
+      ctx.strokeStyle = 'rgba(236, 72, 153, 0.12)';
+      ctx.lineWidth = 8;
+      ctx.stroke();
+    } else {
+      ctx.strokeStyle = selectedNode ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.07)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+  });
+
+  // ---- Draw Nodes ----
+  nodes.forEach(n => {
+    const p = worldToScreen(n.x, n.y);
+    const cat = CATEGORIES[n.cat];
+    const isSelected = n.id === selectedNode;
+    const isConnected = conn && conn.has(n.id);
+    const isDimmed = selectedNode && !isSelected && !isConnected;
+    const drawR = n.radius * camera.zoom;
+
+    if (drawR < 2) return; // Skip if too small
+
+    // Outer glow ring
+    if (isSelected || isConnected) {
+      const pulse = 0.7 + 0.3 * Math.sin(animTime * 3 + n.pulsePhase);
+      const glowR = drawR * (isSelected ? 3.0 : 2.2) * pulse;
+      const grd = ctx.createRadialGradient(p.x, p.y, drawR * 0.5, p.x, p.y, glowR);
+      grd.addColorStop(0, cat.color + (isSelected ? '50' : '30'));
+      grd.addColorStop(1, 'transparent');
+      ctx.fillStyle = grd;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, glowR, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Main circle
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, drawR, 0, Math.PI * 2);
+    const alpha = isDimmed ? 0.12 : isSelected ? 1 : isConnected ? 0.9 : 0.65;
+    ctx.fillStyle = cat.color + Math.round(alpha * 255).toString(16).padStart(2, '0');
+    ctx.fill();
+
+    // Border
+    if (isSelected) {
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+    } else if (isConnected) {
+      ctx.strokeStyle = cat.color;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    } else if (n === hoveredNode) {
+      ctx.strokeStyle = cat.color + '80';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+
+    // Inner highlight
+    if (!isDimmed && drawR > 6) {
+      const innerGrd = ctx.createRadialGradient(
+        p.x - drawR * 0.3, p.y - drawR * 0.3, 0,
+        p.x, p.y, drawR
+      );
+      innerGrd.addColorStop(0, 'rgba(255,255,255,0.15)');
+      innerGrd.addColorStop(1, 'transparent');
+      ctx.fillStyle = innerGrd;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, drawR, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Label
+    const showLabel = !isDimmed || camera.zoom > 0.6;
+    if (showLabel) {
+      const fontSize = Math.max(8, Math.min(13, 11 * camera.zoom));
+      ctx.font = `${isSelected ? 'bold ' : ''}${fontSize}px system-ui, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      ctx.fillStyle = isSelected ? '#ffffff' : isDimmed ? '#1e293b' : '#c8d0dc';
+      ctx.fillText(n.id, p.x, p.y + drawR + 5);
+    }
+  });
+}
+
+// ====================================================================
+// HIT TESTING
+// ====================================================================
+function getNodeAt(sx, sy) {
+  const w = screenToWorld(sx, sy);
+  for (let i = nodes.length - 1; i >= 0; i--) {
+    const n = nodes[i];
+    const dx = w.x - n.x, dy = w.y - n.y;
+    if (dx * dx + dy * dy < (n.radius + 8) * (n.radius + 8)) return n;
+  }
+  return null;
+}
+
+// ====================================================================
+// DETAIL PANEL
+// ====================================================================
+function showDetail(node) {
+  selectedNode = node.id;
+  const cat = CATEGORIES[node.cat];
+
+  document.getElementById('detail-icon').textContent = cat.icon;
+  document.getElementById('detail-icon').style.background = cat.color + '20';
+  document.getElementById('detail-icon').style.border = `1px solid ${cat.color}40`;
+  document.getElementById('detail-title').textContent = node.id;
+
+  const catEl = document.getElementById('detail-category');
+  catEl.textContent = cat.label;
+  catEl.style.background = cat.color + '18';
+  catEl.style.color = cat.color;
+
+  document.getElementById('detail-desc').textContent = node.desc;
+
+  const connCount = adjacency[node.id].size;
+  document.getElementById('stat-conn').textContent = connCount;
+  // BFS depth from this node
+  document.getElementById('stat-depth').textContent = bfsMaxDepth(node.id);
+
+  const connIds = adjacency[node.id];
+  const list = document.getElementById('conn-list');
+  list.innerHTML = '';
+  connIds.forEach(cid => {
+    const tag = document.createElement('span');
+    tag.className = 'conn-tag';
+    const ccat = CATEGORIES[nodeMap[cid].cat];
+    tag.style.borderColor = ccat.color + '40';
+    tag.textContent = cid;
+    tag.onclick = () => {
+      const n = nodeMap[cid];
+      showDetail(n);
+      panToNode(n);
+    };
+    list.appendChild(tag);
+  });
+
+  document.getElementById('detail-panel').classList.add('open');
+}
+
+function bfsMaxDepth(startId) {
+  const visited = new Set([startId]);
+  let queue = [startId];
+  let depth = 0;
+  while (queue.length > 0) {
+    const next = [];
+    queue.forEach(id => {
+      adjacency[id].forEach(nid => {
+        if (!visited.has(nid)) { visited.add(nid); next.push(nid); }
+      });
+    });
+    queue = next;
+    if (queue.length > 0) depth++;
+    if (depth > 5) break;
+  }
+  return depth;
+}
+
+function panToNode(n) {
+  // Smooth pan using animation
+  const targetX = n.x;
+  const targetY = n.y;
+  const startX = camera.x;
+  const startY = camera.y;
+  const startZoom = camera.zoom;
+  const targetZoom = Math.max(camera.zoom, 1.3);
+  const duration = 400;
+  const startTime = performance.now();
+
+  function step(now) {
+    const t = Math.min(1, (now - startTime) / duration);
+    const ease = 1 - Math.pow(1 - t, 3); // ease-out cubic
+    camera.x = startX + (targetX - startX) * ease;
+    camera.y = startY + (targetY - startY) * ease;
+    camera.zoom = startZoom + (targetZoom - startZoom) * ease;
+    if (t < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+function hideDetail() {
+  selectedNode = null;
+  document.getElementById('detail-panel').classList.remove('open');
+}
+
+document.getElementById('detail-close').onclick = hideDetail;
+
+// ====================================================================
+// TOOLTIP
+// ====================================================================
+const tooltip = document.getElementById('tooltip');
+function updateTooltip(node) {
+  if (!node) {
+    tooltip.classList.remove('visible');
+    return;
+  }
+  const p = worldToScreen(node.x, node.y);
+  const cat = CATEGORIES[node.cat];
+  tooltip.querySelector('.tt-name').textContent = node.id;
+  tooltip.querySelector('.tt-cat').textContent = cat.label;
+  tooltip.querySelector('.tt-cat').style.color = cat.color;
+  tooltip.style.left = (p.x + node.radius * camera.zoom + 12) + 'px';
+  tooltip.style.top = (p.y - 20) + 'px';
+  tooltip.classList.add('visible');
+}
+
+// ====================================================================
+// MOUSE EVENTS
+// ====================================================================
+let mouseDownPos = { x: 0, y: 0 };
+
+canvas.addEventListener('mousedown', e => {
+  mouseDownPos = { x: e.clientX, y: e.clientY };
+  const node = getNodeAt(e.clientX, e.clientY);
+  if (node) {
+    dragging = node;
+    node.vx = 0;
+    node.vy = 0;
+    canvas.classList.add('dragging');
+    simAlpha = Math.max(simAlpha, 0.3);
+  } else {
+    panning = true;
+    panStart = { x: e.clientX, y: e.clientY };
+    camStart = { x: camera.x, y: camera.y };
+    canvas.classList.add('dragging');
+  }
+});
+
+canvas.addEventListener('mousemove', e => {
+  mouseScreen = { x: e.clientX, y: e.clientY };
+
+  if (dragging) {
+    const w = screenToWorld(e.clientX, e.clientY);
+    dragging.x = w.x;
+    dragging.y = w.y;
+    dragging.vx = 0;
+    dragging.vy = 0;
+    simAlpha = Math.max(simAlpha, 0.3);
+  } else if (panning) {
+    const dx = (e.clientX - panStart.x) / camera.zoom;
+    const dy = (e.clientY - panStart.y) / camera.zoom;
+    camera.x = camStart.x - dx;
+    camera.y = camStart.y - dy;
+  } else {
+    const n = getNodeAt(e.clientX, e.clientY);
+    canvas.style.cursor = n ? 'pointer' : 'grab';
+    hoveredNode = n;
+    updateTooltip(n);
+  }
+});
+
+canvas.addEventListener('mouseup', e => {
+  const dist = Math.abs(e.clientX - mouseDownPos.x) + Math.abs(e.clientY - mouseDownPos.y);
+  if (dist < 5) {
+    // Click
+    const node = getNodeAt(e.clientX, e.clientY);
+    if (node) {
+      showDetail(node);
+    } else {
+      hideDetail();
+    }
+  }
+  dragging = null;
+  panning = false;
+  canvas.classList.remove('dragging');
+});
+
+canvas.addEventListener('mouseleave', () => {
+  hoveredNode = null;
+  updateTooltip(null);
+});
+
+// Zoom with wheel (zoom towards cursor)
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  const worldBefore = screenToWorld(e.clientX, e.clientY);
+  const factor = e.deltaY > 0 ? 0.92 : 1.08;
+  camera.zoom = Math.min(4, Math.max(0.15, camera.zoom * factor));
+  const worldAfter = screenToWorld(e.clientX, e.clientY);
+  camera.x += worldBefore.x - worldAfter.x;
+  camera.y += worldBefore.y - worldAfter.y;
+}, { passive: false });
+
+// ====================================================================
+// TOUCH EVENTS
+// ====================================================================
+let lastTouchDist = 0;
+let touchStartTime = 0;
+let touchStartPos = null;
+
+canvas.addEventListener('touchstart', e => {
+  touchStartTime = Date.now();
+
+  if (e.touches.length === 1) {
+    const t = e.touches[0];
+    touchStartPos = { x: t.clientX, y: t.clientY };
+    const node = getNodeAt(t.clientX, t.clientY);
+    if (node) {
+      dragging = node;
+      node.vx = 0;
+      node.vy = 0;
+      simAlpha = Math.max(simAlpha, 0.3);
+    } else {
+      panning = true;
+      panStart = { x: t.clientX, y: t.clientY };
+      camStart = { x: camera.x, y: camera.y };
+    }
+  } else if (e.touches.length === 2) {
+    dragging = null;
+    panning = false;
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    lastTouchDist = Math.sqrt(dx * dx + dy * dy);
+  }
+}, { passive: true });
+
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+
+  if (e.touches.length === 1) {
+    const t = e.touches[0];
+    if (dragging) {
+      const w = screenToWorld(t.clientX, t.clientY);
+      dragging.x = w.x;
+      dragging.y = w.y;
+      dragging.vx = 0;
+      dragging.vy = 0;
+    } else if (panning) {
+      const dx = (t.clientX - panStart.x) / camera.zoom;
+      const dy = (t.clientY - panStart.y) / camera.zoom;
+      camera.x = camStart.x - dx;
+      camera.y = camStart.y - dy;
+    }
+  } else if (e.touches.length === 2) {
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (lastTouchDist > 0) {
+      const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+      const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+      const worldBefore = screenToWorld(midX, midY);
+      camera.zoom = Math.min(4, Math.max(0.15, camera.zoom * (dist / lastTouchDist)));
+      const worldAfter = screenToWorld(midX, midY);
+      camera.x += worldBefore.x - worldAfter.x;
+      camera.y += worldBefore.y - worldAfter.y;
+    }
+    lastTouchDist = dist;
+  }
+}, { passive: false });
+
+canvas.addEventListener('touchend', e => {
+  if (e.touches.length === 0) {
+    const elapsed = Date.now() - touchStartTime;
+    if (elapsed < 250 && touchStartPos && dragging) {
+      showDetail(dragging);
+    }
+    dragging = null;
+    panning = false;
+    lastTouchDist = 0;
+    touchStartPos = null;
+  }
+}, { passive: true });
+
+// ====================================================================
+// SEARCH
+// ====================================================================
+const searchInput = document.getElementById('search-input');
+const searchResults = document.getElementById('search-results');
+
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.toLowerCase().trim();
+  if (!q) { searchResults.style.display = 'none'; return; }
+
+  const matches = nodes.filter(n => n.id.toLowerCase().includes(q));
+  if (!matches.length) { searchResults.style.display = 'none'; return; }
+
+  searchResults.style.display = 'block';
+  searchResults.innerHTML = '';
+
+  matches.forEach(n => {
+    const div = document.createElement('div');
+    div.className = 'search-result-item';
+    const cat = CATEGORIES[n.cat];
+    div.innerHTML = `
+      <span class="sr-dot" style="background:${cat.color}"></span>
+      <span class="sr-label">${n.id}</span>
+      <span class="sr-cat">${cat.label}</span>
+    `;
+    div.onclick = () => {
+      showDetail(n);
+      panToNode(n);
+      searchInput.value = '';
+      searchResults.style.display = 'none';
+      searchInput.blur();
+    };
+    searchResults.appendChild(div);
+  });
+});
+
+searchInput.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    searchInput.value = '';
+    searchResults.style.display = 'none';
+    searchInput.blur();
+  }
+  if (e.key === 'Enter') {
+    const first = searchResults.querySelector('.search-result-item');
+    if (first) first.click();
+  }
+});
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('#search-container')) {
+    searchResults.style.display = 'none';
+  }
+});
+
+// ====================================================================
+// ZOOM CONTROLS
+// ====================================================================
+document.getElementById('zoom-in').onclick = () => {
+  camera.zoom = Math.min(4, camera.zoom * 1.3);
+};
+document.getElementById('zoom-out').onclick = () => {
+  camera.zoom = Math.max(0.15, camera.zoom / 1.3);
+};
+document.getElementById('zoom-fit').onclick = () => {
+  camera.x = 0;
+  camera.y = 0;
+  camera.zoom = Math.min(W, H) / 1400;
+};
+
+// ====================================================================
+// LEGEND
+// ====================================================================
+const legend = document.getElementById('legend');
+Object.entries(CATEGORIES).forEach(([key, val]) => {
+  const div = document.createElement('div');
+  div.className = 'legend-item';
+  div.innerHTML = `<span class="legend-dot" style="background:${val.color}"></span>${val.label}`;
+  legend.appendChild(div);
+});
+
+// ====================================================================
+// STATS BAR
+// ====================================================================
+document.getElementById('stats-bar').textContent =
+  `${nodes.length} 个节点 · ${uniqueEdges.length} 条连接 · 拖拽移动 · 滚轮缩放 · 点击查看详情`;
+
+// ====================================================================
+// KEYBOARD SHORTCUTS
+// ====================================================================
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+
+  if (e.key === 'Escape') {
+    hideDetail();
+  }
+  if (e.key === '/' || e.key === 'f') {
+    e.preventDefault();
+    searchInput.focus();
+  }
+  if (e.key === '+' || e.key === '=') {
+    camera.zoom = Math.min(4, camera.zoom * 1.15);
+  }
+  if (e.key === '-') {
+    camera.zoom = Math.max(0.15, camera.zoom / 1.15);
+  }
+  if (e.key === '0') {
+    camera.x = 0; camera.y = 0; camera.zoom = 1;
+  }
+});
+
+// ====================================================================
+// DOUBLE CLICK TO FOCUS
+// ====================================================================
+canvas.addEventListener('dblclick', e => {
+  const node = getNodeAt(e.clientX, e.clientY);
+  if (node) {
+    panToNode(node);
+    camera.zoom = Math.max(camera.zoom, 1.5);
+  }
+});
+
+// ====================================================================
+// MAIN LOOP
+// ====================================================================
+function loop() {
+  simulate();
+  draw();
+  updateTooltip(hoveredNode);
+  requestAnimationFrame(loop);
+}
+
+// Initial camera zoom to fit
+camera.zoom = Math.min(W, H) / 1300;
+
+loop();
+
+console.log(`%c🧠 AI Knowledge Graph loaded: ${nodes.length} nodes, ${uniqueEdges.length} edges`,
+  'color: #ec4899; font-size: 14px; font-weight: bold;');
+</script>
+</body>
+</html>

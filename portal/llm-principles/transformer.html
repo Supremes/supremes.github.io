@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta name="portal-title" content="Transformer 架构交互式讲解">
+  <meta name="portal-subtitle" content="Attention Is All You Need">
+  <meta name="portal-desc" content="从 Self-Attention 到 Multi-Head，从位置编码到前馈网络 — 全程可交互的 Transformer 架构拆解。">
+  <meta name="portal-category" content="LLM 原理">
+  <meta name="portal-tags" content="Transformer, Attention, LLM">
+  <meta name="portal-icon" content="🔮">
+  <meta name="portal-color" content="#6366f1">
+  <meta name="portal-date" content="2026-05-31">
+  <meta name="portal-difficulty" content="进阶">
+  <meta name="portal-duration" content="15 min">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Transformer 架构交互式讲解</title>
+<style>
+/* ============================================
+   RESET & VARIABLES
+   ============================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg: #0f0f23;
+  --bg-deep: #0a0a1a;
+  --card: #1a1a2e;
+  --card-hover: #22223a;
+  --accent: #6366f1;
+  --accent-light: #818cf8;
+  --accent2: #a78bfa;
+  --accent3: #38bdf8;
+  --text: #e2e8f0;
+  --muted: #94a3b8;
+  --dim: #64748b;
+  --border: #2d2d5e;
+  --border-light: #3d3d6e;
+  --glow: 0 0 30px rgba(99, 102, 241, 0.3);
+  --glow-strong: 0 0 50px rgba(99, 102, 241, 0.4), 0 0 100px rgba(99, 102, 241, 0.15);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--accent2);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+a:hover { color: var(--accent-light); }
+
+::selection {
+  background: rgba(99, 102, 241, 0.35);
+  color: #fff;
+}
+
+/* ============================================
+   BACK LINK - Fixed top-left
+   ============================================ */
+.back-link {
+  position: fixed;
+  top: 1.5rem;
+  left: 1.5rem;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(26, 26, 46, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.55rem 1.3rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--accent2);
+  transition: all var(--transition);
+  cursor: pointer;
+  text-decoration: none;
+}
+.back-link:hover {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: var(--glow);
+  transform: translateY(-1px);
+}
+.back-link svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+  transition: transform var(--transition);
+}
+.back-link:hover svg {
+  transform: translateX(-3px);
+}
+
+/* ============================================
+   HERO SECTION
+   ============================================ */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  padding: 2rem;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 40%, rgba(99, 102, 241, 0.18), transparent 70%),
+    radial-gradient(ellipse 50% 40% at 20% 80%, rgba(167, 139, 250, 0.1), transparent),
+    radial-gradient(ellipse 50% 40% at 80% 20%, rgba(56, 189, 248, 0.08), transparent);
+  pointer-events: none;
+  animation: heroGlow 8s ease-in-out infinite alternate;
+}
+
+@keyframes heroGlow {
+  0% { opacity: 0.7; }
+  100% { opacity: 1; }
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  border-radius: 999px;
+  padding: 0.4rem 1.2rem;
+  font-size: 0.8rem;
+  color: var(--accent-light);
+  margin-bottom: 1.5rem;
+  animation: fadeUp 0.6s ease-out both;
+}
+
+.hero h1 {
+  font-size: clamp(2.2rem, 6vw, 4.2rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #6366f1, #a78bfa, #38bdf8, #6366f1);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.8rem;
+  animation: fadeUp 0.8s ease-out both, gradientShift 6s ease-in-out infinite;
+  line-height: 1.2;
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.hero p {
+  font-size: clamp(1rem, 2.5vw, 1.35rem);
+  color: var(--muted);
+  max-width: 550px;
+  animation: fadeUp 0.8s ease-out 0.2s both;
+}
+
+.hero-stats {
+  display: flex;
+  gap: 2.5rem;
+  margin-top: 2.5rem;
+  animation: fadeUp 0.8s ease-out 0.4s both;
+}
+
+.hero-stat {
+  text-align: center;
+}
+
+.hero-stat .num {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--accent2);
+  display: block;
+  line-height: 1;
+}
+
+.hero-stat .label {
+  font-size: 0.75rem;
+  color: var(--dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 0.3rem;
+}
+
+.hero .scroll-hint {
+  position: absolute;
+  bottom: 2.5rem;
+  animation: bounce 2s infinite;
+  color: var(--dim);
+  font-size: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); opacity: 1; }
+  50% { transform: translateY(10px); opacity: 0.6; }
+}
+
+/* ============================================
+   SECTIONS - Shared
+   ============================================ */
+.section {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 5rem 1.5rem;
+  opacity: 0;
+  transform: translateY(50px);
+  transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.section-label {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--accent);
+  background: rgba(99, 102, 241, 0.1);
+  padding: 0.3rem 0.9rem;
+  border-radius: 999px;
+  margin-bottom: 1rem;
+}
+
+.section-title {
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.3;
+}
+
+.section-sub {
+  text-align: center;
+  color: var(--muted);
+  margin-bottom: 3rem;
+  font-size: 1rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.section-center { text-align: center; }
+
+/* ============================================
+   CARDS
+   ============================================ */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  transition: all var(--transition);
+}
+
+.card:hover {
+  border-color: var(--border-light);
+  box-shadow: var(--glow);
+}
+
+/* ============================================
+   INFO CARDS GRID
+   ============================================ */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.2rem;
+}
+
+.info-card {
+  padding: 1.8rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.info-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+
+.info-card:hover::before {
+  opacity: 1;
+}
+
+.info-card .icon {
+  font-size: 2.2rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.info-card h3 {
+  font-size: 1.05rem;
+  margin-bottom: 0.6rem;
+  color: var(--accent2);
+  font-weight: 600;
+}
+
+.info-card p {
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.7;
+}
+
+/* ============================================
+   ARCHITECTURE DIAGRAM
+   ============================================ */
+.arch-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+.enc-dec-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  background: rgba(99, 102, 241, 0.03);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  width: 100%;
+}
+
+.enc-dec-wrap .col-title {
+  text-align: center;
+  font-weight: 700;
+  color: var(--accent2);
+  margin-bottom: 1.2rem;
+  font-size: 0.95rem;
+  letter-spacing: 0.03em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.enc-dec-wrap .col-title .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: inline-block;
+}
+
+.arch-diagram {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  position: relative;
+}
+
+.arch-node {
+  position: relative;
+  padding: 0.9rem 1.8rem;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all var(--transition);
+  text-align: center;
+  z-index: 2;
+  min-width: 200px;
+  border: 2px solid var(--border);
+  background: var(--card);
+  user-select: none;
+}
+
+.arch-node:hover,
+.arch-node.selected {
+  border-color: var(--accent);
+  box-shadow: var(--glow);
+  transform: scale(1.03);
+}
+
+.arch-node.selected {
+  background: rgba(99, 102, 241, 0.12);
+  border-color: var(--accent-light);
+}
+
+.arch-node .sub {
+  font-size: 0.7rem;
+  color: var(--dim);
+  font-weight: 400;
+  display: block;
+  margin-top: 0.15rem;
+}
+
+.arch-arrow {
+  width: 2px;
+  height: 28px;
+  background: linear-gradient(var(--accent), var(--accent2));
+  position: relative;
+  flex-shrink: 0;
+}
+
+.arch-arrow::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid var(--accent2);
+}
+
+.heads {
+  display: flex;
+  gap: 3px;
+  justify-content: center;
+  margin-top: 0.3rem;
+}
+
+.heads span {
+  width: 16px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--accent);
+  opacity: 0.5;
+}
+
+/* Detail Panel */
+.arch-detail {
+  margin-top: 0;
+  padding: 2rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  max-width: 800px;
+  width: 100%;
+  opacity: 0;
+  transform: translateY(15px);
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.arch-detail.show {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.arch-detail h3 {
+  color: var(--accent2);
+  margin-bottom: 1rem;
+  font-size: 1.15rem;
+}
+
+.arch-detail p {
+  color: var(--muted);
+  line-height: 1.9;
+  font-size: 0.93rem;
+}
+
+.formula {
+  background: var(--bg-deep);
+  padding: 0.9rem 1.3rem;
+  border-radius: var(--radius-sm);
+  font-family: "SF Mono", Monaco, Consolas, "Liberation Mono", monospace;
+  color: var(--accent2);
+  margin: 1rem 0;
+  font-size: 0.88rem;
+  overflow-x: auto;
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  line-height: 1.8;
+}
+
+/* ============================================
+   ATTENTION VISUALIZATION
+   ============================================ */
+.attn-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.attn-input-wrap {
+  position: relative;
+}
+
+.attn-input-wrap input {
+  width: 100%;
+  padding: 1rem 1.3rem;
+  background: var(--bg-deep);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 1rem;
+  outline: none;
+  transition: border var(--transition), box-shadow var(--transition);
+  font-family: inherit;
+}
+
+.attn-input-wrap input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.attn-input-wrap input::placeholder {
+  color: var(--dim);
+}
+
+.attn-tokens {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0.5rem 0;
+}
+
+.attn-token {
+  padding: 0.4rem 0.95rem;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  cursor: pointer;
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  transition: all var(--transition);
+  user-select: none;
+  font-weight: 500;
+}
+
+.attn-token:hover {
+  background: rgba(99, 102, 241, 0.2);
+  border-color: var(--accent);
+}
+
+.attn-token.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+}
+
+.attn-canvas-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  aspect-ratio: 1;
+}
+
+.attn-canvas-wrap canvas {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius);
+  background: var(--bg-deep);
+}
+
+.attn-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  justify-content: center;
+  font-size: 0.78rem;
+  color: var(--dim);
+}
+
+.attn-legend .bar {
+  width: 140px;
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--bg-deep), var(--accent), var(--accent2));
+}
+
+.attn-hint {
+  text-align: center;
+  color: var(--dim);
+  font-size: 0.82rem;
+  font-style: italic;
+}
+
+/* ============================================
+   MATH SECTION
+   ============================================ */
+.math-card {
+  max-width: 750px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.math-card .formula {
+  font-size: 1.15rem;
+  padding: 1.5rem;
+}
+
+.math-explain {
+  color: var(--muted);
+  margin-top: 1.2rem;
+  font-size: 0.92rem;
+  line-height: 1.9;
+  text-align: left;
+}
+
+.math-explain li {
+  margin-bottom: 0.4rem;
+  list-style: none;
+  padding-left: 1.5rem;
+  position: relative;
+}
+
+.math-explain li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+}
+
+/* ============================================
+   TIMELINE
+   ============================================ */
+.timeline {
+  position: relative;
+  padding-left: 2rem;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--accent), var(--accent2), transparent);
+}
+
+.tl-item {
+  position: relative;
+  padding: 1.5rem 0 1.5rem 1.5rem;
+}
+
+.tl-item::before {
+  content: '';
+  position: absolute;
+  left: -2rem;
+  top: 1.8rem;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 3px solid var(--bg);
+  transform: translateX(-5px);
+}
+
+.tl-year {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.tl-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0.3rem 0;
+}
+
+.tl-desc {
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.7;
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+footer {
+  text-align: center;
+  padding: 3.5rem 1rem;
+  color: var(--dim);
+  font-size: 0.8rem;
+  border-top: 1px solid var(--border);
+  margin-top: 1rem;
+}
+
+footer .heart {
+  color: #ef4444;
+  display: inline-block;
+  animation: heartbeat 1.5s ease-in-out infinite;
+}
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+/* ============================================
+   FLOATING PARTICLES
+   ============================================ */
+.particle {
+  position: fixed;
+  width: 3px;
+  height: 3px;
+  background: var(--accent);
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 0;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+  .section { padding: 3.5rem 1rem; }
+  .attn-canvas-wrap { max-width: 100%; }
+  .hero-stats { gap: 1.5rem; }
+  .hero-stat .num { font-size: 1.5rem; }
+  .enc-dec-wrap { padding: 1.2rem; }
+  .arch-node { min-width: 160px; padding: 0.7rem 1rem; font-size: 0.82rem; }
+}
+
+@media (max-width: 600px) {
+  .enc-dec-wrap {
+    grid-template-columns: 1fr;
+  }
+  .hero-stats {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .back-link {
+    top: 1rem;
+    left: 1rem;
+    padding: 0.45rem 1rem;
+    font-size: 0.78rem;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================
+     BACK LINK
+     ============================================ -->
+<a href="/portal" class="back-link">
+  <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+  Back to Lab
+</a>
+
+<!-- ============================================
+     HERO SECTION
+     ============================================ -->
+<section class="hero">
+  <div class="hero-badge">📖 2017 · Google Brain · NLP</div>
+  <h1>Transformer 架构交互式讲解</h1>
+  <p>"Attention Is All You Need" — Vaswani et al., NeurIPS 2017</p>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <span class="num">65M</span>
+      <span class="label">参数量 (Base)</span>
+    </div>
+    <div class="hero-stat">
+      <span class="num">8</span>
+      <span class="label">注意力头</span>
+    </div>
+    <div class="hero-stat">
+      <span class="num">512</span>
+      <span class="label">模型维度</span>
+    </div>
+    <div class="hero-stat">
+      <span class="num">6</span>
+      <span class="label">层数</span>
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <span>向下滚动探索</span>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+  </div>
+</section>
+
+<!-- ============================================
+     CORE CONCEPTS
+     ============================================ -->
+<section class="section" id="overview">
+  <div class="section-center">
+    <div class="section-label">Foundation</div>
+    <h2 class="section-title">核心概念</h2>
+    <p class="section-sub">Transformer 彻底改变了序列建模范式，抛弃了循环结构，完全依赖注意力机制实现高效的全局信息交互</p>
+  </div>
+  <div class="info-grid">
+    <div class="card info-card">
+      <span class="icon">🧠</span>
+      <h3>自注意力 Self-Attention</h3>
+      <p>每个位置都能直接关注序列中所有其他位置，捕获任意距离的依赖关系。O(1) 步即可传递信息，而非 RNN 的 O(n)。</p>
+    </div>
+    <div class="card info-card">
+      <span class="icon">⚡</span>
+      <h3>并行计算</h3>
+      <p>所有位置同时计算，无需像 RNN 等待前一步完成。GPU/TPU 利用率极高，训练速度提升数十倍。</p>
+    </div>
+    <div class="card info-card">
+      <span class="icon">📍</span>
+      <h3>位置编码</h3>
+      <p>使用正弦/余弦函数为每个 token 注入位置信息。理论上可泛化到训练时未见过的序列长度。</p>
+    </div>
+    <div class="card info-card">
+      <span class="icon">🔗</span>
+      <h3>多头注意力</h3>
+      <p>将注意力拆分为多个"头"，每个头学习不同类型的注意力模式——语法结构、语义关系、共指消解等。</p>
+    </div>
+    <div class="card info-card">
+      <span class="icon">📐</span>
+      <h3>前馈网络 FFN</h3>
+      <p>每个位置独立通过两层全连接网络，d_ff=2048 是 d_model 的 4 倍。研究表明 FFN 层存储了大量世界知识。</p>
+    </div>
+    <div class="card info-card">
+      <span class="icon">🔄</span>
+      <h3>残差连接 & LayerNorm</h3>
+      <p>每一子层都有残差连接保证梯度畅通，LayerNorm 稳定训练。这是深层 Transformer 能训练的关键。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     ARCHITECTURE DIAGRAM
+     ============================================ -->
+<section class="section" id="architecture">
+  <div class="section-center">
+    <div class="section-label">Architecture</div>
+    <h2 class="section-title">架构总览</h2>
+    <p class="section-sub">点击每个组件查看详细解释和数学原理</p>
+  </div>
+
+  <div class="arch-wrapper">
+    <div class="enc-dec-wrap">
+      <div class="col">
+        <div class="col-title"><span class="dot"></span> 编码器 Encoder</div>
+        <div class="arch-diagram">
+          <div class="arch-node" data-comp="input" onclick="showDetail(this)">
+            📝 Input Embedding
+            <span class="sub">Vocab → d_model</span>
+          </div>
+          <div class="arch-arrow"></div>
+          <div class="arch-node" data-comp="posenc" onclick="showDetail(this)">
+            📐 Positional Encoding
+            <span class="sub">sin / cos 函数</span>
+          </div>
+          <div class="arch-arrow"></div>
+          <div class="arch-node" data-comp="mha-enc" onclick="showDetail(this)">
+            🔗 Multi-Head Self-Attention
+            <div class="heads"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+          </div>
+          <div class="arch-arrow"></div>
+          <div class="arch-node" data-comp="norm1" onclick="showDetail(this)">
+            ➕ Add & Layer Norm
+            <span class="sub">残差连接 + 归一化</span>
+          </div>
+          <div class="arch-arrow"></div>
+          <div class="arch-node" data-comp="ffn" onclick="showDetail(this)">
+            📐 Feed-Forward Network
+            <span class="sub">512 → 2048 → 512</span>
+          </div>
+          <div class="arch-arrow"></div>
+          <div class="arch-node" data-comp="norm2" onclick="showDetail(this)">
+            ➕ Add & Layer Norm
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="col-title"><span class="dot"></span> 解码器 Decoder</div>
+        <div class="arch-diagram">
+          <div class="arch-node" data-comp="output" onclick="showDetail(this)">
+            📝 Output Embedding
+            <span class="sub">Vocab → d_model</span>
+          </div>
+          <div class="arch-arrow"></div>
+          <div class="arch-node" data-comp="posenc" onclick="showDetail(this)">
+            📐 Positional Encoding
+          </div>
+          <div class="arch-arrow"></div>
+          <div class="arch-node" data-comp="mask-mha" onclick="showDetail(this)">
+            🔒 Masked Multi-Head Attn
+            <span class="sub">因果掩码</span>
+            <div class="heads"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+          </div>
+          <div class="arch-arrow"></div>
+          <div class="arch-node" data-comp="cross-attn" onclick="showDetail(this)">
+            🔗 Cross Attention
+            <span class="sub">Q: Decoder, KV: Encoder</span>
+          </div>
+          <div class="arch-arrow"></div>
+          <div class="arch-node" data-comp="ffn" onclick="showDetail(this)">
+            📐 Feed-Forward Network
+          </div>
+          <div class="arch-arrow"></div>
+          <div class="arch-node" data-comp="output-layer" onclick="showDetail(this)">
+            🎯 Linear + Softmax
+            <span class="sub">→ 概率分布</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arch-detail card" id="arch-detail-panel">
+      <h3 id="detail-title">👆 点击上方任意组件</h3>
+      <p id="detail-text">每个组件都有详细的数学原理和实际作用说明。点击编码器或解码器中的任意模块开始探索。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     ATTENTION PLAYGROUND
+     ============================================ -->
+<section class="section" id="attention">
+  <div class="section-center">
+    <div class="section-label">Interactive</div>
+    <h2 class="section-title">注意力机制可视化</h2>
+    <p class="section-sub">输入一句话，观察每个 token 对其他 token 的注意力权重分布</p>
+  </div>
+
+  <div class="card attn-wrap">
+    <div class="attn-input-wrap">
+      <input id="attn-input" type="text" placeholder="输入一句话，例如：The cat sat on the mat" value="The cat sat on the mat" maxlength="80">
+    </div>
+    <div class="attn-tokens" id="attn-tokens"></div>
+    <div class="attn-canvas-wrap">
+      <canvas id="attn-canvas" width="600" height="600"></canvas>
+    </div>
+    <div class="attn-legend">
+      <span>低注意力</span>
+      <div class="bar"></div>
+      <span>高注意力</span>
+    </div>
+    <p class="attn-hint">💡 点击上方 token 查看该 token 对其他 token 的注意力分布，矩阵中的数值表示注意力权重</p>
+  </div>
+</section>
+
+<!-- ============================================
+     CORE FORMULAS
+     ============================================ -->
+<section class="section" id="math">
+  <div class="section-center">
+    <div class="section-label">Mathematics</div>
+    <h2 class="section-title">核心公式</h2>
+    <p class="section-sub">Transformer 背后的优雅数学</p>
+  </div>
+
+  <div class="card math-card">
+    <div class="formula" style="font-size: 1.15rem; padding: 1.5rem;">
+      Attention(Q, K, V) = softmax(QK<sup>T</sup> / √d<sub>k</sub>) · V
+    </div>
+    <ul class="math-explain">
+      <li><strong>Q (Query)</strong> — 查询矩阵，表示"我在找什么信息"</li>
+      <li><strong>K (Key)</strong> — 键矩阵，表示"我有什么信息可以提供"</li>
+      <li><strong>V (Value)</strong> — 值矩阵，表示"我实际携带的信息内容"</li>
+      <li><strong>√d<sub>k</sub></strong> — 缩放因子，防止点积过大导致 softmax 饱和、梯度消失</li>
+      <li><strong>softmax</strong> — 将注意力分数归一化为概率分布，所有权重之和为 1</li>
+    </ul>
+
+    <div class="formula" style="margin-top: 1.5rem; font-size: 1rem;">
+      MultiHead(Q, K, V) = Concat(head<sub>1</sub>, ..., head<sub>h</sub>) · W<sup>O</sup><br>
+      where head<sub>i</sub> = Attention(QW<sub>i</sub><sup>Q</sup>, KW<sub>i</sub><sup>K</sup>, VW<sub>i</sub><sup>V</sup>)
+    </div>
+    <ul class="math-explain">
+      <li>将 Q, K, V 分别投影到 h=8 个低维子空间 (d<sub>k</sub>=d<sub>model</sub>/h=64)</li>
+      <li>各头独立计算注意力，捕获不同类型的语言模式</li>
+      <li>最后拼接所有头的输出，经 W<sup>O</sup> 线性变换回 d<sub>model</sub> 维</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================================
+     IMPACT TIMELINE
+     ============================================ -->
+<section class="section" id="impact">
+  <div class="section-center">
+    <div class="section-label">Legacy</div>
+    <h2 class="section-title">影响与演进</h2>
+    <p class="section-sub">从论文到改变世界</p>
+  </div>
+
+  <div class="card" style="max-width: 700px; margin: 0 auto;">
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-year">2017</div>
+        <div class="tl-title">原始 Transformer 论文发表</div>
+        <div class="tl-desc">Vaswani 等人在 NeurIPS 发表 "Attention Is All You Need"，提出编码器-解码器架构，在机器翻译上取得突破。</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-year">2018</div>
+        <div class="tl-title">BERT & GPT 诞生</div>
+        <div class="tl-desc">Google 推出 BERT（仅编码器），OpenAI 推出 GPT（仅解码器），Transformer 架构开始统治 NLP 领域。</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-year">2020</div>
+        <div class="tl-title">GPT-3 震撼登场</div>
+        <div class="tl-desc">1750 亿参数的 GPT-3 展示了惊人的 few-shot 学习能力，证明了规模化 Transformer 的涌现能力。</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-year">2023</div>
+        <div class="tl-title">GPT-4 与多模态</div>
+        <div class="tl-desc">Transformer 进入多模态时代，GPT-4 同时处理文本和图像，Vision Transformer (ViT) 在计算机视觉中大放异彩。</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-year">2024-26</div>
+        <div class="tl-title">开源大模型百花齐放</div>
+        <div class="tl-desc">Llama、Qwen、DeepSeek、Mistral 等开源模型蓬勃发展，Transformer 架构在推理、Agent、代码生成等领域持续突破边界。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     FOOTER
+     ============================================ -->
+<footer>
+  <p>Transformer 架构交互式讲解 · 基于 "Attention Is All You Need" (Vaswani et al., 2017)</p>
+  <p style="margin-top: 0.4rem;">Made with <span class="heart">❤</span> by Hermes Agent</p>
+</footer>
+
+<!-- ============================================
+     JAVASCRIPT
+     ============================================ -->
+<script>
+/* ===========================================
+   FLOATING PARTICLES
+   =========================================== */
+(function () {
+  const body = document.body;
+  for (let i = 0; i < 30; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const x = Math.random() * 100;
+    const y = Math.random() * 100;
+    const dur = 5 + Math.random() * 7;
+    const delay = Math.random() * 5;
+    p.style.cssText = `left:${x}%;top:${y}%;animation:float${i % 3} ${dur}s ease-in-out infinite ${delay}s`;
+    body.appendChild(p);
+  }
+  const s = document.createElement('style');
+  s.textContent = `
+    @keyframes float0 { 0%,100% { transform: translate(0,0); opacity: 0.2 } 50% { transform: translate(25px,-35px); opacity: 0.55 } }
+    @keyframes float1 { 0%,100% { transform: translate(0,0); opacity: 0.15 } 50% { transform: translate(-20px,30px); opacity: 0.45 } }
+    @keyframes float2 { 0%,100% { transform: translate(0,0); opacity: 0.18 } 50% { transform: translate(15px,25px); opacity: 0.5 } }
+  `;
+  document.head.appendChild(s);
+})();
+
+/* ===========================================
+   SCROLL REVEAL (IntersectionObserver)
+   =========================================== */
+const sections = document.querySelectorAll('.section');
+const observer = new IntersectionObserver(
+  (entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  },
+  { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+);
+sections.forEach((s) => observer.observe(s));
+
+/* ===========================================
+   ARCHITECTURE DETAIL PANEL
+   =========================================== */
+const details = {
+  input: {
+    t: '输入嵌入 Input Embedding',
+    d: '将离散的 token ID 映射为连续的 d_model=512 维向量。使用可学习的嵌入矩阵 W ∈ ℝ^{V×d_model}，其中 V 是词汇表大小（约 37000 个 BPE 子词）。嵌入向量乘以 √d_model ≈ 22.6 进行缩放，使嵌入值与位置编码的量级匹配，避免位置编码被淹没。',
+    f: 'embedding(x) = W[x] × √d_model\nd_model = 512, V ≈ 37000'
+  },
+  output: {
+    t: '输出嵌入 Output Embedding',
+    d: '与输入嵌入类似，将目标序列的 token 映射为 d_model 维向量。在训练时使用 teacher forcing（将整个目标序列一次输入），推理时自回归逐步生成。权重可以与输入嵌入矩阵共享（weight tying），减少参数量并提升性能。',
+  },
+  posenc: {
+    t: '位置编码 Positional Encoding',
+    d: '由于 Transformer 没有循环或卷积结构，需要显式注入位置信息。原始论文使用不同频率的正弦/余弦函数。这种设计的巧妙之处在于：任意两个位置的编码可以通过线性变换相互表示，使模型能学到相对位置关系。理论上可以泛化到训练时未见过的更长序列。',
+    f: 'PE(pos, 2i)   = sin(pos / 10000^(2i/d_model))\nPE(pos, 2i+1) = cos(pos / 10000^(2i/d_model))\n\n其中 pos 是位置, i 是维度索引'
+  },
+  'mha-enc': {
+    t: '多头自注意力 Multi-Head Self-Attention',
+    d: '编码器的核心层。每个 token 通过 Q-K-V 机制关注序列中所有其他 token（包括自身）。投影到 h=8 个子空间，每个子空间维度 d_k=d_model/h=64。不同的头会学到不同的注意力模式：有的关注相邻词（局部语法），有的关注远距离依赖（语义关系），有的关注特定的语法结构（主谓一致等）。',
+    f: 'head_i = Attention(QW_i^Q, KW_i^K, VW_i^V)\nMultiHead = Concat(head_1, ..., head_8) × W^O\n\nd_k = d_v = d_model / h = 64'
+  },
+  'mask-mha': {
+    t: '掩码多头注意力 Masked Multi-Head Attention',
+    d: '解码器中的自注意力层，使用因果掩码（causal mask）确保位置 i 只能关注 ≤i 的位置。这保证了自回归生成的正确性：预测第 t 个 token 时，模型不能"偷看"未来的 token。掩码通过将非法位置的注意力分数设为 -∞（softmax 后变为 0）来实现。',
+    f: 'mask[i][j] = -∞  if j > i\n             = 0   if j ≤ i\n\nAttention = softmax(QK^T/√d_k + mask) × V'
+  },
+  'cross-attn': {
+    t: '交叉注意力 Cross Attention（Encoder-Decoder Attention）',
+    d: '这是连接编码器和解码器的桥梁。查询 Q 来自解码器上一层的输出，而键 K 和值 V 来自编码器的最终输出。这让解码器在生成每个 token 时都能"查看"整个输入序列的信息。这与自注意力的区别在于：K 和 V 来自不同的序列（编码器），而非解码器自身。',
+    f: 'Q = Decoder_output × W^Q\nK = Encoder_output × W^K\nV = Encoder_output × W^V'
+  },
+  norm1: {
+    t: '残差连接 & 层归一化 Add & Layer Norm',
+    d: '每个子层的输出为 LayerNorm(x + Sublayer(x))。残差连接让梯度能直接从深层流向浅层，有效缓解深层网络的梯度消失问题。LayerNorm 对每个样本的特征维度独立做归一化（不同于 BatchNorm 对 batch 维度），使训练更加稳定。现代实现多采用 Pre-LN（先归一化再计算子层），训练更稳定。',
+    f: 'output = LayerNorm(x + Sublayer(x))\n\nLayerNorm: μ = mean(x), σ = std(x)\n           LN(x) = γ × (x-μ)/(σ+ε) + β'
+  },
+  norm2: {
+    t: '残差连接 & 层归一化 Add & Layer Norm',
+    d: '编码器中 FFN 子层后的残差连接和层归一化。与第一个 Add & Layer Norm 结构相同，完成编码器一层的完整计算。整个编码器堆叠 N=6 层这样的结构，逐层提取越来越抽象的语义特征。',
+    f: 'output = LayerNorm(x + FFN(x))\n\n编码器共 N=6 层'
+  },
+  ffn: {
+    t: '前馈网络 Feed-Forward Network',
+    d: '对每个位置独立应用的两层全连接网络。内部维度 d_ff=2048，是 d_model 的 4 倍，先升维再降维。ReLU 激活引入非线性。最近的研究表明，FFN 层可以看作一种"键值记忆"，存储了大量世界知识和事实。现代变体如 SwiGLU（LLaMA 使用）用门控机制替代 ReLU，效果更好。',
+    f: 'FFN(x) = max(0, xW₁ + b₁)W₂ + b₂\n\nd_model = 512, d_ff = 2048\nW₁ ∈ ℝ^{512×2048}, W₂ ∈ ℝ^{2048×512}'
+  },
+  'output-layer': {
+    t: '输出层 Linear + Softmax',
+    d: '解码器最终层的 d_model 维输出经线性变换映射到词汇表大小的 logits 向量，再经 softmax 转换为概率分布。训练时使用交叉熵损失（Cross-Entropy Loss）与真实 token 计算损失。推理时可结合 beam search（束搜索）、top-k 采样、top-p（nucleus）采样等策略生成高质量文本。',
+    f: 'logits = x × W_vocab + b\nP(next_token) = softmax(logits)\n\nW_vocab ∈ ℝ^{d_model × V}'
+  }
+};
+
+function showDetail(el) {
+  document.querySelectorAll('.arch-node').forEach((n) => n.classList.remove('selected'));
+  el.classList.add('selected');
+
+  const key = el.dataset.comp;
+  const info = details[key];
+  if (!info) return;
+
+  const panel = document.getElementById('arch-detail-panel');
+  const title = document.getElementById('detail-title');
+  const text = document.getElementById('detail-text');
+
+  // Animate transition
+  panel.classList.remove('show');
+  setTimeout(() => {
+    title.textContent = info.t;
+    text.innerHTML =
+      info.d +
+      (info.f
+        ? '<div class="formula">' + info.f.replace(/\n/g, '<br>') + '</div>'
+        : '');
+    panel.classList.add('show');
+  }, 120);
+
+  // Smooth scroll to panel
+  setTimeout(() => {
+    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, 150);
+}
+
+/* ===========================================
+   ATTENTION VISUALIZATION (Canvas)
+   =========================================== */
+const canvas = document.getElementById('attn-canvas');
+const ctx = canvas.getContext('2d');
+const dpr = window.devicePixelRatio || 1;
+let tokens = [];
+let selectedToken = 0;
+let attentionData = [];
+let animProgress = 0;
+let animFrame = null;
+
+function resizeCanvas() {
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+resizeCanvas();
+
+window.addEventListener('resize', () => {
+  resizeCanvas();
+  drawAttention();
+});
+
+function tokenize(text) {
+  return text
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((w) => w.replace(/[.,!?;:'"()]/g, ''));
+}
+
+/**
+ * Generate a simulated attention matrix that looks realistic.
+ * Self-attention tends to have high self-weights, positional decay,
+ * and some "semantic" random connections.
+ */
+function generateAttentionMatrix(n) {
+  const matrix = [];
+  for (let i = 0; i < n; i++) {
+    const row = [];
+    for (let j = 0; j < n; j++) {
+      const selfAttn = i === j ? 0.25 + Math.random() * 0.2 : 0;
+      const dist = Math.abs(i - j);
+      const positional = Math.exp(-dist * 0.35) * (0.15 + Math.random() * 0.25);
+      const semantic = Math.random() * 0.2;
+      const val = selfAttn + positional + semantic;
+      row.push(val);
+    }
+    // Normalize row to sum to 1 (softmax-like)
+    const sum = row.reduce((a, b) => a + b, 0);
+    matrix.push(row.map((v) => v / sum));
+  }
+  return matrix;
+}
+
+/**
+ * Map a value [0, 1] to a color from deep dark blue to bright purple.
+ */
+function colorForValue(v) {
+  const r = Math.round(15 + v * 145);
+  const g = Math.round(15 + v * 75);
+  const b = Math.round(35 + v * 210);
+  return `rgb(${r},${g},${b})`;
+}
+
+/**
+ * Draw the full attention heatmap onto the canvas.
+ * @param {number} progress - Animation progress [0, 1]
+ */
+function drawAttention(progress) {
+  if (!tokens.length) return;
+  const n = tokens.length;
+  const w = canvas.width / dpr;
+  const h = canvas.height / dpr;
+  const margin = { top: 80, left: 80, right: 20, bottom: 20 };
+  const cellW = (w - margin.left - margin.right) / n;
+  const cellH = (h - margin.top - margin.bottom) / n;
+  const p = progress !== undefined ? progress : 1;
+
+  ctx.clearRect(0, 0, w, h);
+
+  // --- Column labels (top) ---
+  const labelSize = Math.max(9, Math.min(13, cellW * 0.32));
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'bottom';
+
+  for (let j = 0; j < n; j++) {
+    ctx.save();
+    const x = margin.left + j * cellW + cellW / 2;
+    const isSelected = j === selectedToken;
+    ctx.fillStyle = isSelected ? '#c4b5fd' : '#94a3b8';
+    ctx.font = (isSelected ? 'bold ' : '') + labelSize + 'px -apple-system, sans-serif';
+
+    if (cellW < 45) {
+      ctx.translate(x, margin.top - 8);
+      ctx.rotate(-Math.PI / 4);
+      ctx.fillText(tokens[j], 0, 0);
+    } else {
+      ctx.fillText(tokens[j], x, margin.top - 10);
+    }
+    ctx.restore();
+  }
+
+  // --- Row labels (left) ---
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle';
+
+  for (let i = 0; i < n; i++) {
+    const isSelected = i === selectedToken;
+    ctx.fillStyle = isSelected ? '#c4b5fd' : '#94a3b8';
+    ctx.font = (isSelected ? 'bold ' : '') + labelSize + 'px -apple-system, sans-serif';
+    ctx.fillText(tokens[i], margin.left - 10, margin.top + i * cellH + cellH / 2);
+  }
+
+  // --- Heatmap cells ---
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      const val = attentionData[i][j] * p;
+      const x = margin.left + j * cellW;
+      const y = margin.top + i * cellH;
+
+      if (i === selectedToken) {
+        ctx.fillStyle = colorForValue(val);
+        ctx.globalAlpha = 1;
+      } else {
+        ctx.fillStyle = colorForValue(val * 0.35);
+        ctx.globalAlpha = 0.55;
+      }
+
+      const pad = 1.5;
+      ctx.beginPath();
+      // roundRect polyfill-safe
+      if (ctx.roundRect) {
+        ctx.roundRect(x + pad, y + pad, cellW - pad * 2, cellH - pad * 2, 4);
+      } else {
+        ctx.rect(x + pad, y + pad, cellW - pad * 2, cellH - pad * 2);
+      }
+      ctx.fill();
+
+      // Value text inside cells (if large enough)
+      if (cellW > 38 && cellH > 26) {
+        ctx.globalAlpha = i === selectedToken ? 0.95 : 0.45;
+        ctx.fillStyle = attentionData[i][j] * p > 0.25 ? '#fff' : '#888';
+        ctx.font = `${Math.max(8, Math.min(11, cellW * 0.22))}px monospace`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText((attentionData[i][j] * p).toFixed(2), x + cellW / 2, y + cellH / 2);
+      }
+    }
+  }
+  ctx.globalAlpha = 1;
+
+  // --- Highlight selected row border ---
+  if (p >= 0.98) {
+    ctx.strokeStyle = '#a78bfa';
+    ctx.lineWidth = 2.5;
+    ctx.setLineDash([]);
+    ctx.strokeRect(
+      margin.left - 1,
+      margin.top + selectedToken * cellH - 1,
+      (w - margin.left - margin.right) + 2,
+      cellH + 2
+    );
+  }
+}
+
+/**
+ * Animate the attention heatmap drawing with easing.
+ */
+function animateAttention() {
+  if (animFrame) cancelAnimationFrame(animFrame);
+  animProgress = 0;
+  const start = performance.now();
+  const duration = 650;
+
+  function step(ts) {
+    animProgress = Math.min(1, (ts - start) / duration);
+    // Ease-out cubic
+    animProgress = 1 - Math.pow(1 - animProgress, 3);
+    drawAttention(animProgress);
+    if (animProgress < 1) {
+      animFrame = requestAnimationFrame(step);
+    }
+  }
+  animFrame = requestAnimationFrame(step);
+}
+
+/**
+ * Update the full visualization: tokenize input, rebuild tokens UI, regenerate matrix.
+ */
+function updateVisualization() {
+  const input = document.getElementById('attn-input').value;
+  tokens = tokenize(input);
+  if (!tokens.length) {
+    tokens = ['请输入', '文本'];
+  }
+
+  // Clamp selectedToken
+  if (selectedToken >= tokens.length) selectedToken = 0;
+
+  // Build token buttons
+  const tokensEl = document.getElementById('attn-tokens');
+  tokensEl.innerHTML = '';
+  tokens.forEach((t, i) => {
+    const span = document.createElement('span');
+    span.className = 'attn-token' + (i === selectedToken ? ' active' : '');
+    span.textContent = t;
+    span.addEventListener('click', () => {
+      selectedToken = i;
+      document.querySelectorAll('.attn-token').forEach((s) => s.classList.remove('active'));
+      span.classList.add('active');
+      animateAttention();
+    });
+    tokensEl.appendChild(span);
+  });
+
+  attentionData = generateAttentionMatrix(tokens.length);
+  resizeCanvas();
+  animateAttention();
+}
+
+// Listen for input changes
+document.getElementById('attn-input').addEventListener('input', () => {
+  selectedToken = 0;
+  updateVisualization();
+});
+
+// Initial draw
+updateVisualization();
+</script>
+</body>
+</html>

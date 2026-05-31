@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta name="portal-title" content="大模型是怎么想的？">
+  <meta name="portal-subtitle" content="LLM Internals Visualized">
+  <meta name="portal-desc" content="Tokenization、Embedding、Attention、生成过程 — 用可视化理解大语言模型的每一个决策步骤。">
+  <meta name="portal-category" content="LLM 原理">
+  <meta name="portal-tags" content="LLM, GPT, Embedding">
+  <meta name="portal-icon" content="🧠">
+  <meta name="portal-color" content="#f59e0b">
+  <meta name="portal-date" content="2026-05-31">
+  <meta name="portal-difficulty" content="入门">
+  <meta name="portal-duration" content="12 min">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>大模型是怎么想的 — LLM Internals Visualized</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0f0f23;--bg2:#1a1a3e;--bg3:#252551;--accent:#f59e0b;--accent2:#fbbf24;--text:#e2e8f0;--muted:#94a3b8;--border:#334155;--green:#22c55e;--blue:#3b82f6;--purple:#a855f7;--pink:#ec4899;--red:#ef4444}
+body{background:var(--bg);color:var(--text);font-family:'SF Pro Display',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;line-height:1.6;overflow-x:hidden}
+.back-link{position:fixed;top:1.5rem;left:1.5rem;color:var(--accent);text-decoration:none;font-size:1rem;z-index:100;display:flex;align-items:center;gap:.5rem;opacity:.8;transition:opacity .3s}
+.back-link:hover{opacity:1}
+.back-link svg{width:20px;height:20px}
+.container{max-width:1000px;margin:0 auto;padding:2rem 1.5rem}
+header{text-align:center;padding:6rem 0 3rem;animation:fadeUp .8s ease}
+header h1{font-size:3.5rem;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.5rem}
+header p{font-size:1.3rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+.section{margin:4rem 0;animation:fadeUp .6s ease both}
+.section:nth-child(2){animation-delay:.1s}
+.section:nth-child(3){animation-delay:.2s}
+.section:nth-child(4){animation-delay:.3s}
+.section:nth-child(5){animation-delay:.4s}
+.section h2{font-size:1.8rem;font-weight:700;margin-bottom:.5rem;color:var(--accent)}
+.section h2 .num{color:var(--muted);font-size:1.2rem;margin-right:.5rem}
+.section .desc{color:var(--muted);margin-bottom:1.5rem;font-size:.95rem}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:2rem;margin-bottom:1rem;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--purple),var(--pink))}
+
+/* Tokenizer */
+.tokenizer-input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:1rem;color:var(--text);font-size:1.1rem;outline:none;transition:border .3s;font-family:inherit}
+.tokenizer-input:focus{border-color:var(--accent)}
+.tokenizer-output{display:flex;flex-wrap:wrap;gap:8px;margin-top:1.5rem;min-height:50px}
+.token{display:inline-flex;align-items:center;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:.5rem .8rem;font-family:'Fira Code',monospace;font-size:.95rem;animation:popIn .3s ease;position:relative;cursor:default;transition:all .2s}
+.token:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 4px 20px rgba(245,158,11,.15)}
+.token .id{position:absolute;top:-8px;right:-4px;background:var(--accent);color:#000;font-size:.65rem;padding:1px 6px;border-radius:10px;font-weight:700}
+.token-space{color:var(--accent)}
+.stats{display:flex;gap:2rem;margin-top:1rem;color:var(--muted);font-size:.85rem}
+.stats span{color:var(--accent);font-weight:600}
+
+/* Embedding Canvas */
+#embed-canvas{width:100%;height:400px;border-radius:12px;background:var(--bg3);cursor:crosshair}
+.embed-controls{display:flex;gap:1rem;margin-top:1rem;flex-wrap:wrap}
+.embed-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:.5rem 1rem;border-radius:8px;cursor:pointer;transition:all .2s;font-size:.9rem}
+.embed-btn:hover,.embed-btn.active{border-color:var(--accent);background:rgba(245,158,11,.1)}
+.cosine-display{margin-top:1rem;padding:1rem;background:var(--bg3);border-radius:10px;font-family:monospace;font-size:.9rem;min-height:40px}
+.cosine-display .highlight{color:var(--accent);font-weight:700}
+
+/* Generation */
+.gen-area{display:flex;flex-direction:column;gap:1rem}
+.gen-sentence{font-size:1.2rem;line-height:2;min-height:60px;font-family:'Fira Code',monospace}
+.gen-sentence .generated{color:var(--accent)}
+.gen-sentence .cursor{display:inline-block;width:2px;height:1.2em;background:var(--accent);animation:blink 1s infinite;vertical-align:text-bottom;margin-left:2px}
+.gen-probs{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-top:.5rem}
+.prob-bar{background:var(--bg3);border-radius:8px;padding:.6rem .8rem;cursor:pointer;transition:all .2s;border:1px solid transparent;position:relative;overflow:hidden}
+.prob-bar:hover{border-color:var(--accent);transform:scale(1.03)}
+.prob-bar .prob-fill{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,rgba(245,158,11,.15),rgba(245,158,11,.05));transition:width .5s ease;border-radius:8px}
+.prob-bar .prob-label{position:relative;display:flex;justify-content:space-between;font-size:.9rem}
+.prob-bar .prob-val{color:var(--accent);font-weight:600;font-size:.8rem}
+.gen-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#000;border:none;padding:.7rem 1.5rem;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;transition:all .2s;width:fit-content}
+.gen-btn:hover{transform:translateY(-2px);box-shadow:0 4px 20px rgba(245,158,11,.3)}
+.gen-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+/* Pipeline */
+.pipeline{display:flex;align-items:center;gap:4px;overflow-x:auto;padding:1rem 0;flex-wrap:wrap;justify-content:center}
+.pipe-step{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:.8rem 1.2rem;text-align:center;min-width:100px;transition:all .4s;opacity:.4;transform:scale(.9);position:relative}
+.pipe-step.active{opacity:1;transform:scale(1);border-color:var(--accent);box-shadow:0 0 20px rgba(245,158,11,.2)}
+.pipe-step .pipe-icon{font-size:1.5rem;margin-bottom:.3rem}
+.pipe-step .pipe-label{font-size:.8rem;color:var(--muted)}
+.pipe-step.active .pipe-label{color:var(--accent)}
+.pipe-arrow{color:var(--muted);font-size:1.2rem;opacity:.3;transition:opacity .4s}
+.pipe-arrow.active{opacity:1;color:var(--accent)}
+.pipe-detail{margin-top:1.5rem;padding:1.5rem;background:var(--bg3);border-radius:12px;border-left:3px solid var(--accent);min-height:80px;animation:fadeUp .3s ease}
+.pipe-detail h3{color:var(--accent);margin-bottom:.5rem}
+.pipe-detail p{color:var(--muted);font-size:.95rem;line-height:1.7}
+.pipe-nav{display:flex;gap:1rem;margin-top:1rem;justify-content:center}
+.pipe-nav button{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:.5rem 1.5rem;border-radius:8px;cursor:pointer;transition:all .2s}
+.pipe-nav button:hover{border-color:var(--accent)}
+.pipe-progress{width:100%;height:4px;background:var(--bg3);border-radius:2px;margin-top:1rem;overflow:hidden}
+.pipe-progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--pink));border-radius:2px;transition:width .4s ease}
+
+/* Attention viz */
+.attn-grid{display:grid;gap:4px;margin:1rem 0;font-family:monospace;font-size:.8rem}
+.attn-cell{padding:6px;border-radius:4px;text-align:center;transition:all .3s;cursor:default}
+.attn-row-label,.attn-col-label{color:var(--muted);font-size:.75rem;display:flex;align-items:center;justify-content:center}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes popIn{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.4)}50%{box-shadow:0 0 0 10px rgba(245,158,11,0)}}
+.pulse{animation:pulse 2s infinite}
+
+.footer{text-align:center;padding:4rem 0 2rem;color:var(--muted);font-size:.85rem}
+.footer a{color:var(--accent);text-decoration:none}
+
+/* Responsive */
+@media(max-width:640px){
+  header h1{font-size:2rem}
+  .pipeline{gap:2px}
+  .pipe-step{min-width:70px;padding:.5rem .6rem;font-size:.75rem}
+}
+</style>
+</head>
+<body>
+<a href="/portal" class="back-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+  返回 Portal
+</a>
+
+<div class="container">
+<header>
+  <h1>大模型是怎么想的</h1>
+  <p>LLM Internals Visualized</p>
+</header>
+
+<!-- Section 1: Tokenization -->
+<div class="section" id="sec-token">
+  <h2><span class="num">01</span>分词 Tokenization</h2>
+  <p class="desc">大模型不认识文字，只认识 Token。输入任意文本，看看它如何被拆分成 token。</p>
+  <div class="card">
+    <input class="tokenizer-input" id="token-input" type="text" placeholder="在这里输入文字试试… 例如：大语言模型很有趣" value="大语言模型很有趣" />
+    <div class="tokenizer-output" id="token-output"></div>
+    <div class="stats" id="token-stats"></div>
+  </div>
+</div>
+
+<!-- Section 2: Embedding Space -->
+<div class="section" id="sec-embed">
+  <h2><span class="num">02</span>向量空间 Embeddings</h2>
+  <p class="desc">每个 token 映射为高维向量。语义相近的词在向量空间中距离更近。点击两个点查看余弦相似度。</p>
+  <div class="card">
+    <canvas id="embed-canvas" width="960" height="400"></canvas>
+    <div class="embed-controls" id="embed-controls"></div>
+    <div class="cosine-display" id="cosine-display">点击画布上的两个词向量，查看它们的余弦相似度 →</div>
+  </div>
+</div>
+
+<!-- Section 3: Pipeline -->
+<div class="section" id="sec-pipeline">
+  <h2><span class="num">03</span>推理流水线 Pipeline</h2>
+  <p class="desc">从输入文本到输出下一个 token，经过这些关键步骤。点击"下一步"逐步查看。</p>
+  <div class="card">
+    <div class="pipeline" id="pipeline"></div>
+    <div class="pipe-progress"><div class="pipe-progress-fill" id="pipe-progress-fill" style="width:0%"></div></div>
+    <div class="pipe-detail" id="pipe-detail">
+      <h3>点击"下一步"开始</h3>
+      <p>观察大模型推理的每个阶段。</p>
+    </div>
+    <div class="pipe-nav">
+      <button onclick="pipeStep(-1)">← 上一步</button>
+      <button onclick="pipeStep(1)">下一步 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Section 4: Generation Simulator -->
+<div class="section" id="sec-gen">
+  <h2><span class="num">04</span>生成模拟器 Generation</h2>
+  <p class="desc">模型如何选择下一个 token？它为每个候选词计算概率，然后采样。点击候选词来模拟这个过程。</p>
+  <div class="card">
+    <div class="gen-area">
+      <div class="gen-sentence" id="gen-sentence"></div>
+      <div class="gen-probs" id="gen-probs"></div>
+      <button class="gen-btn" id="gen-btn" onclick="genStep()">生成下一步 →</button>
+      <button class="gen-btn" style="background:var(--bg3);color:var(--text);border:1px solid var(--border)" onclick="genReset()">重置</button>
+    </div>
+  </div>
+</div>
+
+<!-- Section 5: Attention Visualizer -->
+<div class="section" id="sec-attn">
+  <h2><span class="num">05</span>注意力机制 Attention</h2>
+  <p class="desc">Self-Attention 让每个 token "关注"其他 token。颜色越深代表注意力权重越高。</p>
+  <div class="card">
+    <div id="attn-container"></div>
+  </div>
+</div>
+
+<div class="footer">
+  <p>Built with ❤️ — <a href="/portal">返回 Portal</a></p>
+</div>
+</div>
+
+<script>
+// ===== TOKENIZER =====
+const vocab = {};
+let nextId = 100;
+function getTokId(t){if(!(t in vocab))vocab[t]=nextId++;return vocab[t];}
+function tokenize(text){
+  const tokens=[];
+  let i=0;
+  while(i<text.length){
+    if(text[i]===' '){tokens.push({t:'▁',id:getTokId('▁'),isSpace:true});i++;continue;}
+    // Try to match longest CJK or latin word
+    if(/[\u4e00-\u9fff]/.test(text[i])){
+      tokens.push({t:text[i],id:getTokId(text[i])});i++;
+    } else {
+      let j=i;
+      while(j<text.length&&text[j]!==' '&&!/[\u4e00-\u9fff]/.test(text[j]))j++;
+      const word=text.slice(i,j);
+      // subword split (fake BPE)
+      const subLen=Math.max(1,Math.floor(word.length*0.6));
+      for(let k=0;k<word.length;k+=subLen){
+        const sub=word.slice(k,k+subLen);
+        tokens.push({t:sub,id:getTokId(sub)});
+      }
+      i=j;
+    }
+  }
+  return tokens;
+}
+function renderTokens(){
+  const text=document.getElementById('token-input').value;
+  const out=document.getElementById('token-output');
+  const stats=document.getElementById('token-stats');
+  if(!text){out.innerHTML='';stats.innerHTML='';return;}
+  const tokens=tokenize(text);
+  out.innerHTML=tokens.map((tk,i)=>`<span class="token" style="animation-delay:${i*40}ms">${tk.isSpace?'<span class="token-space">␣</span>':escapeHtml(tk.t)}<span class="id">${tk.id}</span></span>`).join('');
+  stats.innerHTML=`共 <span>${tokens.length}</span> 个 token · <span>${new Set(tokens.map(t=>t.id)).size}</span> 个唯一 token`;
+}
+function escapeHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+document.getElementById('token-input').addEventListener('input',renderTokens);
+renderTokens();
+
+// ===== EMBEDDING SPACE =====
+const embedWords=[
+  {w:'猫',cat:'animal',x:.2,y:.3},{w:'狗',cat:'animal',x:.25,y:.35},{w:'鸟',cat:'animal',x:.15,y:.25},
+  {w:'鱼',cat:'animal',x:.22,y:.2},{w:'汽车',cat:'vehicle',x:.7,y:.6},{w:'飞机',cat:'vehicle',x:.75,y:.55},
+  {w:'火车',cat:'vehicle',x:.65,y:.65},{w:'快乐',cat:'emotion',x:.5,y:.8},{w:'悲伤',cat:'emotion',x:.45,y:.85},
+  {w:'愤怒',cat:'emotion',x:.55,y:.82},{w:'苹果',cat:'food',x:.8,y:.2},{w:'香蕉',cat:'food',x:.82,y:.25},
+  {w:'国王',cat:'concept',x:.4,y:.5},{w:'女王',cat:'concept',x:.42,y:.48},{w:'龙',cat:'animal',x:.18,y:.4}
+];
+const catColors={animal:'#22c55e',vehicle:'#3b82f6',emotion:'#ec4899',food:'#f59e0b',concept:'#a855f7'};
+let selectedEmbed=[];
+const canvas=document.getElementById('embed-canvas');
+const ctx=canvas.getContext('2d');
+function drawEmbed(){
+  const W=canvas.width,H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  // grid
+  ctx.strokeStyle='rgba(255,255,255,.03)';ctx.lineWidth=1;
+  for(let i=0;i<20;i++){ctx.beginPath();ctx.moveTo(i*W/20,0);ctx.lineTo(i*W/20,H);ctx.stroke();ctx.beginPath();ctx.moveTo(0,i*H/20);ctx.lineTo(W,i*H/20);ctx.stroke();}
+  // points
+  embedWords.forEach((p,i)=>{
+    const px=p.x*W,py=p.y*H;
+    const sel=selectedEmbed.includes(i);
+    ctx.beginPath();ctx.arc(px,py,sel?10:6,0,Math.PI*2);
+    ctx.fillStyle=catColors[p.cat]||'#fff';
+    ctx.fill();
+    if(sel){ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();}
+    ctx.fillStyle='rgba(255,255,255,.9)';ctx.font=sel?'bold 14px sans-serif':'12px sans-serif';
+    ctx.textAlign='center';ctx.fillText(p.w,px,py-14);
+  });
+  // line between selected
+  if(selectedEmbed.length===2){
+    const a=embedWords[selectedEmbed[0]],b=embedWords[selectedEmbed[1]];
+    ctx.beginPath();ctx.moveTo(a.x*W,a.y*H);ctx.lineTo(b.x*W,b.y*H);
+    ctx.strokeStyle='rgba(245,158,11,.6)';ctx.lineWidth=2;ctx.setLineDash([5,5]);ctx.stroke();ctx.setLineDash([]);
+    // cosine sim
+    const dx=a.x-b.x,dy=a.y-b.y;
+    const magA=Math.sqrt(a.x*a.x+a.y*a.y),magB=Math.sqrt(b.x*b.x+b.y*b.y);
+    const cos=(a.x*b.x+a.y*b.y)/(magA*magB);
+    document.getElementById('cosine-display').innerHTML=`cos(<span class="highlight">${a.w}</span>, <span class="highlight">${b.w}</span>) = <span class="highlight">${cos.toFixed(4)}</span> — ${cos>.8?'非常相似 🔥':cos>.5?'有一定相关性 🤔':'不太相关 😶'}`;
+  }
+}
+canvas.addEventListener('click',e=>{
+  const rect=canvas.getBoundingClientRect();
+  const mx=(e.clientX-rect.left)/rect.width,my=(e.clientY-rect.top)/rect.height;
+  let closest=-1,minD=.03;
+  embedWords.forEach((p,i)=>{const d=Math.sqrt((p.x-mx)**2+(p.y-my)**2);if(d<minD){minD=d;closest=i;}});
+  if(closest>=0){
+    if(selectedEmbed.includes(closest))selectedEmbed=selectedEmbed.filter(x=>x!==closest);
+    else{selectedEmbed.push(closest);if(selectedEmbed.length>2)selectedEmbed.shift();}
+    drawEmbed();
+  }
+});
+drawEmbed();
+
+// ===== PIPELINE =====
+const pipeSteps=[
+  {icon:'📝',label:'Text',title:'原始文本 Raw Text',desc:'用户输入的文本，例如 "大模型是"。这是人类可读的文字，但模型无法直接处理。模型需要将文本转换为数字表示才能进行计算。'},
+  {icon:'🔤',label:'Tokens',title:'分词 Tokenization',desc:'文本被切分为 token（词元）。中文通常按字切分，英文按子词切分。每个 token 对应词表中的一个 ID。例如 "大"→ID:2854, "模型"→ID:7312。'},
+  {icon:'📐',label:'Embeddings',title:'向量嵌入 Embedding',desc:'每个 token ID 通过嵌入矩阵映射为一个高维向量（如 4096 维）。这个向量编码了 token 的语义信息。同时加入位置编码（Positional Encoding）来保留词序。'},
+  {icon:'👁️',label:'Attention',title:'自注意力 Self-Attention',desc:'每个 token 与其他所有 token 计算注意力分数，决定"关注"哪些词。通过 Q、K、V 矩阵实现：Q·K^T/√d 得到注意力权重，再乘 V 得到加权表示。这一步让模型理解上下文。'},
+  {icon:'⚡',label:'FFN',title:'前馈网络 Feed-Forward',desc:'每个 token 的表示经过两层全连接网络（中间有激活函数）。FFN 可以看作是对每个 token 独立进行的"知识检索"——它从训练中学到的知识存储在 FFN 的权重中。'},
+  {icon:'📊',label:'Logits',title:'输出 Logits',desc:'经过所有 Transformer 层后，取最后一个 token 的隐藏状态，乘以输出矩阵，得到词表大小的 logit 向量。每个维度对应一个候选 token 的"原始分数"。'},
+  {icon:'🎯',label:'Softmax',title:'概率归一化 Softmax',desc:'对 logits 应用 softmax 函数：P(i) = e^(li) / Σe^(lj)。这将原始分数转化为概率分布，所有概率之和为 1。温度参数 T 控制分布的尖锐程度。'},
+  {icon:'✅',label:'Next Token',title:'采样下一个 Token',desc:'从概率分布中采样一个 token。可以使用贪心（取最大概率）、top-k、top-p（nucleus）采样等策略。选中的 token 会被追加到输入序列，然后重复整个过程。'}
+];
+let pipeIdx=-1;
+function renderPipeline(){
+  const el=document.getElementById('pipeline');
+  el.innerHTML=pipeSteps.map((s,i)=>{
+    const active=i<=pipeIdx;
+    return (i>0?`<span class="pipe-arrow${active?' active':''}">→</span>`:'')+`<div class="pipe-step${active?' active':''}" onclick="setPipe(${i})"><div class="pipe-icon">${s.icon}</div><div class="pipe-label">${s.label}</div></div>`;
+  }).join('');
+  if(pipeIdx>=0){
+    const s=pipeSteps[pipeIdx];
+    document.getElementById('pipe-detail').innerHTML=`<h3>${s.icon} ${s.title}</h3><p>${s.desc}</p>`;
+    document.getElementById('pipe-progress-fill').style.width=((pipeIdx+1)/pipeSteps.length*100)+'%';
+  }
+}
+function pipeStep(d){pipeIdx=Math.max(-1,Math.min(pipeSteps.length-1,pipeIdx+d));renderPipeline();}
+function setPipe(i){pipeIdx=i;renderPipeline();}
+renderPipeline();
+
+// ===== GENERATION SIMULATOR =====
+const genSequences=[
+  {prompt:'今天天气',candidates:[{w:'很好',p:.42},{w:'不错',p:.25},{w:'真好',p:.12},{w:'太热',p:.10},{w:'一般',p:.07},{w:'糟糕',p:.04}]},
+  {prompt:'今天天气很好',candidates:[{w:'，',p:.55},{w:'适合',p:.18},{w:'我们',p:.12},{w:'！',p:.08},{w:'出去',p:.05},{w:'。',p:.02}]},
+  {prompt:'今天天气很好，',candidates:[{w:'适合',p:.35},{w:'可以',p:.22},{w:'出去',p:.18},{w:'不如',p:.12},{w:'我们',p:.08},{w:'很',p:.05}]},
+  {prompt:'今天天气很好，适合',candidates:[{w:'出去',p:.38},{w:'散步',p:.28},{w:'出门',p:.15},{w:'户外',p:.10},{w:'旅游',p:.06},{w:'运动',p:.03}]},
+  {prompt:'今天天气很好，适合出去',candidates:[{w:'散步',p:.35},{w:'走走',p:.25},{w:'玩',p:.18},{w:'旅游',p:.12},{w:'逛逛',p:.07},{w:'活动',p:.03}]},
+  {prompt:'今天天气很好，适合出去散步',candidates:[{w:'。',p:.70},{w:'了',p:.15},{w:'，',p:.08},{w:'！',p:.05},{w:'吧',p:.015},{w:'……',p:.005}]}
+];
+let genIdx=0;
+function renderGen(){
+  if(genIdx>=genSequences.length){genIdx=genSequences.length-1;}
+  const seq=genSequences[genIdx];
+  const sentEl=document.getElementById('gen-sentence');
+  sentEl.innerHTML=seq.prompt+(genIdx<genSequences.length-1?'<span class="cursor"></span>':'');
+  const probEl=document.getElementById('gen-probs');
+  probEl.innerHTML=seq.candidates.map(c=>`<div class="prob-bar" onclick="genPick('${c.w}',${c.p})"><div class="prob-fill" style="width:${c.p*100}%"></div><div class="prob-label"><span>${c.w}</span><span class="prob-val">${(c.p*100).toFixed(1)}%</span></div></div>`).join('');
+  document.getElementById('gen-btn').disabled=genIdx>=genSequences.length-1;
+}
+function genStep(){
+  // auto-pick highest prob
+  const seq=genSequences[genIdx];
+  const best=seq.candidates.reduce((a,b)=>a.p>b.p?a:b);
+  genPick(best.w,best.p);
+}
+function genPick(w,p){
+  if(genIdx>=genSequences.length-1)return;
+  genIdx++;
+  // update prompt to include picked word
+  if(genIdx<genSequences.length){
+    // flash effect
+    const bars=document.querySelectorAll('.prob-bar');
+    bars.forEach(b=>b.style.background='rgba(245,158,11,.1)');
+  }
+  renderGen();
+}
+function genReset(){genIdx=0;renderGen();}
+renderGen();
+
+// ===== ATTENTION VISUALIZER =====
+function renderAttention(){
+  const tokens=['大','模型','是','怎么','想','的'];
+  const n=tokens.length;
+  // Fake attention weights (upper triangle masked for causal)
+  const weights=[
+    [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    [0.3, 0.7, 0.0, 0.0, 0.0, 0.0],
+    [0.1, 0.4, 0.5, 0.0, 0.0, 0.0],
+    [0.05,0.15,0.3, 0.5, 0.0, 0.0],
+    [0.02,0.08,0.15,0.35,0.4, 0.0],
+    [0.01,0.05,0.1, 0.3, 0.34,0.2]
+  ];
+  const container=document.getElementById('attn-container');
+  let html='<div style="display:grid;grid-template-columns:40px repeat('+n+',1fr);gap:3px;align-items:center">';
+  // header row
+  html+='<div></div>';
+  tokens.forEach(t=>{html+=`<div class="attn-col-label">${t}</div>`;});
+  // rows
+  for(let i=0;i<n;i++){
+    html+=`<div class="attn-row-label">${tokens[i]} →</div>`;
+    for(let j=0;j<n;j++){
+      const w=weights[i][j];
+      const alpha=w;
+      const bg=w>0?`rgba(245,158,11,${alpha})`:'rgba(255,255,255,.02)';
+      html+=`<div class="attn-cell" style="background:${bg};color:${w>.3?'#000':'var(--muted)'}" title="${tokens[i]}→${tokens[j]}: ${w.toFixed(2)}">${w>0?w.toFixed(2):'—'}</div>`;
+    }
+  }
+  html+='</div>';
+  html+='<p style="margin-top:1rem;color:var(--muted);font-size:.85rem;text-align:center">← 查询方向 (Query) · Causal Mask: 每个 token 只能看到自己和之前的 token</p>';
+  container.innerHTML=html;
+}
+renderAttention();
+
+// ===== SMOOTH SCROLL REVEAL =====
+const observer=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting)e.target.style.opacity=1;});
+},{threshold:0.1});
+document.querySelectorAll('.section').forEach(s=>observer.observe(s));
+</script>
+</body>
+</html>

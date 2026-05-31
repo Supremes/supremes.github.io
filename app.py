@@ -7,7 +7,7 @@ import json
 import glob
 import subprocess
 from datetime import datetime
-from flask import Flask, render_template, abort, request, jsonify
+from flask import Flask, render_template, abort, request, jsonify, send_file
 import markdown
 from pygments.formatters import HtmlFormatter
 
@@ -391,6 +391,93 @@ def api_search():
                 'summary': a['summary'][:100],
             })
     return jsonify(results[:10])
+
+
+# ──────────────────────────────── Portal (交互实验室) ────────────────────────
+
+PORTAL_DIR = os.path.join(REPO_ROOT, 'portal')
+
+def load_portal_pages():
+    """扫描 portal/ 子目录，从 HTML <meta name="portal-*"> 提取元数据。
+    优先级：meta portal-category > _categories.json 目录映射 > 目录原名 > 未分类
+    """
+    if not os.path.isdir(PORTAL_DIR):
+        return []
+
+    # 加载目录映射
+    cat_map_path = os.path.join(PORTAL_DIR, '_categories.json')
+    cat_map = {}
+    if os.path.exists(cat_map_path):
+        try:
+            with open(cat_map_path, 'r', encoding='utf-8') as f:
+                cat_map = json.load(f)
+        except Exception:
+            pass
+
+    def resolve_category(meta_cat, dir_name):
+        if meta_cat:
+            return meta_cat
+        if dir_name and dir_name in cat_map:
+            return cat_map[dir_name].get('name', dir_name)
+        if dir_name:
+            return dir_name
+        return '未分类'
+
+    pages = []
+    for root, dirs, files in os.walk(PORTAL_DIR):
+        dirs[:] = [d for d in dirs if not d.startswith(('.', '_'))]
+        for fname in sorted(files):
+            if not fname.endswith('.html'):
+                continue
+            filepath = os.path.join(root, fname)
+            slug = os.path.splitext(fname)[0]
+            rel_dir = os.path.relpath(root, PORTAL_DIR)
+            if rel_dir == '.':
+                rel_dir = ''
+            dir_name = rel_dir.split(os.sep)[0] if rel_dir else ''
+            dir_info = cat_map.get(dir_name, {})
+            meta = {}
+            try:
+                with open(filepath, 'r', encoding='utf-8') as f:
+                    head = f.read(4096)
+                for m in re.finditer(r'<meta\s+name="portal-(\w+)"\s+content="([^"]*)"', head):
+                    meta[m.group(1)] = m.group(2)
+                tm = re.search(r'<title>([^<]*)</title>', head)
+                title = meta.get('title') or (tm.group(1).strip() if tm else slug)
+            except Exception:
+                title = slug
+            pages.append({
+                'slug': slug,
+                'title': title,
+                'subtitle': meta.get('subtitle', ''),
+                'desc': meta.get('desc', ''),
+                'category': resolve_category(meta.get('category', ''), dir_name),
+                'tags': [t.strip() for t in meta.get('tags', '').split(',') if t.strip()],
+                'icon': meta.get('icon') or dir_info.get('icon', '📄'),
+                'color': meta.get('color') or dir_info.get('color', '#6b7280'),
+                'date': meta.get('date', ''),
+                'difficulty': meta.get('difficulty', '入门'),
+                'duration': meta.get('duration', '—'),
+            })
+    return pages
+
+
+@app.route('/portal')
+def portal_index():
+    pages = load_portal_pages()
+    portal_cats = sorted(set(p['category'] for p in pages))
+    return render_template('portal.html', pages=pages, portal_categories=portal_cats,
+                           categories=CATEGORIES, all_tags=ALL_TAGS)
+
+@app.route('/portal/<slug>')
+def portal_page(slug):
+    if not re.match(r'^[a-zA-Z0-9_-]+$', slug):
+        abort(404)
+    # 搜索 portal/ 下所有子目录
+    matches = glob.glob(os.path.join(PORTAL_DIR, '**', f'{slug}.html'), recursive=True)
+    if not matches:
+        abort(404)
+    return send_file(matches[0])
 
 
 @app.errorhandler(404)

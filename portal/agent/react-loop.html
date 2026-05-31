@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta name="portal-title" content="ReAct 推理循环模拟器">
+  <meta name="portal-subtitle" content="Reason + Act, Step by Step">
+  <meta name="portal-desc" content="手动体验 ReAct 模式的 Thought - Action - Observation 循环，看 AI Agent 如何一步步解决问题。">
+  <meta name="portal-category" content="Agent 探索">
+  <meta name="portal-tags" content="ReAct, Agent, 推理">
+  <meta name="portal-icon" content="⚡">
+  <meta name="portal-color" content="#10b981">
+  <meta name="portal-date" content="2026-05-31">
+  <meta name="portal-difficulty" content="入门">
+  <meta name="portal-duration" content="10 min">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ReAct 推理循环模拟器</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0f0f23;--bg2:#1a1a2e;--bg3:#16213e;--accent:#10b981;--accent2:#34d399;--text:#e2e8f0;--dim:#64748b;--thought:#fbbf24;--action:#818cf8;--obs:#f472b6;--danger:#ef4444}
+body{font-family:'SF Mono','Fira Code','Cascadia Code',monospace;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+.back-link{position:fixed;top:20px;left:20px;z-index:100;display:flex;align-items:center;gap:6px;padding:8px 16px;background:var(--bg2);border:1px solid #333;border-radius:8px;font-size:14px;color:var(--accent);transition:all .2s}
+.back-link:hover{background:var(--bg3);border-color:var(--accent);text-decoration:none}
+.container{max-width:900px;margin:0 auto;padding:80px 20px 40px}
+header{text-align:center;margin-bottom:40px}
+header h1{font-size:clamp(1.8rem,5vw,2.8rem);background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+header p{color:var(--dim);font-size:16px;letter-spacing:2px}
+.section{background:var(--bg2);border:1px solid #222;border-radius:12px;padding:24px;margin-bottom:24px}
+.section-title{font-size:14px;color:var(--accent);text-transform:uppercase;letter-spacing:2px;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.section-title::before{content:'';width:4px;height:16px;background:var(--accent);border-radius:2px}
+/* Loop Diagram */
+.loop-diagram{display:flex;align-items:center;justify-content:center;gap:0;padding:20px 0;flex-wrap:wrap}
+.loop-node{padding:12px 20px;border-radius:10px;font-size:14px;font-weight:600;position:relative;transition:all .3s;border:2px solid transparent}
+.loop-node.thought{background:rgba(251,191,36,.1);color:var(--thought);border-color:rgba(251,191,36,.3)}
+.loop-node.action{background:rgba(129,140,248,.1);color:var(--action);border-color:rgba(129,140,248,.3)}
+.loop-node.observation{background:rgba(244,114,182,.1);color:var(--obs);border-color:rgba(244,114,182,.3)}
+.loop-node.active{transform:scale(1.1);box-shadow:0 0 20px rgba(16,185,129,.3)}
+.loop-arrow{color:var(--dim);font-size:20px;margin:0 8px}
+.loop-end{padding:12px 20px;border-radius:10px;background:rgba(16,185,129,.1);color:var(--accent);border:2px solid rgba(16,185,129,.3);font-weight:600;font-size:14px}
+.loop-loop{display:flex;align-items:center;justify-content:center;margin-top:12px;color:var(--dim);font-size:12px;gap:8px}
+.loop-loop .arrow{animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+/* Examples */
+.examples{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.ex-btn{padding:8px 14px;background:var(--bg3);border:1px solid #333;border-radius:8px;color:var(--text);font-size:13px;cursor:pointer;transition:all .2s;font-family:inherit}
+.ex-btn:hover{border-color:var(--accent);color:var(--accent)}
+.ex-btn.active{border-color:var(--accent);background:rgba(16,185,129,.1);color:var(--accent)}
+/* Input Area */
+.input-row{display:flex;gap:10px;margin-bottom:16px}
+.input-row input{flex:1;padding:12px 16px;background:var(--bg);border:1px solid #333;border-radius:8px;color:var(--text);font-size:14px;font-family:inherit;outline:none;transition:border-color .2s}
+.input-row input:focus{border-color:var(--accent)}
+.btn{padding:10px 20px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit}
+.btn-primary{background:var(--accent);color:#000}
+.btn-primary:hover{background:var(--accent2)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed}
+.btn-secondary{background:var(--bg3);color:var(--text);border:1px solid #444}
+.btn-secondary:hover{border-color:var(--accent)}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap}
+/* Terminal */
+.terminal{background:#0a0a1a;border:1px solid #222;border-radius:10px;overflow:hidden}
+.terminal-header{display:flex;align-items:center;gap:6px;padding:10px 16px;background:#111;border-bottom:1px solid #222}
+.terminal-dot{width:10px;height:10px;border-radius:50%}
+.terminal-dot.r{background:#ff5f57}.terminal-dot.y{background:#febc2e}.terminal-dot.g{background:#28c840}
+.terminal-title{margin-left:10px;font-size:12px;color:var(--dim)}
+.terminal-body{padding:16px;max-height:500px;overflow-y:auto;font-size:13px;line-height:1.8}
+.terminal-body::-webkit-scrollbar{width:6px}.terminal-body::-webkit-scrollbar-track{background:transparent}.terminal-body::-webkit-scrollbar-thumb{background:#333;border-radius:3px}
+.step{margin-bottom:16px;animation:fadeIn .4s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.step-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.step-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#000}
+.step-num.thought{background:var(--thought)}.step-num.action{background:var(--action)}.step-num.obs{background:var(--obs)}
+.step-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;font-weight:700}
+.step-label.thought{color:var(--thought)}.step-label.action{color:var(--action)}.step-label.obs{color:var(--obs)}
+.step-content{padding:10px 14px;border-radius:8px;font-size:13px;line-height:1.7;margin-left:32px}
+.step-content.thought{background:rgba(251,191,36,.06);border-left:3px solid var(--thought)}
+.step-content.action{background:rgba(129,140,248,.06);border-left:3px solid var(--action)}
+.step-content.obs{background:rgba(244,114,182,.06);border-left:3px solid var(--obs)}
+.final-answer{padding:14px;border-radius:8px;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.3);color:var(--accent2);margin-top:8px;margin-left:32px;animation:fadeIn .4s ease}
+.cursor{display:inline-block;width:8px;height:14px;background:var(--accent);margin-left:2px;animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.welcome{color:var(--dim);text-align:center;padding:30px 0}
+.welcome span{color:var(--accent)}
+.phase-indicator{display:flex;gap:6px;margin-bottom:16px;justify-content:center}
+.phase-dot{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;opacity:.4;transition:all .3s}
+.phase-dot.active{opacity:1;transform:scale(1.05)}
+.phase-dot.thought{background:rgba(251,191,36,.2);color:var(--thought)}
+.phase-dot.action{background:rgba(129,140,248,.2);color:var(--action)}
+.phase-dot.obs{background:rgba(244,114,182,.2);color:var(--obs)}
+.input-group{margin-bottom:12px}
+.input-group label{display:block;font-size:12px;color:var(--dim);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px}
+.input-group textarea{width:100%;padding:10px 14px;background:var(--bg);border:1px solid #333;border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;outline:none;transition:border-color .2s}
+.input-group textarea:focus{border-color:var(--accent)}
+@media(max-width:640px){
+.container{padding:70px 12px 30px}
+.loop-diagram{gap:4px}.loop-node{padding:8px 12px;font-size:12px}
+.loop-arrow{margin:0 4px;font-size:16px}
+.input-row{flex-direction:column}
+.btn-row{flex-direction:column}
+.btn-row .btn{text-align:center}
+.section{padding:16px}
+}
+</style>
+</head>
+<body>
+<a href="/portal" class="back-link">← 返回 Portal</a>
+<div class="container">
+<header>
+<h1>ReAct 推理循环模拟器</h1>
+<p>Reason + Act · Step by Step</p>
+</header>
+
+<!-- Loop Diagram -->
+<div class="section">
+<div class="section-title">推理循环 ReAct Loop</div>
+<div class="loop-diagram">
+<div class="loop-node thought" id="dn-thought">💭 Thought</div>
+<span class="loop-arrow">→</span>
+<div class="loop-node action" id="dn-action">⚡ Action</div>
+<span class="loop-arrow">→</span>
+<div class="loop-node observation" id="dn-observation">👁 Observation</div>
+<span class="loop-arrow">→</span>
+<div class="loop-end" id="dn-finish">✓ Final Answer?</div>
+</div>
+<div class="loop-loop">
+<span class="arrow">↑</span> No → Continue Loop <span class="arrow">↑</span>
+</div>
+</div>
+
+<!-- Examples -->
+<div class="section">
+<div class="section-title">预设场景 Examples</div>
+<div class="examples" id="examples"></div>
+</div>
+
+<!-- Input -->
+<div class="section">
+<div class="section-title">输入问题 Question</div>
+<div class="input-row">
+<input type="text" id="questionInput" placeholder="输入你想模拟的问题，或选择上方预设场景...">
+<button class="btn btn-primary" id="startBtn" onclick="startSimulation()">开始模拟</button>
+<button class="btn btn-secondary" onclick="resetAll()">重置</button>
+</div>
+</div>
+
+<!-- Manual Steps -->
+<div class="section" id="stepSection" style="display:none">
+<div class="section-title">手动推进步骤 Step Through</div>
+<div class="phase-indicator">
+<div class="phase-dot thought" id="pd-thought">💭 Thought</div>
+<div class="phase-dot action" id="pd-action">⚡ Action</div>
+<div class="phase-dot obs" id="pd-observation">👁 Observation</div>
+</div>
+<div id="currentPhase" style="text-align:center;margin-bottom:16px;font-size:13px;color:var(--dim)"></div>
+
+<div class="input-group" id="thoughtGroup">
+<label>💭 Thought — 推理过程</label>
+<textarea id="thoughtInput" placeholder="Agent 的思考过程..."></textarea>
+</div>
+<div class="input-group" id="actionGroup">
+<label>⚡ Action — 工具调用</label>
+<textarea id="actionInput" placeholder="要调用的工具和参数..."></textarea>
+</div>
+<div class="input-group" id="obsGroup">
+<label>👁 Observation — 观察结果</label>
+<textarea id="obsInput" placeholder="工具返回的结果..."></textarea>
+</div>
+
+<div class="btn-row" style="margin-top:12px">
+<button class="btn btn-primary" id="nextBtn" onclick="nextStep()">提交当前步骤 →</button>
+<button class="btn btn-secondary" id="finishBtn" onclick="finishLoop()" style="display:none">得出最终答案 ✓</button>
+<button class="btn btn-secondary" id="autoBtn" onclick="autoPlay()">▶ 自动播放</button>
+</div>
+</div>
+
+<!-- Terminal Output -->
+<div class="section">
+<div class="section-title">执行日志 Execution Log</div>
+<div class="terminal">
+<div class="terminal-header">
+<div class="terminal-dot r"></div>
+<div class="terminal-dot y"></div>
+<div class="terminal-dot g"></div>
+<span class="terminal-title">react-simulator — execution trace</span>
+</div>
+<div class="terminal-body" id="terminalBody">
+<div class="welcome">输入一个问题并点击 <span>开始模拟</span> 来体验 ReAct 推理循环<span class="cursor"></span></div>
+</div>
+</div>
+</div>
+</div>
+
+<script>
+const examples = [
+  {q:'东京今天的天气怎么样？', steps:[
+    {t:'用户想知道东京天气，我需要调用天气查询工具',a:'weather_api(city="Tokyo")',o:'Tokyo: 晴，28°C，湿度65%，风速12km/h'},
+    {t:'已获取天气数据，可以整理成自然语言回答用户',a:'format_response(data)',o:'东京今天天气晴朗，气温28°C，湿度适中，微风。适合户外活动！'}
+  ], answer:'东京今天天气晴朗，气温28°C，湿度65%，风速12km/h，非常适合户外活动！☀️'},
+  {q:'帮我查一下 Python 3.12 有什么新特性？', steps:[
+    {t:'用户想了解 Python 3.12 新特性，我需要搜索相关信息',a:'web_search(query="Python 3.12 new features")',o:'搜索结果: Python 3.12 引入了更好的错误消息、f-string改进、Type参数语法等...'},
+    {t:'找到了一些信息，但需要更详细的列表，让我查官方文档',a:'web_search(query="Python 3.12 changelog official")',o:'官方文档: 1) 改进的错误提示 2) f-string解析器重写 3) Type语句 4) 推导式惰性求值...'},
+    {t:'现在有了完整信息，可以整理回答了',a:'format_response(data)',o:'已整理出 Python 3.12 的主要新特性列表'}
+  ], answer:'Python 3.12 主要新特性包括：\n• 更精确的错误消息和Traceback\n• f-string 解析器完全重写\n• 新增 type 语句用于类型别名\n• 推导式中的惰性求值\n• 改进的性能（约5%提速）'},
+  {q:'计算 17 × 23 + 45 的结果', steps:[
+    {t:'这是一个数学计算问题，我可以用计算器工具来精确计算',a:'calculator(expression="17 * 23 + 45")',o:'计算结果: 391 + 45 = 436'},
+    {t:'计算完成，结果是436，直接回复用户即可',a:'format_response(data=436)',o:'已格式化最终答案'}
+  ], answer:'17 × 23 + 45 = 436 ✅'},
+  {q:'推荐一本关于人工智能的书', steps:[
+    {t:'用户想要AI书籍推荐，我应该搜索当前热门且评价高的AI书籍',a:'web_search(query="best artificial intelligence books 2024 recommended")',o:'搜索结果: 《Artificial Intelligence: A Modern Approach》、《Life 3.0》、《Superintelligence》等...'},
+    {t:'让我获取这些书籍的详细评分和简介',a:'book_api(query="AI books top rated",limit=5)',o:'1. AIMA (4.5/5) - 经典教材\n2. Life 3.0 (4.3/5) - 未来展望\n3. 深度学习 (4.4/5) - 技术深度'},
+    {t:'综合评分和用户需求，我可以给出有针对性的推荐',a:'format_response(data)',o:'已整理推荐列表'}
+  ], answer:'📚 推荐：\n1. 《Artificial Intelligence: A Modern Approach》— AI领域经典教材，适合系统学习\n2. 《Life 3.0》(生命3.0) — Max Tegmark 著，探讨AI对未来的影响\n3. 《深度学习》(Deep Learning) — Ian Goodfellow 著，深度学习入门必读'}
+];
+
+let currentStep = 0;
+let steps = [];
+let simPhase = 'thought'; // thought -> action -> obs
+let isAutoPlaying = false;
+let terminalLines = [];
+
+function init(){
+  const c = document.getElementById('examples');
+  examples.forEach((ex, i) => {
+    const b = document.createElement('button');
+    b.className = 'ex-btn';
+    b.textContent = ex.q;
+    b.onclick = () => loadExample(i);
+    c.appendChild(b);
+  });
+}
+
+function loadExample(i){
+  document.querySelectorAll('.ex-btn').forEach((b,j)=>b.classList.toggle('active',i===j));
+  document.getElementById('questionInput').value = examples[i].q;
+}
+
+function startSimulation(){
+  const q = document.getElementById('questionInput').value.trim();
+  if(!q) return;
+  resetState();
+  terminalLines = [];
+  addTerminal(`<span style="color:var(--accent)">▸ 开始模拟 ReAct Loop</span>`);
+  addTerminal(`<span style="color:var(--dim)">Question:</span> ${esc(q)}`);
+  addTerminal(`<span style="color:var(--dim)">──────────────────────────────────</span>`);
+  document.getElementById('stepSection').style.display = 'block';
+  currentStep = 0;
+  steps = [];
+  simPhase = 'thought';
+  updatePhaseUI();
+  document.getElementById('finishBtn').style.display = 'none';
+  // Pre-fill if example
+  const ex = examples.find(e => e.q === q);
+  if(ex) preloadSteps(ex);
+}
+
+function preloadSteps(ex){
+  window._preload = ex.steps;
+  window._answer = ex.answer;
+}
+
+function nextStep(){
+  const pre = window._preload;
+  let thought, action, obs;
+  if(pre && currentStep < pre.length){
+    thought = pre[currentStep].t;
+    action = pre[currentStep].a;
+    obs = pre[currentStep].o;
+  } else {
+    thought = document.getElementById('thoughtInput').value.trim();
+    action = document.getElementById('actionInput').value.trim();
+    obs = document.getElementById('obsInput').value.trim();
+    if(!thought && !action && !obs) return;
+  }
+
+  const stepNum = currentStep + 1;
+  animateLoop('thought');
+  addTerminal(`<span style="color:var(--thought)">💭 Thought #${stepNum}:</span> ${esc(thought||'(empty)')}`);
+  setTimeout(()=>{
+    animateLoop('action');
+    addTerminal(`<span style="color:var(--action)">⚡ Action #${stepNum}:</span> <span style="color:#c4b5fd">${esc(action||'(empty)')}</span>`);
+    setTimeout(()=>{
+      animateLoop('observation');
+      addTerminal(`<span style="color:var(--obs)">👁 Observation #${stepNum}:</span> ${esc(obs||'(empty)')}`);
+      addTerminal(`<span style="color:var(--dim)">──────────────────────────────────</span>`);
+      steps.push({thought,action,obs});
+      currentStep++;
+      clearInputs();
+      document.getElementById('finishBtn').style.display = 'inline-block';
+      // Auto-advance phase
+      simPhase = 'thought';
+      updatePhaseUI();
+    }, 400);
+  }, 400);
+}
+
+function finishLoop(){
+  let answer;
+  if(window._answer){
+    answer = window._answer;
+  } else {
+    answer = document.getElementById('thoughtInput').value.trim() || '模拟完成！';
+  }
+  animateLoop('finish');
+  addTerminal(`<span style="color:var(--accent)">✓ Final Answer:</span> <span style="color:var(--accent2);font-weight:bold">${esc(answer)}</span>`);
+  addTerminal(`<span style="color:var(--dim)">──────────────────────────────────</span>`);
+  addTerminal(`<span style="color:var(--dim)">ReAct loop completed in ${steps.length} iteration(s).</span>`);
+  document.getElementById('stepSection').style.display = 'none';
+  window._preload = null;
+  window._answer = null;
+}
+
+async function autoPlay(){
+  if(isAutoPlaying) return;
+  isAutoPlaying = true;
+  const pre = window._preload;
+  if(!pre){isAutoPlaying=false;return;}
+  document.getElementById('autoBtn').textContent = '⏳ 播放中...';
+  document.getElementById('autoBtn').disabled = true;
+  for(let i=0;i<pre.length;i++){
+    await sleep(800);
+    nextStep();
+    await sleep(1200);
+  }
+  await sleep(600);
+  finishLoop();
+  isAutoPlaying = false;
+  document.getElementById('autoBtn').textContent = '▶ 自动播放';
+  document.getElementById('autoBtn').disabled = false;
+}
+
+function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
+
+function animateLoop(phase){
+  ['thought','action','observation'].forEach(p=>{
+    document.getElementById('dn-'+p).classList.remove('active');
+  });
+  if(phase!=='finish') document.getElementById('dn-'+phase).classList.add('active');
+  setTimeout(()=>{
+    document.getElementById('dn-'+(phase==='finish'?'observation':phase)).classList.remove('active');
+  }, 1500);
+}
+
+function updatePhaseUI(){
+  ['thought','action','observation'].forEach(p=>{
+    document.getElementById('pd-'+p).classList.toggle('active', p===simPhase);
+  });
+  const labels = {thought:'💭 编写 Thought...',action:'⚡ 编写 Action...',observation:'👁 编写 Observation...'};
+  document.getElementById('currentPhase').textContent = labels[simPhase]||'';
+  // Show/hide input groups based on whether preloaded
+  const hasPre = !!window._preload;
+  ['thoughtGroup','actionGroup','obsGroup'].forEach(id=>{
+    document.getElementById(id).style.display = hasPre ? 'none' : 'block';
+  });
+}
+
+function addTerminal(html){
+  const body = document.getElementById('terminalBody');
+  const welcome = body.querySelector('.welcome');
+  if(welcome) welcome.remove();
+  const div = document.createElement('div');
+  div.innerHTML = html;
+  div.style.animation = 'fadeIn .3s ease';
+  body.appendChild(div);
+  body.scrollTop = body.scrollHeight;
+}
+
+function clearInputs(){
+  ['thoughtInput','actionInput','obsInput'].forEach(id=>document.getElementById(id).value='');
+}
+
+function resetState(){
+  currentStep=0;steps=[];simPhase='thought';isAutoPlaying=false;
+  window._preload=null;window._answer=null;
+}
+
+function resetAll(){
+  resetState();
+  document.getElementById('stepSection').style.display='none';
+  document.getElementById('questionInput').value='';
+  document.querySelectorAll('.ex-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('terminalBody').innerHTML='<div class="welcome">输入一个问题并点击 <span>开始模拟</span> 来体验 ReAct 推理循环<span class="cursor"></span></div>';
+  ['thought','action','observation'].forEach(p=>document.getElementById('dn-'+p).classList.remove('active'));
+}
+
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}
+
+init();
+</script>
+</body>
+</html>

@@ -1347,6 +1347,20 @@ body.no-sidebar .sidebar-toggle { display: none !important; }
   max-height: 0;
   overflow: hidden;
   opacity: 0;
+}
+
+/* ───── 响应式内容宽度 ───── */
+@media (min-width: 1600px) {
+  .article-content {
+    max-width: 900px;
+  }
+}
+
+@media (min-width: 2000px) {
+  .article-content {
+    max-width: 960px;
+  }
+}
   transition: max-height 0.4s ease, opacity 0.3s ease, margin 0.3s ease;
   margin-top: 0;
 }
@@ -1355,4 +1369,148 @@ body.no-sidebar .sidebar-toggle { display: none !important; }
   max-height: 2000px;
   opacity: 1;
   margin-top: var(--space-md);
+}
+
+/* ───── Portal 入口横幅 (首页) ───── */
+.portal-entrance {
+  position: relative;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  border-radius: var(--radius-lg);
+  padding: 48px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: block;
+  color: #fff;
+  animation: entranceSlide 0.6s ease-out;
+}
+
+.portal-entrance:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+}
+
+.portal-entrance::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 80% 20%, rgba(245, 158, 11, 0.2) 0%, transparent 40%),
+    radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.15) 0%, transparent 40%);
+}
+
+.portal-entrance::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.portal-entrance-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+.portal-entrance-left { flex: 1; }
+
+.portal-entrance-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 14px;
+  background: rgba(245, 158, 11, 0.2);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 20px;
+  font-size: 0.75rem;
+  color: #fbbf24;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  margin-bottom: 16px;
+}
+
+.portal-entrance h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
+}
+
+.portal-entrance p {
+  font-size: 0.95rem;
+  color: rgba(255,255,255,0.6);
+  line-height: 1.6;
+  max-width: 500px;
+  margin: 0;
+}
+
+.portal-entrance-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.portal-entrance-icons { display: flex; }
+
+.portal-entrance-icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 12px;
+  font-size: 1.4rem;
+  margin-left: -8px;
+  transition: transform 0.2s;
+}
+
+.portal-entrance-icon:first-child { margin-left: 0; }
+.portal-entrance:hover .portal-entrance-icon { transform: translateY(-4px); }
+.portal-entrance:hover .portal-entrance-icon:nth-child(2) { transition-delay: 0.05s; }
+.portal-entrance:hover .portal-entrance-icon:nth-child(3) { transition-delay: 0.1s; }
+.portal-entrance:hover .portal-entrance-icon:nth-child(4) { transition-delay: 0.15s; }
+
+.portal-entrance-arrow {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  font-size: 1.2rem;
+  transition: all 0.3s;
+}
+
+.portal-entrance:hover .portal-entrance-arrow {
+  background: var(--accent);
+  border-color: var(--accent);
+  transform: translateX(4px);
+}
+
+@keyframes entranceSlide {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+  .portal-entrance { padding: 32px; }
+  .portal-entrance-inner { flex-direction: column; text-align: center; }
+  .portal-entrance p { max-width: 100%; }
+  .portal-entrance-right { justify-content: center; }
+}
+
+@media (max-width: 480px) {
+  .portal-entrance { padding: 24px; }
 }

@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta name="portal-title" content="API 调用沙盒">
+  <meta name="portal-subtitle" content="Learn by Doing">
+  <meta name="portal-desc" content="在浏览器中直接体验 API 的各种参数 — Temperature、Top-P、System Prompt，实时对比效果。">
+  <meta name="portal-category" content="动手实验">
+  <meta name="portal-tags" content="API, Prompt, 实验">
+  <meta name="portal-icon" content="🧪">
+  <meta name="portal-color" content="#0ea5e9">
+  <meta name="portal-date" content="2026-05-31">
+  <meta name="portal-difficulty" content="入门">
+  <meta name="portal-duration" content="∞">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>API 调用沙盒 — Playground</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0f0f23;--bg2:#1a1a3e;--bg3:#16163a;--bg4:#0d0d1f;
+    --accent:#0ea5e9;--accent2:#38bdf8;--accent3:#0284c7;
+    --text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;
+    --border:#1e293b;--border2:#334155;
+    --green:#22c55e;--orange:#f59e0b;--pink:#ec4899;--purple:#a855f7;
+    --red:#ef4444;
+    --radius:10px;
+    --shadow:0 4px 24px rgba(0,0,0,.4);
+  }
+  html{font-size:15px;scroll-behavior:smooth}
+  body{
+    font-family:'SF Pro Display',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    background:var(--bg);color:var(--text);min-height:100vh;
+    display:flex;flex-direction:column;
+  }
+  /* Scrollbar */
+  ::-webkit-scrollbar{width:6px;height:6px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+  ::-webkit-scrollbar-thumb:hover{background:var(--text3)}
+
+  /* Top bar */
+  .topbar{
+    display:flex;align-items:center;gap:12px;
+    padding:16px 28px;border-bottom:1px solid var(--border);
+    background:rgba(15,15,35,.85);backdrop-filter:blur(12px);
+    position:sticky;top:0;z-index:100;
+  }
+  .back-link{
+    display:inline-flex;align-items:center;gap:6px;
+    color:var(--accent);text-decoration:none;font-size:.87rem;
+    font-weight:600;transition:color .2s;
+  }
+  .back-link:hover{color:var(--accent2)}
+  .back-link svg{width:18px;height:18px}
+
+  /* Header */
+  .header{
+    text-align:center;padding:44px 20px 10px;position:relative;
+  }
+  .header::before{
+    content:'';position:absolute;top:-60px;left:50%;transform:translateX(-50%);
+    width:500px;height:500px;
+    background:radial-gradient(circle,rgba(14,165,233,.08) 0%,transparent 70%);
+    pointer-events:none;
+  }
+  .header h1{
+    font-size:2.4rem;font-weight:800;
+    background:linear-gradient(135deg,var(--accent2),var(--purple));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    letter-spacing:-.02em;
+  }
+  .header .subtitle{
+    font-size:1.05rem;color:var(--text2);margin-top:6px;
+    font-weight:400;letter-spacing:.03em;
+  }
+  .header .badge{
+    display:inline-block;margin-top:14px;padding:4px 14px;
+    background:rgba(14,165,233,.12);border:1px solid rgba(14,165,233,.25);
+    border-radius:20px;font-size:.75rem;color:var(--accent2);font-weight:600;
+  }
+
+  /* Presets bar */
+  .presets-bar{
+    display:flex;justify-content:center;gap:10px;
+    padding:20px 20px 6px;flex-wrap:wrap;
+  }
+  .preset-btn{
+    padding:7px 18px;border-radius:20px;border:1px solid var(--border2);
+    background:var(--bg3);color:var(--text2);font-size:.82rem;
+    cursor:pointer;transition:all .25s;font-weight:500;
+  }
+  .preset-btn:hover,.preset-btn.active{
+    border-color:var(--accent);color:var(--accent);
+    background:rgba(14,165,233,.08);
+    box-shadow:0 0 12px rgba(14,165,233,.15);
+  }
+
+  /* Main layout */
+  .main{
+    display:grid;grid-template-columns:1fr 1fr;gap:0;
+    flex:1;padding:20px 28px 28px;min-height:0;
+  }
+  .panel{
+    display:flex;flex-direction:column;min-height:0;
+    border-radius:var(--radius);overflow:hidden;
+  }
+  .panel-left{margin-right:14px}
+  .panel-right{margin-left:14px}
+  .panel-title{
+    font-size:.78rem;font-weight:700;text-transform:uppercase;
+    letter-spacing:.12em;color:var(--text3);padding:0 0 10px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .panel-title .dot{
+    width:8px;height:8px;border-radius:50%;background:var(--green);
+    box-shadow:0 0 6px var(--green);
+  }
+
+  /* Controls */
+  .controls{display:flex;flex-direction:column;gap:14px;flex:1;overflow-y:auto;padding-right:6px}
+  .field{display:flex;flex-direction:column;gap:6px}
+  .field label{
+    font-size:.78rem;font-weight:600;color:var(--text2);
+    text-transform:uppercase;letter-spacing:.08em;
+  }
+  textarea,input[type="text"],select{
+    background:var(--bg4);border:1px solid var(--border);border-radius:8px;
+    color:var(--text);padding:10px 14px;font-size:.9rem;
+    font-family:inherit;transition:border-color .2s;resize:vertical;
+    outline:none;width:100%;
+  }
+  textarea:focus,input[type="text"]:focus,select:focus{
+    border-color:var(--accent);
+    box-shadow:0 0 0 2px rgba(14,165,233,.15);
+  }
+  textarea{min-height:72px;max-height:160px;line-height:1.5}
+  select{cursor:pointer;appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2394a3b8'%3E%3Cpath d='M6 8.5L1 3.5h10z'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 12px center;
+    padding-right:32px;
+  }
+
+  /* Sliders */
+  .slider-row{display:flex;align-items:center;gap:12px}
+  .slider-row input[type="range"]{flex:1}
+  .slider-val{
+    min-width:42px;text-align:right;font-size:.85rem;
+    font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;
+  }
+  input[type="range"]{
+    -webkit-appearance:none;height:6px;border-radius:3px;
+    background:var(--border2);outline:none;cursor:pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:18px;height:18px;border-radius:50%;
+    background:var(--accent);border:3px solid var(--bg);
+    box-shadow:0 0 8px rgba(14,165,233,.4);transition:transform .15s;
+  }
+  input[type="range"]::-webkit-slider-thumb:hover{transform:scale(1.2)}
+
+  /* Send button */
+  .send-btn{
+    margin-top:8px;padding:14px 0;border:none;border-radius:10px;
+    background:linear-gradient(135deg,var(--accent),var(--purple));
+    color:#fff;font-size:1rem;font-weight:700;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    transition:all .25s;position:relative;overflow:hidden;
+    letter-spacing:.02em;
+  }
+  .send-btn:hover{
+    transform:translateY(-1px);
+    box-shadow:0 6px 24px rgba(14,165,233,.35);
+  }
+  .send-btn:active{transform:translateY(0)}
+  .send-btn.loading{pointer-events:none;opacity:.7}
+  .send-btn svg{width:18px;height:18px}
+  .send-btn .ripple{
+    position:absolute;border-radius:50%;background:rgba(255,255,255,.25);
+    transform:scale(0);animation:ripple .6s ease-out;
+  }
+  @keyframes ripple{to{transform:scale(4);opacity:0}}
+
+  /* Output panel */
+  .output-area{display:flex;flex-direction:column;gap:16px;flex:1;min-height:0}
+  .output-section{
+    background:var(--bg4);border:1px solid var(--border);
+    border-radius:var(--radius);overflow:hidden;flex:1;
+    display:flex;flex-direction:column;min-height:0;
+  }
+  .output-section-header{
+    padding:10px 14px;font-size:.75rem;font-weight:700;
+    text-transform:uppercase;letter-spacing:.1em;color:var(--text3);
+    border-bottom:1px solid var(--border);display:flex;
+    align-items:center;gap:8px;
+  }
+  .output-section-header .icon{font-size:.9rem}
+  .output-body{
+    padding:14px;font-size:.85rem;line-height:1.7;
+    overflow-y:auto;flex:1;white-space:pre-wrap;word-break:break-word;
+    font-family:'SF Mono','Fira Code','Cascadia Code',monospace;
+  }
+  .output-body.response-body{
+    color:var(--text);font-family:inherit;
+  }
+  .cursor-blink{
+    display:inline-block;width:2px;height:1em;background:var(--accent);
+    margin-left:2px;animation:blink 1s step-end infinite;vertical-align:text-bottom;
+  }
+  @keyframes blink{50%{opacity:0}}
+
+  /* JSON syntax highlighting */
+  .json-key{color:var(--accent2)}
+  .json-string{color:var(--green)}
+  .json-number{color:var(--orange)}
+  .json-bool{color:var(--pink)}
+  .json-null{color:var(--text3)}
+  .json-bracket{color:var(--purple)}
+  .json-colon{color:var(--text3)}
+
+  /* Status bar */
+  .status-bar{
+    display:flex;align-items:center;gap:16px;
+    padding:8px 14px;font-size:.75rem;color:var(--text3);
+    border-top:1px solid var(--border);
+    background:var(--bg4);border-radius:0 0 var(--radius) var(--radius);
+  }
+  .status-dot{
+    width:6px;height:6px;border-radius:50%;
+    background:var(--text3);transition:background .3s;
+  }
+  .status-dot.active{background:var(--green);box-shadow:0 0 6px var(--green)}
+  .status-dot.streaming{background:var(--orange);box-shadow:0 0 6px var(--orange);
+    animation:pulse 1s ease-in-out infinite}
+  @keyframes pulse{50%{opacity:.4}}
+
+  /* Responsive */
+  @media(max-width:860px){
+    .main{
+      grid-template-columns:1fr;gap:20px;
+      padding:16px 16px 24px;
+    }
+    .panel-left,.panel-right{margin:0}
+    .header h1{font-size:1.8rem}
+    .header{padding:30px 16px 6px}
+    .presets-bar{padding:14px 16px 2px}
+    .topbar{padding:12px 16px}
+  }
+  @media(max-width:480px){
+    .header h1{font-size:1.4rem}
+    .presets-bar{gap:6px}
+    .preset-btn{padding:5px 12px;font-size:.75rem}
+  }
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<nav class="topbar">
+  <a href="/portal" class="back-link">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+    返回 Portal
+  </a>
+</nav>
+
+<!-- Header -->
+<header class="header">
+  <h1>API 调用沙盒</h1>
+  <p class="subtitle">Learn by Doing — 实时体验 API 请求与响应</p>
+  <span class="badge">🛝 交互式学习环境</span>
+</header>
+
+<!-- Preset examples -->
+<div class="presets-bar">
+  <button class="preset-btn active" data-preset="translator" onclick="loadPreset('translator')">🌐 翻译助手</button>
+  <button class="preset-btn" data-preset="coder" onclick="loadPreset('coder')">💻 代码专家</button>
+  <button class="preset-btn" data-preset="poet" onclick="loadPreset('poet')">✍️ 诗人模式</button>
+  <button class="preset-btn" data-preset="analyst" onclick="loadPreset('analyst')">📊 数据分析师</button>
+  <button class="preset-btn" data-preset="chef" onclick="loadPreset('chef')">👨‍🍳 厨艺大师</button>
+</div>
+
+<!-- Main -->
+<main class="main">
+  <!-- LEFT: Controls -->
+  <div class="panel panel-left">
+    <div class="panel-title"><span class="dot"></span>请求配置 Request Config</div>
+    <div class="controls">
+      <div class="field">
+        <label>模型 Model</label>
+        <select id="model">
+          <option value="gpt-4-turbo">GPT-4 Turbo</option>
+          <option value="gpt-4o">GPT-4o</option>
+          <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+          <option value="claude-3.5-sonnet" selected>Claude 3.5 Sonnet</option>
+          <option value="claude-3-opus">Claude 3 Opus</option>
+          <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
+          <option value="deepseek-v3">DeepSeek V3</option>
+          <option value="qwen-max">Qwen-Max</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>系统提示词 System Prompt</label>
+        <textarea id="sysPrompt" rows="3" placeholder="设定 AI 的角色和行为规则...">你是一位专业的翻译助手，精通中英双语。请提供准确、自然的翻译。</textarea>
+      </div>
+      <div class="field">
+        <label>用户消息 User Message</label>
+        <textarea id="userMsg" rows="3" placeholder="输入你想问的内容...">Translate to English: 人工智能正在改变世界的每一个角落。</textarea>
+      </div>
+      <div class="field">
+        <label>温度 Temperature</label>
+        <div class="slider-row">
+          <input type="range" id="temp" min="0" max="2" step="0.05" value="0.7">
+          <span class="slider-val" id="tempVal">0.70</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Top-P 采样</label>
+        <div class="slider-row">
+          <input type="range" id="topP" min="0" max="1" step="0.05" value="0.95">
+          <span class="slider-val" id="topPVal">0.95</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>最大 Tokens Max Tokens</label>
+        <div class="slider-row">
+          <input type="range" id="maxTok" min="64" max="4096" step="64" value="1024">
+          <span class="slider-val" id="maxTokVal">1024</span>
+        </div>
+      </div>
+      <button class="send-btn" id="sendBtn" onclick="sendRequest()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4z"/></svg>
+        发送请求 Send
+      </button>
+    </div>
+  </div>
+
+  <!-- RIGHT: Output -->
+  <div class="panel panel-right">
+    <div class="panel-title"><span class="dot" id="statusDot"></span>响应输出 Response</div>
+    <div class="output-area">
+      <!-- Request JSON -->
+      <div class="output-section" style="flex:0 0 auto;max-height:220px">
+        <div class="output-section-header">
+          <span class="icon">📤</span> API 请求 Request JSON
+        </div>
+        <div class="output-body" id="requestJson" style="font-size:.8rem">
+<span class="json-bracket">{</span>
+  <span class="json-key">"提示"</span><span class="json-colon">:</span> <span class="json-string">"点击发送按钮查看完整请求..."</span>
+<span class="json-bracket">}</span>
+        </div>
+      </div>
+      <!-- Streaming response -->
+      <div class="output-section" style="flex:1;min-height:180px">
+        <div class="output-section-header">
+          <span class="icon">🤖</span> 模型响应 Streaming Response
+        </div>
+        <div class="output-body response-body" id="responseBody">
+          <span style="color:var(--text3)">等待请求发送...</span>
+        </div>
+        <div class="status-bar">
+          <span class="status-dot" id="statusDotBar"></span>
+          <span id="statusText">就绪 Ready</span>
+          <span style="margin-left:auto" id="tokenCount"></span>
+          <span id="latency"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+// Presets data
+const presets = {
+  translator: {
+    sys: '你是一位专业的翻译助手，精通中英双语。请提供准确、自然的翻译。',
+    user: 'Translate to English: 人工智能正在改变世界的每一个角落。',
+    temp: 0.3, topP: 0.95, maxTok: 512,
+    responses: [
+      'Artificial intelligence is transforming every corner of the world.\n\nThis translation preserves the original meaning while maintaining natural English phrasing. Key terms:\n\n• 人工智能 (réngōng zhìnéng) → Artificial Intelligence (AI)\n• 正在 (zhèngzài) → is currently / is actively\n• 改变 (gǎibiàn) → transforming / changing\n• 每一个角落 (měi yí gè jiǎoluò) → every corner'
+    ]
+  },
+  coder: {
+    sys: '你是一位资深的全栈工程师，擅长 Python、JavaScript 和系统设计。请提供清晰、高效的代码解决方案，并附带详细注释。',
+    user: '用 Python 写一个异步 HTTP 请求池，支持并发限制和重试机制。',
+    temp: 0.2, topP: 0.9, maxTok: 1024,
+    responses: [
+      '```python\nimport asyncio\nimport aiohttp\nfrom typing import List, Optional\n\nclass AsyncRequestPool:\n    """异步 HTTP 请求池，支持并发限制和自动重试"""\n\n    def __init__(self, max_concurrent: int = 10, max_retries: int = 3):\n        self.semaphore = asyncio.Semaphore(max_concurrent)\n        self.max_retries = max_retries\n\n    async def fetch(\n        self, session: aiohttp.ClientSession, url: str\n    ) -> Optional[dict]:\n        async with self.semaphore:\n            for attempt in range(self.max_retries):\n                try:\n                    async with session.get(url, timeout=10) as resp:\n                        return await resp.json()\n                except Exception as e:\n                    if attempt == self.max_retries - 1:\n                        print(f"Failed after {self.max_retries} attempts: {url}")\n                        return None\n                    await asyncio.sleep(2 ** attempt)  # 指数退避\n\n    async def fetch_all(self, urls: List[str]) -> List:\n        async with aiohttp.ClientSession() as session:\n            tasks = [self.fetch(session, url) for url in urls]\n            return await asyncio.gather(*tasks)\n\n# 使用示例\nasync def main():\n    pool = AsyncRequestPool(max_concurrent=5)\n    urls = [f"https://api.example.com/data/{i}" for i in range(20)]\n    results = await pool.fetch_all(urls)\n    print(f"成功获取 {sum(1 for r in results if r)} / {len(urls)} 条数据")\n\nasyncio.run(main())\n```\n\n核心设计要点：\n\n1. **信号量 (Semaphore)** 控制并发数，防止连接爆炸\n2. **指数退避** 重试策略，避免服务端压力\n3. **类型注解** 提高代码可维护性\n4. **超时控制** 防止请求无限挂起'
+    ]
+  },
+  poet: {
+    sys: '你是一位才华横溢的诗人，精通古体诗和现代诗。你的文字优美、意象丰富，善于用诗歌表达深层情感。',
+    user: '请以"星空"为主题，写一首现代诗。',
+    temp: 1.2, topP: 0.98, maxTok: 512,
+    responses: [
+      '## 星空辞\n\n夜，是一匹黑色的绸缎\n被谁不经意地抖开\n那些光，那些亿万年前的信使\n便跌落进我的瞳孔\n\n银河——\n是谁打翻的牛奶？\n沿着天幕无声地流淌\n把黑暗浸润成乳白的沉默\n\n我数着星星\n像数着一生中\n那些来不及说出口的话\n每一颗，都是一封\n永远在路上的信\n\n北斗倾斜，为迷途的人\n斟满一碗方向\n而我只想在这无边的暗里\n做一颗不被命名的星\n\n在某个孩子的望远镜里\n一闪，又一闪\n然后被写进\n一本翻旧了的日记\n\n*—— 献给所有仰望星空的人*'
+    ]
+  },
+  analyst: {
+    sys: '你是一位数据分析师，善于从数据中发现洞见，用简洁清晰的方式呈现分析结果，擅长使用 Python (pandas, matplotlib) 进行数据可视化。',
+    user: '分析用户留存率数据：第1天100%，第7天45%，第14天30%，第30天18%，第90天8%。给出分析和改进建议。',
+    temp: 0.5, topP: 0.9, maxTok: 768,
+    responses: [
+      '## 📊 用户留存率分析\n\n### 留存曲线概览\n\n| 时间节点 | 留存率 | 衰减幅度 |\n|---------|--------|----------|\n| Day 1   | 100%   | —        |\n| Day 7   | 45%    | -55%     |\n| Day 14  | 30%    | -15%     |\n| Day 30  | 18%    | -12%     |\n| Day 90  | 8%     | -10%     |\n\n### 🔍 关键发现\n\n**1. 早期流失严重（Day 1→7 衰减 55%）**\n这说明新用户引导（Onboarding）存在问题，用户在第一周没有感受到核心价值。\n\n**2. 中后期趋于稳定**\nDay 14→90 的衰减幅度递减，说明留下来的用户粘性较好。\n\n**3. 30日留存 18% 偏低**\n行业基准通常在 20-25%，当前数据说明产品粘性不足。\n\n### 💡 改进建议\n\n1. **优化新用户引导流程** — 缩短 Time-to-Value，让用户在 3 分钟内体验到核心功能\n2. **Day 3-5 推送召回通知** — 抓住流失前的黄金窗口\n3. **构建习惯循环** — 设计每日任务/奖励机制，提升 7 日留存\n4. **用户分群运营** — 对高价值流失用户进行定向召回'
+    ]
+  },
+  chef: {
+    sys: '你是一位米其林三星主厨，精通中西料理。你用生动的语言描述烹饪步骤，让读者仿佛身临其境。你善于将复杂菜式简化为家庭可操作的版本。',
+    user: '教我做一道简单的意式奶油蘑菇意面。',
+    temp: 0.8, topP: 0.95, maxTok: 768,
+    responses: [
+      '## 🍝 奶油蘑菇意面 Pasta ai Funghi\n\n### 食材（2人份）\n- 意大利面 200g（推荐 Linguine 或 Fettuccine）\n- 混合蘑菇 250g（口蘑 + 香菇 + 杏鲍菇）\n- 大蒜 3瓣，切薄片\n- 淡奶油 150ml\n- 帕玛森芝士 40g，现磨\n- 黄油 20g + 橄榄油 1汤匙\n- 新鲜百里香 2-3枝（或干百里香 1/2茶匙）\n- 盐、黑胡椒适量\n\n### 步骤\n\n**Step 1 · 煮面** 🕐 10分钟\n大锅水烧开，加盐（尝起来像海水）。下面条，比包装说明少煮1分钟。\n\n> 🔑 **关键：留一杯煮面水！** 这是意面的灵魂——淀粉水能让酱汁完美乳化。\n\n**Step 2 · 煎蘑菇** 🕐 5分钟\n中大火，黄油+橄榄油。蘑菇**单层铺开**，不要翻动——等到底部金黄再翻。这叫「美拉德反应」，是风味的来源。\n\n**Step 3 · 调酱** 🕐 3分钟\n转中小火，加蒜片爆香30秒。倒入淡奶油，轻轻搅拌，让酱汁微微冒泡但不要沸腾。\n\n**Step 4 · 合体！** 🕐 2分钟\n面条直接夹入锅中（带点煮面水），撒芝士，疯狂翻拌。酱汁应该丝滑地包裹住每一根面条。太稠就加煮面水。\n\n### 🎨 装盘\n撒上现磨黑胡椒、帕玛森碎、几滴橄榄油。如果你有新鲜欧芹，切碎撒上——瞬间米其林既视感。\n\n> *Pro tip: 吃的时候配一杯 Pinot Grigio 白葡萄酒，绝配！* 🍷'
+    ]
+  }
+};
+
+// Slider binding
+document.getElementById('temp').addEventListener('input', e => {
+  document.getElementById('tempVal').textContent = parseFloat(e.target.value).toFixed(2);
+});
+document.getElementById('topP').addEventListener('input', e => {
+  document.getElementById('topPVal').textContent = parseFloat(e.target.value).toFixed(2);
+});
+document.getElementById('maxTok').addEventListener('input', e => {
+  document.getElementById('maxTokVal').textContent = e.target.value;
+});
+
+// Load preset
+function loadPreset(name) {
+  const p = presets[name];
+  if (!p) return;
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`[data-preset="${name}"]`).classList.add('active');
+  document.getElementById('sysPrompt').value = p.sys;
+  document.getElementById('userMsg').value = p.user;
+  document.getElementById('temp').value = p.temp;
+  document.getElementById('topP').value = p.topP;
+  document.getElementById('maxTok').value = p.maxTok;
+  document.getElementById('tempVal').textContent = p.temp.toFixed(2);
+  document.getElementById('topPVal').textContent = p.topP.toFixed(2);
+  document.getElementById('maxTokVal').textContent = p.maxTok;
+}
+
+// Highlight JSON syntax
+function highlightJSON(obj, indent) {
+  indent = indent || 0;
+  const pad = '  '.repeat(indent);
+  const pad1 = '  '.repeat(indent + 1);
+  if (Array.isArray(obj)) {
+    if (obj.length === 0) return '<span class="json-bracket">[]</span>';
+    let s = '<span class="json-bracket">[</span>\n';
+    obj.forEach((v, i) => {
+      s += pad1 + highlightJSON(v, indent + 1);
+      if (i < obj.length - 1) s += ',';
+      s += '\n';
+    });
+    return s + pad + '<span class="json-bracket">]</span>';
+  }
+  if (obj && typeof obj === 'object') {
+    const keys = Object.keys(obj);
+    if (keys.length === 0) return '<span class="json-bracket">{}</span>';
+    let s = '<span class="json-bracket">{</span>\n';
+    keys.forEach((k, i) => {
+      s += pad1 + '<span class="json-key">"' + k + '"</span>';
+      s += '<span class="json-colon">: </span>';
+      s += highlightJSON(obj[k], indent + 1);
+      if (i < keys.length - 1) s += ',';
+      s += '\n';
+    });
+    return s + pad + '<span class="json-bracket">}</span>';
+  }
+  if (typeof obj === 'string') return '<span class="json-string">"' + obj.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '"</span>';
+  if (typeof obj === 'number') return '<span class="json-number">' + obj + '</span>';
+  if (typeof obj === 'boolean') return '<span class="json-bool">' + obj + '</span>';
+  if (obj === null) return '<span class="json-null">null</span>';
+  return String(obj);
+}
+
+// Build request JSON
+function buildRequest() {
+  return {
+    model: document.getElementById('model').value,
+    messages: [
+      { role: 'system', content: document.getElementById('sysPrompt').value },
+      { role: 'user', content: document.getElementById('userMsg').value }
+    ],
+    temperature: parseFloat(document.getElementById('temp').value),
+    top_p: parseFloat(document.getElementById('topP').value),
+    max_tokens: parseInt(document.getElementById('maxTok').value),
+    stream: true
+  };
+}
+
+// Streaming simulation
+let isStreaming = false;
+function sendRequest() {
+  if (isStreaming) return;
+  isStreaming = true;
+
+  const btn = document.getElementById('sendBtn');
+  btn.classList.add('loading');
+  btn.innerHTML = '<svg class="spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> 发送中...';
+
+  // Show request JSON
+  const req = buildRequest();
+  document.getElementById('requestJson').innerHTML = highlightJSON(req);
+
+  // Update status
+  const dot = document.getElementById('statusDot');
+  const dotBar = document.getElementById('statusDotBar');
+  const statusText = document.getElementById('statusText');
+  dot.classList.add('active');
+  dotBar.className = 'status-dot streaming';
+  statusText.textContent = '流式传输中 Streaming...';
+
+  // Find matching response
+  const activeBtn = document.querySelector('.preset-btn.active');
+  const presetName = activeBtn ? activeBtn.dataset.preset : 'translator';
+  const preset = presets[presetName];
+  const responseText = preset.responses[0];
+
+  // Simulate streaming
+  const responseBody = document.getElementById('responseBody');
+  responseBody.innerHTML = '';
+  let i = 0;
+  const startTime = Date.now();
+  const chars = [...responseText];
+
+  function typeNext() {
+    if (i < chars.length) {
+      // Add a few chars at a time for realism
+      const chunk = chars.slice(i, i + Math.floor(Math.random() * 3) + 1).join('');
+      responseBody.innerHTML = escapeHtml(responseText.substring(0, i + chunk.length))
+        + '<span class="cursor-blink"></span>';
+      i += chunk.length;
+
+      // Vary speed for realism
+      const delay = chunk === '\n' ? 40 : (chunk.trim() === '' ? 10 : Math.random() * 25 + 10);
+      setTimeout(typeNext, delay);
+
+      // Update token count periodically
+      if (i % 20 === 0) {
+        document.getElementById('tokenCount').textContent = `Tokens: ~${Math.floor(i / 4)}`;
+      }
+    } else {
+      finishStream(startTime);
+    }
+  }
+
+  // Initial delay to simulate network
+  setTimeout(() => {
+    responseBody.innerHTML = '<span class="cursor-blink"></span>';
+    setTimeout(typeNext, 200);
+  }, 600 + Math.random() * 400);
+}
+
+function finishStream(startTime) {
+  const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+  const responseBody = document.getElementById('responseBody');
+  const dot = document.getElementById('statusDot');
+  const dotBar = document.getElementById('statusDotBar');
+  const statusText = document.getElementById('statusText');
+  const btn = document.getElementById('sendBtn');
+
+  const activeBtn = document.querySelector('.preset-btn.active');
+  const presetName = activeBtn ? activeBtn.dataset.preset : 'translator';
+  const preset = presets[presetName];
+  responseBody.innerHTML = formatResponse(preset.responses[0]);
+
+  dotBar.className = 'status-dot active';
+  statusText.textContent = '完成 Complete';
+  document.getElementById('tokenCount').textContent = `Tokens: ~${Math.floor(preset.responses[0].length / 4)}`;
+  document.getElementById('latency').textContent = `Latency: ${elapsed}s`;
+
+  btn.classList.remove('loading');
+  btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4z"/></svg> 发送请求 Send';
+  isStreaming = false;
+}
+
+function escapeHtml(text) {
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function formatResponse(text) {
+  let html = escapeHtml(text);
+  // Bold headers
+  html = html.replace(/^## (.+)$/gm, '<strong style="color:var(--accent2);font-size:1.05em">$1</strong>');
+  html = html.replace(/^### (.+)$/gm, '<strong style="color:var(--text)">$1</strong>');
+  // Bold inline
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong style="color:var(--text)">$1</strong>');
+  // Italic
+  html = html.replace(/\*(.+?)\*/g, '<em style="color:var(--text2)">$1</em>');
+  // Inline code
+  html = html.replace(/`([^`]+)`/g, '<code style="background:var(--bg3);padding:1px 5px;border-radius:4px;color:var(--orange);font-size:.88em">$1</code>');
+  // Code blocks
+  html = html.replace(/```(\w*)\n([\s\S]*?)```/g, (_, lang, code) => {
+    return `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px;margin:8px 0;overflow-x:auto"><code style="color:var(--text);font-size:.82rem;line-height:1.6;white-space:pre">${code.trim()}</code></div>`;
+  });
+  // Blockquotes
+  html = html.replace(/^&gt; (.+)$/gm, '<div style="border-left:3px solid var(--accent);padding:4px 12px;margin:6px 0;color:var(--text2);background:rgba(14,165,233,.05);border-radius:0 6px 6px 0">$1</div>');
+  // Tables (simple)
+  html = html.replace(/\|(.+)\|/g, (match) => {
+    if (match.includes('---')) return '';
+    const cells = match.split('|').filter(c => c.trim());
+    const row = cells.map(c => `<span style="display:inline-block;min-width:80px;padding:2px 8px">${c.trim()}</span>`).join('');
+    return `<div style="display:flex;gap:0;margin:2px 0">${row}</div>`;
+  });
+  // Bullet points
+  html = html.replace(/^- (.+)$/gm, '<div style="padding-left:16px;position:relative;margin:3px 0"><span style="position:absolute;left:0;color:var(--accent)">•</span>$1</div>');
+  // Numbered lists
+  html = html.replace(/^(\d+)\. (.+)$/gm, '<div style="padding-left:24px;position:relative;margin:3px 0"><span style="position:absolute;left:0;color:var(--accent);font-weight:700">$1.</span>$2</div>');
+  return html;
+}
+
+// Animate the spin icon
+const style = document.createElement('style');
+style.textContent = '.spin{animation:spin 1s linear infinite;width:18px;height:18px}@keyframes spin{to{transform:rotate(360deg)}}';
+document.head.appendChild(style);
+
+// Initial request JSON preview
+document.getElementById('requestJson').innerHTML = highlightJSON(buildRequest());
+
+// Update request JSON on input change
+document.querySelectorAll('textarea, select, input[type="range"]').forEach(el => {
+  el.addEventListener('change', () => {
+    if (!isStreaming) {
+      document.getElementById('requestJson').innerHTML = highlightJSON(buildRequest());
+    }
+  });
+  el.addEventListener('input', () => {
+    if (!isStreaming) {
+      document.getElementById('requestJson').innerHTML = highlightJSON(buildRequest());
+    }
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,879 @@
+{% extends "base.html" %}
+
+{% block title %}交互实验室 — 知识库{% endblock %}
+{% block body_class %}no-sidebar{% endblock %}
+{% block sidebar %}{% endblock %}
+
+{% block head %}
+<style>
+/* ───── Portal 专用样式 ───── */
+.portal-hero {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  padding: 100px 0 80px;
+  text-align: center;
+  color: #fff;
+}
+
+.portal-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(236, 72, 153, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 50% 80%, rgba(245, 158, 11, 0.1) 0%, transparent 50%);
+  animation: portalGlow 8s ease-in-out infinite alternate;
+}
+
+@keyframes portalGlow {
+  0% { opacity: 0.6; transform: scale(1); }
+  100% { opacity: 1; transform: scale(1.05); }
+}
+
+/* Animated grid background */
+.portal-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  animation: gridMove 20s linear infinite;
+}
+
+@keyframes gridMove {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(60px, 60px); }
+}
+
+.portal-hero .container {
+  position: relative;
+  z-index: 1;
+}
+
+.portal-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 24px;
+  transition: color 0.2s;
+}
+
+.portal-back:hover { color: rgba(255,255,255,0.9); }
+
+.portal-hero-icon {
+  font-size: 4rem;
+  margin-bottom: 16px;
+  display: inline-block;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.portal-hero h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #fff 30%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.portal-hero-sub {
+  font-size: 1.1rem;
+  color: rgba(255,255,255,0.6);
+  max-width: 600px;
+  margin: 0 auto 32px;
+  line-height: 1.6;
+}
+
+.portal-stats {
+  display: flex;
+  justify-content: center;
+  gap: 48px;
+  flex-wrap: wrap;
+}
+
+.portal-stat {
+  text-align: center;
+}
+
+.portal-stat-num {
+  font-size: 2.2rem;
+  font-weight: 700;
+  font-family: var(--font-en);
+  color: #f59e0b;
+}
+
+.portal-stat-label {
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.4);
+  margin-top: 4px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* ───── Controls Bar ───── */
+.portal-controls {
+  position: sticky;
+  top: 64px;
+  z-index: 90;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 0;
+  transition: background var(--transition);
+}
+
+.controls-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.controls-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 16px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--bg-card);
+  color: var(--ink-secondary);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: var(--font-cn);
+  user-select: none;
+}
+
+.filter-chip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.filter-chip.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.controls-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.view-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-card);
+  color: var(--ink-muted);
+  cursor: pointer;
+  transition: all var(--transition);
+  font-size: 1rem;
+}
+
+.view-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.view-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.portal-search {
+  position: relative;
+}
+
+.portal-search input {
+  width: 200px;
+  padding: 8px 14px 8px 36px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--bg-card);
+  color: var(--ink);
+  font-size: 0.85rem;
+  font-family: var(--font-cn);
+  outline: none;
+  transition: all var(--transition);
+}
+
+.portal-search input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-light);
+  width: 260px;
+}
+
+.portal-search::before {
+  content: '🔍';
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.85rem;
+  pointer-events: none;
+}
+
+/* ───── Grid Section ───── */
+.portal-section {
+  padding: 48px 0 96px;
+}
+
+.portal-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 24px;
+}
+
+.portal-grid.list-view {
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+/* ───── Cards ───── */
+.portal-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+  color: inherit;
+}
+
+.portal-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+  border-color: transparent;
+}
+
+/* Colored top accent bar */
+.portal-card-accent {
+  height: 4px;
+  width: 100%;
+  transition: height 0.3s ease;
+}
+
+.portal-card:hover .portal-card-accent {
+  height: 6px;
+}
+
+.portal-card-body {
+  padding: 28px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.portal-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.portal-card-icon {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  font-size: 1.8rem;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.portal-card:hover .portal-card-icon {
+  transform: scale(1.1) rotate(-3deg);
+}
+
+.portal-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.portal-card-cat {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  opacity: 0.7;
+}
+
+.portal-card-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+  margin-bottom: 4px;
+}
+
+.portal-card-subtitle {
+  font-size: 0.82rem;
+  font-family: var(--font-en);
+  color: var(--ink-muted);
+  font-style: italic;
+}
+
+.portal-card-desc {
+  font-size: 0.9rem;
+  color: var(--ink-secondary);
+  line-height: 1.7;
+  flex: 1;
+  margin-bottom: 20px;
+}
+
+.portal-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-light);
+}
+
+.portal-card-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.portal-card-tag {
+  padding: 2px 10px;
+  background: var(--bg-elevated);
+  border-radius: 12px;
+  font-size: 0.72rem;
+  color: var(--ink-muted);
+}
+
+.portal-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.78rem;
+  color: var(--ink-muted);
+}
+
+.portal-card-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Difficulty badge */
+.diff-badge {
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.diff-easy {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.diff-advanced {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+[data-theme="dark"] .diff-easy {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+}
+
+[data-theme="dark"] .diff-advanced {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+}
+
+/* ───── List View Overrides ───── */
+.list-view .portal-card {
+  flex-direction: row;
+  border-radius: 12px;
+}
+
+.list-view .portal-card-accent {
+  width: 4px;
+  height: auto;
+  min-height: 100%;
+}
+
+.list-view .portal-card:hover .portal-card-accent {
+  width: 6px;
+  height: auto;
+}
+
+.list-view .portal-card-body {
+  flex-direction: row;
+  align-items: center;
+  gap: 24px;
+  padding: 20px 28px;
+}
+
+.list-view .portal-card-header {
+  margin-bottom: 0;
+  flex-shrink: 0;
+  width: 260px;
+}
+
+.list-view .portal-card-icon {
+  width: 44px;
+  height: 44px;
+  font-size: 1.4rem;
+  border-radius: 10px;
+}
+
+.list-view .portal-card-desc {
+  flex: 1;
+  margin-bottom: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.list-view .portal-card-footer {
+  border-top: none;
+  padding-top: 0;
+  padding-left: 24px;
+  border-left: 1px solid var(--border-light);
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+  flex-shrink: 0;
+  width: 160px;
+}
+
+/* ───── Entrance Banner on Index ───── */
+.portal-entrance {
+  position: relative;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  border-radius: var(--radius-lg);
+  padding: 48px;
+  margin-bottom: var(--space-3xl);
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: block;
+  color: #fff;
+}
+
+.portal-entrance:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+}
+
+.portal-entrance::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 80% 20%, rgba(245, 158, 11, 0.2) 0%, transparent 40%),
+    radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.15) 0%, transparent 40%);
+}
+
+.portal-entrance::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.portal-entrance-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+.portal-entrance-left {
+  flex: 1;
+}
+
+.portal-entrance-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 14px;
+  background: rgba(245, 158, 11, 0.2);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 20px;
+  font-size: 0.75rem;
+  color: #fbbf24;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  margin-bottom: 16px;
+}
+
+.portal-entrance h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
+}
+
+.portal-entrance p {
+  font-size: 0.95rem;
+  color: rgba(255,255,255,0.6);
+  line-height: 1.6;
+  max-width: 500px;
+}
+
+.portal-entrance-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.portal-entrance-icons {
+  display: flex;
+  gap: -8px;
+}
+
+.portal-entrance-icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 12px;
+  font-size: 1.4rem;
+  margin-left: -8px;
+  transition: transform 0.2s;
+}
+
+.portal-entrance-icon:first-child { margin-left: 0; }
+.portal-entrance:hover .portal-entrance-icon { transform: translateY(-4px); }
+.portal-entrance:hover .portal-entrance-icon:nth-child(2) { transition-delay: 0.05s; }
+.portal-entrance:hover .portal-entrance-icon:nth-child(3) { transition-delay: 0.1s; }
+.portal-entrance:hover .portal-entrance-icon:nth-child(4) { transition-delay: 0.15s; }
+
+.portal-entrance-arrow {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  font-size: 1.2rem;
+  transition: all 0.3s;
+}
+
+.portal-entrance:hover .portal-entrance-arrow {
+  background: var(--accent);
+  border-color: var(--accent);
+  transform: translateX(4px);
+}
+
+/* ───── Animated entrance ───── */
+@keyframes entranceSlide {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.portal-entrance {
+  animation: entranceSlide 0.6s ease-out;
+}
+
+/* Portal card entrance animations */
+.portal-card {
+  opacity: 0;
+  animation: entranceSlide 0.5s ease-out forwards;
+}
+
+.portal-card:nth-child(1) { animation-delay: 0.1s; }
+.portal-card:nth-child(2) { animation-delay: 0.15s; }
+.portal-card:nth-child(3) { animation-delay: 0.2s; }
+.portal-card:nth-child(4) { animation-delay: 0.25s; }
+.portal-card:nth-child(5) { animation-delay: 0.3s; }
+.portal-card:nth-child(6) { animation-delay: 0.35s; }
+
+/* ───── Responsive ───── */
+@media (max-width: 768px) {
+  .portal-hero { padding: 60px 0 48px; }
+  .portal-hero-icon { font-size: 3rem; }
+  .portal-stats { gap: 24px; }
+  .portal-stat-num { font-size: 1.6rem; }
+  .controls-inner { flex-direction: column; align-items: stretch; }
+  .controls-left { justify-content: center; }
+  .controls-right { justify-content: center; }
+  .portal-grid { grid-template-columns: 1fr; gap: 16px; }
+  .list-view .portal-card { flex-direction: column; }
+  .list-view .portal-card-body { flex-direction: column; }
+  .list-view .portal-card-footer { border-left: none; border-top: 1px solid var(--border-light); padding-left: 0; padding-top: 12px; width: 100%; flex-direction: row; align-items: center; }
+  .list-view .portal-card-header { width: 100%; }
+  .portal-entrance { padding: 32px; }
+  .portal-entrance-inner { flex-direction: column; text-align: center; }
+  .portal-entrance p { max-width: 100%; }
+  .portal-entrance-right { justify-content: center; }
+}
+
+@media (max-width: 480px) {
+  .portal-grid { grid-template-columns: 1fr; }
+  .portal-card-body { padding: 20px; }
+  .portal-card-header { gap: 12px; }
+  .portal-card-icon { width: 44px; height: 44px; font-size: 1.4rem; }
+  .portal-entrance { padding: 24px; }
+}
+
+/* ───── Empty State ───── */
+.portal-empty {
+  text-align: center;
+  padding: 80px 24px;
+  color: var(--ink-muted);
+}
+
+.portal-empty-icon { font-size: 3rem; margin-bottom: 16px; }
+.portal-empty p { font-size: 0.95rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<section class="portal-hero">
+  <div class="container">
+    <a href="/" class="portal-back">← 返回知识库首页</a>
+    <div class="portal-hero-icon">🧪</div>
+    <h1>交互实验室</h1>
+    <p class="portal-hero-sub">
+      不只是阅读，更要动手体验。这里汇集了精心制作的交互式可视化页面，
+      让你在操作中理解 AI 核心概念。
+    </p>
+    <div class="portal-stats">
+      <div class="portal-stat">
+        <div class="portal-stat-num" id="stat-total">{{ pages|length }}</div>
+        <div class="portal-stat-label">交互页面</div>
+      </div>
+      <div class="portal-stat">
+        <div class="portal-stat-num" id="stat-cats">{{ portal_categories|length }}</div>
+        <div class="portal-stat-label">主题方向</div>
+      </div>
+      <div class="portal-stat">
+        <div class="portal-stat-num">∞</div>
+        <div class="portal-stat-label">探索乐趣</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Controls -->
+<div class="portal-controls">
+  <div class="container controls-inner">
+    <div class="controls-left">
+      <button class="filter-chip active" data-filter="all">全部</button>
+      {% for cat in portal_categories %}
+      <button class="filter-chip" data-filter="{{ cat }}">{{ cat }}</button>
+      {% endfor %}
+    </div>
+    <div class="controls-right">
+      <div class="portal-search">
+        <input type="text" id="portal-search" placeholder="搜索页面...">
+      </div>
+      <button class="view-btn active" id="view-grid" title="网格视图">⊞</button>
+      <button class="view-btn" id="view-list" title="列表视图">☰</button>
+    </div>
+  </div>
+</div>
+
+<!-- Cards Grid -->
+<section class="portal-section">
+  <div class="container">
+    <div class="portal-grid" id="portal-grid">
+      {% for page in pages %}
+      <a href="/portal/{{ page.slug }}" class="portal-card" data-category="{{ page.category }}" data-tags="{{ page.tags|join(',') }}" data-title="{{ page.title }}" data-desc="{{ page.desc }}">
+        <div class="portal-card-accent" style="background: {{ page.color }};"></div>
+        <div class="portal-card-body">
+          <div class="portal-card-header">
+            <div class="portal-card-icon" style="background: {{ page.color }}15; color: {{ page.color }};">
+              {{ page.icon }}
+            </div>
+            <div class="portal-card-info">
+              <div class="portal-card-cat" style="color: {{ page.color }};">{{ page.category }}</div>
+              <div class="portal-card-title">{{ page.title }}</div>
+              <div class="portal-card-subtitle">{{ page.subtitle }}</div>
+            </div>
+          </div>
+          <div class="portal-card-desc">{{ page.desc }}</div>
+          <div class="portal-card-footer">
+            <div class="portal-card-tags">
+              {% for tag in page.tags %}
+              <span class="portal-card-tag">{{ tag }}</span>
+              {% endfor %}
+            </div>
+            <div class="portal-card-meta">
+              {% if page.difficulty == '入门' %}
+              <span class="diff-badge diff-easy">{{ page.difficulty }}</span>
+              {% else %}
+              <span class="diff-badge diff-advanced">{{ page.difficulty }}</span>
+              {% endif %}
+              <span>⏱ {{ page.duration }}</span>
+            </div>
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+
+    <div class="portal-empty" id="portal-empty" style="display:none;">
+      <div class="portal-empty-icon">🔍</div>
+      <p>没有找到匹配的页面，试试其他关键词？</p>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function() {
+  'use strict';
+
+  // Category filter
+  const chips = document.querySelectorAll('.filter-chip');
+  const cards = document.querySelectorAll('.portal-card');
+  const emptyEl = document.getElementById('portal-empty');
+  const grid = document.getElementById('portal-grid');
+
+  let activeFilter = 'all';
+  let searchQuery = '';
+
+  function applyFilters() {
+    let visible = 0;
+    cards.forEach(card => {
+      const cat = card.dataset.category;
+      const title = (card.dataset.title || '').toLowerCase();
+      const desc = (card.dataset.desc || '').toLowerCase();
+      const tags = (card.dataset.tags || '').toLowerCase();
+
+      const matchFilter = activeFilter === 'all' || cat === activeFilter;
+      const matchSearch = !searchQuery ||
+        title.includes(searchQuery) ||
+        desc.includes(searchQuery) ||
+        tags.includes(searchQuery);
+
+      const show = matchFilter && matchSearch;
+      card.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+
+    emptyEl.style.display = visible === 0 ? '' : 'none';
+    grid.style.display = visible === 0 ? 'none' : '';
+  }
+
+  chips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      chips.forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      activeFilter = chip.dataset.filter;
+      applyFilters();
+    });
+  });
+
+  // Search
+  const searchInput = document.getElementById('portal-search');
+  let debounce;
+  searchInput.addEventListener('input', () => {
+    clearTimeout(debounce);
+    debounce = setTimeout(() => {
+      searchQuery = searchInput.value.trim().toLowerCase();
+      applyFilters();
+    }, 150);
+  });
+
+  // View toggle
+  const gridBtn = document.getElementById('view-grid');
+  const listBtn = document.getElementById('view-list');
+
+  gridBtn.addEventListener('click', () => {
+    grid.classList.remove('list-view');
+    gridBtn.classList.add('active');
+    listBtn.classList.remove('active');
+  });
+
+  listBtn.addEventListener('click', () => {
+    grid.classList.add('list-view');
+    listBtn.classList.add('active');
+    gridBtn.classList.remove('active');
+  });
+
+  // Keyboard shortcut: / to search
+  document.addEventListener('keydown', e => {
+    if (e.key === '/' && document.activeElement !== searchInput) {
+      e.preventDefault();
+      searchInput.focus();
+    }
+    if (e.key === 'Escape') {
+      searchInput.blur();
+      searchInput.value = '';
+      searchQuery = '';
+      applyFilters();
+    }
+  });
+
+  // Animate stat numbers
+  function animateNum(el, target) {
+    const duration = 1000;
+    const start = performance.now();
+    const from = 0;
+    function tick(now) {
+      const p = Math.min((now - start) / duration, 1);
+      const ease = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(from + (target - from) * ease);
+      if (p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  const totalEl = document.getElementById('stat-total');
+  const catsEl = document.getElementById('stat-cats');
+  if (totalEl) animateNum(totalEl, parseInt(totalEl.textContent));
+  if (catsEl) animateNum(catsEl, parseInt(catsEl.textContent));
+
+})();
+</script>
+{% endblock %}
