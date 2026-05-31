@@ -8,18 +8,12 @@
     <div class="container">
       <h1>{{ article.title }}</h1>
       <div class="article-meta">
-        {% if article.date %}
-        <span>📅 {{ article.date }}</span>
-        {% endif %}
-        {% if article.updated and article.updated != article.date %}
-        <span>✏️ 更新于 {{ article.updated }}</span>
-        {% endif %}
+        {% if article.date %}<span>📅 {{ article.date }}</span>{% endif %}
+        {% if article.updated and article.updated != article.date %}<span>✏️ 更新于 {{ article.updated }}</span>{% endif %}
         <span>📁 <a href="/category/{{ article.category }}" style="color: var(--accent);">{{ article.category }}</a></span>
         {% if article.tags %}
         <span class="article-meta-tags">
-          {% for tag in article.tags %}
-          <a href="/tag/{{ tag }}" class="tag">{{ tag }}</a>
-          {% endfor %}
+          {% for tag in article.tags %}<a href="/tag/{{ tag }}" class="tag">{{ tag }}</a>{% endfor %}
         </span>
         {% endif %}
       </div>
@@ -30,6 +24,63 @@
     {{ article.content | safe }}
   </div>
 
+  <!-- ══════════ AI 分析面板 ══════════ -->
+  <div class="ai-panel" id="ai-panel">
+    <button class="ai-panel-toggle" id="ai-toggle" onclick="toggleAIPanel()">
+      <span class="ai-toggle-icon">🤖</span>
+      <span class="ai-toggle-text">AI 智能分析</span>
+      <span class="ai-toggle-badge" id="ai-count" style="display:none;">0</span>
+      <span class="ai-toggle-arrow" id="ai-arrow">›</span>
+    </button>
+    <div class="ai-panel-preview" id="ai-preview"></div>
+
+    <div class="ai-panel-body" id="ai-body" style="display:none;">
+      <!-- 历史记录 -->
+      <div class="ai-history" id="ai-history">
+        {% if ai_analyses %}
+          {% for a in ai_analyses|reverse %}
+          <div class="ai-qa-item {% if a.is_auto_summary %}ai-auto-summary{% endif %}">
+            <div class="ai-qa-question">
+              <span class="ai-qa-icon">{% if a.is_auto_summary %}📋{% else %}💬{% endif %}</span>
+              <span>{{ a.question }}</span>
+              <span class="ai-qa-time">{{ a.created_at }}</span>
+            </div>
+            <div class="ai-qa-answer">{{ a.answer }}</div>
+          </div>
+          {% endfor %}
+        {% endif %}
+      </div>
+
+      <!-- 流式输出区 -->
+      <div class="ai-stream-area" id="ai-stream" style="display:none;">
+        <div class="ai-stream-q" id="ai-stream-q"></div>
+        <div class="ai-stream-a">
+          <span class="ai-stream-thinking">
+            <span class="ai-dot"></span><span class="ai-dot"></span><span class="ai-dot"></span>
+          </span>
+          <span class="ai-stream-text" id="ai-stream-text"></span>
+        </div>
+      </div>
+
+      <!-- 输入区 -->
+      <div class="ai-input-area">
+        <div class="ai-quick-actions">
+          <button class="ai-quick-btn" onclick="aiQuickAction('总结')">📋 总结要点</button>
+          <button class="ai-quick-btn" onclick="aiQuickAction('概念')">🔑 核心概念</button>
+          <button class="ai-quick-btn" onclick="aiQuickAction('实践')">🛠️ 实践建议</button>
+          <button class="ai-quick-btn" onclick="aiQuickAction('关联')">🔗 关联知识</button>
+        </div>
+        <div class="ai-input-row">
+          <textarea id="ai-input" placeholder="针对这篇文章提问..." rows="1"
+                    onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAIQuestion();}"></textarea>
+          <button class="ai-send-btn" id="ai-send" onclick="sendAIQuestion()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   {% if prev or next %}
   <nav class="article-nav">
     {% if prev %}
@@ -37,10 +88,7 @@
       <div class="article-nav-label">← 上一篇</div>
       <div class="article-nav-title">{{ prev.title }}</div>
     </a>
-    {% else %}
-    <div></div>
-    {% endif %}
-
+    {% else %}<div></div>{% endif %}
     {% if next %}
     <a href="/article/{{ next.slug }}" style="text-align: right;">
       <div class="article-nav-label">下一篇 →</div>
@@ -50,4 +98,485 @@
   </nav>
   {% endif %}
 </article>
+
+<style>
+/* ───── AI Panel ───── */
+.ai-panel {
+  max-width: 720px;
+  margin: 0 auto var(--space-2xl);
+  padding: 0 var(--space-lg);
+}
+
+.ai-panel-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: var(--font-cn);
+  font-size: 0.95rem;
+  color: var(--ink);
+}
+
+.ai-panel-toggle:hover {
+  border-color: var(--accent);
+  box-shadow: var(--shadow-sm);
+}
+
+.ai-panel-toggle.open {
+  border-radius: var(--radius) var(--radius) 0 0;
+  border-bottom-color: transparent;
+}
+
+.ai-toggle-icon { font-size: 1.2rem; }
+.ai-toggle-text { flex: 1; text-align: left; font-weight: 600; }
+
+.ai-toggle-badge {
+  padding: 1px 8px;
+  background: var(--accent-light);
+  color: var(--accent);
+  border-radius: 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.ai-toggle-arrow {
+  font-size: 1.2rem;
+  color: var(--ink-muted);
+  transition: transform 0.3s;
+}
+
+.ai-panel-toggle.open .ai-toggle-arrow {
+  transform: rotate(90deg);
+}
+
+.ai-panel-preview {
+  display: none;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease, padding 0.3s ease;
+}
+
+.ai-panel-preview.has-content {
+  display: block;
+  padding: 0 20px;
+  font-size: 0.82rem;
+  color: var(--ink-muted);
+  line-height: 1.6;
+  cursor: pointer;
+  background: var(--bg-card);
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  max-height: 60px;
+  overflow: hidden;
+  mask-image: linear-gradient(to bottom, black 30%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 30%, transparent 100%);
+}
+
+.ai-panel-body {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 var(--radius) var(--radius);
+  overflow: hidden;
+}
+
+/* History */
+.ai-history { padding: 0; }
+
+.ai-qa-item {
+  border-bottom: 1px solid var(--border-light);
+  animation: aiFadeIn 0.3s ease;
+}
+
+.ai-qa-item:last-child { border-bottom: none; }
+
+.ai-qa-question {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--ink);
+  background: var(--bg-elevated);
+  cursor: pointer;
+  user-select: none;
+}
+
+.ai-qa-question:hover { background: var(--border-light); }
+
+.ai-qa-icon { flex-shrink: 0; }
+.ai-qa-time {
+  margin-left: auto;
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: var(--ink-muted);
+  font-family: var(--font-en);
+}
+
+.ai-qa-answer {
+  padding: 16px 20px 20px;
+  font-size: 0.92rem;
+  line-height: 1.8;
+  color: var(--ink-secondary);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Toggle answer visibility */
+.ai-qa-item.collapsed .ai-qa-answer { display: none; }
+.ai-qa-item.collapsed .ai-qa-question { border-bottom: 1px solid var(--border-light); }
+
+/* Stream area */
+.ai-stream-area {
+  border-bottom: 1px solid var(--border-light);
+  animation: aiFadeIn 0.3s ease;
+}
+
+.ai-stream-q {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  background: var(--bg-elevated);
+}
+
+.ai-stream-q::before { content: '💬'; }
+
+.ai-stream-a {
+  padding: 16px 20px 20px;
+  font-size: 0.92rem;
+  line-height: 1.8;
+  color: var(--ink-secondary);
+  white-space: pre-wrap;
+  word-break: break-word;
+  min-height: 48px;
+}
+
+/* Thinking dots */
+.ai-stream-thinking { display: inline-flex; gap: 4px; margin-right: 8px; }
+.ai-dot {
+  width: 6px; height: 6px;
+  background: var(--accent);
+  border-radius: 50%;
+  animation: aiDotPulse 1.2s ease-in-out infinite;
+}
+.ai-dot:nth-child(2) { animation-delay: 0.2s; }
+.ai-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes aiDotPulse {
+  0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
+  40% { opacity: 1; transform: scale(1.2); }
+}
+
+.ai-stream-thinking.done { display: none; }
+
+/* Input area */
+.ai-input-area {
+  padding: 16px 20px 20px;
+  border-top: 1px solid var(--border-light);
+}
+
+.ai-quick-actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.ai-quick-btn {
+  padding: 5px 14px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--bg);
+  color: var(--ink-secondary);
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: var(--font-cn);
+  white-space: nowrap;
+}
+
+.ai-quick-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-light);
+}
+
+.ai-input-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+.ai-input-row textarea {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-cn);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  resize: none;
+  outline: none;
+  transition: border-color var(--transition);
+  min-height: 40px;
+  max-height: 120px;
+}
+
+.ai-input-row textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-light);
+}
+
+.ai-send-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition);
+  flex-shrink: 0;
+}
+
+.ai-send-btn:hover { background: var(--accent-hover); transform: scale(1.05); }
+.ai-send-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* Animations */
+@keyframes aiFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ───── Mobile ───── */
+@media (max-width: 768px) {
+  .ai-panel { padding: 0 var(--space-md); margin-bottom: var(--space-xl); }
+  .ai-panel-toggle { padding: 12px 16px; font-size: 0.9rem; }
+  .ai-qa-question { padding: 10px 16px; font-size: 0.82rem; }
+  .ai-qa-answer { padding: 12px 16px 16px; font-size: 0.88rem; }
+  .ai-input-area { padding: 12px 16px 16px; }
+  .ai-quick-actions { gap: 6px; }
+  .ai-quick-btn { padding: 4px 10px; font-size: 0.72rem; }
+  .ai-input-row textarea { font-size: 0.88rem; padding: 8px 12px; }
+  .ai-stream-q { padding: 10px 16px; font-size: 0.82rem; }
+  .ai-stream-a { padding: 12px 16px 16px; font-size: 0.88rem; }
+  .ai-panel-preview { padding: 0 16px; }
+}
+
+@media (max-width: 480px) {
+  .ai-quick-actions { flex-wrap: wrap; }
+  .ai-quick-btn { flex: 1; text-align: center; min-width: calc(50% - 4px); }
+}
+</style>
+
+<script>
+(function() {
+  'use strict';
+  const SLUG = '{{ article.slug }}';
+  const TITLE = {{ article.title | tojson }};
+  const CONTENT = {{ article.raw | tojson }};
+  const panelBody = document.getElementById('ai-body');
+  const history = document.getElementById('ai-history');
+  const streamArea = document.getElementById('ai-stream');
+  const streamText = document.getElementById('ai-stream-text');
+  const streamQ = document.getElementById('ai-stream-q');
+  const thinking = streamArea.querySelector('.ai-stream-thinking');
+  const input = document.getElementById('ai-input');
+  const sendBtn = document.getElementById('ai-send');
+  const toggle = document.getElementById('ai-toggle');
+  const countBadge = document.getElementById('ai-count');
+  const preview = document.getElementById('ai-preview');
+  let isStreaming = false;
+
+  // Init: collapse old Q&As, show count
+  const items = history.querySelectorAll('.ai-qa-item');
+  if (items.length > 0) {
+    countBadge.textContent = items.length;
+    countBadge.style.display = '';
+    // Collapse old items, show last one expanded
+    items.forEach((el, i) => { if (i < items.length - 1) el.classList.add('collapsed'); });
+    // Preview: show first line of latest answer
+    const lastAnswer = items[items.length - 1].querySelector('.ai-qa-answer');
+    if (lastAnswer) {
+      const firstLine = lastAnswer.textContent.trim().split('\n')[0].substring(0, 120);
+      if (firstLine) {
+        preview.textContent = firstLine + '...';
+        preview.classList.add('has-content');
+        preview.onclick = () => { window._openAIPanel && window._openAIPanel(); };
+      }
+    }
+  }
+
+  // Auto-generate summary if no history
+  if (items.length === 0) {
+    window._autoSummary = true;
+  }
+
+  // Toggle collapse on history items
+  history.addEventListener('click', (e) => {
+    const q = e.target.closest('.ai-qa-question');
+    if (q) q.parentElement.classList.toggle('collapsed');
+  });
+
+  // Textarea auto-resize
+  input.addEventListener('input', () => {
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+  });
+
+  window.toggleAIPanel = function() {
+    const isOpen = panelBody.style.display !== 'none';
+    if (isOpen) {
+      panelBody.style.display = 'none';
+      toggle.classList.remove('open');
+    } else {
+      panelBody.style.display = '';
+      toggle.classList.add('open');
+      if (window._autoSummary) {
+        window._autoSummary = false;
+        sendAIRequest('');  // auto summary
+      }
+      input.focus();
+    }
+  };
+
+  window._openAIPanel = window.toggleAIPanel;
+
+  window.aiQuickAction = function(type) {
+    const prompts = {
+      '总结': '请总结这篇文章的核心要点，用简洁的要点格式',
+      '概念': '提取文章中的关键概念和技术术语，逐一解释',
+      '实践': '根据文章内容，给出实际可操作的建议和最佳实践',
+      '关联': '这篇文章涉及的知识和其他哪些技术概念有关联？如何串联学习？'
+    };
+    sendAIRequest(prompts[type] || type);
+  };
+
+  window.sendAIQuestion = function() {
+    const q = input.value.trim();
+    if (isStreaming) return;
+    sendAIRequest(q);
+    input.value = '';
+    input.style.height = 'auto';
+  };
+
+  function sendAIRequest(question) {
+    if (isStreaming) return;
+    isStreaming = true;
+    sendBtn.disabled = true;
+
+    // Show stream area
+    streamArea.style.display = '';
+    streamQ.textContent = question || '正在生成摘要...';
+    streamText.textContent = '';
+    thinking.classList.remove('done');
+
+    // Scroll into view
+    streamArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    fetch('/api/ai-analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug: SLUG, title: TITLE, content: CONTENT, question: question })
+    }).then(response => {
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      function read() {
+        reader.read().then(({ done, value }) => {
+          if (done) { finishStream(); return; }
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop();
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              try {
+                const d = JSON.parse(line.slice(6));
+                if (d.token) {
+                  thinking.classList.add('done');
+                  streamText.textContent += d.token;
+                }
+                if (d.done) { finishStream(); return; }
+                if (d.error) { streamText.textContent = '⚠️ ' + d.error; finishStream(); return; }
+              } catch(e) {}
+            }
+          }
+          read();
+        }).catch(err => {
+          streamText.textContent = '⚠️ 连接中断: ' + err.message;
+          finishStream();
+        });
+      }
+      read();
+    }).catch(err => {
+      streamText.textContent = '⚠️ 请求失败: ' + err.message;
+      finishStream();
+    });
+  }
+
+  function finishStream() {
+    isStreaming = false;
+    sendBtn.disabled = false;
+    thinking.classList.add('done');
+    // Move to history after short delay
+    setTimeout(() => {
+      const q = streamQ.textContent;
+      const a = streamText.textContent;
+      if (!a) return;
+
+      const item = document.createElement('div');
+      item.className = 'ai-qa-item';
+      item.innerHTML = `
+        <div class="ai-qa-question">
+          <span class="ai-qa-icon">${q.includes('摘要') || q.includes('总结') ? '📋' : '💬'}</span>
+          <span>${escHtml(q)}</span>
+          <span class="ai-qa-time">刚刚</span>
+        </div>
+        <div class="ai-qa-answer">${escHtml(a)}</div>
+      `;
+      history.appendChild(item);
+      item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+      // Update count
+      const count = history.querySelectorAll('.ai-qa-item').length;
+      countBadge.textContent = count;
+      countBadge.style.display = '';
+
+      // Hide stream area
+      streamArea.style.display = 'none';
+      streamText.textContent = '';
+
+      // Update preview
+      const firstLine = a.trim().split('\n')[0].substring(0, 120);
+      if (firstLine) {
+        preview.textContent = firstLine + '...';
+        preview.classList.add('has-content');
+      }
+    }, 500);
+  }
+
+  function escHtml(s) {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+})();
+</script>
+
 {% endblock %}

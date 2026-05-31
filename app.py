@@ -7,13 +7,79 @@ import json
 import glob
 import subprocess
 from datetime import datetime
-from flask import Flask, render_template, abort, request, jsonify, send_file
+import sqlite3
+import threading
+from flask import Flask, render_template, abort, request, jsonify, send_file, Response
 import markdown
 from pygments.formatters import HtmlFormatter
 
 app = Flask(__name__)
 REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
 CONTENT_DIR = os.path.join(REPO_ROOT, 'content')
+# ──────────────────────────────── AI Analysis Config ────────────────────────
+
+LLM_API_KEY = os.environ.get('LLM_API_KEY', '')
+LLM_API_BASE = os.environ.get('LLM_API_BASE', 'https://token-plan-sgp.xiaomimimo.com/v1')
+LLM_MODEL = os.environ.get('LLM_MODEL', 'mimo-v2.5-pro')
+
+DB_PATH = os.path.join(REPO_ROOT, 'data', 'ai_analyses.db')
+os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+
+def get_db():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    conn.execute("""CREATE TABLE IF NOT EXISTS ai_analyses (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        article_slug TEXT NOT NULL,
+        article_title TEXT NOT NULL,
+        question TEXT NOT NULL,
+        answer TEXT NOT NULL,
+        is_auto_summary INTEGER DEFAULT 0,
+        created_at TEXT DEFAULT (datetime('now', 'localtime'))
+    )""")
+    conn.execute("""CREATE INDEX IF NOT EXISTS idx_analyses_slug
+        ON ai_analyses(article_slug, created_at DESC)""")
+    conn.commit()
+    return conn
+
+def get_analyses(slug):
+    conn = get_db()
+    rows = conn.execute(
+        'SELECT id, question, answer, is_auto_summary, created_at FROM ai_analyses WHERE article_slug=? ORDER BY created_at DESC',
+        (slug,)
+    ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+def save_analysis(slug, title, question, answer, is_auto=0):
+    conn = get_db()
+    conn.execute(
+        'INSERT INTO ai_analyses (article_slug,article_title,question,answer,is_auto_summary) VALUES (?,?,?,?,?)',
+        (slug, title, question, answer, is_auto)
+    )
+    conn.commit()
+    conn.close()
+
+def call_llm_stream(messages):
+    """Stream tokens from LLM API"""
+    import openai
+    if not LLM_API_KEY:
+        yield 'data: {"error": "LLM API key not configured"}\n\n'
+        return
+    try:
+        client = openai.OpenAI(api_key=LLM_API_KEY, base_url=LLM_API_BASE)
+        stream = client.chat.completions.create(
+            model=LLM_MODEL, messages=messages, stream=True,
+            max_tokens=2000, temperature=0.3)
+        for chunk in stream:
+            if chunk.choices and chunk.choices[0].delta.content:
+                token = chunk.choices[0].delta.content
+                yield f'data: {json.dumps({"token": token})}\n\n'
+        yield 'data: {"done": true}\n\n'
+    except Exception as e:
+        yield f'data: {json.dumps({"error": str(e)})}\n\n'
+
+
 
 @app.after_request
 def add_no_cache_headers(response):
@@ -339,10 +405,12 @@ def article(slug):
             # current_path: 文章所在目录的完整相对路径，如 'AI' 或 'AI/ai-agent'
             dir_parts = a['path'].replace(os.sep, '/').split('/')[:-1]
             current_path = '/'.join(dir_parts)
+            analyses = get_analyses(a['slug'])
             return render_template('article.html',
                                    article=a, prev=prev_a, next=next_a,
                                    current_slug=a['slug'], current_path=current_path,
-                                   categories=CATEGORIES, all_tags=ALL_TAGS)
+                                   categories=CATEGORIES, all_tags=ALL_TAGS,
+                                   ai_analyses=analyses)
     abort(404)
 
 
@@ -391,6 +459,46 @@ def api_search():
                 'summary': a['summary'][:100],
             })
     return jsonify(results[:10])
+
+
+# ──────────────────────────────── AI Analysis API ────────────────────────────
+
+@app.route('/api/ai-analyses/<slug>')
+def api_get_analyses(slug):
+    analyses = get_analyses(slug)
+    return jsonify(analyses)
+
+@app.route('/api/ai-analyze', methods=['POST'])
+def api_ai_analyze():
+    data = request.get_json()
+    slug = data.get('slug', '')
+    question = data.get('question', '').strip()
+    article_title = data.get('title', '')
+    article_content = data.get('content', '')
+    if not slug or not article_content:
+        return jsonify({'error': 'Missing data'}), 400
+    if len(article_content) > 8000:
+        article_content = article_content[:8000] + '\n...(truncated)'
+    is_auto = 0
+    if not question:
+        question = '请对这篇文章做结构化总结：核心要点、关键概念、实用建议。简洁要点格式。'
+        is_auto = 1
+    messages = [
+        {'role': 'system', 'content': '你是知识库助手，擅长分析技术文章。回答简洁、有深度、用中文。'},
+        {'role': 'user', 'content': f'文章：{article_title}\n\n{article_content}\n\n问题：{question}'}
+    ]
+    def generate():
+        full = []
+        for chunk in call_llm_stream(messages):
+            if chunk.startswith('data: '):
+                try:
+                    d = json.loads(chunk[6:].strip())
+                    if 'token' in d: full.append(d['token'])
+                    if d.get('done'): save_analysis(slug, article_title, question, ''.join(full), is_auto)
+                except: pass
+            yield chunk
+    return Response(generate(), mimetype='text/event-stream',
+                    headers={'Cache-Control': 'no-cache', 'X-Accel-Buffering': 'no'})
 
 
 # ──────────────────────────────── Portal (交互实验室) ────────────────────────
