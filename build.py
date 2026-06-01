@@ -87,6 +87,41 @@ def main():
         f.write(resp.data)
     print('  ✓ 404.html')
 
+
+    # === Portal 页面 ===
+    write_page(client, '/portal', 'portal/index.html')
+
+    portal_src = os.path.join(ROOT, 'portal')
+    portal_dst = os.path.join(DIST, 'portal')
+    for root, dirs, files in os.walk(portal_src):
+        dirs[:] = [d for d in dirs if not d.startswith(('.', '_'))]
+        for f in files:
+            if not f.endswith('.html'):
+                continue
+            src_path = os.path.join(root, f)
+            rel_path = os.path.relpath(src_path, portal_src)
+            dst_path = os.path.join(portal_dst, rel_path)
+            os.makedirs(os.path.dirname(dst_path), exist_ok=True)
+            shutil.copy2(src_path, dst_path)
+            print(f'  ✓ portal/{rel_path}')
+
+    cat_json = os.path.join(portal_src, '_categories.json')
+    if os.path.exists(cat_json):
+        shutil.copy2(cat_json, os.path.join(portal_dst, '_categories.json'))
+        print('  ✓ portal/_categories.json')
+
+    # 为每个 portal 页面创建 slug-based 路径（兼容 GitHub Pages）
+    for _root2, _dirs2, _files2 in os.walk(portal_src):
+        _dirs2[:] = [d for d in _dirs2 if not d.startswith((".", "_"))]
+        for _f2 in _files2:
+            if not _f2.endswith(".html"):
+                continue
+            _slug = os.path.splitext(_f2)[0]
+            _src2 = os.path.join(_root2, _f2)
+            _slug_dir = os.path.join(portal_dst, _slug)
+            os.makedirs(_slug_dir, exist_ok=True)
+            shutil.copy2(_src2, os.path.join(_slug_dir, "index.html"))
+            print(f"  portal/{_slug}/ (slug route)")
     # 拷贝静态资源
     shutil.copytree(STATIC_SRC, os.path.join(DIST, 'static'))
     print('  ✓ static/')
