@@ -218,13 +218,21 @@
     document.body.appendChild(btn);
 
     // 响应式布局：JS 控制显隐（兼容微信等内置浏览器）
-    function updateTocLayout() {
-      const isMobile = window.innerWidth <= 1100;
+    // 用 matchMedia 代替 innerWidth，确保与 CSS @media 使用同一引擎判断
+    const siteMain = document.querySelector('.site-main');
+    const mql = window.matchMedia('(max-width: 1100px)');
+    function updateTocLayout(e) {
+      const isMobile = e ? e.matches : mql.matches;
       sidebar.style.display = isMobile ? 'none' : 'block';
       btn.style.display = isMobile ? 'flex' : 'none';
+      if (siteMain) siteMain.style.paddingRight = isMobile ? '' : 'calc(220px + 36px)';
     }
     updateTocLayout();
-    window.addEventListener('resize', updateTocLayout);
+    if (mql.addEventListener) {
+      mql.addEventListener('change', updateTocLayout);
+    } else if (mql.addListener) {
+      mql.addListener(updateTocLayout);
+    }
 
     // 移动端交互
     function openDrawer() {
