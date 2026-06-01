@@ -40,12 +40,12 @@
         {% if ai_analyses %}
           {% for a in ai_analyses|reverse %}
           <div class="ai-qa-item {% if a.is_auto_summary %}ai-auto-summary{% endif %}">
-            <div class="ai-qa-question">
+            <div class="ai-qa-question" onclick="this.parentElement.classList.toggle('collapsed')">
               <span class="ai-qa-icon">{% if a.is_auto_summary %}📋{% else %}💬{% endif %}</span>
               <span>{{ a.question }}</span>
               <span class="ai-qa-time">{{ a.created_at }}</span>
             </div>
-            <div class="ai-qa-answer">{{ a.answer }}</div>
+            <div class="ai-qa-answer md-content">{{ a.answer }}</div>
           </div>
           {% endfor %}
         {% endif %}
@@ -54,11 +54,11 @@
       <!-- 流式输出区 -->
       <div class="ai-stream-area" id="ai-stream" style="display:none;">
         <div class="ai-stream-q" id="ai-stream-q"></div>
-        <div class="ai-stream-a">
-          <span class="ai-stream-thinking">
+        <div class="ai-stream-a md-content">
+          <span class="ai-stream-thinking" id="ai-thinking">
             <span class="ai-dot"></span><span class="ai-dot"></span><span class="ai-dot"></span>
           </span>
-          <span class="ai-stream-text" id="ai-stream-text"></span>
+          <span id="ai-stream-text"></span>
         </div>
       </div>
 
@@ -225,8 +225,6 @@
   font-size: 0.92rem;
   line-height: 1.8;
   color: var(--ink-secondary);
-  white-space: pre-wrap;
-  word-break: break-word;
 }
 
 /* Toggle answer visibility */
@@ -256,8 +254,6 @@
   font-size: 0.92rem;
   line-height: 1.8;
   color: var(--ink-secondary);
-  white-space: pre-wrap;
-  word-break: break-word;
   min-height: 48px;
 }
 
@@ -278,6 +274,86 @@
 }
 
 .ai-stream-thinking.done { display: none; }
+
+/* ───── Markdown Content ───── */
+.md-content h2 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 1.2em 0 0.5em;
+  padding-bottom: 0.25em;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--ink);
+}
+
+.md-content h3 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 1em 0 0.4em;
+  color: var(--ink);
+}
+
+.md-content p {
+  margin: 0.6em 0;
+}
+
+.md-content strong {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.md-content em {
+  font-style: italic;
+}
+
+.md-content code {
+  font-family: var(--font-mono);
+  font-size: 0.84em;
+  padding: 1px 5px;
+  background: var(--bg-elevated);
+  border-radius: 4px;
+  color: var(--accent);
+}
+
+.md-content pre {
+  margin: 0.8em 0;
+  padding: 14px 16px;
+  background: var(--bg-hero);
+  color: #e8e8e8;
+  border-radius: var(--radius-sm);
+  overflow-x: auto;
+  font-size: 0.84rem;
+  line-height: 1.6;
+}
+
+.md-content pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+}
+
+.md-content ul, .md-content ol {
+  margin: 0.6em 0;
+  padding-left: 1.5em;
+}
+
+.md-content li {
+  margin-bottom: 0.3em;
+}
+
+.md-content blockquote {
+  margin: 0.8em 0;
+  padding: 8px 16px;
+  border-left: 3px solid var(--accent);
+  background: var(--bg-elevated);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  color: var(--ink-secondary);
+}
+
+.md-content hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1em 0;
+}
 
 /* Input area */
 .ai-input-area {
@@ -395,7 +471,7 @@
   const streamArea = document.getElementById('ai-stream');
   const streamText = document.getElementById('ai-stream-text');
   const streamQ = document.getElementById('ai-stream-q');
-  const thinking = streamArea.querySelector('.ai-stream-thinking');
+  const thinking = document.getElementById('ai-thinking');
   const input = document.getElementById('ai-input');
   const sendBtn = document.getElementById('ai-send');
   const toggle = document.getElementById('ai-toggle');
@@ -403,42 +479,85 @@
   const preview = document.getElementById('ai-preview');
   let isStreaming = false;
 
-  // Init: collapse old Q&As, show count
+  // ─── Lightweight Markdown → HTML ───
+  function renderMd(text) {
+    if (!text) return '';
+    let html = text
+      // Code blocks (must be before inline code)
+      .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
+      // Headings
+      .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+      .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+      .replace(/^# (.+)$/gm, '<h2>$1</h2>')
+      // Horizontal rule
+      .replace(/^---+$/gm, '<hr>')
+      // Blockquotes
+      .replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>')
+      // Bold + italic
+      .replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>')
+      // Bold
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      // Italic
+      .replace(/\*(.+?)\*/g, '<em>$1</em>')
+      // Inline code
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      // Unordered list items
+      .replace(/^[*-] (.+)$/gm, '<li>$1</li>')
+      // Ordered list items
+      .replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
+
+    // Wrap consecutive <li> in <ul>
+    html = html.replace(/((?:<li>.*<\/li>\n?)+)/g, '<ul>$1</ul>');
+    // Wrap consecutive <blockquote> together
+    html = html.replace(/<\/blockquote>\n<blockquote>/g, '<br>');
+    // Paragraphs: double newlines
+    html = html.replace(/\n{2,}/g, '</p><p>');
+    // Single newlines → <br> (but not inside pre/code/h2/h3/ul/li)
+    html = html.replace(/(?<!<\/(?:pre|code|h[23]|ul|li|blockquote)>)\n(?!(<(?:h[23]|ul|li|pre|blockquote|hr)))/g, '<br>');
+    // Wrap in paragraph if not starting with block element
+    if (!/^<(h[1-6]|ul|ol|pre|blockquote|hr)/.test(html)) {
+      html = '<p>' + html + '</p>';
+    }
+    // Clean up empty paragraphs
+    html = html.replace(/<p>\s*<\/p>/g, '');
+    // Clean up <br> before/after block elements
+    html = html.replace(/<br>\s*<(h[23]|ul|pre|blockquote|hr)/g, '<$1');
+    html = html.replace(/<\/(h[23]|ul|pre|blockquote|hr)>\s*<br>/g, '</$1>');
+    return html;
+  }
+
+  // ─── Render existing server-side answers ───
+  document.querySelectorAll('.ai-qa-answer').forEach(el => {
+    el.innerHTML = renderMd(el.textContent);
+  });
+
+  // ─── Init: collapse old Q&As, show count, preview ───
   const items = history.querySelectorAll('.ai-qa-item');
   if (items.length > 0) {
     countBadge.textContent = items.length;
     countBadge.style.display = '';
-    // Collapse old items, show last one expanded
     items.forEach((el, i) => { if (i < items.length - 1) el.classList.add('collapsed'); });
-    // Preview: show first line of latest answer
     const lastAnswer = items[items.length - 1].querySelector('.ai-qa-answer');
     if (lastAnswer) {
       const firstLine = lastAnswer.textContent.trim().split('\n')[0].substring(0, 120);
       if (firstLine) {
         preview.textContent = firstLine + '...';
         preview.classList.add('has-content');
-        preview.onclick = () => { window._openAIPanel && window._openAIPanel(); };
+        preview.onclick = () => toggleAIPanel();
       }
     }
   }
 
-  // Auto-generate summary if no history
-  if (items.length === 0) {
-    window._autoSummary = true;
-  }
+  // ─── Toggle collapse on history items ───
+  // (handled via inline onclick in template)
 
-  // Toggle collapse on history items
-  history.addEventListener('click', (e) => {
-    const q = e.target.closest('.ai-qa-question');
-    if (q) q.parentElement.classList.toggle('collapsed');
-  });
-
-  // Textarea auto-resize
+  // ─── Textarea auto-resize ───
   input.addEventListener('input', () => {
     input.style.height = 'auto';
     input.style.height = Math.min(input.scrollHeight, 120) + 'px';
   });
 
+  // ─── Panel toggle (NO auto-summary) ───
   window.toggleAIPanel = function() {
     const isOpen = panelBody.style.display !== 'none';
     if (isOpen) {
@@ -447,16 +566,11 @@
     } else {
       panelBody.style.display = '';
       toggle.classList.add('open');
-      if (window._autoSummary) {
-        window._autoSummary = false;
-        sendAIRequest('');  // auto summary
-      }
       input.focus();
     }
   };
 
-  window._openAIPanel = window.toggleAIPanel;
-
+  // ─── Quick actions ───
   window.aiQuickAction = function(type) {
     const prompts = {
       '总结': '请总结这篇文章的核心要点，用简洁的要点格式',
@@ -467,14 +581,16 @@
     sendAIRequest(prompts[type] || type);
   };
 
+  // ─── Send question ───
   window.sendAIQuestion = function() {
     const q = input.value.trim();
-    if (isStreaming) return;
+    if (isStreaming || !q) return;
     sendAIRequest(q);
     input.value = '';
     input.style.height = 'auto';
   };
 
+  // ─── SSE streaming request ───
   function sendAIRequest(question) {
     if (isStreaming) return;
     isStreaming = true;
@@ -483,11 +599,14 @@
     // Show stream area
     streamArea.style.display = '';
     streamQ.textContent = question || '正在生成摘要...';
-    streamText.textContent = '';
+    streamText.innerHTML = '';
     thinking.classList.remove('done');
 
     // Scroll into view
     streamArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    // Collect raw tokens for later MD rendering
+    let rawTokens = '';
 
     fetch('/api/ai-analyze', {
       method: 'POST',
@@ -500,7 +619,7 @@
 
       function read() {
         reader.read().then(({ done, value }) => {
-          if (done) { finishStream(); return; }
+          if (done) { finishStream(rawTokens); return; }
           buffer += decoder.decode(value, { stream: true });
           const lines = buffer.split('\n');
           buffer = lines.pop();
@@ -510,45 +629,54 @@
                 const d = JSON.parse(line.slice(6));
                 if (d.token) {
                   thinking.classList.add('done');
-                  streamText.textContent += d.token;
+                  rawTokens += d.token;
+                  // Live render: show as plain text during streaming for perf
+                  streamText.textContent = rawTokens;
                 }
-                if (d.done) { finishStream(); return; }
-                if (d.error) { streamText.textContent = '⚠️ ' + d.error; finishStream(); return; }
+                if (d.done) { finishStream(rawTokens); return; }
+                if (d.error) { streamText.textContent = '⚠️ ' + d.error; finishStream(''); return; }
               } catch(e) {}
             }
           }
           read();
         }).catch(err => {
           streamText.textContent = '⚠️ 连接中断: ' + err.message;
-          finishStream();
+          finishStream('');
         });
       }
       read();
     }).catch(err => {
       streamText.textContent = '⚠️ 请求失败: ' + err.message;
-      finishStream();
+      finishStream('');
     });
   }
 
-  function finishStream() {
+  function finishStream(rawAnswer) {
     isStreaming = false;
     sendBtn.disabled = false;
     thinking.classList.add('done');
+
+    // Re-render with markdown
+    if (rawAnswer) {
+      streamText.innerHTML = renderMd(rawAnswer);
+    }
+
     // Move to history after short delay
     setTimeout(() => {
       const q = streamQ.textContent;
-      const a = streamText.textContent;
+      const a = rawAnswer;
       if (!a) return;
 
+      const isSummary = q.includes('摘要') || q.includes('总结') || q.includes('要点');
       const item = document.createElement('div');
       item.className = 'ai-qa-item';
       item.innerHTML = `
-        <div class="ai-qa-question">
-          <span class="ai-qa-icon">${q.includes('摘要') || q.includes('总结') ? '📋' : '💬'}</span>
+        <div class="ai-qa-question" onclick="this.parentElement.classList.toggle('collapsed')">
+          <span class="ai-qa-icon">${isSummary ? '📋' : '💬'}</span>
           <span>${escHtml(q)}</span>
           <span class="ai-qa-time">刚刚</span>
         </div>
-        <div class="ai-qa-answer">${escHtml(a)}</div>
+        <div class="ai-qa-answer md-content">${renderMd(a)}</div>
       `;
       history.appendChild(item);
       item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -560,15 +688,16 @@
 
       // Hide stream area
       streamArea.style.display = 'none';
-      streamText.textContent = '';
+      streamText.innerHTML = '';
 
       // Update preview
-      const firstLine = a.trim().split('\n')[0].substring(0, 120);
+      const firstLine = a.trim().split('\n')[0].replace(/^[#*-`>\s]+/, '').substring(0, 100);
       if (firstLine) {
         preview.textContent = firstLine + '...';
         preview.classList.add('has-content');
+        preview.onclick = () => toggleAIPanel();
       }
-    }, 500);
+    }, 600);
   }
 
   function escHtml(s) {
