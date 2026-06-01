@@ -25,38 +25,7 @@
     applyTheme(html.dataset.theme === 'dark' ? 'light' : 'dark');
   });
 
-  // ───── 搜索（纯前端，基于 search-index.json）─────
-  let _indexPromise = null;
-  function loadIndex() {
-    if (!_indexPromise) {
-      _indexPromise = fetch('/search-index.json').then(r => r.json()).catch(() => []);
-    }
-    return _indexPromise;
-  }
-
-  function matchArticles(index, q) {
-    const ql = q.toLowerCase();
-    const hits = [];
-    for (const a of index) {
-      if (
-        a.title.toLowerCase().includes(ql) ||
-        (a.summary || '').toLowerCase().includes(ql) ||
-        (a.text || '').includes(ql) ||
-        (a.tags || []).some(t => t.toLowerCase().includes(ql))
-      ) {
-        // 摘取片段
-        const src = a.text || '';
-        const i = src.indexOf(ql);
-        const snippet = i >= 0
-          ? '...' + src.slice(Math.max(0, i - 50), i + ql.length + 50).replace(/\n/g, ' ') + '...'
-          : (a.summary || '');
-        hits.push({ ...a, snippet });
-      }
-    }
-    return hits;
-  }
-
-  // 顶部下拉搜索
+  // ───── 搜索（基于后端 API）─────
   const searchInput = document.getElementById('search-input');
   const searchDropdown = document.getElementById('search-results');
   let debounceTimer = null;
@@ -72,20 +41,24 @@
       }
 
       debounceTimer = setTimeout(async () => {
-        const index = await loadIndex();
-        const data = matchArticles(index, q).slice(0, 10);
+        try {
+          const resp = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
+          const data = await resp.json();
 
-        if (data.length === 0) {
-          searchDropdown.innerHTML = '<div class="search-item"><div class="search-item-title" style="color:var(--ink-muted)">没有找到相关文章</div></div>';
-        } else {
-          searchDropdown.innerHTML = data.map(item => `
-            <a href="/article/${encodeURIComponent(item.slug)}/" class="search-item">
-              <div class="search-item-title">${escHtml(item.title)}</div>
-              <div class="search-item-cat">${escHtml(item.category)} · ${escHtml((item.summary || '').slice(0, 100))}</div>
-            </a>
-          `).join('');
+          if (data.length === 0) {
+            searchDropdown.innerHTML = '<div class="search-item"><div class="search-item-title" style="color:var(--ink-muted)">没有找到相关文章</div></div>';
+          } else {
+            searchDropdown.innerHTML = data.map(item => `
+              <a href="${item.url}" class="search-item">
+                <div class="search-item-title">${escHtml(item.title)}</div>
+                <div class="search-item-cat">${escHtml(item.category)} · ${escHtml((item.summary || '').slice(0, 100))}</div>
+              </a>
+            `).join('');
+          }
+          searchDropdown.classList.add('active');
+        } catch (e) {
+          console.error('Search error:', e);
         }
-        searchDropdown.classList.add('active');
       }, 150);
     });
 

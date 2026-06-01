@@ -558,14 +558,16 @@
   });
 
   // ─── Panel toggle (NO auto-summary) ───
-  window.toggleAIPanel = function() {
+window.toggleAIPanel = function() {
     const isOpen = panelBody.style.display !== 'none';
     if (isOpen) {
       panelBody.style.display = 'none';
       toggle.classList.remove('open');
+      preview.style.display = '';
     } else {
       panelBody.style.display = '';
       toggle.classList.add('open');
+      preview.style.display = 'none';
       input.focus();
     }
   };
