@@ -1514,3 +1514,64 @@ body.no-sidebar .sidebar-toggle { display: none !important; }
 @media (max-width: 480px) {
   .portal-entrance { padding: 24px; }
 }
+
+/* ──────── 首页侧边栏目录导航 ──────── */
+.index-sidebar .index-toc {
+  padding: var(--space-md) 0;
+}
+
+.index-toc-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  color: var(--ink-secondary);
+  font-size: 0.95rem;
+  transition: all var(--transition);
+  border-left: 3px solid transparent;
+}
+
+.index-toc-link:hover {
+  color: var(--ink);
+  background: var(--bg-elevated);
+  border-left-color: var(--accent);
+}
+
+.index-toc-link.active {
+  color: var(--accent);
+  background: var(--accent-light);
+  border-left-color: var(--accent);
+  font-weight: 600;
+}
+
+.index-toc-icon {
+  font-size: 1.1rem;
+  width: 24px;
+  text-align: center;
+}
+
+.index-sidebar-stats {
+  padding: var(--space-md);
+  margin: var(--space-md) var(--space-md) var(--space-md);
+  background: var(--bg-elevated);
+  border-radius: var(--radius);
+  border: 1px solid var(--border-light);
+}
+
+.index-stat {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+  padding: var(--space-xs) 0;
+}
+
+.index-stat-num {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.index-stat-label {
+  font-size: 0.85rem;
+  color: var(--ink-muted);
+}

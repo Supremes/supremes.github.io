@@ -1,0 +1,51 @@
+{# 首页专用侧边栏：页面内目录导航 #}
+<aside class="sidebar index-sidebar" id="sidebar" aria-label="页面导航">
+  <div class="sidebar-header">
+    <span class="sidebar-title">📑 页面导航</span>
+    <button class="sidebar-close icon-btn" id="sidebar-close" aria-label="关闭导航">✕</button>
+  </div>
+  <nav class="index-toc">
+    <a href="#" class="index-toc-link index-toc-top">
+      <span class="index-toc-icon">🏠</span>
+      <span>回到顶部</span>
+    </a>
+    <a href="#articles" class="index-toc-link">
+      <span class="index-toc-icon">📝</span>
+      <span>最新文章</span>
+    </a>
+    <a href="#categories" class="index-toc-link">
+      <span class="index-toc-icon">📂</span>
+      <span>知识分类</span>
+    </a>
+    {% if all_tags %}
+    <a href="#tags" class="index-toc-link">
+      <span class="index-toc-icon">🏷️</span>
+      <span>标签</span>
+    </a>
+    {% endif %}
+    <a href="/portal" class="index-toc-link">
+      <span class="index-toc-icon">🧪</span>
+      <span>交互实验室</span>
+    </a>
+    <a href="/articles" class="index-toc-link">
+      <span class="index-toc-icon">📚</span>
+      <span>全部文章</span>
+    </a>
+  </nav>
+  
+  <div class="index-sidebar-stats">
+    <div class="index-stat">
+      <span class="index-stat-num">{{ total }}</span>
+      <span class="index-stat-label">篇文章</span>
+    </div>
+    <div class="index-stat">
+      <span class="index-stat-num">{{ categories|length }}</span>
+      <span class="index-stat-label">个分类</span>
+    </div>
+    <div class="index-stat">
+      <span class="index-stat-num">{{ all_tags|length }}</span>
+      <span class="index-stat-label">个标签</span>
+    </div>
+  </div>
+</aside>
+<div class="sidebar-backdrop" id="sidebar-backdrop"></div>

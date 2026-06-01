@@ -322,3 +322,33 @@ function toggleExtra(type) {
     if (btn) btn.textContent = isCollapsed ? '收起 ▴' : '展开 ' + cloud.children.length + ' 个标签 ▾';
   }
 }
+
+/* ───── 首页侧边栏：滚动高亮 ───── */
+(function() {
+  const tocLinks = document.querySelectorAll('.index-toc-link[href^="#"]');
+  if (!tocLinks.length) return;
+
+  const sections = [];
+  tocLinks.forEach(link => {
+    const id = link.getAttribute('href').slice(1);
+    const section = document.getElementById(id);
+    if (section) sections.push({ el: section, link: link });
+  });
+
+  function updateActive() {
+    let current = null;
+    const scrollY = window.scrollY + 120;
+
+    for (const { el, link } of sections) {
+      if (el.offsetTop <= scrollY) {
+        current = link;
+      }
+    }
+
+    tocLinks.forEach(l => l.classList.remove('active'));
+    if (current) current.classList.add('active');
+  }
+
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+})();
