@@ -1,528 +1,868 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+  <meta name="portal-title" content="Dawn AI 记忆系统架构">
+  <meta name="portal-subtitle" content="4-Layer Event-Driven Memory">
+  <meta name="portal-desc" content="从架构设计到演进路线，深度解析 Dawn AI 的四层事件驱动记忆系统。">
+  <meta name="portal-category" content="Dawn AI">
+  <meta name="portal-tags" content="Memory, Architecture, Spring AI, PGVector, Redis">
+  <meta name="portal-icon" content="🧠">
+  <meta name="portal-color" content="#c26b3c">
+  <meta name="portal-date" content="2026-06-02">
+  <meta name="portal-difficulty" content="高级">
+  <meta name="portal-duration" content="15 min">
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dawn AI 记忆系统架构</title>
-<meta name="portal-title" content="Dawn AI 记忆系统架构">
-<meta name="portal-subtitle" content="4-Layer Event-Driven Memory Architecture">
-<meta name="portal-desc" content="从架构设计到演进路线，深度解析 Dawn AI 的四层事件驱动记忆系统，以及与 mem0、Hindsight 的横向对比。">
-<meta name="portal-category" content="Dawn AI">
-<meta name="portal-tags" content="Memory, Architecture, Spring AI, PGVector, Redis, 事件驱动">
-<meta name="portal-icon" content="🧠">
-<meta name="portal-color" content="#c26b3c">
-<meta name="portal-date" content="2026-06-02">
-<meta name="portal-difficulty" content="高级">
-<meta name="portal-duration" content="15 min">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--accent:#c26b3c;--accent-dim:#c26b3c33;--bg:#1a1a1a;--bg2:#222;--bg3:#2a2a2a;--text:#e0e0e0;--text2:#999;--text3:#666;--border:#333;--sp:8px}
-body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:16px;overflow-x:hidden}
-code,.mono{font-family:"SF Mono","Fira Code","Cascadia Code",monospace;font-size:0.9em;background:var(--bg3);padding:1px 5px;border-radius:3px}
-.container{max-width:960px;margin:0 auto;padding:0 calc(var(--sp)*4)}
-h2{font-size:1.4rem;font-weight:600;margin:calc(var(--sp)*8) 0 calc(var(--sp)*3);padding-bottom:calc(var(--sp)*1);border-bottom:1px solid var(--border)}
-h3{font-size:1.1rem;font-weight:600;margin:calc(var(--sp)*4) 0 calc(var(--sp)*2)}
-p,li{color:var(--text)}
-a{color:var(--accent);text-decoration:none}
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0f0f23;--bg2:#1a1a2e;--bg3:#16213e;--accent:#c26b3c;--accent2:#e8a87c;--accent3:#f0c9a0;--text:#e2e8f0;--dim:#64748b;--green:#10b981;--green2:#34d399;--amber:#f59e0b;--amber2:#fbbf24;--pink:#ec4899;--pink2:#f472b6;--sky:#0ea5e9;--sky2:#38bdf8;--danger:#ef4444;--code-bg:#0d1117}
+body{font-family:'LXGW WenKai Screen','LXGW WenKai','Noto Serif SC','Source Han Serif SC',serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;line-height:1.8}
+code,pre,.mono{font-family:'JetBrains Mono','Fira Code','SF Mono',monospace}
+a{color:var(--accent);text-decoration:none;transition:color .2s}a:hover{color:var(--accent2);text-decoration:underline}
+
+/* Back link */
+.back-link{position:fixed;top:20px;left:20px;z-index:100;display:flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(26,26,46,.8);backdrop-filter:blur(12px);border:1px solid rgba(194,107,60,.3);border-radius:24px;font-size:14px;color:var(--accent);transition:all .2s}
+.back-link:hover{background:rgba(26,26,46,.95);border-color:var(--accent);text-decoration:none;transform:translateX(-2px)}
+.back-link svg{width:16px;height:16px}
 
 /* Hero */
-.hero{padding:calc(var(--sp)*10) 0 calc(var(--sp)*6);text-align:center;border-bottom:1px solid var(--border)}
-.hero h1{font-size:2rem;font-weight:700;margin-bottom:calc(var(--sp)*2)}
-.hero h1 span{color:var(--accent)}
-.hero-sub{color:var(--text2);font-size:0.95rem;max-width:600px;margin:0 auto calc(var(--sp)*3)}
-.hero-verdict{display:inline-block;background:var(--accent-dim);border:1px solid var(--accent);color:var(--accent);padding:calc(var(--sp)*1) calc(var(--sp)*3);border-radius:4px;font-size:0.9rem;font-weight:500}
+.hero{position:relative;min-height:420px;display:flex;align-items:center;justify-content:center;text-align:center;padding:80px 20px 60px;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(194,107,60,.15) 0%,transparent 60%),radial-gradient(ellipse at 20% 80%,rgba(232,168,124,.08) 0%,transparent 50%),radial-gradient(ellipse at 80% 80%,rgba(14,165,233,.08) 0%,transparent 50%)}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(194,107,60,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(194,107,60,.05) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse at center,black 30%,transparent 70%);-webkit-mask-image:radial-gradient(ellipse at center,black 30%,transparent 70%);animation:gridFloat 25s linear infinite}
+@keyframes gridFloat{0%{transform:translate(0,0)}100%{transform:translate(60px,60px)}}
+.hero-content{position:relative;z-index:2}
+.hero-icon{font-size:64px;margin-bottom:16px;animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.hero h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:800;background:linear-gradient(135deg,var(--accent),var(--amber),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:12px;letter-spacing:1px}
+.hero .subtitle{font-size:clamp(1rem,2.5vw,1.3rem);color:var(--dim);letter-spacing:3px;font-weight:300}
+.hero-stats{display:flex;gap:32px;justify-content:center;margin-top:28px;flex-wrap:wrap}
+.hero-stat{text-align:center}
+.hero-stat .num{font-size:28px;font-weight:800;color:var(--accent);font-family:'JetBrains Mono',monospace}
+.hero-stat .label{font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:2px;margin-top:2px}
 
-/* Meta bar */
-.meta-bar{display:flex;flex-wrap:wrap;gap:calc(var(--sp)*1) calc(var(--sp)*3);justify-content:center;padding:calc(var(--sp)*2) 0;color:var(--text2);font-size:0.85rem;border-bottom:1px solid var(--border)}
-.meta-bar .tag{background:var(--bg3);padding:2px 10px;border-radius:3px;font-size:0.8rem}
+/* Container */
+.container{max-width:960px;margin:0 auto;padding:0 20px 60px}
 
 /* Section */
-section{padding:calc(var(--sp)*5) 0}
+.section{background:var(--bg2);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:32px;margin-bottom:28px;position:relative;overflow:hidden;animation:fadeInUp .6s ease both}
+.section:nth-child(2){animation-delay:.1s}.section:nth-child(3){animation-delay:.15s}.section:nth-child(4){animation-delay:.2s}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.section-glow{position:absolute;top:-50%;right:-50%;width:100%;height:100%;background:radial-gradient(circle,rgba(194,107,60,.04) 0%,transparent 70%);pointer-events:none}
+.section-title{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.06)}
+.section-title .icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.section-title h2{font-size:1.3rem;font-weight:700;letter-spacing:.5px}
+.section-title .tag{margin-left:auto;padding:4px 10px;border-radius:12px;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;font-family:'JetBrains Mono',monospace}
+p{margin-bottom:14px;color:var(--text);opacity:.9}
+p:last-child{margin-bottom:0}
+strong{color:var(--accent2);font-weight:600}
+.highlight{color:var(--accent);font-weight:600}
 
-/* Key takeaways */
-.takeaways{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:calc(var(--sp)*3)}
-.takeaway{background:var(--bg2);border:1px solid var(--border);padding:calc(var(--sp)*3);border-radius:4px}
-.takeaway .num{color:var(--accent);font-size:1.6rem;font-weight:700;line-height:1;margin-bottom:calc(var(--sp)*1)}
-.takeaway h3{margin:0 0 calc(var(--sp)*1);font-size:1rem}
-.takeaway p{font-size:0.9rem;color:var(--text2);margin:0}
+/* Cards grid */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin:16px 0}
+.card{background:var(--bg3);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:20px;transition:all .3s;position:relative;overflow:hidden}
+.card:hover{transform:translateY(-4px);border-color:rgba(194,107,60,.3);box-shadow:0 8px 32px rgba(194,107,60,.1)}
+.card-accent{position:absolute;top:0;left:0;right:0;height:3px}
+.card-icon{font-size:28px;margin-bottom:10px}
+.card h3{font-size:1rem;font-weight:700;margin-bottom:8px;color:var(--text)}
+.card p{font-size:13px;color:var(--dim);line-height:1.6}
+.card .badge{display:inline-block;padding:3px 8px;border-radius:8px;font-size:11px;font-weight:600;margin-top:8px;font-family:'JetBrains Mono',monospace}
 
-/* Architecture layers */
-.arch-diagram{position:relative;cursor:pointer}
-.layer-row{display:flex;align-items:stretch;margin-bottom:calc(var(--sp)*1);border:1px solid var(--border);border-radius:4px;overflow:hidden;transition:border-color .2s}
-.layer-row:hover,.layer-row.active{border-color:var(--accent)}
-.layer-label{min-width:120px;background:var(--bg3);padding:calc(var(--sp)*2);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;user-select:none}
-.layer-label .lnum{color:var(--accent);font-size:1.3rem;font-weight:700}
-.layer-label .lname{font-size:0.8rem;color:var(--text2);margin-top:2px}
-.layer-detail{flex:1;padding:calc(var(--sp)*2) calc(var(--sp)*3);background:var(--bg2);display:none;font-size:0.9rem}
-.layer-row.active .layer-detail{display:block}
-.layer-detail ul{margin-left:calc(var(--sp)*2);color:var(--text2)}
-.layer-detail li{margin-bottom:calc(var(--sp)*1)}
-.layer-detail li strong{color:var(--text)}
+/* Architecture diagram */
+.arch-diagram{background:var(--code-bg);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:24px;margin:20px 0;overflow-x:auto}
+.arch-row{display:flex;align-items:center;justify-content:center;gap:12px;margin:8px 0;flex-wrap:wrap}
+.arch-box{padding:10px 18px;border-radius:8px;font-size:13px;font-weight:600;text-align:center;font-family:'JetBrains Mono',monospace;min-width:120px;position:relative;transition:all .3s}
+.arch-box:hover{transform:scale(1.05)}
+.arch-arrow{color:var(--dim);font-size:18px;padding:0 4px}
+.arch-arrow.down{transform:rotate(90deg);display:block;text-align:center;margin:4px 0}
+.arch-label{font-size:11px;color:var(--dim);text-align:center;margin-top:4px;font-family:'JetBrains Mono',monospace}
 
-/* Arrow connectors between layers */
-.arch-arrow{text-align:center;color:var(--text3);font-size:1.2rem;padding:2px 0;user-select:none}
+/* Code block */
+.code-block{background:var(--code-bg);border:1px solid rgba(255,255,255,.08);border-radius:12px;overflow:hidden;margin:16px 0}
+.code-header{display:flex;align-items:center;gap:8px;padding:10px 16px;background:rgba(255,255,255,.03);border-bottom:1px solid rgba(255,255,255,.06)}
+.code-dot{width:10px;height:10px;border-radius:50%}
+.code-dot.r{background:#ff5f57}.code-dot.y{background:#febc2e}.code-dot.g{background:#28c840}
+.code-title{margin-left:8px;font-size:12px;color:var(--dim);font-family:'JetBrains Mono',monospace}
+.code-body{padding:16px;overflow-x:auto;font-size:13px;line-height:1.7}
+.code-body::-webkit-scrollbar{height:6px}.code-body::-webkit-scrollbar-thumb{background:#333;border-radius:3px}
+pre{margin:0;white-space:pre}
+.keyword{color:#ff79c6}.string{color:#f1fa8c}.comment{color:#6272a4}.func{color:#50fa7b}.number{color:#bd93f9}.type{color:#8be9fd}.op{color:#ff79c6}
 
-/* Pipeline animation */
-.pipeline-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:calc(var(--sp)*4);overflow-x:auto}
-.pipeline{display:flex;align-items:center;gap:0;min-width:700px;position:relative}
-.pipe-stage{background:var(--bg3);border:1px solid var(--border);padding:calc(var(--sp)*2) calc(var(--sp)*3);border-radius:4px;text-align:center;min-width:110px;font-size:0.85rem;position:relative;cursor:pointer;transition:border-color .2s,background .2s}
-.pipe-stage:hover,.pipe-stage.lit{border-color:var(--accent);background:var(--accent-dim)}
-.pipe-stage .stage-name{font-weight:600;font-size:0.8rem}
-.pipe-stage .stage-detail{font-size:0.75rem;color:var(--text2);margin-top:2px}
-.pipe-arrow{color:var(--text3);font-size:1.2rem;padding:0 4px;flex-shrink:0}
-.pipe-arrow.active{color:var(--accent)}
-.pipeline-legend{margin-top:calc(var(--sp)*3);font-size:0.85rem;color:var(--text2);text-align:center}
-.pipeline-controls{display:flex;gap:calc(var(--sp)*2);justify-content:center;margin-top:calc(var(--sp)*2)}
-.pipeline-controls button{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:6px 16px;border-radius:4px;cursor:pointer;font-size:0.85rem}
-.pipeline-controls button:hover{border-color:var(--accent);color:var(--accent)}
-.pipeline-controls button.active{background:var(--accent);border-color:var(--accent);color:#fff}
+/* Comparison table */
+.comparison-table{width:100%;border-collapse:separate;border-spacing:0;margin:16px 0;font-size:13px}
+.comparison-table th{background:rgba(194,107,60,.1);color:var(--accent2);padding:12px 16px;text-align:left;font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:1px;border-bottom:2px solid rgba(194,107,60,.2)}
+.comparison-table th:first-child{border-radius:10px 0 0 0}
+.comparison-table th:last-child{border-radius:0 10px 0 0}
+.comparison-table td{padding:10px 16px;border-bottom:1px solid rgba(255,255,255,.04);color:var(--text)}
+.comparison-table tr:hover td{background:rgba(194,107,60,.04)}
+.comparison-table .check{color:var(--green)}
+.comparison-table .cross{color:var(--danger)}
+.comparison-table .partial{color:var(--amber)}
 
-/* Comparison */
-.comp-tabs{display:flex;gap:calc(var(--sp)*1);margin-bottom:calc(var(--sp)*3)}
-.comp-tab{padding:6px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:4px;cursor:pointer;font-size:0.85rem;color:var(--text2);user-select:none}
-.comp-tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
-.comp-table{width:100%;border-collapse:collapse;font-size:0.9rem}
-.comp-table th,.comp-table td{padding:calc(var(--sp)*1) calc(var(--sp)*2);border-bottom:1px solid var(--border);text-align:left}
-.comp-table th{color:var(--text2);font-weight:500;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;user-select:none}
-.comp-table th:hover{color:var(--accent)}
-.comp-table th.col-sys{min-width:80px}
-.comp-table td:first-child{color:var(--text2);font-size:0.85rem;white-space:nowrap}
-.comp-table .val-good{color:var(--accent)}
-.comp-table .val-neutral{color:var(--text)}
-.comp-table .val-weak{color:var(--text3)}
-.comp-panel{display:none}
-.comp-panel.active{display:block}
-.comp-sortable{cursor:pointer}
-.comp-sortable::after{content:" ↕";font-size:0.7rem;opacity:0.4}
+/* Flow steps */
+.flow-steps{display:flex;flex-direction:column;gap:0;margin:16px 0}
+.flow-step{display:flex;gap:16px;position:relative}
+.flow-step-line{width:2px;background:linear-gradient(to bottom,var(--accent),var(--amber));margin-left:20px;flex-shrink:0}
+.flow-step:last-child .flow-step-line{background:transparent}
+.flow-step-dot{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0;color:#000;z-index:1}
+.flow-step-content{padding:8px 0 24px 16px;flex:1}
+.flow-step-content h4{font-size:1rem;font-weight:700;margin-bottom:6px}
+.flow-step-content p{font-size:13px;color:var(--dim);line-height:1.6}
 
-/* Decisions */
-.decision{border:1px solid var(--border);border-radius:4px;margin-bottom:calc(var(--sp)*2);overflow:hidden}
-.decision-head{background:var(--bg2);padding:calc(var(--sp)*2) calc(var(--sp)*3);cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none}
-.decision-head:hover{background:var(--bg3)}
-.decision-head h3{margin:0;font-size:0.95rem}
-.decision-head .arrow{color:var(--text3);transition:transform .2s;font-size:1.2rem}
-.decision.open .decision-head .arrow{transform:rotate(90deg)}
-.decision-body{padding:0 calc(var(--sp)*3);max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s ease;font-size:0.9rem;color:var(--text2)}
-.decision.open .decision-body{max-height:500px;padding:calc(var(--sp)*2) calc(var(--sp)*3) calc(var(--sp)*3)}
+/* Memory types tabs */
+.tabs{display:flex;gap:4px;margin-bottom:16px;flex-wrap:wrap}
+.tab-btn{padding:8px 16px;border:1px solid rgba(255,255,255,.1);border-radius:8px;background:transparent;color:var(--dim);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit}
+.tab-btn:hover{border-color:var(--accent);color:var(--accent)}
+.tab-btn.active{background:rgba(194,107,60,.15);border-color:var(--accent);color:var(--accent)}
+.tab-panel{display:none;animation:fadeIn .3s ease}
+.tab-panel.active{display:block}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
 
-/* Roadmap */
-.roadmap{display:grid;gap:calc(var(--sp)*2)}
-.roadmap-item{display:flex;gap:calc(var(--sp)*3);align-items:flex-start;background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:calc(var(--sp)*3)}
-.roadmap-priority{width:32px;height:32px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;flex-shrink:0;color:#fff}
-.roadmap-priority.high{background:#c0392b}
-.roadmap-priority.med{background:#d4a017}
-.roadmap-priority.low{background:#27ae60}
-.roadmap-item h4{font-size:0.95rem;margin-bottom:4px}
-.roadmap-item p{font-size:0.85rem;color:var(--text2);margin:0}
+/* Key points */
+.key-point{display:flex;gap:12px;padding:12px 16px;background:rgba(194,107,60,.06);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;margin:12px 0;font-size:14px}
+.key-point .icon{font-size:18px;flex-shrink:0}
+.key-point.warning{background:rgba(245,158,11,.06);border-color:var(--amber)}
+.key-point.success{background:rgba(16,185,129,.06);border-color:var(--green)}
 
-/* Boundaries */
-.boundaries{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:calc(var(--sp)*3)}
-.boundaries ul{margin-left:calc(var(--sp)*2)}
-.boundaries li{margin-bottom:calc(var(--sp)*1);font-size:0.9rem;color:var(--text2)}
-.boundaries li strong{color:var(--text)}
+/* Inline code */
+code.inline{background:rgba(194,107,60,.15);color:var(--accent2);padding:2px 6px;border-radius:4px;font-size:12px;font-family:'JetBrains Mono',monospace}
 
-/* Summary */
-.summary-box{background:var(--bg2);border:1px solid var(--accent);border-radius:4px;padding:calc(var(--sp)*4)}
-.summary-box p{margin-bottom:calc(var(--sp)*2);font-size:0.95rem}
-.summary-box p:last-child{margin-bottom:0}
+/* Links section */
+.links-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin:16px 0}
+.link-card{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg3);border:1px solid rgba(255,255,255,.06);border-radius:10px;transition:all .2s}
+.link-card:hover{border-color:rgba(194,107,60,.3);transform:translateY(-2px);text-decoration:none}
+.link-card .link-icon{font-size:24px}
+.link-card .link-info h4{font-size:14px;font-weight:600;color:var(--text)}
+.link-card .link-info p{font-size:12px;color:var(--dim);margin:0}
+
+/* Separator */
+.sep{height:1px;background:linear-gradient(to right,transparent,rgba(194,107,60,.2),transparent);margin:32px 0}
 
 /* Footer */
-footer{padding:calc(var(--sp)*6) 0;text-align:center;color:var(--text3);font-size:0.8rem;border-top:1px solid var(--border)}
+footer{text-align:center;padding:40px 20px;color:var(--dim);font-size:12px;border-top:1px solid rgba(255,255,255,.04);margin-top:40px}
+footer a{color:var(--accent)}
+
+/* Animated glow */
+@keyframes portalGlow{0%{opacity:.3}50%{opacity:.6}100%{opacity:.3}}
+.glow-orb{position:absolute;border-radius:50%;filter:blur(80px);animation:portalGlow 6s ease-in-out infinite;pointer-events:none}
 
 /* Responsive */
-@media(max-width:640px){
-  .hero h1{font-size:1.5rem}
-  .container{padding:0 calc(var(--sp)*2)}
-  .layer-label{min-width:80px;padding:calc(var(--sp)*1)}
-  .layer-label .lnum{font-size:1rem}
-  .comp-table{font-size:0.8rem}
-  .comp-table th,.comp-table td{padding:4px 6px}
-  .pipe-stage{min-width:80px;padding:calc(var(--sp)*1) calc(var(--sp)*2)}
+@media(max-width:768px){
+  .container{padding:0 12px 40px}
+  .section{padding:20px}
+  .hero{min-height:320px;padding:60px 16px 40px}
+  .hero-stats{gap:20px}
+  .arch-row{flex-direction:column}
+  .cards-grid{grid-template-columns:1fr}
+  .comparison-table{font-size:12px}
+  .comparison-table th,.comparison-table td{padding:8px 10px}
 }
 </style>
 </head>
 <body>
 
+<a href="/" class="back-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5m0 0l7 7m-7-7l7-7"/></svg>
+  返回知识库
+</a>
+
+<!-- Hero Section -->
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="glow-orb" style="width:300px;height:300px;background:rgba(194,107,60,.15);top:-100px;right:-50px"></div>
+  <div class="glow-orb" style="width:200px;height:200px;background:rgba(232,168,124,.1);bottom:-50px;left:10%;animation-delay:3s"></div>
+  <div class="hero-content">
+    <div class="hero-icon">🧠</div>
+    <h1>Dawn AI 记忆系统架构</h1>
+    <p class="subtitle">4-Layer Event-Driven Memory Architecture</p>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="num">4</div>
+        <div class="label">Memory Layers</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num">7</div>
+        <div class="label">Pipeline Steps</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num">1024d</div>
+        <div class="label">Embedding</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num">Spring</div>
+        <div class="label">Tech Stack</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="container">
 
-<!-- Hero -->
-<div class="hero">
-  <h1>Dawn AI <span>记忆系统</span></h1>
-  <p class="hero-sub">4 层事件驱动架构，从短期缓存到长期人格画像的完整记忆生命周期管理</p>
-  <div class="hero-verdict">核心结论：用进废退的记忆衰减策略 + 异步事件管线</div>
-</div>
+  <!-- Section 1: What is Dawn AI Memory -->
+  <div class="section">
+    <div class="section-glow"></div>
+    <div class="section-title">
+      <div class="icon" style="background:rgba(194,107,60,.15)">💡</div>
+      <h2>什么是 Dawn AI 记忆系统？</h2>
+      <span class="tag" style="background:rgba(194,107,60,.15);color:var(--accent)">CORE CONCEPTS</span>
+    </div>
+    
+    <p>Dawn AI 的记忆系统是一个<strong>四层事件驱动架构</strong>，为 AI Agent 提供从短期工作记忆到长期用户画像的完整记忆生命周期管理。核心设计理念：</p>
+    
+    <div class="key-point">
+      <div class="icon">🎯</div>
+      <div>每次对话不应是「失忆」的——Agent 需要记住过去、理解现在、预判未来。四层分离确保每一层都有独立的存储引擎和生命周期策略，而非单一向量库兜底。</div>
+    </div>
 
-<div class="meta-bar">
-  <span class="tag">Dawn AI</span>
-  <span>高级</span>
-  <span>15 min</span>
-  <span>2026-06-02</span>
-  <span>Spring AI · PGVector · Redis</span>
-</div>
-
-<!-- 1. Key Takeaways -->
-<h2>核心判断</h2>
-<div class="takeaways">
-  <div class="takeaway">
-    <div class="num">01</div>
-    <h3>四层分离，各司其职</h3>
-    <p>Working → Pending → Episodic → Profile，每层有独立的存储引擎和生命周期策略，而非单一向量库兜底。</p>
-  </div>
-  <div class="takeaway">
-    <div class="num">02</div>
-    <h3>事件驱动，完全异步</h3>
-    <p>消息写入不阻塞响应。Summarization、Consolidation、Reflection 三阶段通过 Spring Event 解耦，任何一步失败不影响用户体验。</p>
-  </div>
-  <div class="takeaway">
-    <div class="num">03</div>
-    <h3>用进废退，自动演化</h3>
-    <p>记忆重要性随时间指数衰减，被检索则刷新权重。低重要性记忆在 180 天后自动清除，reflection 类记忆豁免驱逐。</p>
-  </div>
-</div>
-
-<!-- 2. Architecture Overview -->
-<h2>架构总览</h2>
-<p style="color:var(--text2);margin-bottom:calc(var(--sp)*3);font-size:0.9rem">点击各层查看详细设计</p>
-
-<div class="arch-diagram" id="archDiagram">
-  <div class="layer-row" data-layer="4">
-    <div class="layer-label"><span class="lnum">L4</span><span class="lname">User Profile</span></div>
-    <div class="layer-detail">
-      <ul>
-        <li><strong>存储引擎：</strong>Redis Hash，30 天 TTL</li>
-        <li><strong>数据来源：</strong>ReflectionWorker 从长期记忆中提取的人格特征</li>
-        <li><strong>注入方式：</strong>以结构化 key-value 对形式注入 System Prompt</li>
-        <li><strong>设计意图：</strong>让模型"记住"用户是谁，而非记住用户说了什么</li>
-      </ul>
+    <div class="cards-grid">
+      <div class="card">
+        <div class="card-accent" style="background:linear-gradient(to right,var(--accent),var(--amber))"></div>
+        <div class="card-icon">🏗️</div>
+        <h3>四层分离</h3>
+        <p>Working → Pending → Episodic → Profile，每层有独立的存储引擎和生命周期策略，各司其职。</p>
+      </div>
+      <div class="card">
+        <div class="card-accent" style="background:linear-gradient(to right,var(--green),var(--sky))"></div>
+        <div class="card-icon">⚡</div>
+        <h3>事件驱动</h3>
+        <p>消息写入不阻塞响应。Summarization、Consolidation、Reflection 三阶段通过 Spring Event 解耦，任何一步失败不影响用户体验。</p>
+      </div>
+      <div class="card">
+        <div class="card-accent" style="background:linear-gradient(to right,var(--pink),var(--amber))"></div>
+        <div class="card-icon">🔄</div>
+        <h3>用进废退</h3>
+        <p>记忆重要性随时间指数衰减，被检索则刷新权重。低重要性记忆在 180 天后自动清除，reflection 类记忆豁免驱逐。</p>
+      </div>
     </div>
   </div>
-  <div class="arch-arrow">↑ ReflectionWorker 提炼</div>
 
-  <div class="layer-row" data-layer="3">
-    <div class="layer-label"><span class="lnum">L3</span><span class="lname">Episodic Memory</span></div>
-    <div class="layer-detail">
-      <ul>
-        <li><strong>存储引擎：</strong>PGVector，HNSW 索引，余弦距离，1024 维 embedding</li>
-        <li><strong>两种记忆类型：</strong>summary（重要性 0.5）和 reflection（重要性 0.9）</li>
-        <li><strong>元数据：</strong>type / sessionId / importance / createdAt / lastAccessedAt</li>
-        <li><strong>衰减公式：</strong>importance *= 0.5^(days/30)，下限 0.01</li>
-        <li><strong>驱逐条件：</strong>importance &lt; 0.1 且 age &gt; 180 天（reflection 豁免）</li>
-      </ul>
+  <!-- Section 2: Architecture -->
+  <div class="section">
+    <div class="section-glow"></div>
+    <div class="section-title">
+      <div class="icon" style="background:rgba(16,185,129,.15)">🏗️</div>
+      <h2>系统架构</h2>
+      <span class="tag" style="background:rgba(16,185,129,.15);color:var(--green)">ARCHITECTURE</span>
+    </div>
+
+    <p>Dawn AI 采用<strong>四层分层架构</strong>：L1 Working Memory 处理实时对话，L2 Pending Queue 批量积累，L3 Episodic Memory 向量持久化，L4 User Profile 提炼用户人格。每层独立存储，逐层向上流动。</p>
+
+    <div class="arch-diagram">
+      <div style="text-align:center;margin-bottom:16px;color:var(--dim);font-size:12px;letter-spacing:2px;text-transform:uppercase">Dawn AI 四层记忆架构</div>
+      
+      <!-- L4: User Profile -->
+      <div class="arch-row">
+        <div class="arch-box" style="background:rgba(194,107,60,.15);border:1px solid rgba(194,107,60,.3);color:var(--accent2);width:100%;max-width:500px">
+          <div style="font-size:18px;margin-bottom:4px">👤</div>
+          <strong>L4 User Profile</strong><br>
+          <span style="font-size:11px;opacity:.7">Redis Hash · 30天 TTL · System Prompt 注入</span>
+        </div>
+      </div>
+      <div class="arch-arrow down">↑</div>
+      <div class="arch-label">ReflectionWorker 提炼</div>
+      
+      <!-- L3: Episodic Memory -->
+      <div class="arch-row">
+        <div class="arch-box" style="background:rgba(194,107,60,.12);border:2px solid rgba(194,107,60,.4);color:var(--accent2);width:100%;max-width:500px;padding:14px">
+          <div style="font-size:18px;margin-bottom:4px">📚</div>
+          <strong>L3 Episodic Memory</strong><br>
+          <span style="font-size:11px;opacity:.7">PGVector · HNSW 索引 · 1024d cosine · 指数衰减</span>
+        </div>
+      </div>
+      <div class="arch-arrow down">↑</div>
+      <div class="arch-label">Consolidation 写入</div>
+      
+      <!-- L2: Pending Queue -->
+      <div class="arch-row">
+        <div class="arch-box" style="background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3);color:var(--amber);width:100%;max-width:500px">
+          <div style="font-size:18px;margin-bottom:4px">📥</div>
+          <strong>L2 Pending Queue</strong><br>
+          <span style="font-size:11px;opacity:.7">Redis List · 批量触发 · batch-size=5 · 100字摘要</span>
+        </div>
+      </div>
+      <div class="arch-arrow down">↑</div>
+      <div class="arch-label">批次积累触发</div>
+      
+      <!-- L1: Working Memory -->
+      <div class="arch-row">
+        <div class="arch-box" style="background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);color:var(--green);width:100%;max-width:500px">
+          <div style="font-size:18px;margin-bottom:4px">📝</div>
+          <strong>L1 Working Memory</strong><br>
+          <span style="font-size:11px;opacity:.7">Redis List · 20条滑动窗口 · 2h TTL · 降级到本地缓存</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="key-point success">
+      <div class="icon">✅</div>
+      <div><strong>降级策略：</strong>Redis 不可用时回退到本地 ConcurrentHashMap；LLM 不可用时 importance 固定为 0.3。Atomic RENAME 确保 pending queue 排空原子性，保证数据安全。</div>
     </div>
   </div>
-  <div class="arch-arrow">↑ Consolidation 写入</div>
 
-  <div class="layer-row" data-layer="2">
-    <div class="layer-label"><span class="lnum">L2</span><span class="lname">Pending Queue</span></div>
-    <div class="layer-detail">
-      <ul>
-        <li><strong>存储引擎：</strong>Redis List（:pending 后缀）</li>
-        <li><strong>触发条件：</strong>批次积累达到 batch-size 后触发 LLM 摘要</li>
-        <li><strong>默认批次大小：</strong>5 条消息（测试环境 3 条）</li>
-        <li><strong>摘要输出：</strong>约 100 字的精炼摘要</li>
-      </ul>
+  <!-- Section 3: Memory Layers (Tabs) -->
+  <div class="section">
+    <div class="section-glow"></div>
+    <div class="section-title">
+      <div class="icon" style="background:rgba(236,72,153,.15)">🗂️</div>
+      <h2>记忆层级</h2>
+      <span class="tag" style="background:rgba(236,72,153,.15);color:var(--pink)">MEMORY LAYERS</span>
+    </div>
+
+    <p>四层记忆各司其职，从实时对话缓存到长期人格画像，逐层提炼：</p>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('l1')">📝 L1 工作记忆</button>
+      <button class="tab-btn" onclick="switchTab('l2')">📥 L2 待处理队列</button>
+      <button class="tab-btn" onclick="switchTab('l3')">📚 L3 情景记忆</button>
+      <button class="tab-btn" onclick="switchTab('l4')">👤 L4 用户画像</button>
+    </div>
+
+    <div id="tab-l1" class="tab-panel active">
+      <div class="card" style="margin:0">
+        <div class="card-accent" style="background:linear-gradient(to right,var(--green),var(--green2))"></div>
+        <h3 style="color:var(--green2)">📝 L1 工作记忆（Working Memory）</h3>
+        <p style="margin-top:12px">类似人类的「工作记忆」，存储当前会话中的实时对话历史。</p>
+        <div class="key-point" style="margin-top:12px">
+          <div class="icon">📌</div>
+          <div>典型场景：用户在对话中提到「我正在处理一个紧急 bug」，工作记忆会记住这个上下文，但 2 小时后自动过期。</div>
+        </div>
+        <div class="code-block" style="margin-top:12px">
+          <div class="code-header">
+            <div class="code-dot r"></div><div class="code-dot y"></div><div class="code-dot g"></div>
+            <span class="code-title">L1 Working Memory 配置</span>
+          </div>
+          <pre class="code-body"><span class="comment">存储引擎    Redis List (降级: ConcurrentHashMap)</span>
+<span class="comment">Key         ai:session:{sessionId}</span>
+<span class="comment">窗口大小    20 条消息滑动窗口</span>
+<span class="comment">TTL         2 小时</span>
+<span class="comment">原子性      Atomic RENAME 确保 pending 排空</span>
+<span class="comment">写入时机    每次用户消息到达时实时写入</span></pre>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-l2" class="tab-panel">
+      <div class="card" style="margin:0">
+        <div class="card-accent" style="background:linear-gradient(to right,var(--amber),var(--amber2))"></div>
+        <h3 style="color:var(--amber2)">📥 L2 待处理队列（Pending Queue）</h3>
+        <p style="margin-top:12px">批量积累消息，达到阈值后触发 LLM 摘要，是连接 L1 和 L3 的桥梁。</p>
+        <div class="key-point" style="margin-top:12px">
+          <div class="icon">🔑</div>
+          <div><strong>关键机制：</strong>每 5 条消息（测试环境 3 条）触发一次 <code class="inline">SummarizationRequestEvent</code>，LLM 将对话压缩为约 100 字的精炼摘要。</div>
+        </div>
+        <div class="code-block" style="margin-top:12px">
+          <div class="code-header">
+            <div class="code-dot r"></div><div class="code-dot y"></div><div class="code-dot g"></div>
+            <span class="code-title">L2 Pending Queue 配置</span>
+          </div>
+          <pre class="code-body"><span class="comment">存储引擎    Redis List (:pending 后缀)</span>
+<span class="comment">Key         ai:session:{sessionId}:pending</span>
+<span class="comment">批次大小    默认 5 条 (测试环境 3 条)</span>
+<span class="comment">摘要输出    约 100 字精炼摘要</span>
+<span class="comment">触发事件    SummarizationRequestEvent</span>
+<span class="comment">TTL         2 小时</span></pre>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-l3" class="tab-panel">
+      <div class="card" style="margin:0">
+        <div class="card-accent" style="background:linear-gradient(to right,var(--accent),var(--accent2))"></div>
+        <h3 style="color:var(--accent2)">📚 L3 情景记忆（Episodic Memory）</h3>
+        <p style="margin-top:12px">Dawn AI 的核心长期记忆层——基于向量嵌入的语义记忆，支持模糊匹配和概念关联。</p>
+        <div class="key-point" style="margin-top:12px">
+          <div class="icon">💡</div>
+          <div>两种记忆类型：<code class="inline">summary</code>（重要性 0.5）来自 LLM 摘要，<code class="inline">reflection</code>（重要性 0.9）来自 ReflectionWorker 的高阶提炼。搜索「旅行偏好」能匹配到「喜欢去海边度假」，因为两者在语义空间中相近。</div>
+        </div>
+        <div class="code-block" style="margin-top:12px">
+          <div class="code-header">
+            <div class="code-dot r"></div><div class="code-dot y"></div><div class="code-dot g"></div>
+            <span class="code-title">L3 Episodic Memory 配置</span>
+          </div>
+          <pre class="code-body"><span class="comment">存储引擎    PostgreSQL + pgvector 扩展</span>
+<span class="comment">索引类型    HNSW (余弦距离)</span>
+<span class="comment">Embedding   1024 维向量</span>
+<span class="comment">元数据      type / sessionId / importance / createdAt / lastAccessedAt</span>
+<span class="comment">衰减公式    importance *= 0.5^(days/30)，下限 0.01</span>
+<span class="comment">驱逐条件    importance &lt; 0.1 AND age &gt; 180天 (reflection 豁免)</span></pre>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-l4" class="tab-panel">
+      <div class="card" style="margin:0">
+        <div class="card-accent" style="background:linear-gradient(to right,var(--pink),var(--pink2))"></div>
+        <h3 style="color:var(--pink2)">👤 L4 用户画像（User Profile）</h3>
+        <p style="margin-top:12px">从长期记忆中提炼的用户人格特征，注入 System Prompt 让模型「记住」用户是谁。</p>
+        <div class="key-point" style="margin-top:12px">
+          <div class="icon">🔑</div>
+          <div><strong>设计意图：</strong>让模型「记住」用户是谁，而非记住用户说了什么。Profile 以结构化 key-value 对形式注入 System Prompt，每次对话都生效，不占用检索配额。</div>
+        </div>
+        <div class="code-block" style="margin-top:12px">
+          <div class="code-header">
+            <div class="code-dot r"></div><div class="code-dot y"></div><div class="code-dot g"></div>
+            <span class="code-title">L4 User Profile 配置</span>
+          </div>
+          <pre class="code-body"><span class="comment">存储引擎    Redis Hash</span>
+<span class="comment">Key         ai:profile:{userId}</span>
+<span class="comment">TTL         30 天</span>
+<span class="comment">数据来源    ReflectionWorker 从长期记忆中提取</span>
+<span class="comment">输出格式    约 200 字用户人格特征</span>
+<span class="comment">注入方式    结构化 key-value → System Prompt</span></pre>
+        </div>
+      </div>
     </div>
   </div>
-  <div class="arch-arrow">↑ 批次积累触发</div>
 
-  <div class="layer-row" data-layer="1">
-    <div class="layer-label"><span class="lnum">L1</span><span class="lname">Working Memory</span></div>
-    <div class="layer-detail">
-      <ul>
-        <li><strong>存储引擎：</strong>Redis List，20 条消息滑动窗口，2 小时 TTL</li>
-        <li><strong>降级策略：</strong>Redis 不可用时回退到本地 ConcurrentHashMap</li>
-        <li><strong>数据安全：</strong>Atomic RENAME 确保 pending queue 排空原子性</li>
-      </ul>
+  <!-- Section 4: Pipeline -->
+  <div class="section">
+    <div class="section-glow"></div>
+    <div class="section-title">
+      <div class="icon" style="background:rgba(245,158,11,.15)">⚙️</div>
+      <h2>事件驱动流水线</h2>
+      <span class="tag" style="background:rgba(245,158,11,.15);color:var(--amber)">PIPELINE</span>
+    </div>
+
+    <p>当用户发送消息时，Dawn AI 内部执行以下<strong>7 步事件驱动处理流程</strong>：</p>
+
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="flow-step-dot" style="background:var(--green)">1</div>
+        <div class="flow-step-line"></div>
+        <div class="flow-step-content">
+          <h4 style="color:var(--green2)">📥 消息写入</h4>
+          <p>用户消息到达，调用 <code class="inline">addMessage</code> 写入 Redis List。消息进入 L1 Working Memory 的 20 条滑动窗口，实时可读。</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-dot" style="background:var(--amber)">2</div>
+        <div class="flow-step-line"></div>
+        <div class="flow-step-content">
+          <h4 style="color:var(--amber2)">📊 批量积累</h4>
+          <p>消息同时写入 L2 Pending Queue（<code class="inline">:pending</code> 后缀）。当积累达到 <code class="inline">batch-size=5</code> 条时，触发下一步摘要流程。</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-dot" style="background:var(--accent)">3</div>
+        <div class="flow-step-line"></div>
+        <div class="flow-step-content">
+          <h4 style="color:var(--accent2)">🧠 LLM 摘要</h4>
+          <p>触发 <code class="inline">SummarizationRequestEvent</code>，<code class="inline">MemorySummarizer</code> 将 5 条消息压缩为约 100 字的精炼摘要。LLM 不可用时 importance 降级为 0.3。</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-dot" style="background:var(--sky)">4</div>
+        <div class="flow-step-line"></div>
+        <div class="flow-step-content">
+          <h4 style="color:var(--sky2)">💾 向量持久化</h4>
+          <p><code class="inline">MemoryConsolidator</code> 将摘要写入 PGVector，生成 1024 维 embedding，建立 HNSW 索引。记忆类型标记为 <code class="inline">summary</code>，初始重要性 0.5。</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-dot" style="background:var(--pink)">5</div>
+        <div class="flow-step-line"></div>
+        <div class="flow-step-content">
+          <h4 style="color:var(--pink2)">🔄 计数触发</h4>
+          <p>使用 CAS（Compare-And-Swap）原子计数器追踪摘要次数。当计数达到 <code class="inline">reflection-threshold</code> 时，触发长期反思流程。</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-dot" style="background:var(--danger)">6</div>
+        <div class="flow-step-line"></div>
+        <div class="flow-step-content">
+          <h4 style="color:var(--danger)">🔮 长期反思</h4>
+          <p><code class="inline">ReflectionWorker</code> 从多条 summary 中提炼高阶认知，生成约 200 字的用户人格特征。类型标记为 <code class="inline">reflection</code>，重要性 0.9，永不淘汰。</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-dot" style="background:var(--accent)">7</div>
+        <div class="flow-step-content">
+          <h4 style="color:var(--accent2)">👤 画像注入</h4>
+          <p>用户人格特征写入 L4 Redis Hash，以结构化 key-value 对形式注入下次对话的 System Prompt。模型每次都能感知用户身份。</p>
+        </div>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- 3. Pipeline Animation -->
-<h2>管线流程</h2>
-<p style="color:var(--text2);margin-bottom:calc(var(--sp)*3);font-size:0.9rem">模拟消息从写入到人格画像的完整流转路径</p>
+  <!-- Section 5: Memory Lifecycle -->
+  <div class="section">
+    <div class="section-glow"></div>
+    <div class="section-title">
+      <div class="icon" style="background:rgba(236,72,153,.15)">🔀</div>
+      <h2>记忆生命周期</h2>
+      <span class="tag" style="background:rgba(236,72,153,.15);color:var(--pink)">LIFECYCLE</span>
+    </div>
 
-<div class="pipeline-wrap">
-  <div class="pipeline" id="pipeline">
-    <div class="pipe-stage" data-idx="0"><div class="stage-name">Message</div><div class="stage-detail">用户消息写入</div></div>
-    <div class="pipe-arrow" data-idx="0">→</div>
-    <div class="pipe-stage" data-idx="1"><div class="stage-name">L1 Cache</div><div class="stage-detail">滑动窗口缓存</div></div>
-    <div class="pipe-arrow" data-idx="1">→</div>
-    <div class="pipe-stage" data-idx="2"><div class="stage-name">L2 Pending</div><div class="stage-detail">批次积累</div></div>
-    <div class="pipe-arrow" data-idx="2">→</div>
-    <div class="pipe-stage" data-idx="3"><div class="stage-name">LLM Summarize</div><div class="stage-detail">生成摘要</div></div>
-    <div class="pipe-arrow" data-idx="3">→</div>
-    <div class="pipe-stage" data-idx="4"><div class="stage-name">L3 Episodic</div><div class="stage-detail">向量存储</div></div>
-    <div class="pipe-arrow" data-idx="4">→</div>
-    <div class="pipe-stage" data-idx="5"><div class="stage-name">Reflection</div><div class="stage-detail">长期反思</div></div>
-    <div class="pipe-arrow" data-idx="5">→</div>
-    <div class="pipe-stage" data-idx="6"><div class="stage-name">L4 Profile</div><div class="stage-detail">人格画像</div></div>
-  </div>
-  <div class="pipeline-controls">
-    <button id="btnPlay">播放</button>
-    <button id="btnReset">重置</button>
-  </div>
-  <div class="pipeline-legend" id="pipelineLegend">点击「播放」观看数据流转动画</div>
-</div>
+    <p>Dawn AI 的记忆不是「写了就忘」，而是有完整的生命周期管理——<strong>用进废退</strong>，模拟人类记忆的自然遗忘曲线。</p>
 
-<!-- 4. Scheduled Jobs -->
-<h3 style="margin-top:calc(var(--sp)*6)">定时任务</h3>
-<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:calc(var(--sp)*2)">
-  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:calc(var(--sp)*2) calc(var(--sp)*3)">
-    <div style="font-weight:600;font-size:0.9rem">驱逐策略</div>
-    <div style="font-size:0.8rem;color:var(--text2);margin-top:4px">每日 03:00 执行，清除低重要性过期记忆</div>
-  </div>
-  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:calc(var(--sp)*2) calc(var(--sp)*3)">
-    <div style="font-weight:600;font-size:0.9rem">重要性衰减</div>
-    <div style="font-size:0.8rem;color:var(--text2);margin-top:4px">每日 03:30 执行，指数衰减所有记忆权重</div>
-  </div>
-  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:calc(var(--sp)*2) calc(var(--sp)*3)">
-    <div style="font-weight:600;font-size:0.9rem">访问时间刷新</div>
-    <div style="font-size:0.8rem;color:var(--text2);margin-top:4px">每次检索时触发，刷新 lastAccessedAt</div>
-  </div>
-</div>
+    <div class="key-point">
+      <div class="icon">📉</div>
+      <div><strong>指数衰减：</strong><code class="inline">importance *= 0.5^(days/30)</code> —— 30 天衰减到 50%，60 天衰减到 25%，90 天衰减到 12.5%。下限 0.01，避免完全归零。</div>
+    </div>
 
-<!-- 5. Comparison Matrix -->
-<h2>横向对比</h2>
+    <div class="key-point success">
+      <div class="icon">🔄</div>
+      <div><strong>访问刷新：</strong>每次检索命中时更新 <code class="inline">lastAccessedAt</code>，被检索的记忆权重重置。真正实现了「用进废退」的效果——常用的记忆保持活跃，不用的自然褪色。</div>
+    </div>
 
-<div class="comp-tabs" id="compTabs">
-  <div class="comp-tab active" data-target="comp-mem0">vs mem0</div>
-  <div class="comp-tab" data-target="comp-hindsight">vs Hindsight</div>
-</div>
+    <div class="key-point warning">
+      <div class="icon">🗑️</div>
+      <div><strong>自动驱逐：</strong>当 <code class="inline">importance &lt; 0.1</code> 且 <code class="inline">age &gt; 180天</code> 时，记忆被自动清除。每日 03:00 执行驱逐任务，03:30 执行衰减任务。</div>
+    </div>
 
-<div class="comp-panel active" id="comp-mem0">
-  <table class="comp-table">
-    <thead>
-      <tr>
-        <th class="col-sys">维度</th>
-        <th>Dawn AI</th>
-        <th>mem0</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td>记忆层数</td><td class="val-good">4 层（Working→Pending→Episodic→Profile）</td><td class="val-neutral">2 层（Short-term→Long-term）</td></tr>
-      <tr><td>向量存储</td><td class="val-neutral">PGVector (HNSW, 1024d)</td><td class="val-neutral">Qdrant / Chroma / pgvector</td></tr>
-      <tr><td>热存储</td><td class="val-good">Redis（List + Hash）</td><td class="val-weak">无</td></tr>
-      <tr><td>事件驱动</td><td class="val-good">Spring Event 异步管线</td><td class="val-neutral">同步 API</td></tr>
-      <tr><td>重要性衰减</td><td class="val-good">指数衰减 + 访问刷新</td><td class="val-weak">无</td></tr>
-      <tr><td>反思机制</td><td class="val-good">CAS 计数 → ReflectionWorker</td><td class="val-weak">无</td></tr>
-      <tr><td>用户画像</td><td class="val-good">独立 L4，System Prompt 注入</td><td class="val-neutral">嵌入 long-term memory</td></tr>
-      <tr><td>驱逐策略</td><td class="val-good">重要性 + 时间，reflection 豁免</td><td class="val-neutral">时间 / 数量</td></tr>
-      <tr><td>容错</td><td class="val-good">LLM 降级 importance=0.3, Redis→local</td><td class="val-weak">抛出异常</td></tr>
-      <tr><td>技术栈</td><td class="val-neutral">Java / Spring Boot / Spring AI</td><td class="val-neutral">Python / FastAPI</td></tr>
-    </tbody>
-  </table>
-</div>
-
-<div class="comp-panel" id="comp-hindsight">
-  <table class="comp-table">
-    <thead>
-      <tr>
-        <th class="col-sys">维度</th>
-        <th>Dawn AI</th>
-        <th>Hindsight</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td>架构模型</td><td class="val-neutral">4 层层级式</td><td class="val-neutral">4 类记忆（Working / Episodic / Semantic / Procedural）</td></tr>
-      <tr><td>向量存储</td><td class="val-neutral">PGVector 1024d</td><td class="val-neutral">专用向量数据库</td></tr>
-      <tr><td>检索方式</td><td class="val-neutral">单一向量检索</td><td class="val-good">四路检索（向量 + 时间 + 因果 + 图）</td></tr>
-      <tr><td>知识图谱</td><td class="val-weak">无</td><td class="val-good">内置实体关系图</td></tr>
-      <tr><td>因果推理</td><td class="val-weak">无</td><td class="val-good">因果链追踪</td></tr>
-      <tr><td>自我演化</td><td class="val-good">Reflection → Profile 提取</td><td class="val-good">心智模型形成</td></tr>
-      <tr><td>核心优势</td><td class="val-good">简洁、生产就绪、事件驱动</td><td class="val-good">丰富检索、因果推理</td></tr>
-      <tr><td>核心劣势</td><td class="val-weak">无图谱、无因果推理</td><td class="val-weak">部署复杂、基础设施要求高</td></tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- 6. Design Decisions -->
-<h2>设计决策</h2>
-
-<div class="decision" id="d1">
-  <div class="decision-head"><h3>为什么选择指数衰减而非固定过期？</h3><span class="arrow">▸</span></div>
-  <div class="decision-body">
-    <p>固定过期（TTL）无法区分"有用但不常用"和"无用且不常用"的记忆。指数衰减公式 <code>0.5^(days/30)</code> 模拟了人类记忆的遗忘曲线——30 天衰减到一半，60 天衰减到 25%。配合访问刷新机制，被检索的记忆权重重置，实现了"用进废退"的效果。</p>
-  </div>
-</div>
-
-<div class="decision" id="d2">
-  <div class="decision-head"><h3>为什么 Reflection 记忆豁免驱逐？</h3><span class="arrow">▸</span></div>
-  <div class="decision-body">
-    <p>Reflection 是 LLM 从多条 summary 中提炼的高阶认知，代表了对用户的深层理解。这类记忆的生成成本高（需要 LLM 推理）、价值密度大（importance=0.9），且数量有限（由 CAS 计数器控制生成频率），因此不参与常规驱逐。</p>
-  </div>
-</div>
-
-<div class="decision" id="d3">
-  <div class="decision-head"><h3>为什么用 Spring Event 而非消息队列？</h3><span class="arrow">▸</span></div>
-  <div class="decision-body">
-    <p>Summarization → Consolidation → Reflection 的管线本质上是单用户、顺序敏感的操作链。Spring Event 的 <code>@Async</code> 注解足够解耦各阶段，且无需引入 Kafka/RabbitMQ 等外部依赖。对于中小规模部署，这是复杂度和可靠性的最优平衡点。</p>
-  </div>
-</div>
-
-<div class="decision" id="d4">
-  <div class="decision-head"><h3>为什么 Profile 注入 System Prompt 而非作为检索结果？</h3><span class="arrow">▸</span></div>
-  <div class="decision-body">
-    <p>用户画像（"喜欢简洁回答"、"资深后端工程师"）是全局性上下文，每次都应生效。如果作为检索结果，可能因语义不匹配而遗漏。注入 System Prompt 确保模型每次对话都能感知用户身份，且不占用检索配额。</p>
-  </div>
-</div>
-
-<!-- 7. Future Directions -->
-<h2>演进路线</h2>
-
-<div class="roadmap">
-  <div class="roadmap-item">
-    <div class="roadmap-priority high">高</div>
-    <div>
-      <h4>引入 NLP 实体抽取</h4>
-      <p>在摘要阶段提取人物、地点、项目等实体，写入元数据。无需图数据库即可支持"我和张三讨论过什么"类查询，参考 mem0 新算法思路。</p>
+    <div class="key-point" style="background:rgba(194,107,60,.1);border-color:var(--accent2)">
+      <div class="icon">🛡️</div>
+      <div><strong>Reflection 豁免：</strong><code class="inline">type=reflection</code> 的记忆永不淘汰。这类记忆代表 LLM 对用户的深层理解（importance=0.9），生成成本高、价值密度大、数量有限（由 CAS 计数器控制频率）。</div>
     </div>
   </div>
-  <div class="roadmap-item">
-    <div class="roadmap-priority high">高</div>
-    <div>
-      <h4>动态重要性评分</h4>
-      <p>当前 summary 固定 0.5、LLM 降级固定 0.3，应改为基于内容的动态评分。情绪强烈的对话、包含决策的内容应获得更高权重。</p>
-    </div>
-  </div>
-  <div class="roadmap-item">
-    <div class="roadmap-priority med">中</div>
-    <div>
-      <h4>时间推理能力</h4>
-      <p>在检索时考虑事件发生的时间顺序，支持"上周讨论的方案"、"最近的决定"等时间敏感查询。</p>
-    </div>
-  </div>
-  <div class="roadmap-item">
-    <div class="roadmap-priority med">中</div>
-    <div>
-      <h4>多信号检索融合</h4>
-      <p>将单一向量检索扩展为语义 + 关键词 + 实体的多路召回，参考 mem0 的混合检索策略，提升查全率。</p>
-    </div>
-  </div>
-  <div class="roadmap-item">
-    <div class="roadmap-priority low">低</div>
-    <div>
-      <h4>跨会话模式检测</h4>
-      <p>聚合多用户的记忆数据，识别通用行为模式和偏好趋势，用于产品层面的洞察。</p>
-    </div>
-  </div>
-  <div class="roadmap-item">
-    <div class="roadmap-priority low">低</div>
-    <div>
-      <h4>记忆压缩合并</h4>
-      <p>当多条 summary 语义高度重叠时，自动合并以减少存储和检索噪音。需要引入相似度阈值和 LLM 合并策略。</p>
-    </div>
-  </div>
-</div>
 
-<!-- 8. Boundaries -->
-<h2>适用边界</h2>
-<div class="boundaries">
-  <h3>不适合使用此方案的场景</h3>
-  <ul>
-    <li><strong>需要因果推理的场景：</strong>如"为什么用户做了这个决定"——Dawn AI 只记录事实，不追踪因果链。考虑 Hindsight。</li>
-    <li><strong>需要知识图谱的场景：</strong>如实体关系网络查询——当前架构无图结构，实体抽取是第一步但不等价于图谱。</li>
-    <li><strong>超大规模多租户：</strong>Redis + PGVector 的单机组合在万级用户以上会遇到瓶颈，需要分片或托管方案。</li>
-    <li><strong>实时性要求极高的场景：</strong>事件驱动管线存在异步延迟（秒级），不适合需要毫秒级记忆更新的交互。</li>
-    <li><strong>非对话场景：</strong>当前设计围绕对话轮次，不适用于文档记忆、代码记忆等结构化知识管理。</li>
-  </ul>
-</div>
+  <!-- Section 6: Storage Backends -->
+  <div class="section">
+    <div class="section-glow"></div>
+    <div class="section-title">
+      <div class="icon" style="background:rgba(14,165,233,.15)">💾</div>
+      <h2>存储架构</h2>
+      <span class="tag" style="background:rgba(14,165,233,.15);color:var(--sky)">BACKENDS</span>
+    </div>
 
-<!-- 9. Summary -->
-<h2>总结</h2>
-<div class="summary-box">
-  <p>Dawn AI 的记忆系统是一个<strong>面向生产环境的务实设计</strong>。4 层架构在复杂度和能力之间取得了良好平衡：L1-L2 处理实时对话流，L3 承载长期语义记忆，L4 提供稳定的用户画像。事件驱动管线确保了各阶段解耦，指数衰减策略模拟了人类记忆的自然遗忘。</p>
-  <p>与 mem0 相比，Dawn AI 在<strong>容错设计、热存储、记忆演化</strong>上有明显优势；与 Hindsight 相比，Dawn AI <strong>牺牲了图谱和因果推理</strong>，换取了更简单的部署和维护。演进方向是逐步补足实体抽取和多信号检索，而非追求 Hindsight 式的复杂推理。</p>
-  <p>一句话：<strong>简单够用、可逐步演化、生产验证过的记忆架构</strong>。</p>
-</div>
+    <p>四层记忆各有独立的存储引擎，Redis 处理热数据，PGVector 承载长期语义记忆：</p>
+
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th>Layer</th>
+          <th>存储</th>
+          <th>技术</th>
+          <th>TTL</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>L1 Working</strong></td>
+          <td>Redis List</td>
+          <td><code class="inline">ai:session:{id}</code></td>
+          <td>2h</td>
+        </tr>
+        <tr>
+          <td><strong>L2 Pending</strong></td>
+          <td>Redis List</td>
+          <td><code class="inline">ai:session:{id}:pending</code></td>
+          <td>2h</td>
+        </tr>
+        <tr>
+          <td><strong>L3 Episodic</strong></td>
+          <td>PostgreSQL</td>
+          <td>pgvector HNSW, cosine, 1024d</td>
+          <td>由驱逐管理</td>
+        </tr>
+        <tr>
+          <td><strong>L4 Profile</strong></td>
+          <td>Redis Hash</td>
+          <td><code class="inline">ai:profile:{id}</code></td>
+          <td>30d</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Section 7: Comparison -->
+  <div class="section">
+    <div class="section-glow"></div>
+    <div class="section-title">
+      <div class="icon" style="background:rgba(245,158,11,.15)">⚖️</div>
+      <h2>与其他记忆方案对比</h2>
+      <span class="tag" style="background:rgba(245,158,11,.15);color:var(--amber)">COMPARISON</span>
+    </div>
+
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th>特性</th>
+          <th>Dawn AI</th>
+          <th>mem0</th>
+          <th>Hindsight</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>记忆层数</strong></td>
+          <td class="check">4层</td>
+          <td class="partial">2层</td>
+          <td class="check">4类</td>
+        </tr>
+        <tr>
+          <td><strong>向量存储</strong></td>
+          <td>PGVector</td>
+          <td>Qdrant / Chroma</td>
+          <td>专用向量DB</td>
+        </tr>
+        <tr>
+          <td><strong>热存储</strong></td>
+          <td class="check">✅ Redis</td>
+          <td class="cross">❌ 无</td>
+          <td class="cross">❌ 无</td>
+        </tr>
+        <tr>
+          <td><strong>事件驱动</strong></td>
+          <td class="check">✅ Spring Event</td>
+          <td class="partial">⚠️ 同步API</td>
+          <td class="partial">⚠️ 同步</td>
+        </tr>
+        <tr>
+          <td><strong>重要性衰减</strong></td>
+          <td class="check">✅ 指数衰减</td>
+          <td class="cross">❌ 无</td>
+          <td class="cross">❌ 无</td>
+        </tr>
+        <tr>
+          <td><strong>反思机制</strong></td>
+          <td class="check">✅ CAS计数触发</td>
+          <td class="cross">❌ 无</td>
+          <td class="check">✅ 心智模型</td>
+        </tr>
+        <tr>
+          <td><strong>知识图谱</strong></td>
+          <td class="cross">❌ 无</td>
+          <td class="check">✅ NLP实体链接</td>
+          <td class="check">✅ 内置图谱</td>
+        </tr>
+        <tr>
+          <td><strong>因果推理</strong></td>
+          <td class="cross">❌ 无</td>
+          <td class="cross">❌ 无</td>
+          <td class="check">✅ 因果链追踪</td>
+        </tr>
+        <tr>
+          <td><strong>用户画像</strong></td>
+          <td class="check">✅ 独立L4</td>
+          <td class="partial">⚠️ 嵌入长期记忆</td>
+          <td class="check">✅ 内置</td>
+        </tr>
+        <tr>
+          <td><strong>技术栈</strong></td>
+          <td>Java / Spring</td>
+          <td>Python / FastAPI</td>
+          <td>Python</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="key-point success">
+      <div class="icon">🏆</div>
+      <div><strong>选择建议：</strong>如果需要「生产就绪、简洁可控」的记忆系统，Dawn AI 是最佳选择；如果需要「开箱即用、NLP 实体链接」，选择 mem0；如果需要「因果推理、知识图谱」的深度记忆，考虑 Hindsight。</div>
+    </div>
+  </div>
+
+  <!-- Section 8: Roadmap -->
+  <div class="section">
+    <div class="section-glow"></div>
+    <div class="section-title">
+      <div class="icon" style="background:rgba(194,107,60,.15)">🚀</div>
+      <h2>演进路线</h2>
+      <span class="tag" style="background:rgba(194,107,60,.15);color:var(--accent)">ROADMAP</span>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card">
+        <div class="card-accent" style="background:linear-gradient(to right,var(--danger),var(--pink))"></div>
+        <div class="card-icon">🔴</div>
+        <h3>NLP 实体抽取</h3>
+        <p>在摘要阶段提取人物、地点、项目等实体，写入元数据。参考 mem0 新算法思路，无需图数据库即可支持实体级查询。</p>
+        <div class="badge" style="background:rgba(239,68,68,.15);color:var(--danger)">高优</div>
+      </div>
+      <div class="card">
+        <div class="card-accent" style="background:linear-gradient(to right,var(--danger),var(--pink))"></div>
+        <div class="card-icon">🔴</div>
+        <h3>动态重要性评分</h3>
+        <p>当前 summary 固定 0.5、LLM 降级固定 0.3，应改为基于内容的动态评分。情绪强烈的对话、包含决策的内容应获得更高权重。</p>
+        <div class="badge" style="background:rgba(239,68,68,.15);color:var(--danger)">高优</div>
+      </div>
+      <div class="card">
+        <div class="card-accent" style="background:linear-gradient(to right,var(--amber),var(--amber2))"></div>
+        <div class="card-icon">🟡</div>
+        <h3>时间推理能力</h3>
+        <p>在检索时考虑事件发生的时间顺序，支持「上周讨论的方案」「最近的决定」等时间敏感查询。</p>
+        <div class="badge" style="background:rgba(245,158,11,.15);color:var(--amber)">中优</div>
+      </div>
+      <div class="card">
+        <div class="card-accent" style="background:linear-gradient(to right,var(--amber),var(--amber2))"></div>
+        <div class="card-icon">🟡</div>
+        <h3>多信号检索融合</h3>
+        <p>将单一向量检索扩展为语义 + 关键词 + 实体的多路召回，参考 mem0 的混合检索策略，提升查全率。</p>
+        <div class="badge" style="background:rgba(245,158,11,.15);color:var(--amber)">中优</div>
+      </div>
+      <div class="card">
+        <div class="card-accent" style="background:linear-gradient(to right,var(--green),var(--green2))"></div>
+        <div class="card-icon">🟢</div>
+        <h3>跨会话模式检测</h3>
+        <p>聚合多用户的记忆数据，识别通用行为模式和偏好趋势，用于产品层面的洞察。</p>
+        <div class="badge" style="background:rgba(16,185,129,.15);color:var(--green)">低优</div>
+      </div>
+      <div class="card">
+        <div class="card-accent" style="background:linear-gradient(to right,var(--green),var(--green2))"></div>
+        <div class="card-icon">🟢</div>
+        <h3>记忆压缩合并</h3>
+        <p>当多条 summary 语义高度重叠时，自动合并以减少存储和检索噪音。需要引入相似度阈值和 LLM 合并策略。</p>
+        <div class="badge" style="background:rgba(16,185,129,.15);color:var(--green)">低优</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 9: Design Decisions -->
+  <div class="section">
+    <div class="section-glow"></div>
+    <div class="section-title">
+      <div class="icon" style="background:rgba(194,107,60,.15)">🔬</div>
+      <h2>设计决策</h2>
+      <span class="tag" style="background:rgba(194,107,60,.15);color:var(--accent)">TRADE-OFFS</span>
+    </div>
+
+    <p>每一个架构决策背后都有明确的权衡考量：</p>
+
+    <div class="key-point">
+      <div class="icon">🤔</div>
+      <div><strong>为什么选择指数衰减而非固定过期？</strong><br>固定过期（TTL）无法区分「有用但不常用」和「无用且不常用」的记忆。指数衰减公式 <code class="inline">0.5^(days/30)</code> 模拟人类记忆的遗忘曲线——30 天衰减到一半，60 天衰减到 25%。配合访问刷新机制，被检索的记忆权重重置，实现了「用进废退」的效果。</div>
+    </div>
+
+    <div class="key-point">
+      <div class="icon">🛡️</div>
+      <div><strong>为什么 Reflection 记忆豁免驱逐？</strong><br>Reflection 是 LLM 从多条 summary 中提炼的高阶认知，代表了对用户的深层理解。这类记忆的生成成本高（需要 LLM 推理）、价值密度大（importance=0.9），且数量有限（由 CAS 计数器控制生成频率），因此不参与常规驱逐。</div>
+    </div>
+
+    <div class="key-point">
+      <div class="icon">⚡</div>
+      <div><strong>为什么用 Spring Event 而非消息队列？</strong><br>Summarization → Consolidation → Reflection 的管线本质上是单用户、顺序敏感的操作链。Spring Event 的 <code class="inline">@Async</code> 注解足够解耦各阶段，且无需引入 Kafka/RabbitMQ 等外部依赖。对于中小规模部署，这是复杂度和可靠性的最优平衡点。</div>
+    </div>
+
+    <div class="key-point">
+      <div class="icon">👤</div>
+      <div><strong>为什么 Profile 注入 System Prompt 而非检索？</strong><br>用户画像（「喜欢简洁回答」「资深后端工程师」）是全局性上下文，每次都应生效。如果作为检索结果，可能因语义不匹配而遗漏。注入 System Prompt 确保模型每次对话都能感知用户身份，且不占用检索配额。</div>
+    </div>
+  </div>
+
+  <!-- Section 10: Quick Reference -->
+  <div class="section">
+    <div class="section-glow"></div>
+    <div class="section-title">
+      <div class="icon" style="background:rgba(16,185,129,.15)">⚡</div>
+      <h2>快速了解</h2>
+      <span class="tag" style="background:rgba(16,185,129,.15);color:var(--green)">QUICK REFERENCE</span>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-dot r"></div><div class="code-dot y"></div><div class="code-dot g"></div>
+        <span class="code-title">Dawn AI Memory Pipeline — 伪代码概览</span>
+      </div>
+      <pre class="code-body"><span class="comment">// 消息到达时的完整处理流程</span>
+
+<span class="keyword">ON</span> user_message:
+  <span class="comment">// Step 1-2: 写入 L1 + L2</span>
+  L1.WorkingMemory.<span class="func">push</span>(message)     <span class="comment">// Redis List, 20条窗口, 2h TTL</span>
+  L2.PendingQueue.<span class="func">push</span>(message)      <span class="comment">// Redis List, 批量积累</span>
+
+  <span class="comment">// Step 3: 批次触发摘要</span>
+  <span class="keyword">IF</span> L2.PendingQueue.<span class="func">size</span>() >= batch_size:
+    <span class="keyword">PUBLISH</span> SummarizationRequestEvent
+    summary = LLM.<span class="func">summarize</span>(L2.<span class="func">drain</span>())  <span class="comment">// ~100字压缩</span>
+
+    <span class="comment">// Step 4: 向量持久化</span>
+    L3.EpisodicMemory.<span class="func">store</span>(
+      embedding = <span class="func">embed</span>(summary),     <span class="comment">// 1024d, HNSW</span>
+      type = <span class="string">"summary"</span>,
+      importance = <span class="number">0.5</span>
+    )
+
+    <span class="comment">// Step 5-6: CAS 计数 → 反思</span>
+    counter = <span class="func">CAS_increment</span>(reflection_counter)
+    <span class="keyword">IF</span> counter >= reflection_threshold:
+      profile = ReflectionWorker.<span class="func">reflect</span>(recent_summaries)
+      L3.<span class="func">store</span>(profile, type=<span class="string">"reflection"</span>, importance=<span class="number">0.9</span>)
+
+      <span class="comment">// Step 7: 画像注入</span>
+      L4.UserProfile.<span class="func">update</span>(profile)  <span class="comment">// Redis Hash, 30d TTL</span>
+      <span class="comment">// → 注入下次 System Prompt</span>
+
+<span class="comment">// 定时任务</span>
+<span class="keyword">CRON</span> <span class="string">"0 0 3 * * *"</span>:  <span class="func">evict</span>(importance &lt; <span class="number">0.1</span> <span class="op">&&</span> age &gt; <span class="number">180d</span>)
+<span class="keyword">CRON</span> <span class="string">"0 30 3 * * *"</span>: <span class="func">decay</span>(importance *= <span class="number">0.5</span> ^ (days/<span class="number">30</span>))
+<span class="keyword">ON</span>  retrieval_hit:     <span class="func">refresh</span>(lastAccessedAt)  <span class="comment">// 用进废退</span></pre>
+    </div>
+  </div>
+
+  <!-- Section 11: Links -->
+  <div class="section">
+    <div class="section-glow"></div>
+    <div class="section-title">
+      <div class="icon" style="background:rgba(194,107,60,.15)">🔗</div>
+      <h2>相关资源</h2>
+      <span class="tag" style="background:rgba(194,107,60,.15);color:var(--accent)">RESOURCES</span>
+    </div>
+
+    <div class="links-grid">
+      <a href="https://github.com/dawn-ai" target="_blank" class="link-card">
+        <div class="link-icon">📦</div>
+        <div class="link-info">
+          <h4>GitHub 仓库</h4>
+          <p>Dawn AI 项目源码</p>
+        </div>
+      </a>
+      <a href="/portal/dawn-ai/" class="link-card">
+        <div class="link-icon">🧠</div>
+        <div class="link-info">
+          <h4>Memory Module</h4>
+          <p>Dawn AI 记忆模块详解</p>
+        </div>
+      </a>
+      <a href="https://docs.spring.io/spring-ai/reference/" target="_blank" class="link-card">
+        <div class="link-icon">📖</div>
+        <div class="link-info">
+          <h4>Spring AI Docs</h4>
+          <p>Spring AI 官方文档</p>
+        </div>
+      </a>
+      <a href="https://github.com/pgvector/pgvector" target="_blank" class="link-card">
+        <div class="link-icon">🔷</div>
+        <div class="link-info">
+          <h4>pgvector</h4>
+          <p>PostgreSQL 向量扩展</p>
+        </div>
+      </a>
+    </div>
+  </div>
 
 </div>
 
 <footer>
-  <div class="container">Dawn AI Memory System Architecture · 2026-06-02</div>
+  <p>Dawn AI Memory System Architecture · 2026-06-02</p>
+  <p style="margin-top:4px;opacity:.5">知识库 · Dawn AI 系列</p>
 </footer>
 
 <script>
-// Architecture layer expand/collapse
-document.getElementById('archDiagram').addEventListener('click', function(e) {
-  const row = e.target.closest('.layer-row');
-  if (!row) return;
-  row.classList.toggle('active');
-});
+// Tab switching
+function switchTab(tabId) {
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+  
+  event.target.classList.add('active');
+  document.getElementById('tab-' + tabId).classList.add('active');
+}
 
-// Pipeline animation
-(function() {
-  const stages = document.querySelectorAll('.pipe-stage');
-  const arrows = document.querySelectorAll('.pipe-arrow');
-  const legend = document.getElementById('pipelineLegend');
-  const btnPlay = document.getElementById('btnPlay');
-  const btnReset = document.getElementById('btnReset');
-  let animating = false;
-  let timer = null;
-  const msgs = [
-    '用户消息到达，写入 L1 Working Memory',
-    '消息进入滑动窗口，旧消息滑出',
-    '达到批次阈值，消息进入 Pending Queue',
-    '触发 SummarizationRequestEvent，LLM 生成摘要',
-    '摘要写入 PGVector，带有 HNSW 索引',
-    'CAS 计数达到阈值，触发 ReflectionWorker',
-    '长期人格特征写入 Redis Hash，注入下次 System Prompt'
-  ];
-
-  function reset() {
-    if (timer) { clearTimeout(timer); timer = null; }
-    animating = false;
-    stages.forEach(s => s.classList.remove('lit'));
-    arrows.forEach(a => a.classList.remove('active'));
-    legend.textContent = '点击「播放」观看数据流转动画';
-    btnPlay.classList.remove('active');
-    btnPlay.textContent = '播放';
-  }
-
-  function play() {
-    if (animating) { reset(); return; }
-    animating = true;
-    btnPlay.classList.add('active');
-    btnPlay.textContent = '暂停';
-    let i = 0;
-    function step() {
-      if (i >= stages.length) {
-        legend.textContent = '完成 — 消息经过 7 步演变为用户人格画像';
-        animating = false;
-        btnPlay.classList.remove('active');
-        btnPlay.textContent = '播放';
-        return;
-      }
-      stages.forEach(s => s.classList.remove('lit'));
-      arrows.forEach(a => a.classList.remove('active'));
-      stages[i].classList.add('lit');
-      if (i > 0) arrows[i-1].classList.add('active');
-      legend.textContent = msgs[i];
-      i++;
-      timer = setTimeout(step, 1200);
+// Intersection Observer for animations
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.style.animationPlayState = 'running';
     }
-    step();
-  }
-
-  btnPlay.addEventListener('click', play);
-  btnReset.addEventListener('click', reset);
-})();
-
-// Comparison tabs
-document.getElementById('compTabs').addEventListener('click', function(e) {
-  const tab = e.target.closest('.comp-tab');
-  if (!tab) return;
-  document.querySelectorAll('.comp-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.comp-panel').forEach(p => p.classList.remove('active'));
-  tab.classList.add('active');
-  document.getElementById(tab.dataset.target).classList.add('active');
-});
-
-// Decisions toggle
-document.querySelectorAll('.decision-head').forEach(head => {
-  head.addEventListener('click', function() {
-    this.parentElement.classList.toggle('open');
   });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.section').forEach(section => {
+  section.style.animationPlayState = 'paused';
+  observer.observe(section);
 });
 </script>
+
 </body>
 </html>
