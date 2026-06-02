@@ -542,6 +542,8 @@ def load_portal_pages():
             rel_dir = os.path.relpath(root, PORTAL_DIR)
             if rel_dir == '.':
                 rel_dir = ''
+            # 构建完整路径用于 URL（如 agent/memory/mem0-memory-system）
+            full_slug = f'{rel_dir}/{slug}' if rel_dir else slug
             dir_name = rel_dir.split(os.sep)[0] if rel_dir else ''
             dir_info = cat_map.get(dir_name, {})
             meta = {}
@@ -555,7 +557,7 @@ def load_portal_pages():
             except Exception:
                 title = slug
             pages.append({
-                'slug': slug,
+                'slug': full_slug,
                 'title': title,
                 'subtitle': meta.get('subtitle', ''),
                 'desc': meta.get('desc', ''),
@@ -577,11 +579,11 @@ def portal_index():
     return render_template('portal.html', pages=pages, portal_categories=portal_cats,
                            categories=CATEGORIES, all_tags=ALL_TAGS)
 
-@app.route('/portal/<slug>')
+@app.route('/portal/<path:slug>')
 def portal_page(slug):
-    if not re.match(r'^[a-zA-Z0-9_-]+$', slug):
+    if not re.match(r'^[a-zA-Z0-9_/-]+$', slug):
         abort(404)
-    # 搜索 portal/ 下所有子目录
+    # 支持子目录路径，如 agent/memory/mem0-memory-system
     matches = glob.glob(os.path.join(PORTAL_DIR, '**', f'{slug}.html'), recursive=True)
     if not matches:
         abort(404)
