@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📁 OpenViking - AI Agent Context Database | Portal</title>
+<meta name="description" content="Open-source context database for AI Agents using a filesystem paradigm to unify memory, resources, and skills management.">
+<meta name="portal-id" content="agent/openviking">
+<meta name="portal-category" content="Agent 探索">
+<meta name="portal-difficulty" content="高级">
+<meta name="portal-duration" content="15 min">
+<meta name="portal-icon" content="📁">
+<meta name="portal-accent" content="#10b981">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+Screen&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--accent:#10b981;--bg:#0a0a0f;--surface:#12121a;--surface2:#1a1a25;--border:#2a2a3a;--text:#e0e0e8;--text-dim:#8888a0;--font-sans:'LXGW WenKai Screen',system-ui,sans-serif;--font-mono:'JetBrains Mono',monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:var(--font-sans);line-height:1.7;min-height:100vh}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.back{position:fixed;top:20px;left:24px;color:var(--text-dim);font-size:.9rem;z-index:100;transition:color .2s}
+.back:hover{color:var(--accent);text-decoration:none}
+.container{max-width:820px;margin:0 auto;padding:40px 24px 60px}
+.hero{text-align:center;padding:60px 0 40px;border-bottom:1px solid var(--border)}
+.hero-icon{font-size:3rem;margin-bottom:12px}
+.hero h1{font-size:2.2rem;font-weight:700;margin-bottom:8px;background:linear-gradient(135deg,var(--accent),#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero .subtitle{color:var(--text-dim);font-size:1rem;margin-bottom:20px}
+.stats{display:flex;justify-content:center;gap:32px;flex-wrap:wrap;margin-top:16px}
+.stat{text-align:center}
+.stat .num{font-family:var(--font-mono);font-size:1.5rem;font-weight:700;color:var(--accent)}
+.stat .label{font-size:.8rem;color:var(--text-dim)}
+section{margin-top:40px}
+section h2{font-size:1.4rem;color:var(--accent);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+section h3{font-size:1.1rem;margin:16px 0 8px;color:#e8e8f0}
+p,li{margin-bottom:8px;color:var(--text)}
+ul{padding-left:20px}
+li::marker{color:var(--accent)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;margin:12px 0}
+.tier-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}
+.tier-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center}
+.tier-card .tier-label{font-family:var(--font-mono);font-size:1.4rem;font-weight:700;color:var(--accent)}
+.tier-card .tier-tokens{font-family:var(--font-mono);font-size:.85rem;color:var(--text);margin:6px 0}
+.tier-card .tier-desc{font-size:.78rem;color:var(--text-dim)}
+.tier-card .tier-detail{font-size:.82rem;color:var(--text);margin-top:8px;text-align:left}
+pre{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px;overflow-x:auto;font-family:var(--font-mono);font-size:.85rem;line-height:1.6;color:#c0c0d0;margin:12px 0}
+.code-label{font-family:var(--font-mono);font-size:.75rem;color:var(--text-dim);margin-bottom:4px}
+.compare-table{width:100%;border-collapse:collapse;margin:12px 0;font-size:.9rem}
+.compare-table th,.compare-table td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--border)}
+.compare-table th{color:var(--accent);font-weight:600;font-size:.85rem}
+.compare-table td{color:var(--text)}
+.compare-table tr:hover{background:var(--surface)}
+.check{color:#22c55e}
+.cross{color:#ef4444}
+.links-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.link-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;transition:border-color .2s}
+.link-card:hover{border-color:var(--accent);text-decoration:none}
+.link-card .icon{font-size:1.3rem;margin-bottom:6px}
+.link-card .title{font-weight:600;font-size:.95rem;color:var(--text)}
+.link-card .desc{font-size:.78rem;color:var(--text-dim);margin-top:4px}
+footer{text-align:center;padding:40px 0 20px;color:var(--text-dim);font-size:.8rem;border-top:1px solid var(--border);margin-top:48px}
+.flow-diagram{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;margin:12px 0;font-family:var(--font-mono);font-size:.82rem;line-height:2;color:#a0a0b8}
+@media(max-width:600px){.tier-grid{grid-template-columns:1fr}.stats{gap:20px}}
+</style>
+</head>
+<body>
+<a href="/" class="back">← 返回首页</a>
+<div class="container">
+
+<div class="hero">
+<div class="hero-icon">📁</div>
+<h1>OpenViking</h1>
+<p class="subtitle">Open-source Context Database for AI Agents</p>
+<div class="stats">
+<div class="stat"><div class="num">25k</div><div class="label">⭐ GitHub Stars</div></div>
+<div class="stat"><div class="num">Volcengine</div><div class="label">字节跳动出品</div></div>
+<div class="stat"><div class="num">Python</div><div class="label">AGPL-3.0</div></div>
+</div>
+</div>
+
+<section>
+<h2>📌 什么是 OpenViking</h2>
+<p>OpenViking 是面向 AI Agent 的<strong>开源上下文数据库</strong>，采用 <strong>文件系统范式（Filesystem Paradigm）</strong> 统一管理 Agent 的三大核心上下文：记忆（Memories）、资源（Resources）和技能（Skills）。</p>
+<p>核心思路：用 <code>viking://</code> 协议将 Agent 的所有上下文组织成一个<strong>虚拟文件系统</strong>，Agent 可以像操作本地文件一样浏览、检索和加载上下文。</p>
+<div class="card">
+<strong>核心理念：</strong> Agent 的上下文管理不应该是一堆散落的向量检索 API —— 而应该是一个<strong>结构化、可导航、按需加载</strong>的文件系统。
+</div>
+<p>该项目由 <strong>VikingMem</strong> 研究论文支撑（VLDB 2026），从学术层面验证了这种文件系统范式在 Agent 上下文管理中的有效性。</p>
+</section>
+
+<section>
+<h2>🗂️ L0 / L1 / L2 三层上下文加载</h2>
+<p>OpenViking 的关键创新：不是一次性把所有上下文塞给 LLM，而是按<strong>三个层级按需加载</strong>，精确控制 token 消耗。</p>
+<div class="tier-grid">
+<div class="tier-card">
+<div class="tier-label">L0</div>
+<div class="tier-tokens">~100 tokens</div>
+<div class="tier-desc">Abstract 摘要</div>
+<div class="tier-detail">目录的最精简描述。用于快速判断"这个目录/文件是否与当前任务相关"。</div>
+</div>
+<div class="tier-card">
+<div class="tier-label">L1</div>
+<div class="tier-tokens">~2k tokens</div>
+<div class="tier-desc">Overview 概览</div>
+<div class="tier-detail">中等粒度的上下文，包含关键信息摘要和结构化字段。用于初步理解和决策。</div>
+</div>
+<div class="tier-card">
+<div class="tier-label">L2</div>
+<div class="tier-tokens">Full Detail</div>
+<div class="tier-desc">完整内容</div>
+<div class="tier-detail">完整的上下文内容，仅在确认相关时才加载。避免不必要的 token 浪费。</div>
+</div>
+</div>
+<div class="card">
+<strong>为什么这很重要？</strong> Agent 通常有大量上下文（记忆、文档、工具描述），但每次任务只需要其中一小部分。L0/L1/L2 让 Agent 先"扫一眼目录"（L0），再"读概要"（L1），最后才"读全文"（L2），大幅节省 token 开销。
+</div>
+</section>
+
+<section>
+<h2>🔍 Directory Recursive Retrieval（目录递归检索）</h2>
+<p>OpenViking 不是简单的向量搜索，而是实现了<strong>目录递归检索策略</strong>，模拟人类在文件系统中"一层层翻找"的过程：</p>
+<div class="flow-diagram">
+Step 1: Intent Analysis（意图分析）<br>
+&nbsp;&nbsp;&nbsp;&nbsp;↓ 分析 Agent 当前任务，确定需要哪类上下文<br>
+Step 2: Vector Positioning（向量定位）<br>
+&nbsp;&nbsp;&nbsp;&nbsp;↓ 用向量检索定位到相关目录区域<br>
+Step 3: Refined Exploration（精细化探索）<br>
+&nbsp;&nbsp;&nbsp;&nbsp;↓ 在定位到的目录中读取 L0/L1 摘要，筛选相关项<br>
+Step 4: Recursive Drill-down（递归下钻）<br>
+&nbsp;&nbsp;&nbsp;&nbsp;↓ 对相关子目录递归执行上述过程，直到找到 L2 完整内容
+</div>
+<p>整个检索过程有<strong>可视化轨迹（Visualized Retrieval Trajectory）</strong>，方便调试和观测 Agent 的上下文加载行为。</p>
+</section>
+
+<section>
+<h2>🔄 自动会话管理与记忆自迭代</h2>
+<p>OpenViking 在每次会话结束后自动执行：</p>
+<ul>
+<li><strong>提取用户偏好</strong> — 从对话中学习用户的习惯、偏好和工作方式</li>
+<li><strong>提取 Agent 经验</strong> — 记录哪些工具/策略在什么场景下有效</li>
+<li><strong>记忆自迭代</strong> — 自动更新和组织记忆文件，保持上下文库的整洁和相关性</li>
+</ul>
+<div class="card">
+这使得 Agent 的上下文库不是静态的，而是<strong>随使用持续进化</strong>的。
+</div>
+</section>
+
+<section>
+<h2>⚖️ OpenViking vs mem0</h2>
+<table class="compare-table">
+<tr><th>维度</th><th>OpenViking</th><th>mem0</th></tr>
+<tr><td>上下文模型</td><td class="check">✅ 文件系统范式（viking://）</td><td>KV 向量存储</td></tr>
+<tr><td>分层加载</td><td class="check">✅ L0/L1/L2 三级按需加载</td><td class="cross">❌ 一次性检索</td></tr>
+<tr><td>上下文类型</td><td class="check">✅ 记忆 + 资源 + 技能统一管理</td><td>主要为记忆</td></tr>
+<tr><td>检索策略</td><td class="check">✅ 目录递归检索（意图→向量→递归）</td><td>向量相似度搜索</td></tr>
+<tr><td>可观测性</td><td class="check">✅ 可视化检索轨迹</td><td class="cross">❌ 黑盒检索</td></tr>
+<tr><td>Token 效率</td><td class="check">✅ 三级按需加载，节省 70%+ token</td><td>全量返回</td></tr>
+<tr><td>会话管理</td><td class="check">✅ 自动提取偏好与经验</td><td>手动管理</td></tr>
+<tr><td>学术支撑</td><td class="check">✅ VLDB 2026 (VikingMem)</td><td>社区驱动</td></tr>
+<tr><td>社区规模</td><td>25k ⭐</td><td>较大</td></tr>
+</table>
+</section>
+
+<section>
+<h2>🚀 快速开始</h2>
+<div class="code-label">安装</div>
+<pre><code>pip install openviking</code></pre>
+<div class="code-label">基本使用 — Python</div>
+<pre><code>from openviking import VikingDB
+
+# 初始化上下文数据库
+db = VikingDB()
+
+# 添加记忆（自动组织到文件系统中）
+db.add_memory("user_preferences", {
+    "language": "Python",
+    "editor": "VS Code",
+    "style": "prefer concise code"
+})
+
+# 添加资源（文档、代码片段等）
+db.add_resource("project_docs/README.md", content="...")
+
+# 添加技能描述
+db.add_skill("web_search", description="Search the web for information")
+
+# Agent 查询 — 使用 viking:// 协议导航
+context = db.retrieve(
+    query="用户的编程偏好是什么？",
+    strategy="directory_recursive",  # 目录递归检索
+    max_tokens=2000,                 # token 预算
+)
+
+# context 自动按 L0→L1→L2 加载，节省 token
+print(context.items)   # 返回相关上下文项
+print(context.trajectory)  # 可视化检索轨迹</code></pre>
+<div class="code-label">会话结束后自动迭代记忆</div>
+<pre><code># 会话结束后，OpenViking 自动提取并更新记忆
+db.end_session(
+    session_transcript=conversation_log,
+    auto_extract=True,   # 自动提取用户偏好和 Agent 经验
+    auto_organize=True,  # 自动整理文件系统结构
+)</code></pre>
+</section>
+
+<section>
+<h2>🔗 链接</h2>
+<div class="links-grid">
+<a href="https://github.com/volcengine/OpenViking" target="_blank" class="link-card">
+<div class="icon">📦</div>
+<div class="title">GitHub 仓库</div>
+<div class="desc">源码、文档、Issues</div>
+</a>
+<a href="https://github.com/volcengine/OpenViking#readme" target="_blank" class="link-card">
+<div class="icon">📖</div>
+<div class="title">README</div>
+<div class="desc">项目介绍与使用指南</div>
+</a>
+<a href="https://github.com/volcengine/OpenViking" target="_blank" class="link-card">
+<div class="icon">📄</div>
+<div class="title">VikingMem 论文</div>
+<div class="desc">VLDB 2026 研究论文</div>
+</a>
+</div>
+</section>
+
+<footer>
+<p>📁 OpenViking — 用文件系统范式统一 Agent 上下文管理</p>
+<p style="margin-top:8px">Portal · Agent 探索 · 高级 · 约 15 分钟</p>
+</footer>
+
+</div>
+</body>
+</html>

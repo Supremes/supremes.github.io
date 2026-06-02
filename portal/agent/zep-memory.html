@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="portal-name" content="Zep">
+<meta name="portal-category" content="Agent 探索">
+<meta name="portal-difficulty" content="进阶">
+<meta name="portal-duration" content="12 min">
+<meta name="portal-icon" content="🕸️">
+<meta name="portal-accent" content="#ec4899">
+<title>🕸️ Zep - 时序知识图谱记忆系统</title>
+<link href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+Screen&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --accent: #ec4899;
+  --bg: #0f0f0f;
+  --surface: #1a1a1a;
+  --surface2: #222;
+  --border: #333;
+  --text: #e0e0e0;
+  --text-dim: #888;
+  --radius: 12px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'LXGW WenKai Screen', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.8;
+  min-height: 100vh;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+code, pre { font-family: 'JetBrains Mono', monospace; }
+.back-link {
+  display: inline-block;
+  padding: 12px 24px;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+.back-link:hover { color: var(--accent); text-decoration: none; }
+.container { max-width: 800px; margin: 0 auto; padding: 0 24px 60px; }
+
+/* Hero */
+.hero {
+  text-align: center;
+  padding: 60px 0 40px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 40px;
+}
+.hero-icon { font-size: 4rem; margin-bottom: 16px; }
+.hero h1 { font-size: 2.2rem; margin-bottom: 8px; }
+.hero h1 span { color: var(--accent); }
+.hero .tagline {
+  color: var(--text-dim);
+  font-size: 1.05rem;
+  max-width: 600px;
+  margin: 0 auto 24px;
+}
+.stats {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+.stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 24px;
+  min-width: 120px;
+}
+.stat-value { font-size: 1.5rem; font-weight: 700; color: var(--accent); font-family: 'JetBrains Mono', monospace; }
+.stat-label { font-size: 0.8rem; color: var(--text-dim); }
+
+/* Sections */
+.section { margin-bottom: 48px; }
+.section h2 {
+  font-size: 1.4rem;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--accent);
+  display: inline-block;
+}
+.section p, .section ul { margin-bottom: 12px; }
+.section ul { padding-left: 20px; }
+.section li { margin-bottom: 6px; }
+
+/* Cards */
+.card-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-top: 16px;
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+.card h3 { color: var(--accent); margin-bottom: 8px; font-size: 1.05rem; }
+
+/* Code */
+pre {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  overflow-x: auto;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  margin: 12px 0;
+}
+.code-label {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Tabs */
+.tabs { display: flex; gap: 4px; margin-bottom: -1px; position: relative; z-index: 1; }
+.tab-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  padding: 8px 20px;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-family: 'LXGW WenKai Screen', sans-serif;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+.tab-btn.active { background: var(--surface2); color: var(--accent); border-color: var(--accent); }
+.tab-content {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 0 var(--radius) var(--radius) var(--radius);
+  padding: 16px;
+  display: none;
+}
+.tab-content.active { display: block; }
+
+/* Compare table */
+.compare-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 16px;
+}
+.compare-col h3 {
+  font-size: 1rem;
+  margin-bottom: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  text-align: center;
+}
+.compare-col:first-child h3 { background: #1e3a5f; color: #60a5fa; }
+.compare-col:last-child h3 { background: #3b1f4e; color: var(--accent); }
+.compare-col ul { padding-left: 16px; }
+
+/* Timeline */
+.timeline { margin-top: 16px; }
+.timeline-item {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  align-items: flex-start;
+}
+.timeline-dot {
+  width: 12px; height: 12px;
+  background: var(--accent);
+  border-radius: 50%;
+  margin-top: 8px;
+  flex-shrink: 0;
+  box-shadow: 0 0 8px var(--accent);
+}
+.timeline-content { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; flex: 1; }
+.timeline-date { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--accent); }
+
+/* Links */
+.links-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+.link-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  text-align: center;
+  transition: border-color 0.2s;
+}
+.link-card:hover { border-color: var(--accent); text-decoration: none; }
+.link-card .icon { font-size: 1.5rem; margin-bottom: 6px; }
+.link-card .label { font-size: 0.9rem; }
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 32px 0;
+  border-top: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  margin-top: 40px;
+}
+
+@media (max-width: 600px) {
+  .compare-row { grid-template-columns: 1fr; }
+  .stats { gap: 12px; }
+  .stat { min-width: 90px; padding: 8px 16px; }
+}
+</style>
+</head>
+<body>
+
+<a href="/" class="back-link">← 返回首页</a>
+
+<div class="container">
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-icon">🕸️</div>
+  <h1><span>Zep</span> 时序知识图谱</h1>
+  <p class="tagline">端到端上下文工程平台，基于 Graphiti 知识图谱引擎，以 sub-200ms 延迟提供关系感知的上下文</p>
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-value">4,629</div>
+      <div class="stat-label">GitHub Stars</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">Python</div>
+      <div class="stat-label">语言</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">Apache-2.0</div>
+      <div class="stat-label">许可证</div>
+    </div>
+  </div>
+</div>
+
+<!-- What is Zep -->
+<div class="section">
+  <h2>🕸️ 什么是 Zep？</h2>
+  <p>Zep 是一个端到端的<strong>上下文工程平台</strong>，其核心创新在于使用<strong>时序知识图谱</strong>（Temporal Knowledge Graph）而非简单的向量存储来管理 Agent 记忆。</p>
+  <p>与传统的向量数据库方案不同，Zep 能够理解实体之间的<strong>关系</strong>，追踪事实的<strong>时间演变</strong>，并以极低的延迟（sub-200ms）检索最相关的上下文。</p>
+  <div class="card-grid">
+    <div class="card">
+      <h3>🎯 核心理念</h3>
+      <p>记忆不只是"相似文本的检索"，而是对<strong>谁、什么、何时</strong>的结构化理解。Zep 让 Agent 拥有真正的时间感知能力。</p>
+    </div>
+    <div class="card">
+      <h3>☁️ 产品形态</h3>
+      <p>Zep Cloud 是主要产品（托管服务），Community Edition 已弃用。Graphiti 引擎本身开源可独立使用。</p>
+    </div>
+  </div>
+</div>
+
+<!-- Graphiti Architecture -->
+<div class="section">
+  <h2>🏗️ Graphiti 引擎架构</h2>
+  <p>Zep 的知识图谱引擎基于 <strong>Graphiti</strong> 框架构建，这是专门为 LLM Agent 设计的时序知识图谱系统。</p>
+  <div class="card-grid">
+    <div class="card">
+      <h3>📥 自动提取</h3>
+      <p>从对话、文档、业务数据中<strong>自动抽取</strong>实体和关系，无需手动 schema 定义。支持多源数据融合。</p>
+    </div>
+    <div class="card">
+      <h3>🔗 关系感知检索</h3>
+      <p>Graph RAG 不仅找相似文本，更理解实体间的<strong>关系链路</strong>，提供更精准的上下文。</p>
+    </div>
+    <div class="card">
+      <h3>⚡ 亚 200ms 延迟</h3>
+      <p>专为实时对话优化，图谱查询和上下文组装在 200ms 内完成，不影响对话流畅性。</p>
+    </div>
+    <div class="card">
+      <h3>🧩 多源上下文</h3>
+      <p>统一组装聊天历史、业务数据、文档、应用事件等多维信息，为 Agent 提供完整上下文。</p>
+    </div>
+  </div>
+</div>
+
+<!-- Temporal Awareness -->
+<div class="section">
+  <h2>⏰ 时序感知</h2>
+  <p>Zep 的核心差异化能力是<strong>时间维度</strong>：每个事实都有 <code>valid_at</code> 和 <code>invalid_at</code> 时间戳，记录信息的有效期。</p>
+
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <div class="timeline-date">2024-01-15 valid_at</div>
+        <p>用户说："我在 Google 工作，担任高级工程师。"</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <div class="timeline-date">2024-06-20 valid_at | 前一条 invalid_at</div>
+        <p>用户说："我刚跳槽到 OpenAI 了，做 ML 研究。"</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <div class="timeline-date">查询: "用户在哪工作？"</div>
+        <p>→ 当前回答: <strong>OpenAI, ML 研究</strong><br>→ 历史记录: 曾在 Google 担任高级工程师（2024.01 - 2024.06）</p>
+      </div>
+    </div>
+  </div>
+
+  <pre><code># 时间感知查询示例
+# Zep 能区分"当前事实"和"历史事实"
+facts = zep.graph.search("user employment")
+# 返回:
+# { "entity": "User", "relation": "works_at", "target": "OpenAI",
+#   "valid_at": "2024-06-20", "invalid_at": null }  ← 当前有效
+# { "entity": "User", "relation": "works_at", "target": "Google",
+#   "valid_at": "2024-01-15", "invalid_at": "2024-06-20" }  ← 已过期</code></pre>
+</div>
+
+<!-- Compare with mem0 -->
+<div class="section">
+  <h2>⚖️ Zep vs mem0：图谱 vs 向量</h2>
+  <p>两者都是 Agent 记忆方案，但底层架构理念截然不同：</p>
+  <div class="compare-row">
+    <div class="compare-col">
+      <h3>🕸️ Zep (知识图谱)</h3>
+      <ul>
+        <li><strong>存储方式</strong>: 图数据库（实体 + 关系）</li>
+        <li><strong>检索方式</strong>: Graph RAG + 关系遍历</li>
+        <li><strong>时间感知</strong>: ✅ 原生支持 valid_at / invalid_at</li>
+        <li><strong>关系理解</strong>: ✅ 深度理解实体间关系</li>
+        <li><strong>部署</strong>: Cloud 优先</li>
+        <li><strong>延迟</strong>: sub-200ms</li>
+        <li><strong>适合</strong>: 复杂关系推理、时间演变追踪</li>
+      </ul>
+    </div>
+    <div class="compare-col">
+      <h3>🧠 mem0 (向量存储)</h3>
+      <ul>
+        <li><strong>存储方式</strong>: 向量数据库（嵌入 + 元数据）</li>
+        <li><strong>检索方式</strong>: 语义相似度搜索</li>
+        <li><strong>时间感知</strong>: ⚠️ 有限（依赖元数据过滤）</li>
+        <li><strong>关系理解</strong>: ❌ 仅文本相似度</li>
+        <li><strong>部署</strong>: 自托管 / Cloud</li>
+        <li><strong>延迟</strong>: 100-500ms</li>
+        <li><strong>适合</strong>: 简单偏好记忆、快速原型</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Start -->
+<div class="section">
+  <h2>🚀 快速开始</h2>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('cloud')">Zep Cloud</button>
+    <button class="tab-btn" onclick="switchTab('graphiti')">Graphiti (独立)</button>
+  </div>
+
+  <div id="tab-cloud" class="tab-content active">
+    <div class="code-label">Python — Zep Cloud SDK</div>
+    <pre><code>from zep_cloud.client import Zep
+from zep_cloud.types import Message
+
+client = Zep(api_key="your-api-key")
+
+# 创建用户
+client.user.add(user_id="user-1", first_name="Alice")
+
+# 添加记忆（自动提取实体和关系）
+client.memory.add(
+    user_id="user-1",
+    messages=[
+        Message(role="user", content="我刚搬到东京，在索尼做游戏开发"),
+        Message(role="assistant", content="恭喜你搬到东京！索尼的游戏部门很棒。"),
+    ]
+)
+
+# 检索记忆（包含知识图谱上下文）
+memory = client.memory.get(
+    user_id="user-1",
+    lastn=10,  # 最近10轮对话
+)
+print(memory.context)  # 包含图谱推理的完整上下文</code></pre>
+  </div>
+
+  <div id="tab-graphiti" class="tab-content">
+    <div class="code-label">Python — Graphiti (开源图谱引擎)</div>
+    <pre><code>from graphiti_core import Graphiti
+
+# 连接 Neo4j 数据库
+graphiti = Graphiti(
+    neo4j_uri="bolt://localhost:7687",
+    neo4j_user="neo4j",
+    neo4j_password="password"
+)
+
+# 初始化图谱索引
+await graphiti.build_indices_and_constraints()
+
+# 添加事实（自动抽取实体和关系）
+await graphiti.add_episode(
+    name="conversation-1",
+    episode_body="张三是 ABC 公司的 CTO，他上周刚宣布公司完成了 B 轮融资。",
+    source="conversation",
+    reference_time="2024-06-15"
+)
+
+# 搜索（支持时间过滤和关系感知）
+results = await graphiti.search(
+    query="ABC 公司的融资情况",
+    num_results=5
+)
+for edge in results:
+    print(f"{edge.source_node} → {edge.name} → {edge.target_node}")
+    print(f"  有效时间: {edge.valid_at} - {edge.invalid_at or '至今'}")</code></pre>
+  </div>
+</div>
+
+<!-- Links -->
+<div class="section">
+  <h2>🔗 相关链接</h2>
+  <div class="links-grid">
+    <a href="https://github.com/getzep/zep" target="_blank" class="link-card">
+      <div class="icon">📦</div>
+      <div class="label">GitHub 仓库</div>
+    </a>
+    <a href="https://www.getzep.com/" target="_blank" class="link-card">
+      <div class="icon">☁️</div>
+      <div class="label">Zep Cloud 官网</div>
+    </a>
+    <a href="https://github.com/getzep/graphiti" target="_blank" class="link-card">
+      <div class="icon">🕸️</div>
+      <div class="label">Graphiti 引擎</div>
+    </a>
+    <a href="https://help.getzep.com/" target="_blank" class="link-card">
+      <div class="icon">📖</div>
+      <div class="label">文档中心</div>
+    </a>
+  </div>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  <p>🕸️ Zep — 让 Agent 拥有时间感知的关系记忆</p>
+  <p style="margin-top: 8px; font-size: 0.8rem;">Hermes Agent · Portal · Agent 探索</p>
+</div>
+
+</div>
+
+<script>
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+</script>
+</body>
+</html>

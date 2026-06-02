@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🧬 Letta (MemGPT) — Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+Screen&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<!-- Portal Meta Tags -->
+<meta name="portal-title" content="Letta (MemGPT)">
+<meta name="portal-subtitle" content="Stateful Agent 记忆系统平台">
+<meta name="portal-desc" content="Platform for building stateful agents with advanced memory that can learn and self-improve over time.">
+<meta name="portal-category" content="Agent 探索">
+<meta name="portal-tags" content="记忆系统,Agent框架,MemGPT,状态管理,AI Agent">
+<meta name="portal-icon" content="🧬">
+<meta name="portal-color" content="#3b82f6">
+<meta name="portal-date" content="2026-06-02">
+<meta name="portal-difficulty" content="进阶">
+<meta name="portal-duration" content="15 min">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--accent:#3b82f6;--bg:#0d1117;--surface:#161b22;--border:#30363d;--text:#e6edf3;--muted:#8b949e;--accent-dim:rgba(59,130,246,.12)}
+body{font-family:'LXGW WenKai Screen','JetBrains Mono',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+.back-link{display:inline-flex;align-items:center;gap:.4rem;padding:1rem 1.5rem;color:var(--muted);font-size:.9rem}
+.back-link:hover{color:var(--accent);text-decoration:none}
+.hero{padding:3rem 1.5rem 2rem;text-align:center;background:linear-gradient(180deg,var(--accent-dim) 0%,transparent 100%)}
+.hero-icon{font-size:3.5rem;margin-bottom:.5rem;display:block}
+.hero h1{font-size:2rem;font-weight:700;margin-bottom:.3rem}
+.hero .subtitle{color:var(--muted);font-size:1rem;margin-bottom:1.5rem}
+.stats{display:flex;justify-content:center;gap:2rem;flex-wrap:wrap}
+.stat{text-align:center}
+.stat .val{font-size:1.5rem;font-weight:700;color:var(--accent);font-family:'JetBrains Mono',monospace}
+.stat .lbl{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.container{max-width:860px;margin:0 auto;padding:0 1.5rem 4rem}
+section{margin-top:2.5rem}
+section h2{font-size:1.3rem;font-weight:700;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.5rem}
+section h2::before{content:'';width:4px;height:1.2rem;background:var(--accent);border-radius:2px;display:inline-block}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:1rem}
+.code-block{background:#0d1117;border:1px solid var(--border);border-radius:8px;padding:1rem 1.2rem;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:.85rem;line-height:1.6;color:#c9d1d9;margin:.8rem 0}
+.code-block .comment{color:#8b949e}.code-block .keyword{color:#ff7b72}.code-block .string{color:#a5d6ff}.code-block .func{color:#d2a8ff}
+.badge{display:inline-block;padding:.15rem .6rem;border-radius:999px;font-size:.75rem;font-weight:600;background:var(--accent-dim);color:var(--accent);border:1px solid rgba(59,130,246,.3);margin-right:.4rem;margin-bottom:.3rem}
+.comparison-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.comparison-grid .card h3{font-size:1rem;margin-bottom:.6rem;color:var(--accent)}
+.comparison-grid .card ul{list-style:none;padding:0}.comparison-grid .card li{padding:.3rem 0;padding-left:1.2rem;position:relative;font-size:.9rem;color:var(--muted)}
+.comparison-grid .card li::before{content:'→';position:absolute;left:0;color:var(--accent)}
+.feature-list{list-style:none;padding:0}
+.feature-list li{padding:.5rem 0;padding-left:1.5rem;position:relative;font-size:.95rem}
+.feature-list li::before{content:'◆';position:absolute;left:0;color:var(--accent);font-size:.7rem;top:.7rem}
+.links-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.8rem}
+.link-card{display:flex;align-items:center;gap:.8rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem 1.2rem;transition:border-color .2s}
+.link-card:hover{border-color:var(--accent);text-decoration:none}
+.link-card .icon{font-size:1.4rem}
+.link-card .info .title{font-weight:600;font-size:.95rem;color:var(--text)}
+.link-card .info .desc{font-size:.75rem;color:var(--muted)}
+footer{text-align:center;padding:2rem 1.5rem;color:var(--muted);font-size:.8rem;border-top:1px solid var(--border);margin-top:3rem}
+@media(max-width:640px){.comparison-grid{grid-template-columns:1fr}.stats{gap:1rem}.hero h1{font-size:1.5rem}}
+</style>
+</head>
+<body>
+<a href="/" class="back-link">← 返回首页</a>
+
+<div class="hero">
+  <span class="hero-icon">🧬</span>
+  <h1>Letta (formerly MemGPT)</h1>
+  <p class="subtitle">Stateful Agent 记忆系统平台 — 让 Agent 拥有持久记忆与自我进化能力</p>
+  <div class="stats">
+    <div class="stat"><div class="val">23,082</div><div class="lbl">⭐ GitHub Stars</div></div>
+    <div class="stat"><div class="val">Python</div><div class="lbl">语言</div></div>
+    <div class="stat"><div class="val">Apache-2.0</div><div class="lbl">许可证</div></div>
+    <div class="stat"><div class="val">进阶</div><div class="lbl">难度</div></div>
+  </div>
+</div>
+
+<div class="container">
+
+  <section>
+    <h2>什么是 Letta？</h2>
+    <div class="card">
+      <p>Letta（前身 MemGPT）是一个用于构建<strong>有状态 Agent</strong>的平台，其核心创新在于引入了 <strong>Memory Blocks（记忆块）</strong>范式。与传统 Agent 在会话结束即丢失上下文不同，Letta 让 Agent 拥有分层、可自我编辑的持久记忆，能够随时间学习和自我改进。</p>
+      <p style="margin-top:.8rem">它提供完整的 Agent 平台能力：CLI 工具（Letta Code）、REST API 服务器、Python/TypeScript SDK，并支持任意 LLM 后端（模型无关），是目前最成熟的 Agent 记忆管理方案之一。</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Memory Blocks 架构</h2>
+    <div class="card">
+      <p style="margin-bottom:1rem">Letta 的核心设计是 <strong>Memory Blocks</strong>——结构化的记忆分区，每个 Block 带有标签（label），Agent 可以自主读写这些 Block：</p>
+      <ul class="feature-list">
+        <li><strong>human block</strong> — 存储关于用户的信息（偏好、历史、上下文），Agent 会话间持久化</li>
+        <li><strong>persona block</strong> — 存储 Agent 自身的身份、性格、行为模式</li>
+        <li><strong>archival memory</strong> — 大容量外部存储，支持向量检索，类似长期记忆</li>
+        <li><strong>recall memory</strong> — 对话历史检索，Agent 可回溯查找过去的交互</li>
+        <li><strong>自编辑能力</strong> — Agent 可以自主更新 memory block 内容，实现学习与自我改进</li>
+      </ul>
+    </div>
+    <div class="code-block">
+<span class="comment"># Memory Block 结构示意</span>
+memory = {
+  <span class="string">"human"</span>: <span class="string">"用户喜欢简洁回答，对 AI 安全话题特别感兴趣..."</span>,
+  <span class="string">"persona"</span>: <span class="string">"我是一个技术助手，擅长解释复杂概念..."</span>,
+  <span class="string">"archival"</span>: <span class="comment">#[向量数据库: 大量历史知识]</span>,
+  <span class="string">"recall"</span>: <span class="comment">#[对话历史检索]</span>
+}
+<span class="comment"># Agent 可在运行时自主编辑 human/persona block</span>
+agent.<span class="func">core_memory</span>.<span class="func">append</span>(<span class="string">"human"</span>, <span class="string">"用户最近在学习 Rust 语言"</span>)
+    </div>
+  </section>
+
+  <section>
+    <h2>Letta vs mem0 对比</h2>
+    <div class="comparison-grid">
+      <div class="card">
+        <h3>🧬 Letta</h3>
+        <ul>
+          <li>完整 Agent 平台（API + SDK + CLI）</li>
+          <li>Memory Blocks 分区管理</li>
+          <li>Agent 可自主编辑记忆（自我改进）</li>
+          <li>内建 archival/recall 双层检索</li>
+          <li>模型无关，支持多种 LLM</li>
+          <li>较重，适合复杂 Agent 场景</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>🔵 mem0</h3>
+        <ul>
+          <li>专注记忆层，轻量 SDK</li>
+          <li>Key-Value 记忆存储</li>
+          <li>自动提取记忆（用户无需管理）</li>
+          <li>向量检索为主</li>
+          <li>易集成到现有 Agent</li>
+          <li>较轻，适合快速接入</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card" style="margin-top:.5rem">
+      <p><strong>选择建议：</strong>如果你需要构建完整的有状态 Agent 系统，且希望 Agent 能自主管理记忆，选 Letta。如果你已有 Agent 框架，只想为其添加记忆能力，mem0 更轻量易集成。</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>快速开始</h2>
+    <div class="code-block">
+<span class="comment"># 安装</span>
+pip install letta
+
+<span class="comment"># 启动 Letta 服务器</span>
+letta server
+
+<span class="comment"># Python SDK 创建带记忆的 Agent</span>
+<span class="keyword">from</span> letta.client <span class="keyword">import</span> create_client
+
+client = <span class="func">create_client</span>()
+
+<span class="comment"># 创建 Agent，定义 memory blocks</span>
+agent = client.<span class="func">create_agent</span>(
+    name=<span class="string">"research-assistant"</span>,
+    memory_blocks=[
+        {<span class="string">"label"</span>: <span class="string">"human"</span>, <span class="string">"value"</span>: <span class="string">"用户是 AI 研究者"</span>},
+        {<span class="string">"label"</span>: <span class="string">"persona"</span>, <span class="string">"value"</span>: <span class="string">"我是研究助手"</span>}
+    ],
+    model=<span class="string">"gpt-4o"</span>
+)
+
+<span class="comment"># 与 Agent 对话 — 记忆自动持久化</span>
+response = client.<span class="func">send_message</span>(
+    agent_id=agent.id,
+    message=<span class="string">"帮我总结 Transformer 的核心思想"</span>
+)
+<span class="keyword">print</span>(response.messages)
+
+<span class="comment"># Agent 会自动将重要信息写入 memory blocks</span>
+<span class="comment"># 下次对话时，Agent 已"记住"用户偏好</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>相关链接</h2>
+    <div class="links-grid">
+      <a href="https://github.com/letta-ai/letta" target="_blank" class="link-card">
+        <span class="icon">📦</span>
+        <div class="info"><div class="title">GitHub 仓库</div><div class="desc">源码、Issues、贡献指南</div></div>
+      </a>
+      <a href="https://docs.letta.com" target="_blank" class="link-card">
+        <span class="icon">📖</span>
+        <div class="info"><div class="title">官方文档</div><div class="desc">API 参考、教程、架构说明</div></div>
+      </a>
+      <a href="https://docs.letta.com/quickstart" target="_blank" class="link-card">
+        <span class="icon">🚀</span>
+        <div class="info"><div class="title">Quickstart</div><div class="desc">5 分钟快速上手</div></div>
+      </a>
+      <a href="https://letta.com" target="_blank" class="link-card">
+        <span class="icon">🌐</span>
+        <div class="info"><div class="title">官方网站</div><div class="desc">产品介绍与定价</div></div>
+      </a>
+      <a href="https://pypi.org/project/letta/" target="_blank" class="link-card">
+        <span class="icon">🐍</span>
+        <div class="info"><div class="title">PyPI 包</div><div class="desc">pip install letta</div></div>
+      </a>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <p>🧬 Letta (MemGPT) — Agent 探索 · 进阶 · 15 min</p>
+  <p style="margin-top:.3rem">Hermes Agent Knowledge Base · 2026</p>
+</footer>
+</body>
+</html>
