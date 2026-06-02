@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dawn AI 记忆系统设计 — 4-Layer Memory Architecture</title>
+    <meta name="description" content="Dawn AI 四层记忆架构：Redis + PGVector 双存储，事件驱动全异步流水线，支持长期记忆衰减与反思机制。">
+    <meta name="keywords" content="Dawn AI, Memory, Spring AI, PGVector, Redis, 事件驱动, 长期记忆">
+    <meta property="og:title" content="Dawn AI 记忆系统设计">
+    <meta property="og:description" content="4-Layer Memory Architecture — Redis + PGVector 双存储，事件驱动全异步">
+    <meta property="og:type" content="article">
+    <meta name="portal-icon" content="🧠">
+    <meta name="portal-color" content="#c26b3c">
+    <meta name="portal-category" content="Dawn AI">
+    <meta name="portal-difficulty" content="高级">
+    <meta name="portal-duration" content="20 min">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+Screen&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #1c2333;
+            --bg-card: #1a1f2e;
+            --border-color: #30363d;
+            --border-light: #21262d;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --text-muted: #6e7681;
+            --accent: #c26b3c;
+            --accent-dim: rgba(194,107,60,0.15);
+            --accent-glow: rgba(194,107,60,0.3);
+            --success: #3fb950;
+            --warning: #d29922;
+            --info: #58a6ff;
+            --danger: #f85149;
+            --font-sans: 'LXGW WenKai Screen', system-ui, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --radius: 10px;
+            --radius-sm: 6px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        /* ── Navigation ── */
+        .nav-bar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(13,17,23,0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .nav-bar a {
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        .nav-bar a:hover { text-decoration: underline; }
+        .nav-bar .breadcrumb {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        .nav-bar .breadcrumb span { color: var(--text-secondary); }
+
+        /* ── Container ── */
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 4rem;
+        }
+
+        /* ── Hero ── */
+        .hero {
+            text-align: center;
+            padding: 3rem 1rem 2.5rem;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 2.5rem;
+        }
+        .hero-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+        .hero h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), #e8a065);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.4rem;
+        }
+        .hero .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            margin-bottom: 1.5rem;
+        }
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        .hero-stat {
+            background: var(--accent-dim);
+            border: 1px solid rgba(194,107,60,0.25);
+            border-radius: var(--radius);
+            padding: 0.8rem 1.4rem;
+            min-width: 140px;
+        }
+        .hero-stat .val {
+            font-family: var(--font-mono);
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        .hero-stat .label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        .hero-meta {
+            margin-top: 1.2rem;
+            display: flex;
+            justify-content: center;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }
+        .tag {
+            display: inline-block;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 0.2rem 0.7rem;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-family: var(--font-mono);
+        }
+
+        /* ── Section ── */
+        .section {
+            margin-bottom: 2.8rem;
+        }
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .section-title .icon { font-size: 1.2rem; }
+
+        /* ── Cards ── */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.2rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px var(--accent-dim);
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.6rem;
+        }
+        .card-badge {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+        .card-badge.l1 { background: #1a3a2a; color: #3fb950; }
+        .card-badge.l2 { background: #2a2a1a; color: #d29922; }
+        .card-badge.l3 { background: #1a2a3a; color: #58a6ff; }
+        .card-badge.l4 { background: #3a1a2a; color: #f778ba; }
+        .card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .card p, .card ul {
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        .card ul { padding-left: 1.1rem; }
+        .card ul li { margin-bottom: 0.25rem; }
+        .card .tech-tag {
+            display: inline-block;
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+            padding: 0.1rem 0.4rem;
+            margin-right: 0.3rem;
+            margin-top: 0.4rem;
+            color: var(--accent);
+        }
+
+        /* ── Pipeline ── */
+        .pipeline {
+            display: flex;
+            align-items: stretch;
+            gap: 0;
+            overflow-x: auto;
+            padding: 1rem 0;
+        }
+        .pipeline-step {
+            flex: 1;
+            min-width: 130px;
+            text-align: center;
+            position: relative;
+        }
+        .pipeline-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 0.8rem 0.5rem;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: border-color 0.2s;
+        }
+        .pipeline-step:hover .pipeline-box {
+            border-color: var(--accent);
+        }
+        .pipeline-box .step-icon {
+            font-size: 1.3rem;
+            margin-bottom: 0.3rem;
+        }
+        .pipeline-box .step-name {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--accent);
+            word-break: break-all;
+        }
+        .pipeline-box .step-desc {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 0.2rem;
+        }
+        .pipeline-arrow {
+            display: flex;
+            align-items: center;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            padding: 0 0.15rem;
+            flex-shrink: 0;
+        }
+
+        /* ── Tabs ── */
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 0;
+        }
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 0.6rem 1rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .tab-btn:hover { color: var(--text-primary); }
+        .tab-btn.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+        .tab-panel {
+            display: none;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-top: none;
+            border-radius: 0 0 var(--radius) var(--radius);
+            padding: 1.4rem;
+        }
+        .tab-panel.active { display: block; }
+        .tab-panel h3 {
+            font-size: 1.05rem;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+        .tab-panel p, .tab-panel ul {
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+        .tab-panel ul { padding-left: 1.2rem; }
+        .tab-panel ul li { margin-bottom: 0.3rem; }
+        .tab-panel code {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            background: var(--bg-tertiary);
+            padding: 0.1rem 0.35rem;
+            border-radius: 3px;
+            color: var(--accent);
+        }
+
+        /* ── Tables ── */
+        .table-wrap {
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        thead th {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-weight: 600;
+            text-align: left;
+            padding: 0.7rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+        }
+        tbody td {
+            padding: 0.6rem 1rem;
+            border-bottom: 1px solid var(--border-light);
+            color: var(--text-secondary);
+        }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover { background: var(--accent-dim); }
+        td code {
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            background: var(--bg-tertiary);
+            padding: 0.1rem 0.35rem;
+            border-radius: 3px;
+            color: var(--accent);
+        }
+
+        /* ── Decisions ── */
+        .decision-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+        .decision-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-left: 3px solid var(--accent);
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            padding: 1rem 1.2rem;
+        }
+        .decision-item h4 {
+            font-size: 0.95rem;
+            color: var(--accent);
+            margin-bottom: 0.3rem;
+        }
+        .decision-item p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        .decision-item .decision-tag {
+            display: inline-block;
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            background: var(--accent-dim);
+            border: 1px solid rgba(194,107,60,0.3);
+            border-radius: 3px;
+            padding: 0.05rem 0.4rem;
+            color: var(--accent);
+            margin-bottom: 0.3rem;
+        }
+
+        /* ── Comparison ── */
+        .compare-table thead th:first-child { width: 180px; }
+
+        /* ── Links ── */
+        .links-grid {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .link-card {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 0.8rem 1.2rem;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+        .link-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 15px var(--accent-dim);
+        }
+        .link-card .link-icon { font-size: 1.3rem; }
+
+        /* ── Footer ── */
+        .footer {
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 640px) {
+            .hero h1 { font-size: 1.5rem; }
+            .hero-stats { gap: 1rem; }
+            .hero-stat { min-width: 110px; padding: 0.6rem 1rem; }
+            .pipeline { flex-direction: column; align-items: center; }
+            .pipeline-arrow { transform: rotate(90deg); padding: 0.3rem 0; }
+            .card-grid { grid-template-columns: 1fr; }
+            .tab-btn { font-size: 0.7rem; padding: 0.5rem 0.6rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="nav-bar">
+    <a href="/">← 返回首页</a>
+    <span class="breadcrumb">/ <span>Dawn AI</span> / 记忆系统设计</span>
+</nav>
+
+<div class="container">
+
+    <!-- ═══════════ HERO ═══════════ -->
+    <section class="hero">
+        <span class="hero-icon">🧠</span>
+        <h1>Dawn AI 记忆系统设计</h1>
+        <p class="subtitle">4-Layer Memory Architecture — 事件驱动全异步长期记忆</p>
+        <div class="hero-stats">
+            <div class="hero-stat">
+                <div class="val">4 层记忆</div>
+                <div class="label">Working → Pending → Episodic → Profile</div>
+            </div>
+            <div class="hero-stat">
+                <div class="val">Redis + PGVector</div>
+                <div class="label">热/冷双存储架构</div>
+            </div>
+            <div class="hero-stat">
+                <div class="val">事件驱动全异步</div>
+                <div class="label">Spring Event 最终一致性</div>
+            </div>
+        </div>
+        <div class="hero-meta">
+            <span class="tag">Memory</span>
+            <span class="tag">Spring AI</span>
+            <span class="tag">PGVector</span>
+            <span class="tag">Redis</span>
+            <span class="tag">事件驱动</span>
+            <span class="tag">高级</span>
+            <span class="tag">20 min</span>
+        </div>
+    </section>
+
+    <!-- ═══════════ ARCHITECTURE OVERVIEW ═══════════ -->
+    <section class="section">
+        <h2 class="section-title"><span class="icon">🏗️</span> 四层记忆架构</h2>
+        <div class="card-grid">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-badge l1">L1</span>
+                    <h3>Working Memory 工作记忆</h3>
+                </div>
+                <p>当前会话的即时上下文，滑动窗口保留最近消息。</p>
+                <ul>
+                    <li>存储：Redis List</li>
+                    <li>容量：20 条消息滑动窗口</li>
+                    <li>TTL：2 小时自动过期</li>
+                    <li>特征：零延迟读写，支持 RENAME 原子排空</li>
+                </ul>
+                <span class="tech-tag">Redis List</span>
+                <span class="tech-tag">Sliding Window</span>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-badge l2">L2</span>
+                    <h3>Pending Queue 待处理队列</h3>
+                </div>
+                <p>积累待摘要的消息批次，批量触发 LLM 压缩。</p>
+                <ul>
+                    <li>存储：Redis List</li>
+                    <li>触发：达到 batch-size 后触发摘要</li>
+                    <li>TTL：2 小时</li>
+                    <li>特征：异步解耦，防止频繁 LLM 调用</li>
+                </ul>
+                <span class="tech-tag">Redis List</span>
+                <span class="tech-tag">Batch Trigger</span>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-badge l3">L3</span>
+                    <h3>Episodic Memory 情景记忆</h3>
+                </div>
+                <p>压缩后的长期记忆片段，支持语义向量检索。</p>
+                <ul>
+                    <li>存储：PostgreSQL + pgvector</li>
+                    <li>索引：HNSW + 余弦距离</li>
+                    <li>维度：1024 维向量</li>
+                    <li>特征：语义检索，importance 衰减管理</li>
+                </ul>
+                <span class="tech-tag">PGVector</span>
+                <span class="tech-tag">HNSW</span>
+                <span class="tech-tag">1024-dim</span>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-badge l4">L4</span>
+                    <h3>User Profile 用户画像</h3>
+                </div>
+                <p>从记忆中提炼的长期偏好和身份信息。</p>
+                <ul>
+                    <li>存储：Redis Hash</li>
+                    <li>TTL：30 天</li>
+                    <li>注入：格式化后写入 System Prompt</li>
+                    <li>特征：Reflection 提炼，永不淘汰</li>
+                </ul>
+                <span class="tech-tag">Redis Hash</span>
+                <span class="tech-tag">System Prompt</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════ PIPELINE ═══════════ -->
+    <section class="section">
+        <h2 class="section-title"><span class="icon">⚡</span> 事件驱动流水线</h2>
+        <p style="color:var(--text-secondary);font-size:0.88rem;margin-bottom:1rem;">
+            消息进入系统后，通过 Spring Event 机制驱动各阶段异步处理，实现最终一致性。
+        </p>
+        <div class="pipeline">
+            <div class="pipeline-step">
+                <div class="pipeline-box">
+                    <span class="step-icon">💬</span>
+                    <span class="step-name">addMessage</span>
+                    <span class="step-desc">用户消息写入 L1</span>
+                </div>
+            </div>
+            <div class="pipeline-arrow">→</div>
+            <div class="pipeline-step">
+                <div class="pipeline-box">
+                    <span class="step-icon">📋</span>
+                    <span class="step-name">SummarizationRequestEvent</span>
+                    <span class="step-desc">达到 batch-size 触发</span>
+                </div>
+            </div>
+            <div class="pipeline-arrow">→</div>
+            <div class="pipeline-step">
+                <div class="pipeline-box">
+                    <span class="step-icon">🤖</span>
+                    <span class="step-name">MemorySummarizer</span>
+                    <span class="step-desc">LLM 压缩为摘要</span>
+                </div>
+            </div>
+            <div class="pipeline-arrow">→</div>
+            <div class="pipeline-step">
+                <div class="pipeline-box">
+                    <span class="step-icon">📦</span>
+                    <span class="step-name">ConsolidationRequestEvent</span>
+                    <span class="step-desc">触发向量存储</span>
+                </div>
+            </div>
+            <div class="pipeline-arrow">→</div>
+            <div class="pipeline-step">
+                <div class="pipeline-box">
+                    <span class="step-icon">🗄️</span>
+                    <span class="step-name">MemoryConsolidator</span>
+                    <span class="step-desc">写入 PGVector</span>
+                </div>
+            </div>
+            <div class="pipeline-arrow">→</div>
+            <div class="pipeline-step">
+                <div class="pipeline-box">
+                    <span class="step-icon">🔮</span>
+                    <span class="step-name">ReflectionRequestEvent</span>
+                    <span class="step-desc">CAS 计数达阈值</span>
+                </div>
+            </div>
+            <div class="pipeline-arrow">→</div>
+            <div class="pipeline-step">
+                <div class="pipeline-box">
+                    <span class="step-icon">🪞</span>
+                    <span class="step-name">ReflectionWorker</span>
+                    <span class="step-desc">提炼偏好更新画像</span>
+                </div>
+            </div>
+        </div>
+        <div style="text-align:center;margin-top:0.5rem;">
+            <span style="font-size:0.78rem;color:var(--text-muted);">
+                ReflectionWorker 输出 → <code>VectorStore</code> (importance=0.9) + <code>UserProfile</code> (Redis Hash)
+            </span>
+        </div>
+    </section>
+
+    <!-- ═══════════ CORE COMPONENTS ═══════════ -->
+    <section class="section">
+        <h2 class="section-title"><span class="icon">🧩</span> 核心组件</h2>
+        <div class="tabs" role="tablist">
+            <button class="tab-btn active" onclick="switchTab(this, 'tab-memory')">MemoryService</button>
+            <button class="tab-btn" onclick="switchTab(this, 'tab-summarizer')">Summarizer</button>
+            <button class="tab-btn" onclick="switchTab(this, 'tab-consolidator')">Consolidator</button>
+            <button class="tab-btn" onclick="switchTab(this, 'tab-reflection')">Reflection</button>
+            <button class="tab-btn" onclick="switchTab(this, 'tab-decay')">Decay</button>
+            <button class="tab-btn" onclick="switchTab(this, 'tab-eviction')">Eviction</button>
+            <button class="tab-btn" onclick="switchTab(this, 'tab-profile')">UserProfile</button>
+        </div>
+
+        <div id="tab-memory" class="tab-panel active">
+            <h3>MemoryService — L1 工作记忆管理</h3>
+            <p>负责维护当前会话的滑动窗口，是记忆系统的入口层。</p>
+            <ul>
+                <li><strong>滑动窗口</strong>：Redis List 维护最近 20 条消息，<code>LPUSH</code> + <code>LTRIM</code></li>
+                <li><strong>原子排空</strong>：使用 <code>RENAME</code> 将 pending list 原子性切换，避免竞态</li>
+                <li><strong>本地降级</strong>：Redis 不可用时，<code>ConcurrentHashMap</code> 作为 fallback</li>
+                <li><strong>事件发布</strong>：消息入队后检查 batch-size，发布 <code>SummarizationRequestEvent</code></li>
+            </ul>
+        </div>
+
+        <div id="tab-summarizer" class="tab-panel">
+            <h3>MemorySummarizer — LLM 摘要压缩</h3>
+            <p>监听 <code>SummarizationRequestEvent</code>，调用 LLM 将原始消息压缩为结构化摘要。</p>
+            <ul>
+                <li><strong>压缩目标</strong>：约 100 字的中文摘要，保留关键信息</li>
+                <li><strong>Importance 评估</strong>：LLM 同时输出 importance 评分 (0.0–1.0)</li>
+                <li><strong>降级策略</strong>：LLM 调用失败时，默认 <code>importance = 0.3</code>，保证流程不中断</li>
+                <li><strong>输出</strong>：发布 <code>ConsolidationRequestEvent</code>，携带摘要 + importance</li>
+            </ul>
+        </div>
+
+        <div id="tab-consolidator" class="tab-panel">
+            <h3>MemoryConsolidator — 向量持久化</h3>
+            <p>监听 <code>ConsolidationRequestEvent</code>，将摘要写入 PGVector 并触发反思计数。</p>
+            <ul>
+                <li><strong>向量化</strong>：使用 Spring AI EmbeddingModel 生成 1024 维向量</li>
+                <li><strong>写入 PGVector</strong>：带 metadata (importance, timestamp, sessionId)</li>
+                <li><strong>CAS 原子计数</strong>：使用 <code>compareAndSet</code> 递增反思计数器</li>
+                <li><strong>触发反思</strong>：计数达到 <code>reflection-threshold</code> 时发布 <code>ReflectionRequestEvent</code></li>
+            </ul>
+        </div>
+
+        <div id="tab-reflection" class="tab-panel">
+            <h3>ReflectionWorker — 长期反思与画像更新</h3>
+            <p>最高层级的记忆处理，从情景记忆中提炼用户的长期偏好和身份信息。</p>
+            <ul>
+                <li><strong>触发条件</strong>：episode 数量达到 <code>episode-threshold</code></li>
+                <li><strong>LLM 分析</strong>：综合近期记忆，提取偏好模式和身份特征</li>
+                <li><strong>高重要性</strong>：reflection 记录 <code>importance = 0.9</code>，受到特殊保护</li>
+                <li><strong>画像更新</strong>：将提炼结果写入 <code>UserProfileService</code> (Redis Hash)</li>
+            </ul>
+        </div>
+
+        <div id="tab-decay" class="tab-panel">
+            <h3>ImportanceDecayManager — 重要性衰减</h3>
+            <p>定期扫描 L3 记忆，按指数衰减公式降低重要性评分。</p>
+            <ul>
+                <li><strong>衰减公式</strong>：<code>importance × 0.5^(days / halfLife)</code></li>
+                <li><strong>半衰期</strong>：30 天 — 即每 30 天重要性减半</li>
+                <li><strong>访问刷新</strong>：被检索命中时重置衰减计时器（"用进废退"）</li>
+                <li><strong>最低阈值</strong>：<code>min-importance = 0.01</code>，低于此值标记为可淘汰</li>
+                <li><strong>批量处理</strong>：每次处理 500 条，避免长时间锁表</li>
+            </ul>
+        </div>
+
+        <div id="tab-eviction" class="tab-panel">
+            <h3>EvictionPolicyManager — 记忆淘汰策略</h3>
+            <p>清理过期和低重要性的记忆，保持存储高效。</p>
+            <ul>
+                <li><strong>淘汰条件</strong>：<code>importance &lt; 0.1</code> 且 <code>age &gt; 180 天</code></li>
+                <li><strong>Reflection 保护</strong>：reflection 类型的记忆 <strong>永不淘汰</strong>，保护用户身份信息</li>
+                <li><strong>软删除</strong>：先标记，后续批量物理删除</li>
+                <li><strong>定时任务</strong>：可配置 cron 表达式定期执行</li>
+            </ul>
+        </div>
+
+        <div id="tab-profile" class="tab-panel">
+            <h3>UserProfileService — 用户画像管理</h3>
+            <p>管理 L4 用户画像，将画像信息格式化注入 System Prompt。</p>
+            <ul>
+                <li><strong>存储</strong>：Redis Hash，key 格式 <code>ai:profile:{userId}</code></li>
+                <li><strong>TTL</strong>：30 天，活跃用户自动续期</li>
+                <li><strong>注入方式</strong>：格式化为结构化文本，拼接到 System Prompt 尾部</li>
+                <li><strong>字段</strong>：偏好、身份、习惯、关系模式等</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- ═══════════ STORAGE ARCHITECTURE ═══════════ -->
+    <section class="section">
+        <h2 class="section-title"><span class="icon">🗄️</span> 存储架构</h2>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Layer</th>
+                        <th>Storage</th>
+                        <th>Tech / Key</th>
+                        <th>TTL</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="card-badge l1">L1</span> Working Memory</td>
+                        <td>Redis List</td>
+                        <td><code>ai:session:{id}</code></td>
+                        <td>2h</td>
+                    </tr>
+                    <tr>
+                        <td><span class="card-badge l2">L2</span> Pending Queue</td>
+                        <td>Redis List</td>
+                        <td><code>ai:session:{id}:pending</code></td>
+                        <td>2h</td>
+                    </tr>
+                    <tr>
+                        <td><span class="card-badge l3">L3</span> Episodic Memory</td>
+                        <td>PostgreSQL</td>
+                        <td><code>pgvector HNSW</code></td>
+                        <td>由 eviction 管理</td>
+                    </tr>
+                    <tr>
+                        <td><span class="card-badge l4">L4</span> User Profile</td>
+                        <td>Redis Hash</td>
+                        <td><code>ai:profile:{id}</code></td>
+                        <td>30d</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ═══════════ CONFIGURATION ═══════════ -->
+    <section class="section">
+        <h2 class="section-title"><span class="icon">⚙️</span> 配置参数</h2>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Default</th>
+                        <th>E2E Test</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>summary.batch-size</code></td>
+                        <td>5</td>
+                        <td>3</td>
+                        <td>触发摘要的批次大小</td>
+                    </tr>
+                    <tr>
+                        <td><code>consolidation.reflection-threshold</code></td>
+                        <td>10</td>
+                        <td>3</td>
+                        <td>触发反思的 episode 计数阈值</td>
+                    </tr>
+                    <tr>
+                        <td><code>reflection.episode-threshold</code></td>
+                        <td>10</td>
+                        <td>4</td>
+                        <td>反思所需的最少 episode 数</td>
+                    </tr>
+                    <tr>
+                        <td><code>eviction.importance-threshold</code></td>
+                        <td>0.1</td>
+                        <td>—</td>
+                        <td>低于此重要性视为可淘汰</td>
+                    </tr>
+                    <tr>
+                        <td><code>eviction.max-age-days</code></td>
+                        <td>180</td>
+                        <td>—</td>
+                        <td>超过此天数的记忆可被清除</td>
+                    </tr>
+                    <tr>
+                        <td><code>decay.half-life-days</code></td>
+                        <td>30</td>
+                        <td>—</td>
+                        <td>重要性衰减半衰期（天）</td>
+                    </tr>
+                    <tr>
+                        <td><code>decay.min-importance</code></td>
+                        <td>0.01</td>
+                        <td>—</td>
+                        <td>重要性下限，低于此标记可淘汰</td>
+                    </tr>
+                    <tr>
+                        <td><code>decay.batch-size</code></td>
+                        <td>500</td>
+                        <td>—</td>
+                        <td>每次衰减扫描的批量大小</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ═══════════ DESIGN DECISIONS ═══════════ -->
+    <section class="section">
+        <h2 class="section-title"><span class="icon">🎯</span> 设计决策</h2>
+        <div class="decision-list">
+            <div class="decision-item">
+                <span class="decision-tag">Architecture</span>
+                <h4>事件驱动全异步 — 最终一致性</h4>
+                <p>使用 Spring ApplicationEvent 机制解耦各阶段处理。消息写入 L1 后立即返回，摘要、向量化、反思均异步执行。虽然存在短暂的不一致窗口，但保证了低延迟的用户体验和系统的高可用性。</p>
+            </div>
+            <div class="decision-item">
+                <span class="decision-tag">Storage</span>
+                <h4>Redis + PGVector 双存储 — 热/冷分离</h4>
+                <p>Redis 存储热数据（L1/L2/L4），保证毫秒级访问；PGVector 存储冷数据（L3），支持语义检索。热数据高频读写低延迟，冷数据容量大支持复杂查询，各取所长。</p>
+            </div>
+            <div class="decision-item">
+                <span class="decision-tag">Safety</span>
+                <h4>Reflection 永不淘汰 — 保护用户身份</h4>
+                <p>Reflection 产生的记忆承载用户的长期偏好和身份信息，一旦丢失将严重影响个性化体验。通过标记 <code>type=reflection</code>，在淘汰策略中特殊豁免，确保核心画像数据的安全。</p>
+            </div>
+            <div class="decision-item">
+                <span class="decision-tag">Algorithm</span>
+                <h4>指数衰减 + 访问刷新 — "用进废退"</h4>
+                <p>使用 <code>0.5^(days/halfLife)</code> 指数衰减公式，自然遗忘不常访问的记忆。被检索命中时重置衰减计时器，高频使用的记忆保持高重要性。模拟人类记忆的自然遗忘曲线。</p>
+            </div>
+            <div class="decision-item">
+                <span class="decision-tag">Resilience</span>
+                <h4>LLM 降级策略 — 失败时 importance=0.3</h4>
+                <p>LLM 调用可能因网络、限流等原因失败。降级策略为失败的摘要赋予中等重要性（0.3），既不会因过高重要性污染记忆池，也不会因过低被过早淘汰。保证流程不中断。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════ COMPARISON ═══════════ -->
+    <section class="section">
+        <h2 class="section-title"><span class="icon">📊</span> 与 mem0 对比</h2>
+        <div class="table-wrap">
+            <table class="compare-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Dawn AI Memory</th>
+                        <th>mem0</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>记忆层数</td>
+                        <td>4 层（Working → Pending → Episodic → Profile）</td>
+                        <td>2 层（Short-term → Long-term）</td>
+                    </tr>
+                    <tr>
+                        <td>向量存储</td>
+                        <td>PGVector (HNSW, 1024维)</td>
+                        <td>Qdrant / Chroma / pgvector</td>
+                    </tr>
+                    <tr>
+                        <td>热存储</td>
+                        <td>Redis (List + Hash)</td>
+                        <td>无独立热存储层</td>
+                    </tr>
+                    <tr>
+                        <td>事件驱动</td>
+                        <td>Spring Event 全异步流水线</td>
+                        <td>同步 API 调用</td>
+                    </tr>
+                    <tr>
+                        <td>重要性衰减</td>
+                        <td>指数衰减 + 访问刷新</td>
+                        <td>无内置衰减</td>
+                    </tr>
+                    <tr>
+                        <td>反思机制</td>
+                        <td>CAS 计数触发 ReflectionWorker</td>
+                        <td>无专门反思</td>
+                    </tr>
+                    <tr>
+                        <td>用户画像</td>
+                        <td>独立 L4，注入 System Prompt</td>
+                        <td>内嵌在 long-term memory</td>
+                    </tr>
+                    <tr>
+                        <td>淘汰策略</td>
+                        <td>importance + age 联合，reflection 豁免</td>
+                        <td>基于时间或数量</td>
+                    </tr>
+                    <tr>
+                        <td>降级容错</td>
+                        <td>LLM 失败默认 importance=0.3，Redis 降级本地</td>
+                        <td>异常直接抛出</td>
+                    </tr>
+                    <tr>
+                        <td>语言/框架</td>
+                        <td>Java / Spring Boot / Spring AI</td>
+                        <td>Python / FastAPI</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ═══════════ LINKS ═══════════ -->
+    <section class="section">
+        <h2 class="section-title"><span class="icon">🔗</span> Links</h2>
+        <div class="links-grid">
+            <a href="https://github.com/nicepkg/dawn-ai" target="_blank" rel="noopener" class="link-card">
+                <span class="link-icon">📦</span>
+                <span>GitHub Repository</span>
+            </a>
+            <a href="https://github.com/nicepkg/dawn-ai/tree/main/src/main/java/com/dawn/memory" target="_blank" rel="noopener" class="link-card">
+                <span class="link-icon">📁</span>
+                <span>Memory Module Source</span>
+            </a>
+            <a href="https://spring.io/projects/spring-ai" target="_blank" rel="noopener" class="link-card">
+                <span class="link-icon">🌿</span>
+                <span>Spring AI Documentation</span>
+            </a>
+            <a href="https://github.com/pgvector/pgvector" target="_blank" rel="noopener" class="link-card">
+                <span class="link-icon">📐</span>
+                <span>pgvector GitHub</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- ═══════════ FOOTER ═══════════ -->
+    <footer class="footer">
+        <p>🧠 Dawn AI Memory System — 4-Layer Memory Architecture</p>
+        <p style="margin-top:0.3rem;">Built with Spring Boot + Spring AI + Redis + PGVector</p>
+    </footer>
+
+</div>
+
+<script>
+function switchTab(btn, panelId) {
+    // Deactivate all tabs in the same tab group
+    const tabBar = btn.parentElement;
+    tabBar.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    // Hide all panels that are siblings
+    let panel = tabBar.nextElementSibling;
+    while (panel && panel.classList.contains('tab-panel')) {
+        panel.classList.remove('active');
+        panel = panel.nextElementSibling;
+    }
+
+    // Show target panel
+    const target = document.getElementById(panelId);
+    if (target) target.classList.add('active');
+}
+</script>
+
+</body>
+</html>

@@ -13,7 +13,13 @@
   "dawn-ai": {
     "name": "Dawn AI",
     "icon": "🏗️",
-    "color": "#10b981"
+    "color": "#10b981",
+    "subcategories": {
+      "memory": {
+        "name": "🧠 Memory",
+        "desc": "Dawn AI 记忆系统设计"
+      }
+    }
   },
   "ai-overview": {
     "name": "AI 全景",
