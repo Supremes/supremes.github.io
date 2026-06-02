@@ -5,7 +5,7 @@
   <meta name="portal-subtitle" content="AI Agent 的「长期记忆」引擎">
   <meta name="portal-desc" content="从架构设计到实现细节，全面解析 Mem0 如何为 LLM 提供跨会话的持久化记忆能力。">
   <meta name="portal-category" content="Agent 探索">
-  <meta name="portal-tags" content="Mem0, Memory, LLM, Agent, 向量数据库, 知识图谱">
+  <meta name="portal-tags" content="Mem0, Memory, LLM, Agent, 向量数据库, 实体链接, NLP">
   <meta name="portal-icon" content="🧠">
   <meta name="portal-color" content="#8b5cf6">
   <meta name="portal-date" content="2026-06-01">
@@ -162,7 +162,7 @@ footer a{color:var(--accent)}
 </head>
 <body>
 
-<a href="/portal/" class="back-link">
+<a href="/" class="back-link">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5m0 0l7 7m-7-7l7-7"/></svg>
   返回知识库
 </a>
@@ -246,10 +246,10 @@ footer a{color:var(--accent)}
       <span class="tag" style="background:rgba(16,185,129,.15);color:var(--green)">Architecture</span>
     </div>
 
-    <p>Mem0 采用<strong>双引擎架构</strong>：向量记忆引擎 + 图记忆引擎（mem0ᵍ），两者协同工作，提供全面的记忆能力。</p>
+    <p>Mem0 采用<strong>多信号检索架构</strong>：语义相似度 + 关键词匹配 + NLP 实体链接，三路并行打分后融合排序，用不到 7000 tokens 实现高精度记忆检索。</p>
 
     <div class="arch-diagram">
-      <div style="text-align:center;margin-bottom:16px;color:var(--dim);font-size:12px;letter-spacing:2px;text-transform:uppercase">Mem0 双引擎架构</div>
+      <div style="text-align:center;margin-bottom:16px;color:var(--dim);font-size:12px;letter-spacing:2px;text-transform:uppercase">Mem0 多信号检索架构（2026.04 新算法）</div>
       
       <!-- User Layer -->
       <div class="arch-row">
@@ -270,40 +270,43 @@ footer a{color:var(--accent)}
       <!-- Processing Layer -->
       <div class="arch-row" style="gap:20px">
         <div class="arch-box" style="background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);color:var(--amber2);flex:1">
-          🧠 LLM 记忆提取器<br><span style="font-size:11px;opacity:.7">对话 → 结构化事实</span>
+          🧠 单次 LLM 提取（ADD-only）<br><span style="font-size:11px;opacity:.7">对话 → 结构化事实（仅新增）</span>
         </div>
         <div class="arch-box" style="background:rgba(14,165,233,.1);border:1px solid rgba(14,165,233,.3);color:var(--sky2);flex:1">
-          🔗 去重 & 冲突解决<br><span style="font-size:11px;opacity:.7">新旧记忆合并</span>
+          🔗 去重 & 实体链接<br><span style="font-size:11px;opacity:.7">NLP 实体抽取 → 嵌入存储</span>
         </div>
       </div>
       <div class="arch-arrow down">↓</div>
       
-      <!-- Dual Engine -->
-      <div class="arch-row" style="gap:20px">
-        <div class="arch-box" style="background:rgba(139,92,246,.12);border:2px solid rgba(139,92,246,.4);color:var(--accent);flex:1;padding:16px">
-          <div style="font-size:20px;margin-bottom:4px">📊</div>
-          <strong>向量记忆引擎</strong><br>
-          <span style="font-size:11px;opacity:.7">
-            Embedding → 向量数据库<br>
-            语义相似度检索<br>
-            支持 Qdrant / Pinecone / ChromaDB
-          </span>
+      <!-- Multi-Signal Retrieval -->
+      <div class="arch-row" style="gap:12px">
+        <div class="arch-box" style="background:rgba(139,92,246,.12);border:2px solid rgba(139,92,246,.4);color:var(--accent);flex:1;padding:14px">
+          <div style="font-size:18px;margin-bottom:4px">📊</div>
+          <strong>语义相似度</strong><br>
+          <span style="font-size:11px;opacity:.7">向量 Embedding 匹配</span>
         </div>
-        <div class="arch-box" style="background:rgba(16,185,129,.12);border:2px solid rgba(16,185,129,.4);color:var(--green);flex:1;padding:16px">
-          <div style="font-size:20px;margin-bottom:4px">🕸️</div>
-          <strong>图记忆引擎 (mem0ᵍ)</strong><br>
-          <span style="font-size:11px;opacity:.7">
-            实体-关系抽取 → 知识图谱<br>
-            多跳推理 & 关系发现<br>
-            支持 Neo4j / FalkorDB
-          </span>
+        <div class="arch-box" style="background:rgba(16,185,129,.12);border:2px solid rgba(16,185,129,.4);color:var(--green);flex:1;padding:14px">
+          <div style="font-size:18px;margin-bottom:4px">🔤</div>
+          <strong>关键词匹配</strong><br>
+          <span style="font-size:11px;opacity:.7">词形归一化 + BM25</span>
+        </div>
+        <div class="arch-box" style="background:rgba(245,158,11,.12);border:2px solid rgba(245,158,11,.4);color:var(--amber);flex:1;padding:14px">
+          <div style="font-size:18px;margin-bottom:4px">🏷️</div>
+          <strong>实体链接</strong><br>
+          <span style="font-size:11px;opacity:.7">NLP 实体 → 排序加权</span>
+        </div>
+      </div>
+      <div class="arch-arrow down">↓</div>
+      <div class="arch-row">
+        <div class="arch-box" style="background:rgba(236,72,153,.12);border:2px solid rgba(236,72,153,.4);color:var(--pink);width:300px">
+          🎯 融合排序 → Top-K 记忆结果
         </div>
       </div>
     </div>
 
     <div class="key-point success">
       <div class="icon">✅</div>
-      <div><strong>为什么需要双引擎？</strong> 向量引擎擅长语义检索（"用户喜欢什么类型的音乐"），图引擎擅长关系推理（"用户A和用户B的共同朋友"）。两者互补，覆盖更多记忆场景。</div>
+      <div><strong>为什么用 NLP 实体链接替代图数据库？</strong> 旧方案（mem0ᵍ）需要部署 Neo4j/FalkorDB 图数据库，运维成本高。新方案用 LLM 做 NLP 实体抽取，将实体嵌入后存入独立查找层，查询时通过实体匹配加权排序——不需要图数据库也能实现关系推理，且延迟降低 50%+。</div>
     </div>
   </div>
 
@@ -322,7 +325,7 @@ footer a{color:var(--accent)}
       <button class="tab-btn active" onclick="switchTab('short')">📝 短期记忆</button>
       <button class="tab-btn" onclick="switchTab('long')">📚 长期记忆</button>
       <button class="tab-btn" onclick="switchTab('semantic')">🔬 语义记忆</button>
-      <button class="tab-btn" onclick="switchTab('graph')">🕸️ 图记忆</button>
+      <button class="tab-btn" onclick="switchTab('entity')">🏷️ 实体链接</button>
     </div>
 
     <div id="tab-short" class="tab-panel active">
@@ -410,41 +413,37 @@ memories = m.search(<span class="string">"咖啡偏好"</span>, user_id<span cla
       </div>
     </div>
 
-    <div id="tab-graph" class="tab-panel">
+    <div id="tab-entity" class="tab-panel">
       <div class="card" style="margin:0">
         <div class="card-accent" style="background:linear-gradient(to right,var(--green),var(--green2))"></div>
-        <h3 style="color:var(--green2)">🕸️ 图记忆（Graph Memory / mem0ᵍ）</h3>
-        <p style="margin-top:12px">Mem0 的高级特性——将记忆组织为<strong>知识图谱</strong>，支持关系推理和多跳查询。</p>
+        <h3 style="color:var(--green2)">🏷️ 实体链接（Entity Linking）</h3>
+        <p style="margin-top:12px">Mem0 2026.04 新算法的核心特性——用 <strong>NLP 实体抽取</strong>替代图数据库，实现轻量级关系推理。</p>
         <div class="key-point" style="margin-top:12px">
           <div class="icon">🔑</div>
-          <div><strong>与向量记忆的区别：</strong>向量记忆是扁平的「事实列表」，图记忆是结构化的「关系网络」。例如：Alice → 朋友 → Bob → 喜欢 → 爵士乐。</div>
+          <div><strong>工作原理：</strong>每条记忆经过 LLM 分析，抽取专有名词、引用文本、复合名词短语等实体。这些实体被嵌入后存入独立查找层，链接到同一人、地点或概念的记忆。查询时，从问题中识别的实体与查找层匹配，相关记忆获得排序加权。</div>
+        </div>
+        <div class="key-point success" style="margin-top:8px">
+          <div class="icon">💡</div>
+          <div><strong>对比旧方案：</strong>不再需要部署 Neo4j/FalkorDB 图数据库。NLP 实体链接在查询时通过嵌入相似度匹配实体，配合语义检索和关键词匹配，三路融合排序——效果更好，运维更简单。</div>
         </div>
         <div class="code-block" style="margin-top:12px">
           <div class="code-header">
             <div class="code-dot r"></div><div class="code-dot y"></div><div class="code-dot g"></div>
-            <span class="code-title">graph_memory.py</span>
+            <span class="code-title">entity_linking.py</span>
           </div>
           <pre class="code-body"><span class="keyword">from</span> mem0 <span class="keyword">import</span> Memory
 
-<span class="comment"># 启用图记忆引擎</span>
-config = {
-    <span class="string">"graph_store"</span>: {
-        <span class="string">"provider"</span>: <span class="string">"neo4j"</span>,
-        <span class="string">"config"</span>: {
-            <span class="string">"url"</span>: <span class="string">"bolt://localhost:7687"</span>,
-            <span class="string">"username"</span>: <span class="string">"neo4j"</span>,
-            <span class="string">"password"</span>: <span class="string">"password"</span>
-        }
-    }
-}
-m = Memory.from_config(config)
+<span class="comment"># 新算法默认启用实体链接，无需额外配置</span>
+m = Memory()
 
-<span class="comment"># 图记忆自动抽取实体和关系</span>
 m.add(<span class="string">"Alice 和 Bob 是大学同学，他们都很喜欢徒步"</span>,
       user_id<span class="op">=</span><span class="string">"alice"</span>)
-<span class="comment"># 生成: Alice -[同学]-> Bob</span>
-<span class="comment">#       Alice -[喜欢]-> 徒步</span>
-<span class="comment">#       Bob   -[喜欢]-> 徒步</span></pre>
+<span class="comment"># 自动抽取实体: Alice, Bob, 徒步</span>
+<span class="comment"># 实体被嵌入存入独立查找层</span>
+
+<span class="comment"># 查询时，实体匹配会加权排序</span>
+results = m.search(<span class="string">"Bob 喜欢什么运动"</span>, user_id<span class="op">=</span><span class="string">"alice"</span>)
+<span class="comment"># "Bob" 实体匹配 → 相关记忆排名靠前</span></pre>
         </div>
       </div>
     </div>
@@ -474,16 +473,16 @@ m.add(<span class="string">"Alice 和 Bob 是大学同学，他们都很喜欢�
         <div class="flow-step-dot" style="background:var(--pink)">2</div>
         <div class="flow-step-line"></div>
         <div class="flow-step-content">
-          <h4 style="color:var(--pink2)">🧠 LLM 记忆提取</h4>
-          <p>使用 LLM（默认 GPT-4o-mini）分析对话，提取关键事实、偏好、事件。LLM 会生成结构化的记忆条目，包含 <code class="inline">memory</code>（内容）和 <code class="inline">event</code>（类型）。</p>
+          <h4 style="color:var(--pink2)">🧠 单次 LLM 提取（ADD-only）</h4>
+          <p>使用 LLM（默认 GPT-4o-mini）分析对话，提取关键事实、偏好、事件。<strong>新算法只执行 ADD 操作</strong>——每条事实成为独立记录，信息变更时新旧共存而非覆盖，保留完整演变历史。Agent 生成的事实（如确认操作）现在也被同等对待。</p>
         </div>
       </div>
       <div class="flow-step">
         <div class="flow-step-dot" style="background:var(--amber)">3</div>
         <div class="flow-step-line"></div>
         <div class="flow-step-content">
-          <h4 style="color:var(--amber2)">🔗 去重与冲突检测</h4>
-          <p>将新提取的记忆与已有记忆进行比对。如果发现重复或矛盾（如"喜欢咖啡" vs "不再喝咖啡"），执行<strong>合并或更新</strong>操作，而非简单追加。</p>
+          <h4 style="color:var(--amber2)">🔗 去重与实体链接</h4>
+          <p>将新提取的记忆与已有记忆进行去重比对。同时执行 <strong>NLP 实体抽取</strong>——识别专有名词、引用文本、复合名词短语，将实体嵌入后存入独立查找层，建立记忆间的实体关联。</p>
         </div>
       </div>
       <div class="flow-step">
@@ -497,8 +496,8 @@ m.add(<span class="string">"Alice 和 Bob 是大学同学，他们都很喜欢�
       <div class="flow-step">
         <div class="flow-step-dot" style="background:var(--sky)">5</div>
         <div class="flow-step-content">
-          <h4 style="color:var(--sky2)">🕸️ 图谱更新（可选）</h4>
-          <p>如果启用了 mem0ᵍ，同步将实体和关系抽取到知识图谱中，更新或创建节点和边。</p>
+          <h4 style="color:var(--sky2)">🏷️ 实体嵌入存储</h4>
+          <p>抽取的实体（人名、地点、概念）通过 Embedding 模型转化为向量，存入独立的实体查找层。查询时，问题中的实体与该层匹配，为相关记忆提供排序加权——替代了旧方案的图数据库依赖。</p>
         </div>
       </div>
     </div>
@@ -677,14 +676,14 @@ m.add(<span class="string">"我最喜欢的编程语言还是 Go"</span>, user_i
         <tr>
           <td><strong>Neo4j</strong></td>
           <td>图数据库</td>
-          <td>mem0ᵍ 默认后端，Cypher 查询</td>
-          <td>关系推理 / 图记忆</td>
+          <td>旧方案 mem0ᵍ 默认后端</td>
+          <td><span style="color:var(--amber)">⚠️ 已被 NLP 实体链接替代</span></td>
         </tr>
         <tr>
           <td><strong>FalkorDB</strong></td>
           <td>图数据库</td>
           <td>Redis 兼容，低延迟</td>
-          <td>高性能图记忆场景</td>
+          <td><span style="color:var(--amber)">⚠️ 已被 NLP 实体链接替代</span></td>
         </tr>
       </tbody>
     </table>
@@ -774,8 +773,8 @@ config = {
           <td class="cross">❌ 需自建</td>
         </tr>
         <tr>
-          <td>图记忆</td>
-          <td class="check">✅ mem0ᵍ</td>
+          <td>实体链接（NLP）</td>
+          <td class="check">✅ 内置</td>
           <td class="cross">❌ 无</td>
           <td class="cross">❌ 无</td>
           <td class="cross">❌ 需自建</td>
@@ -1004,11 +1003,11 @@ all_memories = m.get_all(user_id<span class="op">=</span><span class="string">"x
           <p>pip install mem0ai</p>
         </div>
       </a>
-      <a href="https://docs.mem0.ai/open-source/graph-memory/overview" target="_blank" class="link-card">
-        <div class="link-icon">🕸️</div>
+      <a href="https://mem0.ai/blog/mem0-the-token-efficient-memory-algorithm" target="_blank" class="link-card">
+        <div class="link-icon">🏷️</div>
         <div class="link-info">
-          <h4>Graph Memory 文档</h4>
-          <p>mem0ᵍ 详细指南</p>
+          <h4>Token-Efficient 算法博客</h4>
+          <p>NLP 实体链接 + 多信号检索</p>
         </div>
       </a>
     </div>
