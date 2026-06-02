@@ -1,7 +1,33 @@
 {
-  "llm-principles": { "name": "LLM 原理", "icon": "🔮", "color": "#6366f1" },
-  "agent": { "name": "Agent 探索", "icon": "🤖", "color": "#8b5cf6" },
-  "ai-overview": { "name": "AI 全景", "icon": "🌐", "color": "#ec4899" },
-  "experiments": { "name": "动手实验", "icon": "🧪", "color": "#0ea5e9" },
-  "dawn-ai": { "name": "Dawn AI", "icon": "🌅", "color": "#f59e0b" }
+  "agent": {
+    "name": "Agent 探索",
+    "icon": "🤖",
+    "color": "#8b5cf6",
+    "subcategories": {
+      "memory": {
+        "name": "🧠 Memory",
+        "desc": "AI Agent 记忆系统"
+      }
+    }
+  },
+  "dawn-ai": {
+    "name": "Dawn AI",
+    "icon": "🏗️",
+    "color": "#10b981"
+  },
+  "ai-overview": {
+    "name": "AI 全景",
+    "icon": "🌐",
+    "color": "#0ea5e9"
+  },
+  "llm-principles": {
+    "name": "LLM 原理",
+    "icon": "🧠",
+    "color": "#f59e0b"
+  },
+  "experiments": {
+    "name": "动手实验",
+    "icon": "🧪",
+    "color": "#ec4899"
+  }
 }

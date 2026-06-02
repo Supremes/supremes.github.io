@@ -580,7 +580,27 @@ def load_portal_pages():
 def portal_index():
     pages = load_portal_pages()
     portal_cats = sorted(set(p['category'] for p in pages))
+
+    # 加载子分类配置
+    cat_map_path = os.path.join(PORTAL_DIR, '_categories.json')
+    cat_config = {}
+    portal_subcategories = {}
+    if os.path.exists(cat_map_path):
+        try:
+            with open(cat_map_path, 'r', encoding='utf-8') as f:
+                cat_config = json.load(f)
+            for dir_name, info in cat_config.items():
+                subs = info.get('subcategories', {})
+                if subs:
+                    cat_name = info.get('name', dir_name)
+                    portal_subcategories[cat_name] = {
+                        k: v.get('name', k) for k, v in subs.items()
+                    }
+        except Exception:
+            pass
+
     return render_template('portal.html', pages=pages, portal_categories=portal_cats,
+                           portal_subcategories=portal_subcategories,
                            categories=CATEGORIES, all_tags=ALL_TAGS)
 
 @app.route('/portal/<path:slug>')

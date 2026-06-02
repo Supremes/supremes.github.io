@@ -810,12 +810,8 @@
 (function() {
   'use strict';
 
-  // Subcategory name mapping
-  const SUB_NAMES = {
-    'memory': '🧠 Memory',
-    'rag': '📚 RAG',
-    'tools': '🔧 Tools',
-  };
+  // Subcategory name mapping (from server config)
+  const SUB_NAMES = {{ portal_subcategories | tojson }};
 
   // Category filter
   const chips = document.querySelectorAll('.filter-chip');
@@ -854,7 +850,7 @@
       const btn = document.createElement('button');
       btn.className = 'sub-filter-chip';
       btn.dataset.sub = sub;
-      btn.textContent = SUB_NAMES[sub] || sub;
+      btn.textContent = (SUB_NAMES[cat] && SUB_NAMES[cat][sub]) || sub;
       btn.addEventListener('click', () => {
         if (activeSubFilter === sub) {
           activeSubFilter = '';
