@@ -176,6 +176,40 @@
   color: #fff;
 }
 
+.sub-filters {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 4px;
+}
+.sub-filter-sep {
+  color: var(--text-muted);
+  font-size: 14px;
+  margin: 0 2px;
+}
+.sub-filter-chip {
+  padding: 5px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .2s;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.sub-filter-chip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.sub-filter-chip.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
 .controls-right {
   display: flex;
   align-items: center;
@@ -710,6 +744,9 @@
       {% for cat in portal_categories %}
       <button class="filter-chip" data-filter="{{ cat }}">{{ cat }}</button>
       {% endfor %}
+      <div class="sub-filters" id="sub-filters" style="display:none;">
+        <span class="sub-filter-sep">›</span>
+      </div>
     </div>
     <div class="controls-right">
       <div class="portal-search">
@@ -726,7 +763,7 @@
   <div class="container">
     <div class="portal-grid" id="portal-grid">
       {% for page in pages %}
-      <a href="/portal/{{ page.slug }}" class="portal-card" data-category="{{ page.category }}" data-tags="{{ page.tags|join(',') }}" data-title="{{ page.title }}" data-desc="{{ page.desc }}">
+      <a href="/portal/{{ page.slug }}" class="portal-card" data-category="{{ page.category }}" data-subcategory="{{ page.subcategory }}" data-tags="{{ page.tags|join(',') }}" data-title="{{ page.title }}" data-desc="{{ page.desc }}">
         <div class="portal-card-accent" style="background: {{ page.color }};"></div>
         <div class="portal-card-body">
           <div class="portal-card-header">
@@ -773,30 +810,83 @@
 (function() {
   'use strict';
 
+  // Subcategory name mapping
+  const SUB_NAMES = {
+    'memory': '🧠 Memory',
+    'rag': '📚 RAG',
+    'tools': '🔧 Tools',
+  };
+
   // Category filter
   const chips = document.querySelectorAll('.filter-chip');
   const cards = document.querySelectorAll('.portal-card');
   const emptyEl = document.getElementById('portal-empty');
   const grid = document.getElementById('portal-grid');
+  const subFiltersEl = document.getElementById('sub-filters');
 
   let activeFilter = 'all';
+  let activeSubFilter = '';
   let searchQuery = '';
+
+  // Build subcategory map: category → set of subcategories
+  const subCatMap = {};
+  cards.forEach(card => {
+    const cat = card.dataset.category;
+    const sub = card.dataset.subcategory;
+    if (sub) {
+      if (!subCatMap[cat]) subCatMap[cat] = new Set();
+      subCatMap[cat].add(sub);
+    }
+  });
+
+  function renderSubFilters(cat) {
+    // Remove old sub-chips
+    subFiltersEl.querySelectorAll('.sub-filter-chip').forEach(el => el.remove());
+    activeSubFilter = '';
+
+    if (cat === 'all' || !subCatMap[cat]) {
+      subFiltersEl.style.display = 'none';
+      return;
+    }
+    subFiltersEl.style.display = 'inline-flex';
+    const subs = subCatMap[cat];
+    subs.forEach(sub => {
+      const btn = document.createElement('button');
+      btn.className = 'sub-filter-chip';
+      btn.dataset.sub = sub;
+      btn.textContent = SUB_NAMES[sub] || sub;
+      btn.addEventListener('click', () => {
+        if (activeSubFilter === sub) {
+          activeSubFilter = '';
+          subFiltersEl.querySelectorAll('.sub-filter-chip').forEach(b => b.classList.remove('active'));
+        } else {
+          activeSubFilter = sub;
+          subFiltersEl.querySelectorAll('.sub-filter-chip').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+        }
+        applyFilters();
+      });
+      subFiltersEl.appendChild(btn);
+    });
+  }
 
   function applyFilters() {
     let visible = 0;
     cards.forEach(card => {
       const cat = card.dataset.category;
+      const sub = card.dataset.subcategory;
       const title = (card.dataset.title || '').toLowerCase();
       const desc = (card.dataset.desc || '').toLowerCase();
       const tags = (card.dataset.tags || '').toLowerCase();
 
       const matchFilter = activeFilter === 'all' || cat === activeFilter;
+      const matchSub = !activeSubFilter || sub === activeSubFilter;
       const matchSearch = !searchQuery ||
         title.includes(searchQuery) ||
         desc.includes(searchQuery) ||
         tags.includes(searchQuery);
 
-      const show = matchFilter && matchSearch;
+      const show = matchFilter && matchSub && matchSearch;
       card.style.display = show ? '' : 'none';
       if (show) visible++;
     });
@@ -810,6 +900,7 @@
       chips.forEach(c => c.classList.remove('active'));
       chip.classList.add('active');
       activeFilter = chip.dataset.filter;
+      renderSubFilters(activeFilter);
       applyFilters();
     });
   });

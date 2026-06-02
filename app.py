@@ -556,12 +556,16 @@ def load_portal_pages():
                 title = meta.get('title') or (tm.group(1).strip() if tm else slug)
             except Exception:
                 title = slug
+            # 子分类：路径中间层（如 agent/memory/xxx → memory）
+            parts = rel_dir.split(os.sep) if rel_dir else []
+            subcategory = parts[1] if len(parts) >= 2 else ''
             pages.append({
                 'slug': full_slug,
                 'title': title,
                 'subtitle': meta.get('subtitle', ''),
                 'desc': meta.get('desc', ''),
                 'category': resolve_category(meta.get('category', ''), dir_name),
+                'subcategory': subcategory,
                 'tags': [t.strip() for t in meta.get('tags', '').split(',') if t.strip()],
                 'icon': meta.get('icon') or dir_info.get('icon', '📄'),
                 'color': meta.get('color') or dir_info.get('color', '#6b7280'),
