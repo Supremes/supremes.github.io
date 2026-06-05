@@ -1,0 +1,3399 @@
+<!doctype html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta
+            name="description"
+            content="LLM 原理详解：从注意力机制到训练流程的可视化展板"
+        />
+        <title>
+            大语言模型，到底是怎么"想"的？— 一份零数学基础的 LLM 原理指南
+        </title>
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+        <style>
+            @import url("https://cdn.jsdelivr.net/npm/cn-fontsource-lxgw-wen-kai-gb-screen-regular/font.css");
+
+            :root {
+                --bg: #fafaf7;
+                --bg-soft: #f4f0e6;
+                --bg-card: #ffffff;
+                --bg-code: #f2eee3;
+                --ink: #1a1a1a;
+                --ink-2: #4a4a4a;
+                --ink-3: #8a8a86;
+                --line: #e5e1d6;
+                --line-soft: #efebe0;
+                --accent: #c26b3c;
+                --accent-soft: #e8b89a;
+                --accent-bg: #f8e9dc;
+                --blue: #2d6cdf;
+                --green: #2d7d5a;
+
+                --font-body:
+                    "LXGW WenKai GB Screen", "PingFang SC", "Hiragino Sans GB",
+                    "Microsoft YaHei", system-ui, sans-serif;
+                --font-mono:
+                    ui-monospace, "JetBrains Mono", "Fira Code",
+                    "Cascadia Code", Menlo, Consolas, monospace;
+
+                --max-w: 720px;
+                --max-w-wide: 960px;
+            }
+
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            html {
+                scroll-behavior: smooth;
+            }
+
+            body {
+                font-family: var(--font-body);
+                font-size: 18px;
+                line-height: 1.85;
+                color: var(--ink);
+                background: var(--bg);
+                -webkit-font-smoothing: antialiased;
+                text-rendering: optimizeLegibility;
+            }
+
+            /* ---------- Layout ---------- */
+            .container {
+                max-width: var(--max-w);
+                margin: 0 auto;
+                padding: 0 32px;
+            }
+            .container-wide {
+                max-width: var(--max-w-wide);
+                margin: 0 auto;
+                padding: 0 32px;
+            }
+
+            section.chapter {
+                padding: 96px 0;
+                border-top: 1px solid var(--line-soft);
+            }
+            section.chapter:first-of-type {
+                border-top: none;
+            }
+
+            /* ---------- Top Nav ---------- */
+            .topnav {
+                position: sticky;
+                top: 0;
+                background: rgba(250, 250, 247, 0.92);
+                backdrop-filter: blur(8px);
+                -webkit-backdrop-filter: blur(8px);
+                border-bottom: 1px solid var(--line-soft);
+                z-index: 100;
+                padding: 14px 0;
+            }
+            .topnav-inner {
+                max-width: var(--max-w-wide);
+                margin: 0 auto;
+                padding: 0 32px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+            .topnav-brand {
+                font-size: 14px;
+                color: var(--ink-2);
+                letter-spacing: 0.02em;
+            }
+            .topnav-brand strong {
+                color: var(--ink);
+                font-weight: 400;
+            }
+            .topnav-progress {
+                flex: 1;
+                margin: 0 32px;
+                height: 2px;
+                background: var(--line);
+                border-radius: 2px;
+                position: relative;
+                overflow: hidden;
+                max-width: 280px;
+            }
+            .topnav-progress-bar {
+                position: absolute;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                width: 0%;
+                background: var(--accent);
+                transition: width 0.1s linear;
+            }
+            .topnav-meta {
+                font-size: 13px;
+                color: var(--ink-3);
+                font-variant-numeric: tabular-nums;
+            }
+
+            /* ---------- Hero ---------- */
+            .hero {
+                padding: 140px 0 120px;
+                text-align: center;
+                position: relative;
+                overflow: hidden;
+            }
+            .hero-eyebrow {
+                display: inline-block;
+                font-size: 13px;
+                letter-spacing: 0.18em;
+                color: var(--accent);
+                border: 1px solid var(--accent-soft);
+                padding: 6px 16px;
+                border-radius: 999px;
+                margin-bottom: 32px;
+                background: var(--accent-bg);
+            }
+            .hero-title {
+                font-size: clamp(36px, 6vw, 64px);
+                line-height: 1.25;
+                font-weight: 400;
+                letter-spacing: -0.01em;
+                margin-bottom: 24px;
+            }
+            .hero-title em {
+                font-style: normal;
+                color: var(--accent);
+                position: relative;
+            }
+            .hero-title em::after {
+                content: "";
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: -4px;
+                height: 6px;
+                background: var(--accent-bg);
+                z-index: -1;
+            }
+            .hero-sub {
+                font-size: 19px;
+                color: var(--ink-2);
+                max-width: 560px;
+                margin: 0 auto 56px;
+                line-height: 1.7;
+            }
+            .hero-meta {
+                display: flex;
+                justify-content: center;
+                gap: 32px;
+                flex-wrap: wrap;
+                font-size: 14px;
+                color: var(--ink-3);
+            }
+            .hero-meta span {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+            }
+            .hero-meta i {
+                display: inline-block;
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                background: var(--accent);
+                font-style: normal;
+            }
+
+            /* Hero token-stream animation */
+            .hero-canvas {
+                margin-top: 80px;
+                height: 80px;
+                position: relative;
+                overflow: hidden;
+                border-top: 1px dashed var(--line);
+                border-bottom: 1px dashed var(--line);
+            }
+            .hero-canvas-track {
+                position: absolute;
+                top: 50%;
+                left: 0;
+                transform: translateY(-50%);
+                display: flex;
+                gap: 12px;
+                white-space: nowrap;
+                animation: tokenSlide 60s linear infinite;
+                font-family: var(--font-mono);
+                font-size: 14px;
+            }
+            .hero-canvas-track .tk {
+                padding: 6px 12px;
+                background: var(--bg-card);
+                border: 1px solid var(--line);
+                border-radius: 6px;
+                color: var(--ink-2);
+            }
+            .hero-canvas-track .tk.hot {
+                background: var(--accent-bg);
+                border-color: var(--accent-soft);
+                color: var(--accent);
+            }
+            @keyframes tokenSlide {
+                from {
+                    transform: translate(0, -50%);
+                }
+                to {
+                    transform: translate(-50%, -50%);
+                }
+            }
+
+            /* ---------- Chapter heading ---------- */
+            .chapter-num {
+                font-family: var(--font-mono);
+                font-size: 13px;
+                color: var(--accent);
+                letter-spacing: 0.12em;
+                margin-bottom: 16px;
+            }
+            .chapter-title {
+                font-size: clamp(28px, 4vw, 40px);
+                line-height: 1.3;
+                font-weight: 400;
+                letter-spacing: -0.005em;
+                margin-bottom: 24px;
+                color: var(--ink);
+            }
+            .chapter-lead {
+                font-size: 19px;
+                color: var(--ink-2);
+                margin-bottom: 48px;
+                line-height: 1.75;
+            }
+
+            /* ---------- Body text ---------- */
+            p {
+                margin-bottom: 24px;
+                color: var(--ink);
+            }
+            p + p {
+                margin-top: 0;
+            }
+
+            p.muted {
+                color: var(--ink-2);
+            }
+            p.small {
+                font-size: 16px;
+                color: var(--ink-2);
+            }
+
+            strong {
+                font-weight: 700;
+                color: var(--ink);
+            }
+            em {
+                font-style: italic;
+            }
+
+            a {
+                color: var(--accent);
+                text-decoration: none;
+                border-bottom: 1px solid var(--accent-soft);
+            }
+            a:hover {
+                border-color: var(--accent);
+            }
+
+            ul,
+            ol {
+                margin: 0 0 24px 24px;
+            }
+            li {
+                margin-bottom: 8px;
+                line-height: 1.75;
+            }
+
+            /* ---------- Code ---------- */
+            code {
+                font-family: var(--font-mono);
+                font-size: 0.9em;
+                background: var(--bg-code);
+                padding: 2px 6px;
+                border-radius: 4px;
+                color: var(--ink);
+            }
+            pre {
+                background: var(--bg-code);
+                border: 1px solid var(--line);
+                border-radius: 8px;
+                padding: 20px 24px;
+                overflow-x: auto;
+                margin-bottom: 32px;
+                font-family: var(--font-mono);
+                font-size: 14px;
+                line-height: 1.7;
+                color: var(--ink);
+            }
+            pre code {
+                background: none;
+                padding: 0;
+                font-size: inherit;
+            }
+
+            /* ---------- Callouts ---------- */
+            .callout {
+                padding: 24px 28px;
+                background: var(--bg-card);
+                border: 1px solid var(--line);
+                border-left: 3px solid var(--accent);
+                border-radius: 6px;
+                margin: 32px 0;
+            }
+            .callout-title {
+                font-size: 14px;
+                letter-spacing: 0.06em;
+                color: var(--accent);
+                margin-bottom: 8px;
+                font-weight: 600;
+            }
+            .callout p:last-child {
+                margin-bottom: 0;
+            }
+
+            .callout-quiet {
+                background: var(--bg-soft);
+                border: 1px solid var(--line);
+                border-radius: 6px;
+                padding: 24px 28px;
+                margin: 32px 0;
+                color: var(--ink-2);
+                font-size: 16px;
+            }
+
+            /* ---------- Figure ---------- */
+            .figure {
+                margin: 48px -24px;
+                padding: 32px 24px;
+                background: var(--bg-card);
+                border: 1px solid var(--line);
+                border-radius: 12px;
+            }
+            .figure-caption {
+                margin-top: 20px;
+                font-size: 14px;
+                color: var(--ink-3);
+                text-align: center;
+                font-family: var(--font-mono);
+                letter-spacing: 0.02em;
+            }
+            .figure img {
+                display: block;
+                width: 100%;
+                height: auto;
+                border-radius: 6px;
+            }
+
+            /* ---------- QKV role cards ---------- */
+            .qkv-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 16px;
+                margin: 32px 0;
+            }
+            .qkv-card {
+                padding: 24px 20px;
+                background: var(--bg-card);
+                border: 1px solid var(--line);
+                border-radius: 12px;
+                position: relative;
+            }
+            .qkv-card .qkv-letter {
+                font-family: var(--font-mono);
+                font-size: 32px;
+                font-weight: 700;
+                letter-spacing: -0.02em;
+                margin-bottom: 4px;
+            }
+            .qkv-card.q .qkv-letter {
+                color: var(--accent);
+            }
+            .qkv-card.k .qkv-letter {
+                color: var(--blue);
+            }
+            .qkv-card.v .qkv-letter {
+                color: var(--green);
+            }
+            .qkv-card .qkv-name {
+                font-family: var(--font-mono);
+                font-size: 11px;
+                color: var(--ink-3);
+                letter-spacing: 0.1em;
+                margin-bottom: 16px;
+            }
+            .qkv-card .qkv-role {
+                font-size: 16px;
+                color: var(--ink);
+                font-weight: 600;
+                margin-bottom: 8px;
+            }
+            .qkv-card .qkv-desc {
+                font-size: 14px;
+                color: var(--ink-2);
+                line-height: 1.7;
+            }
+
+            /* ---------- Compare cache box ---------- */
+            .cache-compare {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 16px;
+                margin: 32px 0;
+            }
+            .cache-side {
+                padding: 24px;
+                border-radius: 12px;
+                border: 1px solid var(--line);
+            }
+            .cache-side.no {
+                background: #fbe9e7;
+                border-color: #f5c7bc;
+            }
+            .cache-side.yes {
+                background: #e7f0e5;
+                border-color: #bcd8b4;
+            }
+            .cache-tag {
+                font-family: var(--font-mono);
+                font-size: 11px;
+                letter-spacing: 0.1em;
+                margin-bottom: 8px;
+                font-weight: 600;
+            }
+            .cache-side.no .cache-tag {
+                color: #c44a2c;
+            }
+            .cache-side.yes .cache-tag {
+                color: #2d7d5a;
+            }
+            .cache-title {
+                font-size: 17px;
+                font-weight: 600;
+                margin-bottom: 12px;
+                color: var(--ink);
+            }
+            .cache-side ul {
+                margin: 0 0 0 18px;
+                font-size: 14px;
+                color: var(--ink-2);
+            }
+            .cache-side li {
+                margin-bottom: 6px;
+                line-height: 1.6;
+            }
+            .cache-cost {
+                margin-top: 14px;
+                padding-top: 14px;
+                border-top: 1px dashed rgba(0, 0, 0, 0.12);
+                font-family: var(--font-mono);
+                font-size: 13px;
+                color: var(--ink);
+            }
+
+            /* ---------- Tables ---------- */
+            .tbl {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 32px 0;
+                font-size: 16px;
+            }
+            .tbl th,
+            .tbl td {
+                padding: 14px 16px;
+                text-align: left;
+                border-bottom: 1px solid var(--line);
+                vertical-align: top;
+            }
+            .tbl th {
+                font-weight: 600;
+                color: var(--ink);
+                background: var(--bg-soft);
+                font-size: 14px;
+                letter-spacing: 0.02em;
+            }
+            .tbl td:first-child {
+                font-family: var(--font-mono);
+                font-size: 13px;
+                color: var(--accent);
+                white-space: nowrap;
+            }
+
+            /* ---------- Tokenization animation ---------- */
+            .tokenize-demo {
+                background: var(--bg-card);
+                border: 1px solid var(--line);
+                border-radius: 12px;
+                padding: 40px 32px;
+                margin: 32px 0;
+            }
+            .tokenize-source {
+                font-family: var(--font-mono);
+                font-size: 18px;
+                text-align: center;
+                margin-bottom: 24px;
+                color: var(--ink);
+                min-height: 32px;
+            }
+            .tokenize-arrow {
+                text-align: center;
+                color: var(--ink-3);
+                margin: 16px 0;
+                font-size: 20px;
+            }
+            .tokenize-result {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                justify-content: center;
+                min-height: 50px;
+            }
+            .token-chip {
+                font-family: var(--font-mono);
+                font-size: 14px;
+                padding: 8px 14px;
+                background: var(--accent-bg);
+                border: 1px solid var(--accent-soft);
+                color: var(--accent);
+                border-radius: 6px;
+                opacity: 0;
+                transform: translateY(8px);
+                transition:
+                    opacity 0.4s,
+                    transform 0.4s;
+            }
+            .token-chip.show {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            .token-chip .id {
+                margin-left: 8px;
+                padding-left: 8px;
+                border-left: 1px solid var(--accent-soft);
+                color: var(--ink-3);
+                font-size: 12px;
+            }
+
+            /* ---------- Embedding space SVG ---------- */
+            .embedding-vis {
+                background: var(--bg-card);
+                border: 1px solid var(--line);
+                border-radius: 12px;
+                padding: 24px;
+                margin: 32px 0;
+            }
+            .embedding-vis svg {
+                width: 100%;
+                height: auto;
+                display: block;
+            }
+            .dot {
+                cursor: pointer;
+                transition: r 0.3s;
+            }
+            .dot-label {
+                font-family: var(--font-body);
+                font-size: 14px;
+                fill: var(--ink);
+                pointer-events: none;
+            }
+            .cluster-label {
+                font-family: var(--font-mono);
+                font-size: 11px;
+                fill: var(--ink-3);
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+            }
+
+            /* ---------- Attention animation ---------- */
+            .attn-demo {
+                background: var(--bg-card);
+                border: 1px solid var(--line);
+                border-radius: 12px;
+                padding: 32px;
+                margin: 32px 0;
+                position: relative;
+            }
+            .attn-words {
+                display: flex;
+                justify-content: center;
+                gap: 20px;
+                flex-wrap: wrap;
+                font-size: 18px;
+                position: relative;
+                z-index: 2;
+                margin-bottom: 16px;
+            }
+            .attn-word {
+                padding: 8px 12px;
+                border-radius: 6px;
+                transition:
+                    background 0.3s,
+                    color 0.3s;
+                cursor: default;
+                position: relative;
+            }
+            .attn-word.focus {
+                background: var(--accent);
+                color: white;
+                font-weight: 600;
+            }
+            .attn-word.linked {
+                background: var(--accent-bg);
+                color: var(--accent);
+            }
+            .attn-canvas {
+                position: absolute;
+                inset: 0;
+                pointer-events: none;
+                z-index: 1;
+            }
+            .attn-controls {
+                text-align: center;
+                margin-top: 24px;
+                font-size: 14px;
+                color: var(--ink-3);
+                font-family: var(--font-mono);
+            }
+
+            /* ---------- Transformer stack ---------- */
+            .stack-vis {
+                background: var(--bg-card);
+                border: 1px solid var(--line);
+                border-radius: 12px;
+                padding: 32px;
+                margin: 32px 0;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 32px;
+                align-items: center;
+            }
+            .stack-layers {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+            }
+            .stack-layer {
+                padding: 10px 14px;
+                background: var(--bg-soft);
+                border: 1px solid var(--line);
+                border-radius: 6px;
+                font-family: var(--font-mono);
+                font-size: 12px;
+                color: var(--ink-2);
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .stack-layer.deep {
+                background: var(--accent-bg);
+                border-color: var(--accent-soft);
+                color: var(--accent);
+            }
+            .stack-layer.mid {
+                background: #f0e5d5;
+            }
+            .stack-layer .lbl {
+                font-size: 10px;
+                opacity: 0.7;
+            }
+            .stack-info p {
+                font-size: 16px;
+                line-height: 1.7;
+                margin-bottom: 16px;
+            }
+            .stack-info p:last-child {
+                margin-bottom: 0;
+            }
+
+            /* ---------- Probability bars animation ---------- */
+            .probs-demo {
+                background: var(--bg-card);
+                border: 1px solid var(--line);
+                border-radius: 12px;
+                padding: 32px;
+                margin: 32px 0;
+            }
+            .probs-prompt {
+                font-family: var(--font-mono);
+                font-size: 16px;
+                color: var(--ink-2);
+                margin-bottom: 24px;
+                padding-bottom: 16px;
+                border-bottom: 1px dashed var(--line);
+            }
+            .probs-prompt .ghost {
+                color: var(--ink-3);
+            }
+            .probs-prompt .next {
+                background: var(--accent-bg);
+                color: var(--accent);
+                padding: 2px 6px;
+                border-radius: 3px;
+            }
+            .probs-bar {
+                display: grid;
+                grid-template-columns: 80px 1fr 60px;
+                gap: 12px;
+                align-items: center;
+                margin-bottom: 10px;
+                font-family: var(--font-mono);
+                font-size: 13px;
+            }
+            .probs-token {
+                color: var(--ink);
+                text-align: right;
+            }
+            .probs-track {
+                height: 22px;
+                background: var(--bg-soft);
+                border-radius: 4px;
+                overflow: hidden;
+                position: relative;
+            }
+            .probs-fill {
+                height: 100%;
+                background: var(--accent-soft);
+                width: 0;
+                transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .probs-bar.winner .probs-fill {
+                background: var(--accent);
+            }
+            .probs-bar.winner .probs-token {
+                color: var(--accent);
+                font-weight: 600;
+            }
+            .probs-pct {
+                color: var(--ink-3);
+                text-align: right;
+            }
+            .probs-bar.winner .probs-pct {
+                color: var(--accent);
+            }
+
+            /* ---------- Generation loop animation ---------- */
+            .gen-demo {
+                background: var(--bg-card);
+                border: 1px solid var(--line);
+                border-radius: 12px;
+                padding: 32px;
+                margin: 32px 0;
+                font-family: var(--font-mono);
+                font-size: 16px;
+                text-align: center;
+                min-height: 120px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .gen-text {
+                display: inline-block;
+                text-align: left;
+            }
+            .gen-text .ctx {
+                color: var(--ink-2);
+            }
+            .gen-text .new {
+                color: var(--accent);
+            }
+            .gen-cursor {
+                display: inline-block;
+                width: 8px;
+                height: 18px;
+                background: var(--accent);
+                vertical-align: text-bottom;
+                margin-left: 2px;
+                animation: blink 1s steps(2) infinite;
+            }
+            @keyframes blink {
+                0%,
+                50% {
+                    opacity: 1;
+                }
+                50.01%,
+                100% {
+                    opacity: 0;
+                }
+            }
+
+            /* ---------- Three-stage flow ---------- */
+            .stages {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 16px;
+                margin: 40px 0;
+            }
+            .stage {
+                background: var(--bg-card);
+                border: 1px solid var(--line);
+                border-radius: 12px;
+                padding: 24px 20px;
+                position: relative;
+            }
+            .stage-num {
+                font-family: var(--font-mono);
+                font-size: 11px;
+                color: var(--accent);
+                letter-spacing: 0.1em;
+                margin-bottom: 8px;
+            }
+            .stage-name {
+                font-size: 18px;
+                font-weight: 600;
+                margin-bottom: 8px;
+                color: var(--ink);
+            }
+            .stage-en {
+                font-family: var(--font-mono);
+                font-size: 11px;
+                color: var(--ink-3);
+                margin-bottom: 16px;
+                letter-spacing: 0.05em;
+            }
+            .stage-desc {
+                font-size: 14px;
+                color: var(--ink-2);
+                line-height: 1.7;
+                margin-bottom: 12px;
+            }
+            .stage-meta {
+                font-size: 12px;
+                color: var(--ink-3);
+                padding-top: 12px;
+                border-top: 1px dashed var(--line);
+            }
+
+            /* ---------- Q&A ---------- */
+            .qa-item {
+                border-bottom: 1px solid var(--line);
+                padding: 28px 0;
+            }
+            .qa-item:first-of-type {
+                border-top: 1px solid var(--line);
+            }
+            .qa-q {
+                font-size: 19px;
+                color: var(--ink);
+                margin-bottom: 12px;
+                display: flex;
+                gap: 12px;
+            }
+            .qa-q::before {
+                content: "Q";
+                font-family: var(--font-mono);
+                color: var(--accent);
+                font-size: 14px;
+                margin-top: 6px;
+                font-weight: 600;
+            }
+            .qa-a {
+                font-size: 17px;
+                color: var(--ink-2);
+                line-height: 1.8;
+                display: flex;
+                gap: 12px;
+            }
+            .qa-a::before {
+                content: "A";
+                font-family: var(--font-mono);
+                color: var(--ink-3);
+                font-size: 14px;
+                margin-top: 4px;
+                font-weight: 600;
+                flex-shrink: 0;
+            }
+
+            /* ---------- Overview SVG ---------- */
+            .overview {
+                margin: 48px 0;
+                padding: 32px 24px;
+                background: var(--bg-card);
+                border: 1px solid var(--line);
+                border-radius: 12px;
+            }
+            .overview svg {
+                width: 100%;
+                height: auto;
+                display: block;
+            }
+
+            /* ---------- Reading list ---------- */
+            .read-list {
+                list-style: none;
+                margin: 0;
+                padding: 0;
+            }
+            .read-list li {
+                padding: 16px 0;
+                border-bottom: 1px solid var(--line-soft);
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+            }
+            .read-list li:last-child {
+                border-bottom: none;
+            }
+            .read-title {
+                font-size: 17px;
+                color: var(--ink);
+            }
+            .read-meta {
+                font-size: 13px;
+                color: var(--ink-3);
+                font-family: var(--font-mono);
+            }
+
+            /* ---------- Footer ---------- */
+            .footer {
+                padding: 64px 0;
+                border-top: 1px solid var(--line);
+                text-align: center;
+                font-size: 14px;
+                color: var(--ink-3);
+                font-family: var(--font-mono);
+                letter-spacing: 0.04em;
+            }
+            .footer p {
+                color: var(--ink-3);
+                margin-bottom: 8px;
+            }
+
+            /* ---------- TOC sidebar (desktop only) ---------- */
+            .toc {
+                position: fixed;
+                left: 32px;
+                top: 50%;
+                transform: translateY(-50%);
+                font-size: 12px;
+                color: var(--ink-3);
+                font-family: var(--font-mono);
+                letter-spacing: 0.05em;
+                z-index: 50;
+            }
+            .toc ol {
+                list-style: none;
+                margin: 0;
+                padding: 0;
+            }
+            .toc li {
+                padding: 4px 0 4px 16px;
+                border-left: 1px solid var(--line);
+                cursor: pointer;
+                transition:
+                    color 0.2s,
+                    border-color 0.2s;
+                margin-bottom: 0;
+            }
+            .toc li:hover,
+            .toc li.active {
+                color: var(--accent);
+                border-left-color: var(--accent);
+            }
+            .toc li.active {
+                font-weight: 600;
+            }
+
+            /* ---------- Mobile TOC ---------- */
+            .toc-toggle {
+                display: none;
+                font-family: var(--font-mono);
+                font-size: 12px;
+                color: var(--accent);
+                background: var(--accent-bg);
+                border: 1px solid var(--accent-soft);
+                padding: 6px 12px;
+                border-radius: 999px;
+                cursor: pointer;
+                letter-spacing: 0.04em;
+                align-items: center;
+                gap: 6px;
+                transition: background 0.2s;
+            }
+            .toc-toggle:hover {
+                background: var(--accent-soft);
+            }
+            .toc-toggle .arrow {
+                display: inline-block;
+                font-size: 10px;
+                transition: transform 0.2s;
+            }
+            .toc-toggle.open .arrow {
+                transform: rotate(180deg);
+            }
+
+            .toc-mobile {
+                position: fixed;
+                top: 50px;
+                left: 0;
+                right: 0;
+                background: var(--bg);
+                border-bottom: 1px solid var(--line);
+                z-index: 99;
+                padding: 8px 0 16px;
+                max-height: calc(100vh - 50px);
+                overflow-y: auto;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+                transform: translateY(-110%);
+                transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+                pointer-events: none;
+            }
+            .toc-mobile.open {
+                transform: translateY(0);
+                pointer-events: auto;
+            }
+            .toc-mobile ol {
+                list-style: none;
+                margin: 0;
+                padding: 0 24px;
+            }
+            .toc-mobile li {
+                padding: 14px 4px;
+                border-bottom: 1px solid var(--line-soft);
+                font-family: var(--font-mono);
+                font-size: 14px;
+                color: var(--ink-2);
+                cursor: pointer;
+                letter-spacing: 0.02em;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                margin: 0;
+                transition: color 0.15s;
+            }
+            .toc-mobile li:last-child {
+                border-bottom: none;
+            }
+            .toc-mobile li.active {
+                color: var(--accent);
+                font-weight: 600;
+            }
+            .toc-mobile li .num {
+                color: var(--ink-3);
+                font-size: 12px;
+                min-width: 24px;
+            }
+            .toc-mobile li.active .num {
+                color: var(--accent);
+            }
+
+            .toc-backdrop {
+                position: fixed;
+                inset: 50px 0 0 0;
+                background: rgba(26, 26, 26, 0.18);
+                z-index: 98;
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.25s;
+            }
+            .toc-backdrop.open {
+                opacity: 1;
+                pointer-events: auto;
+            }
+
+            /* ---------- Mobile ---------- */
+            @media (max-width: 900px) {
+                .toc {
+                    display: none;
+                }
+                .toc-toggle {
+                    display: inline-flex;
+                }
+            }
+
+            @media (max-width: 768px) {
+                body {
+                    font-size: 16px;
+                    line-height: 1.8;
+                }
+                .container,
+                .container-wide {
+                    padding: 0 20px;
+                }
+                section.chapter {
+                    padding: 64px 0;
+                }
+                .hero {
+                    padding: 80px 0 64px;
+                }
+                .hero-title {
+                    font-size: 32px;
+                }
+                .hero-sub {
+                    font-size: 17px;
+                    margin-bottom: 40px;
+                }
+                .hero-meta {
+                    gap: 16px;
+                    font-size: 12px;
+                }
+                .hero-canvas {
+                    margin-top: 48px;
+                    height: 60px;
+                }
+                .hero-canvas-track {
+                    font-size: 12px;
+                    gap: 8px;
+                }
+                .chapter-title {
+                    font-size: 26px;
+                }
+                .chapter-lead {
+                    font-size: 17px;
+                    margin-bottom: 32px;
+                }
+                .figure {
+                    margin: 32px -8px;
+                    padding: 20px 12px;
+                }
+                .stack-vis {
+                    grid-template-columns: 1fr;
+                    gap: 24px;
+                    padding: 24px;
+                }
+                .stages {
+                    grid-template-columns: 1fr;
+                    gap: 12px;
+                }
+                .stage {
+                    padding: 20px 18px;
+                }
+                .qkv-grid {
+                    grid-template-columns: 1fr;
+                    gap: 12px;
+                }
+                .qkv-card {
+                    padding: 20px 18px;
+                }
+                .cache-compare {
+                    grid-template-columns: 1fr;
+                    gap: 12px;
+                }
+                .cache-side {
+                    padding: 18px;
+                }
+                .tokenize-demo {
+                    padding: 24px 16px;
+                }
+                .tokenize-source {
+                    font-size: 16px;
+                }
+                .attn-demo {
+                    padding: 20px 16px;
+                }
+                .attn-words {
+                    gap: 12px;
+                    font-size: 16px;
+                }
+                .probs-demo {
+                    padding: 20px 16px;
+                }
+                .probs-bar {
+                    grid-template-columns: 60px 1fr 50px;
+                    gap: 8px;
+                    font-size: 12px;
+                }
+                .gen-demo {
+                    padding: 20px 16px;
+                    font-size: 14px;
+                }
+                .topnav-progress {
+                    margin: 0 16px;
+                }
+                .topnav-meta {
+                    display: none;
+                }
+                pre {
+                    padding: 16px;
+                    font-size: 12px;
+                }
+                .tbl {
+                    font-size: 14px;
+                }
+                .tbl th,
+                .tbl td {
+                    padding: 10px 8px;
+                }
+                .qa-q {
+                    font-size: 17px;
+                }
+                .qa-a {
+                    font-size: 15px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Top Nav -->
+        <nav class="topnav">
+            <div class="topnav-inner">
+                <div class="topnav-brand">
+                    <strong>LLM 原理</strong> · 零基础读本
+                </div>
+                <div class="topnav-progress">
+                    <div class="topnav-progress-bar" id="progressBar"></div>
+                </div>
+                <div class="topnav-meta" id="progressMeta">00 / 11</div>
+                <button class="toc-toggle" id="tocToggle" aria-label="目录">
+                    <span id="tocToggleLabel">00</span>
+                    <span class="arrow">▾</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Mobile TOC backdrop + drawer -->
+        <div class="toc-backdrop" id="tocBackdrop"></div>
+        <div class="toc-mobile" id="tocMobile">
+            <ol>
+                <li data-target="ch-0" class="active">
+                    <span class="num">00</span><span>引子</span>
+                </li>
+                <li data-target="ch-1">
+                    <span class="num">01</span><span>一句话讲清</span>
+                </li>
+                <li data-target="ch-2">
+                    <span class="num">02</span><span>Tokenizer 分词</span>
+                </li>
+                <li data-target="ch-3">
+                    <span class="num">03</span><span>Embedding 词向量</span>
+                </li>
+                <li data-target="ch-4">
+                    <span class="num">04</span><span>Attention 注意力</span>
+                </li>
+                <li data-target="ch-5">
+                    <span class="num">05</span><span>Transformer 堆叠</span>
+                </li>
+                <li data-target="ch-6">
+                    <span class="num">06</span><span>输出层</span>
+                </li>
+                <li data-target="ch-7">
+                    <span class="num">07</span><span>自回归生成</span>
+                </li>
+                <li data-target="ch-8">
+                    <span class="num">08</span><span>KV Cache</span>
+                </li>
+                <li data-target="ch-9">
+                    <span class="num">09</span><span>训练流程</span>
+                </li>
+                <li data-target="ch-10">
+                    <span class="num">10</span><span>常见疑问</span>
+                </li>
+                <li data-target="ch-11">
+                    <span class="num">11</span><span>全景图</span>
+                </li>
+            </ol>
+        </div>
+
+        <!-- Desktop side TOC -->
+        <aside class="toc" id="toc">
+            <ol>
+                <li data-target="ch-0" class="active">00 引子</li>
+                <li data-target="ch-1">01 一句话讲清</li>
+                <li data-target="ch-2">02 Tokenizer</li>
+                <li data-target="ch-3">03 Embedding</li>
+                <li data-target="ch-4">04 Attention</li>
+                <li data-target="ch-5">05 Transformer</li>
+                <li data-target="ch-6">06 输出层</li>
+                <li data-target="ch-7">07 自回归</li>
+                <li data-target="ch-8">08 KV Cache</li>
+                <li data-target="ch-9">09 训练</li>
+                <li data-target="ch-10">10 常见疑问</li>
+                <li data-target="ch-11">11 全景图</li>
+            </ol>
+        </aside>
+
+        <main>
+            <!-- ========== HERO ========== -->
+            <section class="hero" id="ch-0" data-chapter="00">
+                <div class="container">
+                    <div class="hero-eyebrow">A GENTLE INTRODUCTION</div>
+                    <h1 class="hero-title">
+                        大语言模型，<br />到底是怎么<em>"想"</em>的？
+                    </h1>
+                    <p class="hero-sub">
+                        这是一份给完全不懂数学和机器学习的读者的指南。<br />
+                        我们会从"模型怎么猜下一个字"开始，一直讲到训练、采样、幻觉、上下文窗口。
+                    </p>
+                    <div class="hero-meta">
+                        <span><i></i>预计阅读 25 分钟</span>
+                        <span><i></i>12 章 · 含动画图解</span>
+                        <span><i></i>无需任何前置知识</span>
+                    </div>
+                </div>
+                <div class="hero-canvas">
+                    <div class="hero-canvas-track" id="heroTrack"></div>
+                </div>
+            </section>
+
+            <!-- ========== CH 1 ========== -->
+            <section class="chapter" id="ch-1" data-chapter="01">
+                <div class="container">
+                    <div class="chapter-num">CHAPTER 01</div>
+                    <h2 class="chapter-title">
+                        先用一句话讲清：LLM 到底在干什么
+                    </h2>
+                    <p class="chapter-lead">
+                        所有听起来吓人的术语——Transformer、Attention、Embedding——其实都是为了一件极其简单的事情服务的。
+                    </p>
+
+                    <p>
+                        大语言模型（Large Language Model，简称
+                        LLM），本质上是一个<strong>极其擅长猜下一个字的程序</strong>。
+                    </p>
+
+                    <p>就这一句话。其他所有东西，都是这件事的支撑。</p>
+
+                    <div class="callout">
+                        <div class="callout-title">类比 · 手机输入法</div>
+                        <p>
+                            当你在手机上打"今天天"，输入法会建议"气"。LLM
+                            做的事情和这个本质上完全相同。区别只是：它读过的文本比任何一个人类一辈子能读完的都多得多，所以它"建议"的水平能写论文、写代码、回答你各种各样的问题。
+                        </p>
+                    </div>
+
+                    <p>
+                        这件事最让人意外的地方在于：<strong>仅仅靠"不停地猜下一个字"</strong>这一个简单任务，居然涌现出了推理、翻译、创作、数学、编程……几乎所有我们认为需要"智能"的能力。
+                    </p>
+
+                    <p>没有人完全理解为什么会这样。但事实就是这样。</p>
+
+                    <p class="muted">
+                        所以接下来的所有章节，你都可以带着这一个问题去读：
+                    </p>
+
+                    <div class="callout-quiet">
+                        为了让一个程序能够准确地猜出下一个字应该是什么，需要做哪些事？
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========== CH 2 ========== -->
+            <section class="chapter" id="ch-2" data-chapter="02">
+                <div class="container">
+                    <div class="chapter-num">CHAPTER 02</div>
+                    <h2 class="chapter-title">
+                        Tokenizer：把文字切成模型能"吃"的小块
+                    </h2>
+                    <p class="chapter-lead">
+                        模型不认识汉字，也不认识英文字母。它只认识数字。所以第一步，必须把文字翻译成数字。
+                    </p>
+
+                    <p>
+                        这个翻译器叫
+                        <strong>Tokenizer</strong
+                        >（分词器）。它把一段文字切成若干个
+                        <strong>token</strong>（语言碎片），然后把每个 token
+                        替换成一个数字 ID。
+                    </p>
+
+                    <p>
+                        但它不是一个字一个 ID。它会把高频出现的组合切成一个
+                        token，低频的拆得更细。
+                    </p>
+
+                    <div class="tokenize-demo">
+                        <div class="tokenize-source" id="tokSource">
+                            我喜欢吃苹果
+                        </div>
+                        <div class="tokenize-arrow">↓</div>
+                        <div class="tokenize-result" id="tokResult"></div>
+                    </div>
+
+                    <p>
+                        上面这个动画展示了一个简化的分词过程。真实的分词器（比如
+                        GPT 用的 BPE）规则更复杂，但思想是一样的：
+                    </p>
+
+                    <ul>
+                        <li>
+                            "你好" 这种超高频组合，可能就是<strong
+                                >一个 token</strong
+                            >。
+                        </li>
+                        <li>
+                            英文 "unbelievable" 可能被拆成 <code>un</code> /
+                            <code>believ</code> / <code>able</code>
+                            <strong>三个 token</strong>。
+                        </li>
+                        <li>生僻字、表情符号往往会被拆成更多 token。</li>
+                    </ul>
+
+                    <p>
+                        每个 token 在词表（vocabulary）里有一个固定编号。比如
+                        GPT-4 的词表大约有 10 万个 token，LLaMA 3 是 12.8 万。
+                    </p>
+
+                    <div class="callout">
+                        <div class="callout-title">为什么不一个字一个 ID</div>
+                        <p>
+                            因为这样词表会变得极大（几万个汉字 + 各种符号 +
+                            多语言），而且每个句子的 token
+                            数量会变多，模型处理效率变低。BPE
+                            这种"按高频组合切"的方法，是个巧妙的折中。
+                        </p>
+                    </div>
+
+                    <p>
+                        你用 ChatGPT 被"按 token 计费"，就是按这里的 token
+                        数量算的。粗略地说：
+                    </p>
+
+                    <ul>
+                        <li>英文：1 个单词 ≈ <strong>1.3 个 token</strong></li>
+                        <li>
+                            中文：1 个汉字 ≈ <strong>1.5-2 个 token</strong>
+                        </li>
+                    </ul>
+
+                    <p>
+                        但请注意：<strong
+                            >中文更费
+                            token，不是中文本身的特性，而是因为主流模型的
+                            tokenizer 是为英文优化的</strong
+                        >。核心逻辑链是：
+                    </p>
+
+                    <div class="callout-quiet">
+                        <p style="margin-bottom: 12px">
+                            <strong>英文语料占比高</strong> → BPE
+                            算法给英文分配了大量专属 token →
+                            英文常用词大多数都是 1 个 token。
+                        </p>
+                        <p style="margin-bottom: 0">
+                            <strong>中文语料占比低 + 词表空间有限</strong> →
+                            中文只有极少数高频词有专属 token →
+                            大多数词被拆成单字 →
+                            生僻字甚至会触发"字节回退"被拆成 3 个 token。
+                        </p>
+                    </div>
+
+                    <p class="small">
+                        如果未来有模型用 50%
+                        以上中文语料训练，并专门为中文设计词表，中文的 token
+                        效率完全可以反超英文。这不是技术问题，是路径选择的结果。
+                    </p>
+                </div>
+            </section>
+
+            <!-- ========== CH 3 ========== -->
+            <section class="chapter" id="ch-3" data-chapter="03">
+                <div class="container">
+                    <div class="chapter-num">CHAPTER 03</div>
+                    <h2 class="chapter-title">Embedding：给每个词一个"坐标"</h2>
+                    <p class="chapter-lead">
+                        光有 ID 还不够。"14523"
+                        这个数字本身没有任何含义。模型需要知道"苹果"和"香蕉"是相似的、和"宇宙"是不同的。
+                    </p>
+
+                    <p>
+                        解决方案：把每个 token ID
+                        映射成一个<strong>高维向量</strong>。
+                    </p>
+
+                    <p>
+                        "高维向量"这个词听起来吓人，其实你只需要想象一张地图。地图上每个词都有一个位置：
+                    </p>
+
+                    <ul>
+                        <li>"苹果" 和 "香蕉" 离得很近（都是水果）</li>
+                        <li>"苹果" 和 "iPhone" 也不远（都跟苹果公司有关）</li>
+                        <li>"苹果" 和 "宇宙" 离得很远</li>
+                    </ul>
+
+                    <div class="embedding-vis">
+                        <svg
+                            viewBox="0 0 600 360"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <!-- background grid -->
+                            <defs>
+                                <pattern
+                                    id="grid"
+                                    width="40"
+                                    height="40"
+                                    patternUnits="userSpaceOnUse"
+                                >
+                                    <path
+                                        d="M 40 0 L 0 0 0 40"
+                                        fill="none"
+                                        stroke="#EFEBE0"
+                                        stroke-width="1"
+                                    />
+                                </pattern>
+                            </defs>
+                            <rect width="600" height="360" fill="url(#grid)" />
+
+                            <!-- cluster: fruits -->
+                            <text x="100" y="60" class="cluster-label">
+                                FRUITS
+                            </text>
+                            <circle
+                                class="dot"
+                                cx="120"
+                                cy="100"
+                                r="6"
+                                fill="#C26B3C"
+                            />
+                            <text class="dot-label" x="135" y="105">苹果</text>
+                            <circle
+                                class="dot"
+                                cx="170"
+                                cy="135"
+                                r="6"
+                                fill="#C26B3C"
+                            />
+                            <text class="dot-label" x="185" y="140">香蕉</text>
+                            <circle
+                                class="dot"
+                                cx="100"
+                                cy="155"
+                                r="6"
+                                fill="#C26B3C"
+                            />
+                            <text class="dot-label" x="115" y="160">橙子</text>
+
+                            <!-- cluster: tech -->
+                            <text x="350" y="60" class="cluster-label">
+                                TECH
+                            </text>
+                            <circle
+                                class="dot"
+                                cx="380"
+                                cy="100"
+                                r="6"
+                                fill="#2D6CDF"
+                            />
+                            <text class="dot-label" x="395" y="105">
+                                iPhone
+                            </text>
+                            <circle
+                                class="dot"
+                                cx="430"
+                                cy="140"
+                                r="6"
+                                fill="#2D6CDF"
+                            />
+                            <text class="dot-label" x="445" y="145">电脑</text>
+                            <circle
+                                class="dot"
+                                cx="370"
+                                cy="170"
+                                r="6"
+                                fill="#2D6CDF"
+                            />
+                            <text class="dot-label" x="385" y="175">芯片</text>
+
+                            <!-- cluster: emotions -->
+                            <text x="100" y="240" class="cluster-label">
+                                FEELINGS
+                            </text>
+                            <circle
+                                class="dot"
+                                cx="130"
+                                cy="280"
+                                r="6"
+                                fill="#2D7D5A"
+                            />
+                            <text class="dot-label" x="145" y="285">开心</text>
+                            <circle
+                                class="dot"
+                                cx="180"
+                                cy="310"
+                                r="6"
+                                fill="#2D7D5A"
+                            />
+                            <text class="dot-label" x="195" y="315">难过</text>
+                            <circle
+                                class="dot"
+                                cx="100"
+                                cy="320"
+                                r="6"
+                                fill="#2D7D5A"
+                            />
+                            <text class="dot-label" x="115" y="325">愤怒</text>
+
+                            <!-- cluster: space -->
+                            <text x="380" y="240" class="cluster-label">
+                                SPACE
+                            </text>
+                            <circle
+                                class="dot"
+                                cx="420"
+                                cy="280"
+                                r="6"
+                                fill="#8A8A86"
+                            />
+                            <text class="dot-label" x="435" y="285">宇宙</text>
+                            <circle
+                                class="dot"
+                                cx="470"
+                                cy="310"
+                                r="6"
+                                fill="#8A8A86"
+                            />
+                            <text class="dot-label" x="485" y="315">星球</text>
+                            <circle
+                                class="dot"
+                                cx="390"
+                                cy="320"
+                                r="6"
+                                fill="#8A8A86"
+                            />
+                            <text class="dot-label" x="405" y="325">银河</text>
+
+                            <!-- 苹果 ↔ iPhone connection (cross-cluster) -->
+                            <line
+                                x1="120"
+                                y1="100"
+                                x2="380"
+                                y2="100"
+                                stroke="#C26B3C"
+                                stroke-width="1"
+                                stroke-dasharray="4,4"
+                                opacity="0.5"
+                            />
+                            <text
+                                x="240"
+                                y="92"
+                                font-size="11"
+                                fill="#C26B3C"
+                                font-family="ui-monospace, monospace"
+                            >
+                                苹果 ↔ iPhone（弱关联）
+                            </text>
+                        </svg>
+                        <div class="figure-caption">
+                            FIG.1 — 在向量空间里，相似的词聚在一起
+                        </div>
+                    </div>
+
+                    <p>
+                        真实的模型用的不是 2D，而是几千维（LLaMA 3 8B 是
+                        <strong>4096 维</strong>，GPT-3 是 12288 维）。
+                    </p>
+
+                    <p>
+                        我们没法画 4096
+                        维，但概念完全一样：相似的词在向量空间里的位置靠近。这种"用位置表达含义"的方式，是模型理解语言的基础。
+                    </p>
+
+                    <div class="callout">
+                        <div class="callout-title">这张"地图"叫什么</div>
+                        <p>
+                            它叫
+                            <strong>Embedding 矩阵</strong
+                            >，本质上是一张超大的查找表，形状是
+                            <code>[词表大小, 向量维度]</code>。LLaMA 3 8B
+                            这张表是 <code>128256 × 4096</code>，光这一层就有 5
+                            亿多参数，占模型总参数的 6%。
+                        </p>
+                    </div>
+
+                    <p>所以，整个流程到这里变成了：</p>
+
+                    <pre><code>"我喜欢吃苹果"
+     ↓ Tokenizer
+[1023, 4521, 89, 7733]      ← token ID
+     ↓ Embedding 查表
+[[0.2, -0.5, 0.8, ...],     ← 每个 token 一个向量
+ [-0.1, 0.3, 0.4, ...],
+ [0.7, 0.1, -0.2, ...],
+ [0.5, -0.3, 0.6, ...]]</code></pre>
+
+                    <p>下一步，这堆向量要被送进模型的"大脑"——Transformer。</p>
+                </div>
+            </section>
+
+            <!-- ========== CH 4 ========== -->
+            <section class="chapter" id="ch-4" data-chapter="04">
+                <div class="container">
+                    <div class="chapter-num">CHAPTER 04</div>
+                    <h2 class="chapter-title">
+                        Attention：模型读一句话时，眼睛在哪里
+                    </h2>
+                    <p class="chapter-lead">
+                        整个 Transformer
+                        最核心、也是最聪明的设计，就是这一个机制：注意力（Attention）。
+                    </p>
+
+                    <p>请你读这句话，并思考"<strong>他</strong>"指的是谁：</p>
+
+                    <div
+                        class="callout-quiet"
+                        style="
+                            text-align: center;
+                            font-size: 18px;
+                            color: var(--ink);
+                        "
+                    >
+                        小明把苹果给了小红，因为<strong
+                            style="color: var(--accent)"
+                            >他</strong
+                        >饿了。
+                    </div>
+
+                    <p>
+                        大多数人会说"小明"——因为是小明把苹果给出去了，所以肯定是小明饿了。但请你换一句：
+                    </p>
+
+                    <div
+                        class="callout-quiet"
+                        style="
+                            text-align: center;
+                            font-size: 18px;
+                            color: var(--ink);
+                        "
+                    >
+                        小明把苹果给了小红，因为<strong
+                            style="color: var(--accent)"
+                            >他</strong
+                        >不爱吃。
+                    </div>
+
+                    <p>
+                        这次"他"就指小明。<strong
+                            >"他"具体指谁，取决于上下文。</strong
+                        >
+                    </p>
+
+                    <p>
+                        那模型怎么处理"他"这个词？答案是：在处理"他"的时候，让它<strong>看一眼整个句子里所有其他词</strong>，然后决定该重点关注哪一个。
+                    </p>
+
+                    <div class="attn-demo">
+                        <div class="attn-words" id="attnWords">
+                            <span class="attn-word">小明</span>
+                            <span class="attn-word">把</span>
+                            <span class="attn-word">苹果</span>
+                            <span class="attn-word">给了</span>
+                            <span class="attn-word">小红</span>
+                            <span class="attn-word">因为</span>
+                            <span class="attn-word focus">他</span>
+                            <span class="attn-word">饿了</span>
+                        </div>
+                        <svg class="attn-canvas" id="attnSvg"></svg>
+                        <div class="attn-controls">
+                            ↑ 处理"他"时，attention 会把更多权重分给相关的词
+                        </div>
+                    </div>
+
+                    <p>
+                        这就是 Attention
+                        的核心：<strong>每个词都会和其他所有词建立一种"加权联系"</strong>。权重高的，意味着两个词在当前语境下相关性强。
+                    </p>
+
+                    <p>
+                        这不是被人写死的规则，而是模型在阅读了海量文本之后，自己学出来的关联模式。
+                    </p>
+
+                    <div class="callout">
+                        <div class="callout-title">为什么这个机制这么强大</div>
+                        <p>
+                            因为它解决了"<strong>长距离依赖</strong>"这个老大难问题。在
+                            Attention
+                            之前的模型，一个词只能"记得住"几步之内的前文，超过就忘了。Attention
+                            让模型可以一次"看到"上千个词，并直接和最相关的几个建立联系——不管它们离当前位置多远。
+                        </p>
+                    </div>
+
+                    <p>
+                        顺便一提，<strong>"Attention is all you need"</strong>
+                        是 2017 年 Google 那篇论文的标题。这篇论文提出了
+                        Transformer 架构，成为之后所有 LLM 的基础。
+                    </p>
+                </div>
+            </section>
+
+            <!-- ========== CH 5 ========== -->
+            <section class="chapter" id="ch-5" data-chapter="05">
+                <div class="container">
+                    <div class="chapter-num">CHAPTER 05</div>
+                    <h2 class="chapter-title">
+                        Transformer：一条加工信息的流水线
+                    </h2>
+                    <p class="chapter-lead">
+                        Attention
+                        是核心，但它通常不是单独工作的。它和另一个组件配合，被堆成几十层，组成完整的
+                        Transformer。
+                    </p>
+
+                    <p>每一层 Transformer 做两件事：</p>
+
+                    <ol>
+                        <li>
+                            <strong>Attention</strong
+                            >：让每个词和所有其他词交流信息。
+                        </li>
+                        <li>
+                            <strong>Feed-Forward Network (FFN)</strong
+                            >：对每个词单独做一些非线性的"加工"，提取更高层的信息。
+                        </li>
+                    </ol>
+
+                    <p>
+                        这一对组合叫一个 <strong>Transformer Block</strong>。LLM
+                        通常会把几十个 Block 堆叠在一起：
+                    </p>
+
+                    <div class="stack-vis">
+                        <div class="stack-layers">
+                            <div class="stack-layer deep">
+                                第 32 层 (深) <span class="lbl">高层语义</span>
+                            </div>
+                            <div class="stack-layer deep">第 31 层</div>
+                            <div class="stack-layer deep">第 30 层</div>
+                            <div class="stack-layer mid">…</div>
+                            <div class="stack-layer mid">
+                                第 16 层 (中)
+                                <span class="lbl">句法 / 短语</span>
+                            </div>
+                            <div class="stack-layer mid">…</div>
+                            <div class="stack-layer">第 2 层</div>
+                            <div class="stack-layer">
+                                第 1 层 (浅)
+                                <span class="lbl">字面 / 词法</span>
+                            </div>
+                        </div>
+                        <div class="stack-info">
+                            <p><strong>层数越深，处理的概念越抽象。</strong></p>
+                            <p>
+                                浅层在做"识字"——这个词长什么样、有哪些常见搭配。
+                            </p>
+                            <p>中层在做"读句子"——理解短语结构、句法关系。</p>
+                            <p>
+                                深层在做"想意思"——把握语义、做推理、保持语境一致。
+                            </p>
+                            <p style="color: var(--ink-3); font-size: 14px">
+                                LLaMA 3 8B 有 32 层，70B 版本有 80 层，GPT-4
+                                据信超过 100 层。
+                            </p>
+                        </div>
+                    </div>
+
+                    <p>
+                        每一层都不是从零开始，而是在前一层的基础上加工。所以输入向量经过几十层之后，已经是一个"包含了全句理解
+                        + 上下文 + 推理痕迹"的浓缩向量。
+                    </p>
+
+                    <p>
+                        最后一层输出的，就是我们需要的"模型对每个位置的最终判断"。然后我们要做的事情，就是把这个判断变回文字。
+                    </p>
+                </div>
+            </section>
+
+            <!-- ========== CH 6 ========== -->
+            <section class="chapter" id="ch-6" data-chapter="06">
+                <div class="container">
+                    <div class="chapter-num">CHAPTER 06</div>
+                    <h2 class="chapter-title">输出层：从向量回到文字</h2>
+                    <p class="chapter-lead">
+                        Transformer
+                        输出的还是一堆向量。我们需要的是字。这中间隔了三步：lm_head
+                        → softmax → 采样。
+                    </p>
+
+                    <p>
+                        请把注意力放到<strong>最后一个 token 的位置</strong
+                        >上。这个位置上的向量，浓缩了模型对"下一个字应该是什么"的全部判断。
+                    </p>
+
+                    <p><strong>第一步：lm_head（语言模型头）</strong></p>
+
+                    <p>
+                        这是一个简单的线性层（一次矩阵乘法）：把这个向量映射成一个长度等于词表大小的数字列表，叫做
+                        <strong>logits</strong>。
+                    </p>
+
+                    <pre><code>logits = [2.1, -0.5, 8.3, ..., 0.7]
+           ↑     ↑    ↑          ↑
+          token token token     token
+           1    2    3          128256</code></pre>
+
+                    <p>
+                        每个数字代表词表中对应 token
+                        的"得分"。得分越高，模型越认为它适合作为下一个字。
+                    </p>
+
+                    <p><strong>第二步：softmax（归一化为概率）</strong></p>
+
+                    <p>
+                        logits 是任意数字，没法直接比较。Softmax
+                        把它们转换成概率分布——所有数字加起来等于 1：
+                    </p>
+
+                    <div class="probs-demo">
+                        <div class="probs-prompt">
+                            输入: <span class="ghost">"今天天气真"</span>
+                            <span class="next">_</span>
+                        </div>
+                        <div class="probs-bar winner" data-pct="68">
+                            <div class="probs-token">好</div>
+                            <div class="probs-track">
+                                <div class="probs-fill"></div>
+                            </div>
+                            <div class="probs-pct">68%</div>
+                        </div>
+                        <div class="probs-bar" data-pct="15">
+                            <div class="probs-token">不错</div>
+                            <div class="probs-track">
+                                <div class="probs-fill"></div>
+                            </div>
+                            <div class="probs-pct">15%</div>
+                        </div>
+                        <div class="probs-bar" data-pct="8">
+                            <div class="probs-token">糟糕</div>
+                            <div class="probs-track">
+                                <div class="probs-fill"></div>
+                            </div>
+                            <div class="probs-pct">8%</div>
+                        </div>
+                        <div class="probs-bar" data-pct="5">
+                            <div class="probs-token">冷</div>
+                            <div class="probs-track">
+                                <div class="probs-fill"></div>
+                            </div>
+                            <div class="probs-pct">5%</div>
+                        </div>
+                        <div class="probs-bar" data-pct="3">
+                            <div class="probs-token">热</div>
+                            <div class="probs-track">
+                                <div class="probs-fill"></div>
+                            </div>
+                            <div class="probs-pct">3%</div>
+                        </div>
+                        <div class="probs-bar" data-pct="1">
+                            <div class="probs-token">…其余</div>
+                            <div class="probs-track">
+                                <div class="probs-fill"></div>
+                            </div>
+                            <div class="probs-pct">1%</div>
+                        </div>
+                    </div>
+
+                    <p><strong>第三步：采样（从概率里挑一个）</strong></p>
+
+                    <p>
+                        有了概率分布，怎么决定输出哪个？这一步叫"采样"，有几种常见策略：
+                    </p>
+
+                    <table class="tbl">
+                        <thead>
+                            <tr>
+                                <th>策略</th>
+                                <th>行为</th>
+                                <th>效果</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Greedy</td>
+                                <td>永远选概率最高的</td>
+                                <td>稳定但可能重复、单调</td>
+                            </tr>
+                            <tr>
+                                <td>Temperature</td>
+                                <td>调节分布的"陡峭程度"，T 越大越随机</td>
+                                <td>控制创造力</td>
+                            </tr>
+                            <tr>
+                                <td>Top-k</td>
+                                <td>只在概率最高的 k 个里随机</td>
+                                <td>避免低概率胡说</td>
+                            </tr>
+                            <tr>
+                                <td>Top-p</td>
+                                <td>累计概率到 p 的最小集合里随机</td>
+                                <td>动态截断，最常用</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="callout">
+                        <div class="callout-title">
+                            为什么同样的问题答案不一样
+                        </div>
+                        <p>
+                            因为采样有随机性。即使是同一个
+                            prompt，每次模型走到这一步，都可能挑到不同的
+                            token。如果你设置 temperature=0（也就是
+                            Greedy），输出会变得确定。
+                        </p>
+                    </div>
+
+                    <p>
+                        采样选出一个 token 之后，用 tokenizer
+                        反向解码，就能把它变回一个汉字或英文片段。<strong
+                            >这就是模型吐出的第一个字。</strong
+                        >
+                    </p>
+                </div>
+            </section>
+
+            <!-- ========== CH 7 ========== -->
+            <section class="chapter" id="ch-7" data-chapter="07">
+                <div class="container">
+                    <div class="chapter-num">CHAPTER 07</div>
+                    <h2 class="chapter-title">自回归：一个字一个字蹦出来</h2>
+                    <p class="chapter-lead">
+                        LLM 一次只能生成一个
+                        token。要生成一段话，就要把前面全部流程<strong>反复跑很多遍</strong>。
+                    </p>
+
+                    <p>
+                        生成出第一个 token
+                        后，把它接到输入末尾，再走一遍整个网络，生成第二个
+                        token。然后再接、再走……如此循环，直到模型生成结束符或达到长度上限。
+                    </p>
+
+                    <div class="gen-demo">
+                        <div class="gen-text">
+                            <span class="ctx" id="genCtx">今天天气真</span
+                            ><span class="new" id="genNew"></span
+                            ><span class="gen-cursor"></span>
+                        </div>
+                    </div>
+
+                    <pre><code>循环：
+  输入 → Transformer → 下一个 token
+  把 token 拼到输入末尾
+  再次输入 → Transformer → 下一个 token
+  ...
+  直到生成 &lt;EOS&gt; 或达到 max_tokens</code></pre>
+
+                    <p>
+                        这种"用自己的输出作为下一步的输入"的方式叫<strong>自回归</strong>（autoregressive）。
+                    </p>
+
+                    <div class="callout">
+                        <div class="callout-title">为什么 ChatGPT 像在打字</div>
+                        <p>
+                            不是网络慢，而是模型<strong
+                                >真的就是一个 token 一个 token 算出来的</strong
+                            >。每生成一个就通过
+                            SSE（流式响应）推一次给浏览器，所以你看到的是"边算边发"的效果。如果等全部算完再发，体验会非常差——一段几百字的回答可能要等十几秒才看到第一个字。
+                        </p>
+                    </div>
+
+                    <p class="muted">
+                        顺带一提，这也解释了为什么"思维链"（Chain-of-Thought）有用——让模型先输出推理过程再给答案，相当于给它更多"思考用的字符"，每一步推理都成为后续生成的输入，最终答案也就更准。
+                    </p>
+                </div>
+            </section>
+
+            <!-- ========== CH 8 · KV Cache ========== -->
+            <section class="chapter" id="ch-8" data-chapter="08">
+                <div class="container">
+                    <div class="chapter-num">CHAPTER 08</div>
+                    <h2 class="chapter-title">KV Cache：让重复计算消失</h2>
+                    <p class="chapter-lead">
+                        上一章的自回归循环里藏着一个看起来很浪费的问题——每生成一个新
+                        token，难道都要把整段历史重新算一遍？现代 LLM
+                        用一个聪明的优化解决了它。
+                    </p>
+
+                    <p>
+                        假设你已经和模型聊了 1000 个 token，现在它要生成第 1001
+                        个。理论上，每出一个新 token，都要把前面 1000
+                        个重新过一遍 attention，算它们各自的
+                        K、V、再做一次完整的注意力运算。
+                    </p>
+
+                    <p>
+                        但实际上，<strong
+                            >历史 token 的 K 和 V 在每一步里都是一样的</strong
+                        >。我们没必要重新算——<strong>把它们存起来重复使用就行</strong>。
+                    </p>
+
+                    <p>
+                        这就是
+                        <strong>KV Cache（键值缓存）</strong>。它是几乎所有 LLM
+                        推理引擎里的默认优化。
+                    </p>
+
+                    <h3
+                        style="
+                            font-size: 22px;
+                            font-weight: 600;
+                            margin: 56px 0 16px;
+                        "
+                    >
+                        先认识 Q / K / V 三个角色
+                    </h3>
+
+                    <p>
+                        要看懂 KV Cache，得先简单了解 attention
+                        内部的三个向量。每个 token 进入 attention
+                        时，会被投影成三个不同的向量：
+                    </p>
+
+                    <div class="qkv-grid">
+                        <div class="qkv-card q">
+                            <div class="qkv-letter">Q</div>
+                            <div class="qkv-name">QUERY</div>
+                            <div class="qkv-role">我现在想找什么</div>
+                            <div class="qkv-desc">
+                                当前 token
+                                主动发起的"检索请求"，决定它要关注哪些历史信息。
+                            </div>
+                        </div>
+                        <div class="qkv-card k">
+                            <div class="qkv-letter">K</div>
+                            <div class="qkv-name">KEY</div>
+                            <div class="qkv-role">我能被怎样检索到</div>
+                            <div class="qkv-desc">
+                                每个 token 提供的"索引/标签"，用来和 Q
+                                做匹配，决定相关性高低。
+                            </div>
+                        </div>
+                        <div class="qkv-card v">
+                            <div class="qkv-letter">V</div>
+                            <div class="qkv-name">VALUE</div>
+                            <div class="qkv-role">我真正提供什么内容</div>
+                            <div class="qkv-desc">
+                                每个 token 携带的"实际信息"，会按 Q·K
+                                算出的权重被加权聚合。
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="callout">
+                        <div class="callout-title">类比 · 图书馆找书</div>
+                        <p>
+                            <strong>Q</strong>
+                            是你脑子里的检索需求（"我要找法国首都"）；<strong
+                                >K</strong
+                            >
+                            是每本书的目录卡（"地理 / 欧洲 / 法国"）；<strong
+                                >V</strong
+                            >
+                            是书里实际的文字（"巴黎是法国首都"）。Attention
+                            就是：拿着 Q 和所有 K 配对 → 看哪些最相关 → 把对应的
+                            V 加权拿出来。
+                        </p>
+                    </div>
+
+                    <h3
+                        style="
+                            font-size: 22px;
+                            font-weight: 600;
+                            margin: 56px 0 16px;
+                        "
+                    >
+                        为什么只缓存 K 和 V，不缓存 Q
+                    </h3>
+
+                    <p>
+                        这是 KV Cache
+                        这个名字的核心。关键在于<strong>它们的"生命周期"完全不同</strong>：
+                    </p>
+
+                    <ul>
+                        <li>
+                            <strong>K 和 V</strong
+                            >：一旦计算出来，<strong>后续每一步都要拿来用</strong>。第
+                            1000 个 token 的 K/V，要被第
+                            1001、1002、1003……每一次新生成都查一遍。这种东西最值得缓存。
+                        </li>
+                        <li>
+                            <strong>Q</strong
+                            >：只在<strong>当前这一步</strong>用一次。下一步会被新
+                            token 自己的 Q 取代，老的 Q
+                            永远不会再被用到。缓存它毫无意义。
+                        </li>
+                    </ul>
+
+                    <p>
+                        所以名字叫 <strong>KV Cache</strong>，而不是 QKV
+                        Cache。Q 不重要吗？非常重要——只是它"用完即弃"。
+                    </p>
+
+                    <div class="figure">
+                        <img
+                            src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/articles/kv-cache-qkv.webp"
+                            alt="KV Cache 内部 Q/K/V 工作机制"
+                            loading="lazy"
+                        />
+                        <div class="figure-caption">
+                            FIG.A — KV Cache 内部：新 token 的 Q 与所有历史 K/V
+                            做注意力
+                        </div>
+                    </div>
+
+                    <h3
+                        style="
+                            font-size: 22px;
+                            font-weight: 600;
+                            margin: 56px 0 16px;
+                        "
+                    >
+                        缓存带来的速度差距
+                    </h3>
+
+                    <div class="cache-compare">
+                        <div class="cache-side no">
+                            <div class="cache-tag">WITHOUT KV CACHE</div>
+                            <div class="cache-title">每步都重算所有历史</div>
+                            <ul>
+                                <li>
+                                    每生成 1 个 token，对前面所有 token 重新计算
+                                    K/V
+                                </li>
+                                <li>有了 N 个 token，下一步要算 N 次</li>
+                                <li>整段生成累计是 N²</li>
+                            </ul>
+                            <div class="cache-cost">总计算量：O(N²) · 慢</div>
+                        </div>
+                        <div class="cache-side yes">
+                            <div class="cache-tag">WITH KV CACHE</div>
+                            <div class="cache-title">
+                                只算新 token，旧的查表
+                            </div>
+                            <ul>
+                                <li>每生成 1 个 token，只算它自己的 Q/K/V</li>
+                                <li>历史 K/V 从缓存里直接读</li>
+                                <li>每步成本恒定</li>
+                            </ul>
+                            <div class="cache-cost">总计算量：O(N) · 快</div>
+                        </div>
+                    </div>
+
+                    <p>
+                        对长上下文来说，这个差距是天文级的。1 万 token
+                        的对话，KV Cache 能让推理快
+                        <strong>百倍以上</strong>。这也是为什么 ChatGPT
+                        能"边算边吐字"——没有这个优化，体验上几乎不可用。
+                    </p>
+
+                    <div class="figure">
+                        <img
+                            src="https://cdn.jsdelivr.net/gh/Supremes/blog-images@master/imgs/articles/KV-Cache.webp"
+                            alt="KV Cache 完整机制：Prefill 和 Decode 两阶段对比"
+                            loading="lazy"
+                        />
+                        <div class="figure-caption">
+                            FIG.B — Prefill 一次性算全 Prompt 的 K/V，Decode
+                            阶段每步只算新 token
+                        </div>
+                    </div>
+
+                    <h3
+                        style="
+                            font-size: 22px;
+                            font-weight: 600;
+                            margin: 56px 0 16px;
+                        "
+                    >
+                        天下没有免费的午餐
+                    </h3>
+
+                    <p>
+                        KV Cache
+                        是经典的"<strong>用空间换时间</strong>"。它要把<strong>每一层、每个注意力头、每个历史位置</strong>的
+                        K 和 V 都存进 GPU 显存。缓存大小和这些因素成正比：
+                    </p>
+
+                    <table class="tbl">
+                        <thead>
+                            <tr>
+                                <th>因素</th>
+                                <th>影响</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>序列长度</td>
+                                <td>线性增长，最直接的成本来源</td>
+                            </tr>
+                            <tr>
+                                <td>模型层数</td>
+                                <td>
+                                    每一层都要单独缓存（LLaMA 70B 有 80 层）
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>注意力头数</td>
+                                <td>每个 head 都要缓存自己的 K/V</td>
+                            </tr>
+                            <tr>
+                                <td>隐藏维度</td>
+                                <td>K/V 向量越长，每个位置占的字节越多</td>
+                            </tr>
+                            <tr>
+                                <td>数据精度</td>
+                                <td>fp16 vs fp8，差一倍显存</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <p>所以你会看到这种现象：</p>
+
+                    <ul>
+                        <li>上下文窗口越长，KV Cache 越大，越吃显存</li>
+                        <li>
+                            长对话或长文档处理，往往是<strong>显存先撑不住</strong>，而不是算力不够
+                        </li>
+                        <li>
+                            百万 context 模型推理成本极高，光存 KV Cache
+                            就要专门的显存策略
+                        </li>
+                    </ul>
+
+                    <div class="callout">
+                        <div class="callout-title">
+                            这就是 LLM 推理优化的主战场
+                        </div>
+                        <p>
+                            近几年大半的推理加速研究都在围绕 KV Cache
+                            做文章：<strong>分页缓存（PagedAttention）</strong>、<strong
+                                >量化压缩（KV 8-bit / 4-bit）</strong
+                            >、<strong>滑动窗口（只保留最近 N 个 token）</strong
+                            >、<strong>跨请求复用</strong>……目的都是让这块缓存更小、更高效。
+                        </p>
+                    </div>
+
+                    <p class="muted">
+                        现在再回头看上一章的"自回归一个字一个字蹦"，你会发现它不只是个流程描述——它解释了为什么
+                        KV Cache 是 LLM 推理性能的命脉。
+                    </p>
+                </div>
+            </section>
+
+            <!-- ========== CH 9 · 训练 ========== -->
+            <section class="chapter" id="ch-9" data-chapter="09">
+                <div class="container">
+                    <div class="chapter-num">CHAPTER 09</div>
+                    <h2 class="chapter-title">
+                        训练 vs 推理：模型怎么"学会"这一切的
+                    </h2>
+                    <p class="chapter-lead">
+                        到目前为止讲的都是"推理"——也就是模型已经训练好之后，怎么用它生成文字。但模型一开始的能力是哪来的？答案是：训练。而训练分三个阶段。
+                    </p>
+
+                    <div class="stages">
+                        <div class="stage">
+                            <div class="stage-num">STAGE 01</div>
+                            <div class="stage-name">预训练</div>
+                            <div class="stage-en">Pre-training</div>
+                            <div class="stage-desc">
+                                喂海量文本（互联网、书籍、代码、维基百科），让模型反复练习"猜下一个字"。
+                            </div>
+                            <div class="stage-meta">
+                                数据：上万亿 token<br />成本：数百万至上千万美元<br />类比：读完整个图书馆
+                            </div>
+                        </div>
+                        <div class="stage">
+                            <div class="stage-num">STAGE 02</div>
+                            <div class="stage-name">监督微调</div>
+                            <div class="stage-en">
+                                SFT (Supervised Fine-Tuning)
+                            </div>
+                            <div class="stage-desc">
+                                预训练后的模型擅长接龙，但不会"听话回答问题"。给它一些高质量的"问题-答案"样本，让它学会回答风格。
+                            </div>
+                            <div class="stage-meta">
+                                数据：几万至几十万条<br />成本：相对较低<br />类比：读教材学怎么答题
+                            </div>
+                        </div>
+                        <div class="stage">
+                            <div class="stage-num">STAGE 03</div>
+                            <div class="stage-name">人类反馈强化学习</div>
+                            <div class="stage-en">RLHF</div>
+                            <div class="stage-desc">
+                                让人类对模型的多个回答打分，训练一个"打分模型"，再用它引导主模型生成更受人类欢迎的回答。
+                            </div>
+                            <div class="stage-meta">
+                                数据：几十万对偏好<br />成本：人力为主<br />类比：上岗实习被老板调教
+                            </div>
+                        </div>
+                    </div>
+
+                    <p>每一步都至关重要：</p>
+
+                    <ul>
+                        <li>
+                            <strong>没有预训练</strong
+                            >，模型连基础语言能力都没有。
+                        </li>
+                        <li>
+                            <strong>没有 SFT</strong
+                            >，模型只会接龙，不会回答你的问题。
+                        </li>
+                        <li>
+                            <strong>没有 RLHF</strong
+                            >，模型可能给出技术正确但毫无用处或有害的回答。
+                        </li>
+                    </ul>
+
+                    <div class="callout">
+                        <div class="callout-title">ChatGPT 为什么火</div>
+                        <p>
+                            2020 年 GPT-3
+                            已经存在，但只有研究者觉得它惊艳。普通人觉得它"乱说"。2022
+                            年底 ChatGPT 发布之所以引起轰动，关键就是 OpenAI 在
+                            GPT-3.5 上做了大量 SFT +
+                            RLHF，让模型变得"听话、有用、不胡说"。模型基础能力没大变，但"使用体验"完全是另一回事了。
+                        </p>
+                    </div>
+
+                    <p>
+                        训练完成后，模型的所有"知识"都被压缩进了它的<strong>参数</strong>（也就是那几十亿、几千亿个浮点数字）。之后所有的"推理"都不再修改这些参数——它就是一个静态的、巨大的、可查询的"压缩知识库"。
+                    </p>
+                </div>
+            </section>
+
+            <!-- ========== CH 10 · 常见疑问 ========== -->
+            <section class="chapter" id="ch-10" data-chapter="10">
+                <div class="container">
+                    <div class="chapter-num">CHAPTER 10</div>
+                    <h2 class="chapter-title">几个常见疑问</h2>
+                    <p class="chapter-lead">
+                        读到这里，你应该已经能回答很多关于 LLM
+                        的问题了。下面是一些最常被问到的。
+                    </p>
+
+                    <div class="qa-item">
+                        <div class="qa-q">
+                            为什么 LLM 会"幻觉"（一本正经胡说八道）？
+                        </div>
+                        <div class="qa-a">
+                            因为它本质是在猜"下一个字最可能是什么"。当它没真正读过相关内容时，会按"看起来对"的统计模式硬编一个出来。它<strong>没有"我不知道"的本能</strong>——除非训练时被特别教导过遇到不确定时要承认。这就是为什么模型会自信地编出不存在的论文、API、人名。
+                        </div>
+                    </div>
+
+                    <div class="qa-item">
+                        <div class="qa-q">
+                            "上下文窗口"是什么？为什么有上限？
+                        </div>
+                        <div class="qa-a">
+                            模型一次能"看到"的 token 总数上限。GPT-4 是
+                            128k，Claude 是
+                            200k+。超过了，最早的内容就会被截断或压缩。<br /><br />有上限有两个原因：一是
+                            Attention
+                            计算量随序列长度<strong>平方增长</strong>（处理
+                            prompt 时尤其明显）；二是上一章讲的
+                            <strong>KV Cache 显存占用随长度线性增长</strong
+                            >，并且乘以层数和注意力头数。所以长上下文模型不只是算得慢，还非常吃显存。
+                        </div>
+                    </div>
+
+                    <div class="qa-item">
+                        <div class="qa-q">
+                            "70B 参数"是什么意思？参数越多越好吗？
+                        </div>
+                        <div class="qa-a">
+                            参数 = 模型里所有可训练数字的总量。70B = 700
+                            亿。这些数字大部分藏在 Embedding 矩阵、Attention
+                            矩阵、FFN 矩阵里。<br /><br />参数越多，理论容量越大、能记住的东西越多，但也<strong>更慢、更贵、对训练数据要求更高</strong>。所以小模型
+                            + 高质量数据 +
+                            巧妙训练，有时能赶上大模型。这也是为什么近年 7B、8B
+                            的小模型也能很能打。
+                        </div>
+                    </div>
+
+                    <div class="qa-item">
+                        <div class="qa-q">为什么模型有时会"自我纠正"？</div>
+                        <div class="qa-a">
+                            当它在生成过程中产生错误后，后续的 token
+                            会基于这些错误继续——但有时模型会在某个时刻"注意到"前后不一致，然后说"等等，我刚才搞错了"。这是大量训练数据中存在"自我纠正"模式造成的<strong>涌现能力</strong>，没人专门教过它要怎么做。
+                        </div>
+                    </div>
+
+                    <div class="qa-item">
+                        <div class="qa-q">
+                            RAG（检索增强生成）和模型本身是什么关系？
+                        </div>
+                        <div class="qa-a">
+                            模型训练时有"知识截止日期"，之后的事它不知道；公司内部知识它也没读过。RAG
+                            的做法：用户问问题时，<strong
+                                >先去外部知识库查相关文档，把找到的内容塞进
+                                prompt 里</strong
+                            >，再让模型基于这些上下文回答。这样模型不需要重新训练，就能回答新知识或私有知识。<br /><br />这里的"检索"通常用一种和
+                            LLM <em>不同</em>的 embedding
+                            模型——它把整段文字压成一个向量，用于相似度搜索。和
+                            LLM 内部的 embedding 层不是一回事。
+                        </div>
+                    </div>
+
+                    <div class="qa-item">
+                        <div class="qa-q">Agent 又是什么？</div>
+                        <div class="qa-a">
+                            Agent = LLM + 工具 +
+                            循环。给模型几个可以调用的工具（搜索、运行代码、调
+                            API），让它自己决定调哪个、看结果后再决定下一步——直到任务完成。本质还是"猜下一个字"，但模型猜出来的"字"可能是一个工具调用指令，而不是给用户看的回复。
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========== CH 11 · 全景图 ========== -->
+            <section class="chapter" id="ch-11" data-chapter="11">
+                <div class="container">
+                    <div class="chapter-num">CHAPTER 11</div>
+                    <h2 class="chapter-title">全景图：从你打字到模型回答</h2>
+                    <p class="chapter-lead">
+                        把所有章节合在一起看一眼。下次别人提到任何术语，你都能定位到它在整张图的哪一步。
+                    </p>
+
+                    <div class="overview">
+                        <svg
+                            viewBox="0 0 720 480"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <defs>
+                                <marker
+                                    id="arrow"
+                                    markerWidth="8"
+                                    markerHeight="8"
+                                    refX="6"
+                                    refY="4"
+                                    orient="auto"
+                                >
+                                    <path d="M0,0 L8,4 L0,8 z" fill="#8A8A86" />
+                                </marker>
+                            </defs>
+
+                            <!-- input -->
+                            <rect
+                                x="20"
+                                y="20"
+                                width="160"
+                                height="50"
+                                rx="6"
+                                fill="#FFFFFF"
+                                stroke="#E5E1D6"
+                            />
+                            <text
+                                x="100"
+                                y="42"
+                                text-anchor="middle"
+                                font-size="13"
+                                font-family="ui-monospace, monospace"
+                                fill="#4A4A4A"
+                            >
+                                USER INPUT
+                            </text>
+                            <text
+                                x="100"
+                                y="60"
+                                text-anchor="middle"
+                                font-size="14"
+                                fill="#1A1A1A"
+                            >
+                                "今天天气真"
+                            </text>
+
+                            <!-- tokenizer -->
+                            <rect
+                                x="220"
+                                y="20"
+                                width="160"
+                                height="50"
+                                rx="6"
+                                fill="#F8E9DC"
+                                stroke="#E8B89A"
+                            />
+                            <text
+                                x="300"
+                                y="42"
+                                text-anchor="middle"
+                                font-size="13"
+                                font-family="ui-monospace, monospace"
+                                fill="#C26B3C"
+                            >
+                                TOKENIZER
+                            </text>
+                            <text
+                                x="300"
+                                y="60"
+                                text-anchor="middle"
+                                font-size="13"
+                                fill="#4A4A4A"
+                            >
+                                [1023, 4521, 89, ...]
+                            </text>
+
+                            <!-- embedding -->
+                            <rect
+                                x="420"
+                                y="20"
+                                width="160"
+                                height="50"
+                                rx="6"
+                                fill="#F8E9DC"
+                                stroke="#E8B89A"
+                            />
+                            <text
+                                x="500"
+                                y="42"
+                                text-anchor="middle"
+                                font-size="13"
+                                font-family="ui-monospace, monospace"
+                                fill="#C26B3C"
+                            >
+                                EMBEDDING
+                            </text>
+                            <text
+                                x="500"
+                                y="60"
+                                text-anchor="middle"
+                                font-size="12"
+                                fill="#4A4A4A"
+                            >
+                                [[0.2, -0.5, ...], ...]
+                            </text>
+
+                            <line
+                                x1="180"
+                                y1="45"
+                                x2="220"
+                                y2="45"
+                                stroke="#8A8A86"
+                                stroke-width="1.5"
+                                marker-end="url(#arrow)"
+                            />
+                            <line
+                                x1="380"
+                                y1="45"
+                                x2="420"
+                                y2="45"
+                                stroke="#8A8A86"
+                                stroke-width="1.5"
+                                marker-end="url(#arrow)"
+                            />
+
+                            <!-- transformer stack -->
+                            <rect
+                                x="220"
+                                y="120"
+                                width="280"
+                                height="180"
+                                rx="8"
+                                fill="#F4F0E6"
+                                stroke="#E5E1D6"
+                            />
+                            <text
+                                x="360"
+                                y="142"
+                                text-anchor="middle"
+                                font-size="13"
+                                font-family="ui-monospace, monospace"
+                                fill="#4A4A4A"
+                                letter-spacing="2"
+                            >
+                                TRANSFORMER × N 层
+                            </text>
+
+                            <rect
+                                x="240"
+                                y="160"
+                                width="240"
+                                height="32"
+                                rx="4"
+                                fill="#FFFFFF"
+                                stroke="#E5E1D6"
+                            />
+                            <text
+                                x="360"
+                                y="180"
+                                text-anchor="middle"
+                                font-size="13"
+                                fill="#1A1A1A"
+                            >
+                                Attention（让词互相看一眼）
+                            </text>
+
+                            <rect
+                                x="240"
+                                y="200"
+                                width="240"
+                                height="32"
+                                rx="4"
+                                fill="#FFFFFF"
+                                stroke="#E5E1D6"
+                            />
+                            <text
+                                x="360"
+                                y="220"
+                                text-anchor="middle"
+                                font-size="13"
+                                fill="#1A1A1A"
+                            >
+                                Feed Forward（单独加工每个词）
+                            </text>
+
+                            <rect
+                                x="240"
+                                y="240"
+                                width="240"
+                                height="32"
+                                rx="4"
+                                fill="#FFFFFF"
+                                stroke="#E5E1D6"
+                            />
+                            <text
+                                x="360"
+                                y="260"
+                                text-anchor="middle"
+                                font-size="13"
+                                fill="#8A8A86"
+                            >
+                                …重复几十层
+                            </text>
+
+                            <line
+                                x1="500"
+                                y1="70"
+                                x2="500"
+                                y2="100"
+                                stroke="#8A8A86"
+                                stroke-width="1.5"
+                            />
+                            <line
+                                x1="500"
+                                y1="100"
+                                x2="360"
+                                y2="100"
+                                stroke="#8A8A86"
+                                stroke-width="1.5"
+                            />
+                            <line
+                                x1="360"
+                                y1="100"
+                                x2="360"
+                                y2="120"
+                                stroke="#8A8A86"
+                                stroke-width="1.5"
+                                marker-end="url(#arrow)"
+                            />
+
+                            <!-- lm_head -->
+                            <rect
+                                x="220"
+                                y="340"
+                                width="160"
+                                height="50"
+                                rx="6"
+                                fill="#F8E9DC"
+                                stroke="#E8B89A"
+                            />
+                            <text
+                                x="300"
+                                y="362"
+                                text-anchor="middle"
+                                font-size="13"
+                                font-family="ui-monospace, monospace"
+                                fill="#C26B3C"
+                            >
+                                LM_HEAD
+                            </text>
+                            <text
+                                x="300"
+                                y="380"
+                                text-anchor="middle"
+                                font-size="12"
+                                fill="#4A4A4A"
+                            >
+                                → logits
+                            </text>
+
+                            <!-- softmax -->
+                            <rect
+                                x="420"
+                                y="340"
+                                width="160"
+                                height="50"
+                                rx="6"
+                                fill="#F8E9DC"
+                                stroke="#E8B89A"
+                            />
+                            <text
+                                x="500"
+                                y="362"
+                                text-anchor="middle"
+                                font-size="13"
+                                font-family="ui-monospace, monospace"
+                                fill="#C26B3C"
+                            >
+                                SOFTMAX
+                            </text>
+                            <text
+                                x="500"
+                                y="380"
+                                text-anchor="middle"
+                                font-size="12"
+                                fill="#4A4A4A"
+                            >
+                                → 概率分布
+                            </text>
+
+                            <line
+                                x1="360"
+                                y1="300"
+                                x2="360"
+                                y2="340"
+                                stroke="#8A8A86"
+                                stroke-width="1.5"
+                                marker-end="url(#arrow)"
+                            />
+                            <line
+                                x1="380"
+                                y1="365"
+                                x2="420"
+                                y2="365"
+                                stroke="#8A8A86"
+                                stroke-width="1.5"
+                                marker-end="url(#arrow)"
+                            />
+
+                            <!-- sampling + output -->
+                            <rect
+                                x="420"
+                                y="410"
+                                width="160"
+                                height="50"
+                                rx="6"
+                                fill="#FFFFFF"
+                                stroke="#E5E1D6"
+                            />
+                            <text
+                                x="500"
+                                y="432"
+                                text-anchor="middle"
+                                font-size="13"
+                                font-family="ui-monospace, monospace"
+                                fill="#4A4A4A"
+                            >
+                                SAMPLING
+                            </text>
+                            <text
+                                x="500"
+                                y="450"
+                                text-anchor="middle"
+                                font-size="14"
+                                fill="#C26B3C"
+                            >
+                                → "好"
+                            </text>
+
+                            <line
+                                x1="500"
+                                y1="390"
+                                x2="500"
+                                y2="410"
+                                stroke="#8A8A86"
+                                stroke-width="1.5"
+                                marker-end="url(#arrow)"
+                            />
+
+                            <!-- loop arrow -->
+                            <path
+                                d="M 580 435 Q 660 435 660 200 Q 660 45 580 45"
+                                fill="none"
+                                stroke="#C26B3C"
+                                stroke-width="1.5"
+                                stroke-dasharray="4,4"
+                                marker-end="url(#arrow)"
+                            />
+                            <text
+                                x="675"
+                                y="240"
+                                font-size="11"
+                                fill="#C26B3C"
+                                font-family="ui-monospace, monospace"
+                                transform="rotate(90 675 240)"
+                            >
+                                自回归循环
+                            </text>
+
+                            <!-- training labels (left side) -->
+                            <text
+                                x="20"
+                                y="160"
+                                font-size="11"
+                                font-family="ui-monospace, monospace"
+                                fill="#8A8A86"
+                                letter-spacing="1.5"
+                            >
+                                TRAINING:
+                            </text>
+                            <text x="20" y="180" font-size="13" fill="#2D7D5A">
+                                ① 预训练
+                            </text>
+                            <text x="20" y="200" font-size="13" fill="#2D7D5A">
+                                ② SFT
+                            </text>
+                            <text x="20" y="220" font-size="13" fill="#2D7D5A">
+                                ③ RLHF
+                            </text>
+                            <text x="20" y="245" font-size="11" fill="#8A8A86">
+                                ↑ 决定模型参数
+                            </text>
+                        </svg>
+                        <div class="figure-caption">
+                            FIG.2 — LLM 完整工作流程
+                        </div>
+                    </div>
+
+                    <p>
+                        把上图反复看几遍。每次别人聊到
+                        LLM，你都可以在脑子里把这张图拉出来，定位讨论的具体环节。
+                    </p>
+
+                    <h3
+                        style="
+                            font-size: 22px;
+                            font-weight: 600;
+                            margin: 48px 0 16px;
+                        "
+                    >
+                        推荐进一步阅读
+                    </h3>
+
+                    <ul class="read-list">
+                        <li>
+                            <span class="read-title"
+                                >3Blue1Brown · "But what is a GPT?"</span
+                            >
+                            <span class="read-meta"
+                                >视频 · 用动画讲 Transformer
+                                数学原理，但门槛非常低</span
+                            >
+                        </li>
+                        <li>
+                            <span class="read-title"
+                                >Andrej Karpathy · "Let's build GPT from
+                                scratch"</span
+                            >
+                            <span class="read-meta"
+                                >视频 · 一行行 Python 代码搭一个迷你 GPT</span
+                            >
+                        </li>
+                        <li>
+                            <span class="read-title"
+                                >Jay Alammar · "The Illustrated
+                                Transformer"</span
+                            >
+                            <span class="read-meta">博客 · 经典图解教程</span>
+                        </li>
+                        <li>
+                            <span class="read-title"
+                                >Anthropic · "Mechanistic Interpretability"
+                                系列</span
+                            >
+                            <span class="read-meta"
+                                >研究 · 拆开模型看里面到底在算什么</span
+                            >
+                        </li>
+                        <li>
+                            <span class="read-title"
+                                >Sebastian Raschka · "Build a Large Language
+                                Model (From Scratch)"</span
+                            >
+                            <span class="read-meta"
+                                >书 · 系统性的代码实现指南</span
+                            >
+                        </li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <div class="container">
+                <p>
+                    读完了。下次有人在你面前说"Transformer"，你可以微微一笑了。
+                </p>
+                <p style="margin-top: 16px">
+                    A GENTLE INTRODUCTION TO LLM · 2026
+                </p>
+            </div>
+        </footer>
+
+        <script>
+            // ============ Hero token stream ============
+            const heroTokens = [
+                "今天",
+                "天气",
+                "真",
+                "好",
+                "我们",
+                "一起",
+                "go",
+                "out",
+                "side",
+                "的",
+                "吧",
+                "def ",
+                "function",
+                "return",
+                "苹果",
+                "香蕉",
+                "量子",
+                "力学",
+                "是",
+                "物理学",
+                "的",
+                "一个",
+                "分支",
+                "hello",
+                "world",
+                "深度",
+                "学习",
+                "attention",
+                "is",
+                "all",
+                "you",
+                "need",
+                "人工",
+                "智能",
+                "正在",
+                "改变",
+                "世界",
+            ];
+            const heroHot = ["天气", "attention", "苹果", "hello", "智能"];
+            const track = document.getElementById("heroTrack");
+            if (track) {
+                // generate enough tokens to fill 2x screen for seamless loop
+                const seq = [];
+                for (let i = 0; i < 60; i++) {
+                    seq.push(heroTokens[i % heroTokens.length]);
+                }
+                // duplicate for seamless loop
+                const all = seq.concat(seq);
+                track.innerHTML = all
+                    .map((t) => {
+                        const hot = heroHot.includes(t) ? " hot" : "";
+                        return `<span class="tk${hot}">${t}</span>`;
+                    })
+                    .join("");
+            }
+
+            // ============ Tokenization animation ============
+            const tokExamples = [
+                {
+                    text: "我喜欢吃苹果",
+                    tokens: [
+                        ["我", 1023],
+                        ["喜欢", 4521],
+                        ["吃", 89],
+                        ["苹果", 7733],
+                    ],
+                },
+                {
+                    text: "unbelievable",
+                    tokens: [
+                        ["un", 318],
+                        ["believ", 4291],
+                        ["able", 533],
+                    ],
+                },
+                {
+                    text: "今天天气真好",
+                    tokens: [
+                        ["今天", 2031],
+                        ["天气", 4892],
+                        ["真", 401],
+                        ["好", 178],
+                    ],
+                },
+                {
+                    text: "AI is amazing",
+                    tokens: [
+                        ["AI", 9120],
+                        [" is", 318],
+                        [" amazing", 4998],
+                    ],
+                },
+            ];
+            let tokIdx = 0;
+            const tokSource = document.getElementById("tokSource");
+            const tokResult = document.getElementById("tokResult");
+
+            function runTokenize() {
+                if (!tokSource || !tokResult) return;
+                const ex = tokExamples[tokIdx];
+                tokSource.textContent = ex.text;
+                tokResult.innerHTML = "";
+                ex.tokens.forEach((tk, i) => {
+                    const chip = document.createElement("span");
+                    chip.className = "token-chip";
+                    chip.innerHTML = `${tk[0]}<span class="id">${tk[1]}</span>`;
+                    tokResult.appendChild(chip);
+                    setTimeout(() => chip.classList.add("show"), 200 + i * 200);
+                });
+                tokIdx = (tokIdx + 1) % tokExamples.length;
+            }
+
+            // trigger when section enters viewport
+            const tokObs = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach((e) => {
+                        if (e.isIntersecting) {
+                            runTokenize();
+                            const tokInterval = setInterval(runTokenize, 4000);
+                            e.target._interval = tokInterval;
+                        } else {
+                            if (e.target._interval)
+                                clearInterval(e.target._interval);
+                        }
+                    });
+                },
+                { threshold: 0.3 },
+            );
+            const tokDemo = document.querySelector(".tokenize-demo");
+            if (tokDemo) tokObs.observe(tokDemo);
+
+            // ============ Attention animation ============
+            const attnSvg = document.getElementById("attnSvg");
+            const attnWords = document.querySelectorAll(
+                "#attnWords .attn-word",
+            );
+            let attnAnimating = false;
+
+            function drawAttn() {
+                if (!attnSvg || !attnWords.length) return;
+                const container = attnSvg.parentElement;
+                const rect = container.getBoundingClientRect();
+                attnSvg.setAttribute(
+                    "viewBox",
+                    `0 0 ${rect.width} ${rect.height}`,
+                );
+                attnSvg.innerHTML = "";
+
+                // find "他" (focus)
+                let focusEl = null;
+                attnWords.forEach((el) => {
+                    if (el.classList.contains("focus")) focusEl = el;
+                });
+                if (!focusEl) return;
+                const fr = focusEl.getBoundingClientRect();
+                const fx = fr.left - rect.left + fr.width / 2;
+                const fy = fr.top - rect.top + fr.height / 2;
+
+                // draw lines to other words
+                const weights = [0.6, 0.05, 0.3, 0.1, 0.85, 0.05, 0, 0.4]; // 小明 把 苹果 给了 小红 因为 他 饿了
+                attnWords.forEach((el, i) => {
+                    if (el === focusEl) return;
+                    const r = el.getBoundingClientRect();
+                    const x = r.left - rect.left + r.width / 2;
+                    const y = r.top - rect.top + r.height / 2;
+                    const w = weights[i] || 0;
+                    if (w < 0.05) return;
+                    const line = document.createElementNS(
+                        "http://www.w3.org/2000/svg",
+                        "path",
+                    );
+                    line.setAttribute(
+                        "d",
+                        `M ${fx} ${fy} Q ${(fx + x) / 2} ${Math.min(fy, y) - 30} ${x} ${y}`,
+                    );
+                    line.setAttribute("stroke", "#C26B3C");
+                    line.setAttribute("stroke-width", w * 4);
+                    line.setAttribute("fill", "none");
+                    line.setAttribute("opacity", "0");
+                    attnSvg.appendChild(line);
+                    setTimeout(
+                        () => {
+                            line.setAttribute("opacity", String(0.2 + w * 0.6));
+                            el.classList.toggle("linked", w > 0.3);
+                        },
+                        100 + i * 80,
+                    );
+                });
+            }
+
+            const attnObs = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach((e) => {
+                        if (e.isIntersecting && !attnAnimating) {
+                            attnAnimating = true;
+                            setTimeout(drawAttn, 200);
+                            const intv = setInterval(() => {
+                                attnWords.forEach((w) =>
+                                    w.classList.remove("linked"),
+                                );
+                                setTimeout(drawAttn, 100);
+                            }, 4000);
+                            e.target._intv = intv;
+                        } else {
+                            if (e.target._intv) {
+                                clearInterval(e.target._intv);
+                                e.target._intv = null;
+                                attnAnimating = false;
+                            }
+                        }
+                    });
+                },
+                { threshold: 0.3 },
+            );
+            const attnDemo = document.querySelector(".attn-demo");
+            if (attnDemo) attnObs.observe(attnDemo);
+            window.addEventListener("resize", () => {
+                if (attnAnimating) drawAttn();
+            });
+
+            // ============ Probability bars ============
+            const probObs = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach((e) => {
+                        if (e.isIntersecting) {
+                            const bars =
+                                e.target.querySelectorAll(".probs-bar");
+                            bars.forEach((bar, i) => {
+                                const pct = bar.getAttribute("data-pct");
+                                const fill = bar.querySelector(".probs-fill");
+                                setTimeout(
+                                    () => {
+                                        fill.style.width = pct + "%";
+                                    },
+                                    200 + i * 150,
+                                );
+                            });
+                        }
+                    });
+                },
+                { threshold: 0.4 },
+            );
+            const probDemo = document.querySelector(".probs-demo");
+            if (probDemo) probObs.observe(probDemo);
+
+            // ============ Generation loop ============
+            const genCtx = document.getElementById("genCtx");
+            const genNew = document.getElementById("genNew");
+            const genTexts = [
+                "好",
+                "，",
+                "我们",
+                "一起",
+                "出去",
+                "走走",
+                "吧",
+                "。",
+            ];
+            let genIdx = 0;
+            let genIntv = null;
+
+            function runGen() {
+                if (!genNew) return;
+                if (genIdx >= genTexts.length) {
+                    setTimeout(() => {
+                        genNew.textContent = "";
+                        genIdx = 0;
+                        runGen();
+                    }, 2000);
+                    return;
+                }
+                genNew.textContent += genTexts[genIdx];
+                genIdx++;
+                setTimeout(runGen, 400);
+            }
+
+            const genObs = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach((e) => {
+                        if (e.isIntersecting && !genIntv) {
+                            genIdx = 0;
+                            genNew.textContent = "";
+                            setTimeout(runGen, 500);
+                            genIntv = true;
+                        }
+                    });
+                },
+                { threshold: 0.4 },
+            );
+            const genDemo = document.querySelector(".gen-demo");
+            if (genDemo) genObs.observe(genDemo);
+
+            // ============ Reading progress + TOC ============
+            const chapters = document.querySelectorAll("[data-chapter]");
+            const progressBar = document.getElementById("progressBar");
+            const progressMeta = document.getElementById("progressMeta");
+            const tocItems = document.querySelectorAll(".toc li");
+            const tocMobileItems = document.querySelectorAll(".toc-mobile li");
+            const tocToggleLabel = document.getElementById("tocToggleLabel");
+
+            function updateProgress() {
+                const scrollTop = window.scrollY;
+                const docHeight =
+                    document.documentElement.scrollHeight - window.innerHeight;
+                const pct = Math.min(100, (scrollTop / docHeight) * 100);
+                if (progressBar) progressBar.style.width = pct + "%";
+
+                // current chapter
+                let current = 0;
+                chapters.forEach((ch, i) => {
+                    const r = ch.getBoundingClientRect();
+                    if (r.top < window.innerHeight * 0.3) current = i;
+                });
+                const numStr = String(current).padStart(2, "0");
+                if (progressMeta) progressMeta.textContent = numStr + " / 11";
+                if (tocToggleLabel) tocToggleLabel.textContent = numStr;
+                tocItems.forEach((it, i) =>
+                    it.classList.toggle("active", i === current),
+                );
+                tocMobileItems.forEach((it, i) =>
+                    it.classList.toggle("active", i === current),
+                );
+            }
+
+            window.addEventListener("scroll", updateProgress, {
+                passive: true,
+            });
+            updateProgress();
+
+            // ============ Mobile TOC drawer ============
+            const tocToggle = document.getElementById("tocToggle");
+            const tocMobile = document.getElementById("tocMobile");
+            const tocBackdrop = document.getElementById("tocBackdrop");
+
+            function setMobileTocOpen(open) {
+                if (!tocMobile) return;
+                tocMobile.classList.toggle("open", open);
+                tocBackdrop.classList.toggle("open", open);
+                tocToggle.classList.toggle("open", open);
+                document.body.style.overflow = open ? "hidden" : "";
+            }
+
+            if (tocToggle) {
+                tocToggle.addEventListener("click", () => {
+                    setMobileTocOpen(!tocMobile.classList.contains("open"));
+                });
+            }
+            if (tocBackdrop) {
+                tocBackdrop.addEventListener("click", () =>
+                    setMobileTocOpen(false),
+                );
+            }
+
+            // ============ TOC item click (desktop + mobile) ============
+            function bindTocClick(items, closeAfter) {
+                items.forEach((it) => {
+                    it.addEventListener("click", () => {
+                        const target = document.getElementById(
+                            it.getAttribute("data-target"),
+                        );
+                        if (target) {
+                            if (closeAfter) setMobileTocOpen(false);
+                            // small delay so the drawer-close animation doesn't fight the scroll
+                            setTimeout(
+                                () =>
+                                    target.scrollIntoView({
+                                        behavior: "smooth",
+                                    }),
+                                closeAfter ? 200 : 0,
+                            );
+                        }
+                    });
+                });
+            }
+            bindTocClick(tocItems, false);
+            bindTocClick(tocMobileItems, true);
+        </script>
+    </body>
+</html>
