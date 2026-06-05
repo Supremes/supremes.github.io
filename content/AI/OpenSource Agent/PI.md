@@ -218,3 +218,161 @@ graph TD
 | 事件 | 纯观察性，**不等**你的异步处理 settle 就继续下一阶段 | `message_end` 是 **barrier**，`beforeToolCall` 能看到已含该 assistant 消息的状态 |
 | 适用 | 要极致控制                                           | 需要「消息处理先于工具预检」的顺序保证                       |
 
+
+
+老大，要给出有价值的建议，我必须先搞清楚 dawn-ai 是什么、技术栈和架构——不能凭空套用 PI 的设计。先探查这个项目。 
+
+Read [](file:///Users/junkangdu/projects/github/dawn-ai)
+
+Java/Maven 项目，和 PI（TS agent harness）技术栈不同。我深入了解它的领域与架构，再做精准映射。    
+
+探查 dawn-ai 架构
+
+Read [](file:///Users/junkangdu/projects/github/dawn-ai/README.md)
+
+Read [](file:///Users/junkangdu/projects/github/dawn-ai)
+
+Read [](file:///Users/junkangdu/projects/github/dawn-ai/README.md)
+
+Read [](file:///Users/junkangdu/projects/github/dawn-ai/pom.xml)
+
+Read [](file:///Users/junkangdu/projects/github/dawn-ai/src/main/java)
+
+Read [](file:///Users/junkangdu/projects/github/dawn-ai/src/main/java/com/dawn)
+
+Read [](file:///Users/junkangdu/projects/github/dawn-ai/src/main/java/com/dawn/ai)
+
+Read [](file:///Users/junkangdu/projects/github/dawn-ai/src/main/java/com/dawn/ai/memory)
+
+Read [](file:///Users/junkangdu/projects/github/dawn-ai/src/main/java/com/dawn/ai/service)
+
+Read [](file:///Users/junkangdu/projects/github/dawn-ai/src/main/java/com/dawn/ai/rag)
+
+Read [](file:///Users/junkangdu/projects/github/dawn-ai/src/main/java/com/dawn/ai/agent)
+
+Read [](file:///Users/junkangdu/projects/github/dawn-ai/src/main/java/com/dawn/ai/agent/orchestration)
+
+Read [](file:///Users/junkangdu/projects/github/dawn-ai/src/main/java/com/dawn/ai/agent/tools)
+
+Read [](file:///Users/junkangdu/projects/github/dawn-ai/src/main/java/com/dawn/ai/agent/registry)
+
+Read [](file:///Users/junkangdu/projects/github/dawn-ai/src/main/java/com/dawn/ai/service/ChatService.java)
+
+Read [](file:///Users/junkangdu/projects/github/dawn-ai/src/main/java/com/dawn/ai/service/MemoryService.java)
+
+Read [](file:///Users/junkangdu/projects/github/dawn-ai/src/main/java/com/dawn/ai/agent/registry/ToolRegistry.java)
+
+Read [](file:///Users/junkangdu/projects/github/dawn-ai/src/main/java/com/dawn/ai/agent/orchestration/AgentOrchestrator.java)
+
+Read [](file:///Users/junkangdu/projects/github/dawn-ai/src/main/java/com/dawn/ai/agent/trace/StepCollector.java)
+
+Read [](file:///Users/junkangdu/projects/github/dawn-ai/src/main/java/com/dawn/ai/agent/planning/TaskPlanner.java)
+
+Read [](file:///Users/junkangdu/projects/github/dawn-ai/src/main/java/com/dawn/ai/agent/skill/Skill.java)
+
+Read [](file:///Users/junkangdu/projects/github/dawn-ai/src/main/java/com/dawn/ai/agent/tools/KnowledgeSearchTool.java)
+
+Searched for regex `TODO|FIXME|XXX|HACK|BUG` (`**/src/main/java/**/*.java`), no results
+
+Read [](file:///Users/junkangdu/projects/github/dawn-ai/src/main/java/com/dawn/ai/config)
+
+Read [](file:///Users/junkangdu/projects/github/dawn-ai/src/main/java/com/dawn/ai/agent/trace)
+
+Read [](file:///Users/junkangdu/projects/github/dawn-ai/src/main/java/com/dawn/ai/agent/trace/ToolExecutionAspect.java)
+
+Read [](file:///Users/junkangdu/projects/github/dawn-ai/src/main/java/com/dawn/ai/agent/subagent)
+
+Read [](file:///Users/junkangdu/projects/github/dawn-ai/src/main/java/com/dawn/ai/rag/query)
+
+Read [](file:///Users/junkangdu/projects/github/dawn-ai/src/main/java/com/dawn/ai/memory/MemoryConsolidator.java)
+
+Read [](file:///Users/junkangdu/projects/github/dawn-ai/src/main/java/com/dawn/ai/agent/subagent/SubAgentExecutor.java)
+
+Read [](file:///Users/junkangdu/projects/github/dawn-ai/src/main/java/com/dawn/ai/agent/skill)
+
+Read [](file:///Users/junkangdu/projects/github/dawn-ai/src/main/java/com/dawn/ai/rag/RagService.java)
+
+Read [](file:///Users/junkangdu/projects/github/dawn-ai/src/main/java/com/dawn/ai/config/AgentConfig.java)
+
+Read [](file:///Users/junkangdu/projects/github/dawn-ai/src/main/java/com/dawn/ai/agent/skill/SkillRegistry.java)
+
+Read [](file:///Users/junkangdu/projects/github/dawn-ai/src/main/java/com/dawn/ai/agent/subagent/SubAgentRegistry.java)
+
+Searched for text `provider context window compression` (`**/src/main/java/com/dawn/ai/**/*.java`), no results
+
+Read [](file:///Users/junkangdu/projects/github/dawn-ai/src/main/java/com/dawn/ai/agent/trace)
+
+Read [](file:///Users/junkangdu/projects/github/dawn-ai/src/main/java/com/dawn/ai/config/AiConfig.java)
+
+探查完成。读取 subagent 的完整发现。  
+
+Read [](file:///Users/junkangdu/Library/Application%20Support/Code/User/workspaceStorage/adfa29ffe248b78f415305aa5ceac892/GitHub.copilot-chat/chat-session-resources/d2d67117-fb46-4e44-8fb1-dd70082f81d5/toolu_01EMfefa2rY5RvNS9Pq76YVg__vscode-1780623437432/content.txt#1-1), lines 1 to 300
+
+老大，dawn-ai 我摸透了——它是 **Java 17 + Spring Boot 3.2 + Spring AI** 的生产级 Agent 框架（ReAct 循环 + RAG + 子代理 + 分层记忆）。它的痛点和 PI 的设计点**高度互补**。下面按 ROI 从高到低给你精准映射，全部基于已核验事实，不泛泛而谈。
+
+---
+
+## 高价值（直接补 dawn-ai 的硬伤）
+
+### ① 上下文压缩 Compaction → 补痛点 a
+- **PI 怎么做**：`transformContext(messages)` 钩子在每次 LLM 调用前对历史做裁剪/摘要；`coding-agent/src/core/compaction` 有完整策略；`shouldStopAfterTurn` 还能在「下一轮前发现该压缩」时优雅刹车。
+- **dawn-ai 现状**：`AgentOrchestrator.buildHistory()` 全量灌 `MAX_HISTORY=20`，长对话秒撞 token 上限。
+- **落地**：在 `buildHistory()` 和 `chatClient.prompt()` 之间插一个 `ContextTransformer` 接口（等价 `transformContext`）——超阈值就调一次低温 LLM 摘要旧消息。你已有 `MemorySummarizer`，把它接到「调用前」而非「事后」即可。**这是最该抄的一条。**
+
+### ② 会话树 + 分支重放 → 补痛点 b
+- **PI 怎么做**：durable-harness.md 的核心——Session 是 **append-only 日志**，`leaf` 条目记录当前分支游标，`navigateTree` + `branch summary` 实现「回到第 N 步走另一条分支」。
+- **dawn-ai 现状**：Redis 单链历史，无法分支。
+- **落地**：把 Redis 的「会话=消息 List」换成 **append-only entry log**（每条带 `id` + `parentId`），当前分支由最新 `leaf` 条目重建。这是结构性改造，但能一次性解锁分支/重放/审计三件事。
+
+### ③ 多 Provider Fallback + 动态密钥 → 补痛点 c/e
+- **PI 怎么做**：`pi-ai` 统一抽象 OpenAI/Anthropic/Google/Bedrock/Mistral；`getApiKey(provider)` 每次请求动态解析（应对过期 token）；chat 与 embedding model 独立。
+- **dawn-ai 现状**：虽基于 Spring AI 但实质单 OpenAI，无 A 超载→B 的 fallback。
+- **落地**：包一层 `ChatClientRouter`，按 `provider → ChatClient` 注册表 + 失败降级链（你已有 429 指数退避，扩成「退避 N 次后切下一个 provider」）。Spring AI 的多 `ChatModel` bean 天然支持，缺的是 router 这层。
+
+---
+
+## 中价值（设计模式可借鉴）
+
+### ④ 双类型消息分层：AgentMessage vs LLM Message
+- **PI 精髓**：内部用宽松 `AgentMessage`（含 UI-only/自定义类型），只在边界 `convertToLlm()` 收窄成 LLM 三角色。
+- **dawn-ai 可用**：你的 `AgentStep`/trace 信息和真正喂给 LLM 的 message 现在是混在编排里的。引入「内部消息模型 + 转换边界」，能让 trace、子代理进度、技能注入等 UI 态与 LLM 上下文彻底解耦。Java 里用 sealed interface + `toLlmMessages()` 实现。
+
+### ⑤ turn 边界钩子：shouldStopAfterTurn / prepareNextTurn → 补痛点 f
+- **PI 精髓**：每轮 `turn_end` 后、下一次 LLM 调用前留控制窗口——可优雅停机、可中途换 model/thinking level、可注入预算判断。
+- **dawn-ai 可用**：子代理 `max_dispatches_per_session=3` 硬编码、无 token/wall-time budget、无 early-exit。把 `AgentOrchestrator` 的 ReAct 循环改成「每步后回调一个 `TurnPolicy`」——按累计 token / 耗时决定继续/停止/降级模型。`SubAgentExecutor` 同理加 budget 闸门。
+
+### ⑥ terminate 提示：工具批次提前终止 → 补痛点 f
+- **PI 精髓**：工具返回 `terminate: true` 暗示「本批工具后就别再追问 LLM 了」，整批都 terminate 才真正停。
+- **dawn-ai 可用**：你的 `DispatchSubAgentTool`/终态工具（如「已完成通知」）跑完还会再触发一轮 LLM。给工具结果加个 `terminate` 标志，让 `AgentOrchestrator` 跳过多余的收尾调用，省 token。
+
+### ⑦ 类型化钩子归约 observe/on/emit → 升级你的 AOP+EventListener
+- **PI 精髓**：hooks.md 的「事件自带结果类型」+ reducer（tool_call 遇 block 早退、tool_result 累积 patch、context 链式 transform）。
+- **dawn-ai 现状**：`ToolExecutionAspect`(AOP) + `@EventListener` 是观察型为主，缺「能改执行结果的有序归约」。可在 tool 执行前后引入 `before/afterToolCall` 风格的可变钩子（PI 的 `beforeToolCall` 能 block、`afterToolCall` 能改写结果/加审计标记），比纯 AOP 更可控。
+
+---
+
+## 低价值（dawn-ai 已经不弱）
+
+### ⑧ 可观测性事件契约
+PI 的 observability.md 主张「core 只发稳定事件，adapter 转 OTel/Sentry，默认脱敏」。但 **dawn-ai 已经接了 OpenTelemetry + Langfuse + Prometheus + Micrometer 上下文传播**，这块比 PI 还成熟。唯一可借的是 **「默认脱敏」原则**——确认 prompt/tool args/文件内容默认不进 trace payload。
+
+---
+
+## 优先级建议
+
+| 优先级 | 应用点 | 对应 dawn-ai 痛点 | 改造量 |
+|---|---|---|---|
+| 🔴 P0 | ① 上下文压缩 | a（必撞 token 墙） | 小，复用 `MemorySummarizer` |
+| 🔴 P0 | ③ Provider fallback | c/e（生产可用性） | 中，加 router 层 |
+| 🟡 P1 | ⑤ turn 预算钩子 | f（子代理失控） | 中 |
+| 🟡 P1 | ⑥ terminate 提示 | f（省 token） | 小 |
+| 🟢 P2 | ② 会话树分支 | b（产品力） | 大，结构性 |
+| 🟢 P2 | ④ 双类型消息分层 | 解耦 | 中 |
+| ⚪ P3 | ⑦ 类型化钩子 | 可控性 | 中 |
+
+---
+
+**一句话**：dawn-ai 的 ReAct/RAG/记忆已经很强，缺的恰是 PI 最擅长的 **「上下文工程 + 循环控制 + 容错」**——P0 两条（压缩 + provider fallback）投入小见效快，建议先动。
+
+老大，要不要我挑 P0 里的某一条（比如上下文压缩），结合 dawn-ai 的 `AgentOrchestrator` 和 `MemorySummarizer` 给你出一份具体的落地改造方案？
+
