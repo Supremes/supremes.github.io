@@ -166,9 +166,11 @@ img { max-width: 100%; height: auto; }
 .dropdown-content {
   display: none;
   position: absolute;
-  top: calc(100% + 4px);
+  top: 100%;
   left: 0;
   min-width: 180px;
+  max-height: 70vh;
+  overflow-y: auto;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
