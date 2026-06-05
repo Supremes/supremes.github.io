@@ -25,7 +25,50 @@
     applyTheme(html.dataset.theme === 'dark' ? 'light' : 'dark');
   });
 
-  // ───── 搜索（基于后端 API）─────
+  // ───── 搜索索引 ─────
+  let _indexCache = null;
+  async function loadIndex() {
+    if (_indexCache) return _indexCache;
+    const resp = await fetch('/search-index.json');
+    _indexCache = await resp.json();
+    return _indexCache;
+  }
+
+  function matchArticles(index, query) {
+    const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
+    if (!terms.length) return [];
+
+    const scored = [];
+    for (const a of index) {
+      const title = (a.title || '').toLowerCase();
+      const summary = (a.summary || '').toLowerCase();
+      const tags = (a.tags || []).join(' ').toLowerCase();
+      const text = a.text || '';
+
+      let score = 0;
+      let matched = true;
+      for (const t of terms) {
+        const inTitle = title.includes(t);
+        const inSummary = summary.includes(t);
+        const inTags = tags.includes(t);
+        const inText = text.includes(t);
+        if (!inTitle && !inSummary && !inTags && !inText) { matched = false; break; }
+        if (inTitle) score += 10;
+        if (inTags) score += 5;
+        if (inSummary) score += 3;
+        if (inText) score += 1;
+      }
+      if (!matched) continue;
+
+      const snippet = summary || '';
+      scored.push({ title: a.title, slug: a.slug, category: a.category, summary: a.summary, date: a.date, snippet, score });
+    }
+
+    scored.sort((a, b) => b.score - a.score);
+    return scored;
+  }
+
+  // ───── 搜索（基于静态索引）─────
   const searchInput = document.getElementById('search-input');
   const searchDropdown = document.getElementById('search-results');
   let debounceTimer = null;
@@ -42,14 +85,14 @@
 
       debounceTimer = setTimeout(async () => {
         try {
-          const resp = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
-          const data = await resp.json();
+          const index = await loadIndex();
+          const data = matchArticles(index, q).slice(0, 8);
 
           if (data.length === 0) {
             searchDropdown.innerHTML = '<div class="search-item"><div class="search-item-title" style="color:var(--ink-muted)">没有找到相关文章</div></div>';
           } else {
             searchDropdown.innerHTML = data.map(item => `
-              <a href="${item.url}" class="search-item">
+              <a href="/article/${encodeURIComponent(item.slug)}/" class="search-item">
                 <div class="search-item-title">${escHtml(item.title)}</div>
                 <div class="search-item-cat">${escHtml(item.category)} · ${escHtml((item.summary || '').slice(0, 100))}</div>
               </a>
