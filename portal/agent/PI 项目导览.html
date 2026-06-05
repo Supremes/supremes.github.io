@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<!--
+Execution plan:
+- Goal: 全中文、pi.dev「工程笔记本」风格、重交互的单页 HTML，介绍 PI 项目并提供手把手源码阅读教程，受众=想上手 pi 的开发者
+- Confirmed facts: 极简终端 coding harness / 小内核+自我扩展 / 4 包(pi-ai,pi-agent-core,pi-coding-agent,pi-tui) / 4 模式(interactive,print,RPC,SDK) / AgentMessage vs LLM Message 双类型 / agent-loop 双层循环 / EventStream 事件流 / compaction+branching+供应链加固。全部源自代码库与 pi.dev 实测
+- Assumptions: 字体 Comic Sans MS(英文)+ LXGW WenKai 文楷(中文 fallback)；单文件；不提交 git；不编造数据
+- First artifact: Hero + 项目定位
+- Variation axes: explainer 模块呈现(分步/hover/播放)
+- Verification: 桌面+窄屏、控制台零报错、逐区块截图、动画关键帧
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PI 项目导览 · 工程笔记本</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css" />
+<style>
+  :root {
+    /* pi.dev 实测 tokens */
+    --paper: #ECE9E2;
+    --paper-2: #F4F2EC;
+    --panel: #FBFAF6;
+    --ink: #3B4252;
+    --ink-soft: #5B6472;
+    --ink-faint: #8B91A0;
+    --steel: #8095AD;     /* 钢蓝强调 */
+    --steel-deep: #5E7693;
+    --terra: #C68A5B;     /* 陶土 / 积木 */
+    --terra-deep: #A96E40;
+    --sage: #8BA888;      /* 辅助绿 */
+    --line: #D6D2C7;
+    --line-strong: #B7B2A4;
+    --hl: #F4E2A8;        /* 马克笔黄 */
+    --hl-pink: #F2C5C9;
+    --grid: rgba(59, 66, 82, 0.06);
+    --shadow: 4px 4px 0 rgba(59, 66, 82, 0.14);
+    --shadow-lg: 7px 7px 0 rgba(59, 66, 82, 0.16);
+    --font-hand: "Comic Sans MS", "Comic Sans", "LXGW WenKai", "Chalkboard SE", cursive;
+    --font-mono: "JetBrains Mono", "SFMono-Regular", "Consolas", "Menlo", monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    font-family: var(--font-hand);
+    color: var(--ink);
+    background-color: var(--paper);
+    /* 坐标纸点阵 + 网格 */
+    background-image:
+      radial-gradient(var(--grid) 1.4px, transparent 1.4px),
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 26px 26px, 26px 26px, 26px 26px;
+    background-position: 0 0, 0 0, 0 0;
+    line-height: 1.85;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 1060px; margin: 0 auto; padding: 0 28px; }
+
+  /* ---------- 顶部导航 ---------- */
+  nav.top {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(236, 233, 226, 0.86);
+    backdrop-filter: blur(6px);
+    border-bottom: 2px solid var(--line-strong);
+  }
+  nav.top .wrap { display: flex; align-items: center; gap: 22px; height: 60px; }
+  .brand { display: flex; align-items: center; gap: 11px; font-size: 22px; }
+  .brand .blocks { display: grid; grid-template-columns: repeat(2, 11px); grid-template-rows: repeat(2, 11px); gap: 3px; }
+  .brand .blocks i { display: block; width: 11px; height: 11px; border-radius: 2px; }
+  .brand .blocks i:nth-child(1){ background: var(--terra); }
+  .brand .blocks i:nth-child(2){ background: var(--steel); }
+  .brand .blocks i:nth-child(3){ background: var(--sage); }
+  .brand .blocks i:nth-child(4){ background: var(--terra-deep); }
+  .brand b { font-weight: 400; letter-spacing: .5px; }
+  nav.top .links { margin-left: auto; display: flex; gap: 20px; }
+  nav.top .links a {
+    color: var(--ink-soft); text-decoration: none; font-size: 15px;
+    font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 1px;
+    padding-bottom: 2px; border-bottom: 2px solid transparent;
+  }
+  nav.top .links a:hover { color: var(--ink); border-bottom-color: var(--terra); }
+
+  /* ---------- 通用：手绘描边面板 ---------- */
+  .card {
+    background: var(--panel);
+    border: 2.5px solid var(--ink);
+    border-radius: 14px 10px 16px 9px / 9px 16px 10px 14px; /* 手绘不规则 */
+    box-shadow: var(--shadow);
+  }
+  .tag {
+    display: inline-block; font-family: var(--font-mono); font-size: 12.5px;
+    text-transform: uppercase; letter-spacing: 2px; color: var(--steel-deep);
+    border: 1.5px solid var(--steel); border-radius: 6px;
+    padding: 3px 10px; background: rgba(128,149,173,.08);
+  }
+  .mark { background: linear-gradient(transparent 58%, var(--hl) 58%, var(--hl) 92%, transparent 92%); padding: 0 2px; }
+  .mark-pink { background: linear-gradient(transparent 58%, var(--hl-pink) 58%, var(--hl-pink) 92%, transparent 92%); padding: 0 2px; }
+
+  section { padding: 74px 0; }
+  .sec-head { display: flex; align-items: center; gap: 14px; margin-bottom: 8px; }
+  .sec-head .num {
+    font-family: var(--font-mono); font-size: 15px; color: var(--paper);
+    background: var(--ink); width: 34px; height: 34px; border-radius: 50%;
+    display: grid; place-items: center; flex: none;
+  }
+  h2.sec-title { font-size: 34px; margin: 0; font-weight: 400; line-height: 1.3; }
+  .sec-sub { color: var(--ink-soft); font-size: 17px; margin: 4px 0 38px; max-width: 720px; }
+
+  /* ---------- Hero ---------- */
+  .hero { padding: 86px 0 60px; position: relative; }
+  .hero .logo-stack { display: grid; grid-template-columns: repeat(3, 30px); grid-template-rows: repeat(3, 30px); gap: 5px; margin-bottom: 30px; }
+  .hero .logo-stack i { display: block; border-radius: 4px; box-shadow: 2px 2px 0 rgba(59,66,82,.18); animation: pop .5s ease both; }
+  @keyframes pop { from { transform: scale(.2) rotate(-12deg); opacity: 0; } to { transform: none; opacity: 1; } }
+  .hero h1 { font-size: 52px; line-height: 1.28; margin: 0 0 22px; font-weight: 400; max-width: 760px; }
+  .hero h1 .accent { color: var(--steel-deep); font-style: italic; }
+  .hero p.lede { font-size: 20px; color: var(--ink-soft); max-width: 640px; margin: 0 0 34px; }
+  .hero .cta { display: flex; gap: 16px; flex-wrap: wrap; }
+  .btn {
+    font-family: var(--font-hand); font-size: 17px; cursor: pointer;
+    padding: 12px 26px; border-radius: 12px 9px 14px 8px / 8px 14px 9px 12px;
+    border: 2.5px solid var(--ink); text-decoration: none; color: var(--ink);
+    background: var(--panel); box-shadow: var(--shadow); transition: transform .12s, box-shadow .12s;
+  }
+  .btn:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 rgba(59,66,82,.18); }
+  .btn.primary { background: var(--terra); color: #fff; border-color: var(--terra-deep); }
+  .btn.primary:hover { background: var(--terra-deep); }
+
+  .hero .pin {
+    position: absolute; right: 18px; top: 70px; transform: rotate(4deg);
+    background: var(--hl); border: 2px solid var(--ink); padding: 14px 18px;
+    border-radius: 8px; box-shadow: var(--shadow); max-width: 230px; font-size: 15px;
+    line-height: 1.6;
+  }
+  .hero .pin::before {
+    content: ""; position: absolute; top: -9px; left: 50%; transform: translateX(-50%);
+    width: 13px; height: 13px; border-radius: 50%; background: var(--terra-deep);
+    box-shadow: inset 0 0 0 2px rgba(0,0,0,.2);
+  }
+
+  /* ---------- 亮点 grid ---------- */
+  .highlights { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  .hl-card { padding: 24px 22px 26px; position: relative; transition: transform .14s; }
+  .hl-card:hover { transform: translateY(-4px) rotate(-.6deg); }
+  .hl-card .ico { font-family: var(--font-mono); font-size: 22px; width: 46px; height: 46px; border-radius: 10px; display: grid; place-items: center; color: #fff; margin-bottom: 14px; box-shadow: 2px 2px 0 rgba(59,66,82,.16); }
+  .hl-card h3 { font-size: 20px; margin: 0 0 8px; font-weight: 400; }
+  .hl-card p { font-size: 15.5px; color: var(--ink-soft); margin: 0; line-height: 1.7; }
+
+  /* ---------- 包依赖图 ---------- */
+  .dep { display: grid; grid-template-columns: 1.15fr .85fr; gap: 30px; align-items: center; }
+  .dep-graph { position: relative; padding: 18px; }
+  .pkg {
+    position: relative; cursor: pointer; padding: 16px 18px; margin: 0; user-select: none;
+    transition: transform .14s, box-shadow .14s, background .14s;
+  }
+  .pkg .pname { font-family: var(--font-mono); font-size: 15px; color: var(--ink); }
+  .pkg .pdesc { font-size: 13.5px; color: var(--ink-faint); margin-top: 3px; }
+  .pkg.dim { opacity: .32; filter: saturate(.4); }
+  .pkg.active { transform: translate(-2px,-2px); box-shadow: var(--shadow-lg); }
+  .pkg.lit { background: rgba(128,149,173,.16); }
+  .pkg[data-pkg="ai"].active { border-color: var(--terra-deep); }
+  .layer-label { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-faint); margin: 18px 0 8px; }
+  .dep-note { font-size: 16px; color: var(--ink-soft); line-height: 1.8; }
+  .dep-note .legend { display: flex; align-items: center; gap: 8px; margin-top: 14px; font-family: var(--font-mono); font-size: 13px; }
+  .dep-note .legend i { width: 22px; height: 0; border-top: 3px solid var(--steel); }
+
+  /* ---------- Agent loop 动画 ---------- */
+  .loop-shell { display: grid; grid-template-columns: 1fr 320px; gap: 28px; }
+  .stage { padding: 26px; min-height: 430px; position: relative; }
+  .step-row { display: flex; align-items: flex-start; gap: 14px; padding: 13px 14px; margin-bottom: 11px; border-radius: 10px; border: 2px dashed transparent; transition: all .3s; opacity: .42; }
+  .step-row .dot { font-family: var(--font-mono); font-size: 13px; width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--line-strong); display: grid; place-items: center; flex: none; background: var(--paper-2); color: var(--ink-faint); transition: all .3s; }
+  .step-row .stext b { font-weight: 400; font-size: 16.5px; display: block; }
+  .step-row .stext code { font-family: var(--font-mono); font-size: 12.5px; color: var(--steel-deep); background: rgba(128,149,173,.1); padding: 1px 6px; border-radius: 4px; }
+  .step-row .stext small { color: var(--ink-faint); font-size: 13.5px; }
+  .step-row.on { opacity: 1; border-color: var(--steel); background: rgba(128,149,173,.08); transform: translateX(4px); }
+  .step-row.on .dot { background: var(--steel); color: #fff; border-color: var(--steel-deep); transform: scale(1.12); }
+  .step-row.done { opacity: .9; }
+  .step-row.done .dot { background: var(--sage); color: #fff; border-color: var(--sage); }
+  .loop-side .tag { margin-bottom: 14px; }
+  .loop-side h3 { font-weight: 400; font-size: 21px; margin: 0 0 10px; }
+  .loop-side p { font-size: 15px; color: var(--ink-soft); line-height: 1.75; }
+  .ctrl { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+  .ring { position: absolute; right: 20px; top: 20px; font-family: var(--font-mono); font-size: 12px; color: var(--ink-faint); border: 1.5px dashed var(--line-strong); border-radius: 20px; padding: 4px 12px; }
+  .loop-badge { display: inline-block; font-family: var(--font-mono); font-size: 11px; letter-spacing: 1px; padding: 2px 8px; border-radius: 5px; margin-left: 6px; }
+  .badge-inner { background: rgba(128,149,173,.18); color: var(--steel-deep); }
+  .badge-outer { background: rgba(198,138,91,.18); color: var(--terra-deep); }
+
+  /* ---------- 教程 Stepper ---------- */
+  .steps { display: flex; flex-direction: column; gap: 16px; }
+  .step {
+    padding: 0; overflow: hidden; transition: box-shadow .14s;
+  }
+  .step .shead { display: flex; align-items: center; gap: 16px; padding: 20px 24px; cursor: pointer; }
+  .step .snum { font-family: var(--font-mono); font-size: 18px; width: 42px; height: 42px; flex: none; border-radius: 50%; display: grid; place-items: center; border: 2.5px solid var(--ink); background: var(--paper-2); transition: all .2s; }
+  .step .stitle { font-size: 21px; flex: 1; }
+  .step .stitle small { display: block; font-family: var(--font-mono); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-faint); }
+  .step .chev { font-family: var(--font-mono); color: var(--ink-faint); transition: transform .25s; font-size: 20px; }
+  .step.open .chev { transform: rotate(90deg); }
+  .step.open .snum { background: var(--terra); color: #fff; border-color: var(--terra-deep); }
+  .step .sbody { max-height: 0; opacity: 0; transition: max-height .35s ease, opacity .3s; padding: 0 24px; }
+  .step.open .sbody { max-height: 460px; opacity: 1; padding: 0 24px 24px 24px; }
+  .step .sbody p { font-size: 16px; color: var(--ink-soft); margin: 0 0 14px; line-height: 1.8; }
+  .step .sbody .why { background: rgba(244,226,168,.32); border-left: 4px solid var(--terra); padding: 11px 16px; border-radius: 6px; font-size: 15px; margin: 0 0 14px; }
+  .filechip { display: inline-flex; align-items: center; gap: 7px; font-family: var(--font-mono); font-size: 13.5px; color: var(--ink); background: var(--paper); border: 1.5px solid var(--line-strong); border-radius: 7px; padding: 5px 11px; margin: 0 8px 8px 0; }
+  .filechip::before { content: "›_"; color: var(--terra-deep); }
+
+  /* ---------- 代码 tab ---------- */
+  .codebox { margin-top: 16px; }
+  .tabs { display: flex; gap: 0; flex-wrap: wrap; }
+  .tabs button {
+    font-family: var(--font-mono); font-size: 13px; cursor: pointer; color: var(--ink-soft);
+    background: var(--paper-2); border: 2px solid var(--line-strong); border-bottom: none;
+    padding: 8px 16px; border-radius: 9px 9px 0 0; margin-right: 5px;
+  }
+  .tabs button.on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  pre { margin: 0; background: #2E3440; color: #D8DEE9; border: 2px solid var(--ink); border-radius: 0 12px 12px 12px; padding: 20px 22px; overflow-x: auto; font-family: var(--font-mono); font-size: 13.5px; line-height: 1.7; box-shadow: var(--shadow); }
+  pre .c { color: #7B88A1; } pre .k { color: #81A1C1; } pre .s { color: #A3BE8C; } pre .f { color: #88C0D0; } pre .n { color: #D08770; }
+
+  /* ---------- 页脚 ---------- */
+  footer { padding: 50px 0 70px; border-top: 2px solid var(--line-strong); margin-top: 30px; }
+  footer .wrap { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+  footer .links { display: flex; gap: 18px; font-family: var(--font-mono); font-size: 13px; }
+  footer a { color: var(--steel-deep); text-decoration: none; }
+  footer a:hover { color: var(--terra-deep); }
+  footer .sig { font-size: 14px; color: var(--ink-faint); }
+
+  @media (max-width: 880px) {
+    .highlights { grid-template-columns: 1fr; }
+    .dep, .loop-shell { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 38px; }
+    .hero .pin { display: none; }
+    h2.sec-title { font-size: 27px; }
+    nav.top .links { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <div class="wrap">
+    <div class="brand">
+      <span class="blocks"><i></i><i></i><i></i><i></i></span>
+      <b>pi · 项目导览</b>
+    </div>
+    <div class="links">
+      <a href="#highlights">亮点</a>
+      <a href="#packages">架构</a>
+      <a href="#loop">循环</a>
+      <a href="#tutorial">阅读教程</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ===================== HERO ===================== -->
+<header class="hero">
+  <div class="wrap">
+    <div class="logo-stack" id="logoStack"></div>
+    <h1>有许多 agent harness，<br>但<span class="accent">这一个属于你</span>。</h1>
+    <p class="lede">pi 是一个<span class="mark">极简的终端编码 harness</span>：小内核、强默认值，可被你自己用 TypeScript 持续扩展——而不必去 fork 和魔改它的内部。</p>
+    <div class="cta">
+      <a class="btn primary" href="#tutorial">📖 开始手把手阅读</a>
+      <a class="btn" href="#packages">看看它怎么搭的</a>
+    </div>
+    <div class="pin">便签：本页所有事实都直接取自<br>仓库源码与 pi.dev，未编造任何数据。</div>
+  </div>
+</header>
+
+<!-- ===================== 亮点 ===================== -->
+<section id="highlights">
+  <div class="wrap">
+    <div class="sec-head"><span class="num">01</span><h2 class="sec-title">项目亮点</h2></div>
+    <p class="sec-sub">为什么 pi 值得一读：它不是又一个庞大框架，而是一套设计克制、边界清晰、可被你重塑的 agent 内核。</p>
+    <div class="highlights">
+      <div class="card hl-card">
+        <div class="ico" style="background:var(--terra)">{ }</div>
+        <h3>小内核，自我扩展</h3>
+        <p>跳过 sub-agent、plan mode 等重特性。你可以让 pi 自己造你要的功能，或装一个第三方 pi package，而非被框架绑架。</p>
+      </div>
+      <div class="card hl-card">
+        <div class="ico" style="background:var(--steel)">≡</div>
+        <h3>双类型分层设计</h3>
+        <p><code style="font-family:var(--font-mono);font-size:13px">AgentMessage</code> 与 LLM <code style="font-family:var(--font-mono);font-size:13px">Message</code> 解耦，仅在调用边界用 <span class="mark-pink">convertToLlm</span> 收窄，UI 状态与上下文互不污染。</p>
+      </div>
+      <div class="card hl-card">
+        <div class="ico" style="background:var(--sage)">⟳</div>
+        <h3>双层 Agent 循环</h3>
+        <p>内层处理工具调用与「插话」steering，外层在想停时检查 follow-up——机制与策略彻底分离的钩子式设计。</p>
+      </div>
+      <div class="card hl-card">
+        <div class="ico" style="background:var(--terra-deep)">◍</div>
+        <h3>四种运行模式</h3>
+        <p>interactive 交互 / print(JSON) / RPC 进程集成 / SDK 嵌入。一个内核，覆盖从终端到嵌入式的全场景。</p>
+      </div>
+      <div class="card hl-card">
+        <div class="ico" style="background:var(--steel-deep)">⊟</div>
+        <h3>上下文压缩 & 会话分支</h3>
+        <p>长对话靠 compaction 在 token 上限内续命，会话可分支、可恢复、可迁移——真实产品级的会话工程。</p>
+      </div>
+      <div class="card hl-card">
+        <div class="ico" style="background:var(--ink)">🔒</div>
+        <h3>供应链加固</h3>
+        <p>直接依赖精确锁版本、shrinkwrap 钉死传递依赖、lockfile 提交闸门、<code style="font-family:var(--font-mono);font-size:13px">--ignore-scripts</code> 安装。把 npm 依赖当作受审代码。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 包依赖图 ===================== -->
+<section id="packages" style="background:var(--paper-2);border-top:2px solid var(--line);border-bottom:2px solid var(--line);">
+  <div class="wrap">
+    <div class="sec-head"><span class="num">02</span><h2 class="sec-title">四个包，一条依赖链</h2></div>
+    <p class="sec-sub">把鼠标移到任意一个包上 —— 高亮它依赖的全部下游包。lockstep 版本，整体同步发布。</p>
+    <div class="dep">
+      <div class="card dep-graph">
+        <div class="layer-label">— 顶层 · CLI —</div>
+        <div class="card pkg" data-pkg="coding-agent" data-deps="coding-agent agent ai tui">
+          <div class="pname">@earendil-works/pi-coding-agent</div>
+          <div class="pdesc">交互式编码 agent CLI（命令 <code style="font-family:var(--font-mono)">pi</code>）</div>
+        </div>
+        <div class="layer-label">— 中层 · 运行时 —</div>
+        <div class="card pkg" data-pkg="agent" data-deps="agent ai">
+          <div class="pname">@earendil-works/pi-agent-core</div>
+          <div class="pdesc">Agent 运行时：工具调用 + 状态管理 + 事件流</div>
+        </div>
+        <div class="layer-label">— 底层 · 基础设施 —</div>
+        <div class="card pkg" data-pkg="ai" data-deps="ai">
+          <div class="pname">@earendil-works/pi-ai</div>
+          <div class="pdesc">统一多 provider LLM API（OpenAI / Anthropic / Google …）</div>
+        </div>
+        <div class="card pkg" data-pkg="tui" data-deps="tui" style="margin-top:12px">
+          <div class="pname">@earendil-works/pi-tui</div>
+          <div class="pdesc">终端 UI 库：差分渲染，独立无内部依赖</div>
+        </div>
+      </div>
+      <div class="dep-note">
+        <p><span class="mark">底层稳，顶层薄。</span>pi-ai 与 pi-tui 是零内部依赖的基石；pi-agent-core 在 pi-ai 之上抽象出 agent 循环；pi-coding-agent 把三者组装成可用的 CLI。</p>
+        <p style="margin-top:14px">想读懂设计，<b>从中层 pi-agent-core 切入</b>最划算——它是「怎么设计一个 agent 循环」的教科书；想看落地工程，再下沉到 pi-coding-agent。</p>
+        <div class="legend"><i></i> hover 包 = 点亮其依赖链</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== Agent 循环动画 ===================== -->
+<section id="loop">
+  <div class="wrap">
+    <div class="sec-head"><span class="num">03</span><h2 class="sec-title">Agent 双层循环，跑一遍看看</h2></div>
+    <p class="sec-sub">点「▶ 播放」，看一次 prompt 如何在事件流中流动：从 agent_start 到 agent_end，工具调用让内层循环继续，follow-up 让外层循环重启。</p>
+    <div class="loop-shell">
+      <div class="card stage">
+        <div class="ring" id="ringLabel">待机</div>
+        <div id="steps"></div>
+      </div>
+      <div class="loop-side">
+        <span class="tag">事件流 · EventStream</span>
+        <h3 id="sideTitle">两层循环在做什么？</h3>
+        <p id="sideDesc">内层循环<span class="loop-badge badge-inner">INNER</span>不断消费工具结果与用户插话；当 agent 想停下，外层循环<span class="loop-badge badge-outer">OUTER</span>检查是否有 follow-up 消息决定要不要再来一轮。</p>
+        <div class="ctrl">
+          <button class="btn primary" id="playBtn">▶ 播放</button>
+          <button class="btn" id="stepBtn">单步 →</button>
+          <button class="btn" id="resetBtn">↺ 重置</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 手把手教程 ===================== -->
+<section id="tutorial" style="background:var(--paper-2);border-top:2px solid var(--line);border-bottom:2px solid var(--line);">
+  <div class="wrap">
+    <div class="sec-head"><span class="num">04</span><h2 class="sec-title">手把手源码阅读教程</h2></div>
+    <p class="sec-sub">按这个顺序读，从心智模型到能跑起来。点开每一步看「读什么 / 为什么读 / 关键文件」。</p>
+    <div class="steps" id="stepper">
+      <!-- 注入 -->
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 代码片段 ===================== -->
+<section id="code">
+  <div class="wrap">
+    <div class="sec-head"><span class="num">05</span><h2 class="sec-title">核心代码长什么样</h2></div>
+    <p class="sec-sub">三个最能代表 pi 设计的片段，切 tab 对照看。</p>
+    <div class="codebox">
+      <div class="tabs">
+        <button class="on" data-tab="0">message-flow</button>
+        <button data-tab="1">agent-loop</button>
+        <button data-tab="2">event-stream</button>
+      </div>
+      <div id="codePanes"></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <div class="brand" style="font-size:19px">
+        <span class="blocks"><i></i><i></i><i></i><i></i></span>
+        <b>pi agent harness</b>
+      </div>
+      <div class="sig" style="margin-top:8px">MIT · 本页为非官方源码导览，事实取自仓库与 pi.dev</div>
+    </div>
+    <div class="links">
+      <a href="https://pi.dev" target="_blank">pi.dev ↗</a>
+      <a href="https://github.com/earendil-works/pi" target="_blank">GitHub ↗</a>
+      <a href="https://pi.dev/docs/latest" target="_blank">Docs ↗</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ---------- Hero 积木 ----------
+  (function () {
+    const colors = ['var(--terra)','var(--steel)','var(--sage)','var(--steel-deep)','var(--terra-deep)','var(--terra)','var(--sage)','var(--steel)','var(--terra-deep)'];
+    const stack = document.getElementById('logoStack');
+    colors.forEach((c, i) => {
+      const b = document.createElement('i');
+      b.style.background = c;
+      b.style.animationDelay = (i * 0.05) + 's';
+      stack.appendChild(b);
+    });
+  })();
+
+  // ---------- 依赖图 hover ----------
+  (function () {
+    const pkgs = Array.from(document.querySelectorAll('.pkg'));
+    function clear() { pkgs.forEach(p => p.classList.remove('dim','active','lit')); }
+    pkgs.forEach(p => {
+      p.addEventListener('mouseenter', () => {
+        const deps = (p.dataset.deps || '').split(' ');
+        pkgs.forEach(q => {
+          if (q === p) { q.classList.add('active'); q.classList.remove('dim'); }
+          else if (deps.includes(q.dataset.pkg)) { q.classList.add('lit'); q.classList.remove('dim'); }
+          else { q.classList.add('dim'); q.classList.remove('lit','active'); }
+        });
+      });
+      p.addEventListener('mouseleave', clear);
+    });
+  })();
+
+  // ---------- Agent 循环动画 ----------
+  (function () {
+    const STEPS = [
+      { t: 'agent_start', d: '收到 prompt，agent 启动', ring: '启动', layer: '' },
+      { t: 'turn_start', d: '开启第一轮 turn', ring: 'INNER · 内层', layer: 'inner' },
+      { t: 'message_start / update / end', d: '流式接收 assistant 回复', ring: 'INNER · 内层', layer: 'inner' },
+      { t: 'tool_execution_start', d: 'assistant 请求调用工具', ring: 'INNER · 内层', layer: 'inner' },
+      { t: 'tool_execution_end', d: '工具返回结果 → 回灌上下文', ring: 'INNER · 内层', layer: 'inner' },
+      { t: 'turn_end', d: '本轮结束；还有工具调用 → 内层继续', ring: 'INNER · 循环', layer: 'inner' },
+      { t: 'getFollowUpMessages()', d: 'agent 想停；外层检查有无后续消息', ring: 'OUTER · 外层', layer: 'outer' },
+      { t: 'agent_end', d: '无后续 → 整个 agent 循环结束', ring: '完成', layer: '' },
+    ];
+    const SIDE = {
+      inner: { title: '内层循环 · INNER', desc: '只要还有工具调用或排队的 steering 插话，内层就持续运转：流式回复 → 执行工具 → 回灌结果 → 下一轮。' },
+      outer: { title: '外层循环 · OUTER', desc: 'agent 本会在此停下。外层调用 getFollowUpMessages() 看用户是否追加了消息；有则设为 pending，重启内层。' },
+      '': { title: '两层循环在做什么？', desc: '内层消费工具与插话；外层在想停时决定是否因 follow-up 再来一轮。' },
+    };
+    const host = document.getElementById('steps');
+    const ring = document.getElementById('ringLabel');
+    const sideTitle = document.getElementById('sideTitle');
+    const sideDesc = document.getElementById('sideDesc');
+    STEPS.forEach((s, i) => {
+      const row = document.createElement('div');
+      row.className = 'step-row'; row.dataset.i = i;
+      row.innerHTML = `<div class="dot">${String(i+1).padStart(2,'0')}</div>
+        <div class="stext"><b><code>${s.t}</code></b><small>${s.d}</small></div>`;
+      host.appendChild(row);
+    });
+    const rows = Array.from(host.children);
+    let cur = -1, timer = null;
+
+    function render(i) {
+      rows.forEach((r, k) => {
+        r.classList.toggle('on', k === i);
+        r.classList.toggle('done', k < i);
+      });
+      if (i >= 0 && i < STEPS.length) {
+        ring.textContent = STEPS[i].ring;
+        const side = SIDE[STEPS[i].layer] || SIDE[''];
+        sideTitle.textContent = side.title;
+        sideDesc.innerHTML = side.desc;
+      }
+    }
+    function step() {
+      cur++;
+      if (cur >= STEPS.length) { cur = STEPS.length - 1; stop(); ring.textContent = '完成 ✓'; return false; }
+      render(cur); return true;
+    }
+    function stop() { if (timer) { clearInterval(timer); timer = null; } document.getElementById('playBtn').textContent = '▶ 播放'; }
+    function play() {
+      if (timer) { stop(); return; }
+      if (cur >= STEPS.length - 1) reset();
+      document.getElementById('playBtn').textContent = '❚❚ 暂停';
+      timer = setInterval(() => { if (!step()) stop(); }, 1100);
+    }
+    function reset() { stop(); cur = -1; rows.forEach(r => r.classList.remove('on','done')); ring.textContent = '待机'; sideTitle.textContent = SIDE[''].title; sideDesc.innerHTML = SIDE[''].desc; }
+
+    document.getElementById('playBtn').addEventListener('click', play);
+    document.getElementById('stepBtn').addEventListener('click', () => { stop(); step(); });
+    document.getElementById('resetBtn').addEventListener('click', reset);
+    // expose for verification
+    window.__loopSeek = (i) => { stop(); cur = i; render(i); };
+  })();
+
+  // ---------- 教程 Stepper ----------
+  (function () {
+    const TUT = [
+      { t: '建立心智模型', en: 'Mental model first', body: '先别碰代码。读根 README 与 packages/agent 的 README、docs/agent-harness.md，搞清「harness 是什么、4 个包怎么分工、事件流长什么样」。',
+        why: '为什么：agent 项目最大的坑是一上来钻进 loop 细节，却不知道消息如何在层与层之间流动。先有地图，再走路。',
+        files: ['README.md', 'packages/agent/README.md', 'packages/agent/docs/agent-harness.md'] },
+      { t: '读骨架：agent 循环', en: 'Read the skeleton', body: '进入 packages/agent/src/agent-loop.ts，主攻 runLoop：看内层 while 如何消费工具调用与 steering，外层 while 如何用 follow-up 决定重启。再看 types.ts 理解 AgentMessage。',
+        why: '为什么：这是整个项目抽象度最高、业务噪音最少的部分，是「怎么设计一个 agent 循环」的范本。',
+        files: ['packages/agent/src/agent-loop.ts', 'packages/agent/src/types.ts'] },
+      { t: '懂边界：双类型与事件流', en: 'Understand the boundary', body: '聚焦 convertToLlm 与 transformContext 这条转换链：AgentMessage[] → transformContext → convertToLlm → Message[] → LLM。再读 agent.ts 看 EventStream 如何驱动 UI。',
+        why: '为什么：UI 状态与 LLM 上下文的解耦是 pi 最值得学的一招，理解它你才能扩展自定义消息类型。',
+        files: ['packages/agent/src/agent.ts', 'packages/agent/src/index.ts'] },
+      { t: '读血肉：工程化难点', en: 'Read the real system', body: '下沉到 packages/coding-agent/src/core。读 compaction（上下文压缩）、session（会话持久化/分支/迁移）、skills 与 system-prompt 组装。',
+        why: '为什么：骨架告诉你「怎么设计」，这里告诉你「怎么做成能用的产品」——长对话续命、会话恢复都在这。',
+        files: ['packages/coding-agent/src/core/compaction', 'packages/coding-agent/src/core/session', 'packages/coding-agent/src/core/skills.ts'] },
+      { t: '跑起来 & 改一行', en: 'Run it & tinker', body: 'npm install --ignore-scripts → npm run build → ./pi-test.sh 从源码跑 pi。然后用 tmux 进交互模式，发一个 prompt，对照你刚读的事件流看真实输出。',
+        why: '为什么：八荣八耻——以跳过验证为耻，以主动测试为荣。读懂的最后一公里是亲手跑通并改一行看效果。',
+        files: ['pi-test.sh', 'AGENTS.md', 'CONTRIBUTING.md'] },
+    ];
+    const host = document.getElementById('stepper');
+    TUT.forEach((s, i) => {
+      const chips = s.files.map(f => `<span class="filechip">${f}</span>`).join('');
+      const el = document.createElement('div');
+      el.className = 'card step' + (i === 0 ? ' open' : '');
+      el.innerHTML = `
+        <div class="shead">
+          <div class="snum">${i+1}</div>
+          <div class="stitle">${s.t}<small>${s.en}</small></div>
+          <div class="chev">›</div>
+        </div>
+        <div class="sbody">
+          <p>${s.body}</p>
+          <div class="why">${s.why}</div>
+          <div>${chips}</div>
+        </div>`;
+      el.querySelector('.shead').addEventListener('click', () => {
+        const open = el.classList.contains('open');
+        Array.from(host.children).forEach(c => c.classList.remove('open'));
+        if (!open) el.classList.add('open');
+      });
+      host.appendChild(el);
+    });
+  })();
+
+  // ---------- 代码 tab ----------
+  (function () {
+    const PANES = [
+`<span class="c">// AgentMessage[] 只在调用边界收窄为 LLM 能懂的 Message[]</span>
+<span class="k">let</span> messages = context.messages;
+<span class="k">if</span> (config.transformContext)                 <span class="c">// 1. 可选：裁剪/注入</span>
+  messages = <span class="k">await</span> config.<span class="f">transformContext</span>(messages, signal);
+
+<span class="k">const</span> llmMessages = <span class="k">await</span> config.<span class="f">convertToLlm</span>(messages); <span class="c">// 2. 必需：收窄</span>
+
+<span class="k">const</span> llmContext: Context = {
+  systemPrompt: context.systemPrompt,
+  messages: llmMessages,
+  tools: context.tools,
+};`,
+`<span class="c">// 双层循环：内层消费工具+插话，外层用 follow-up 决定重启</span>
+<span class="k">while</span> (<span class="k">true</span>) {                           <span class="c">// 外层 OUTER</span>
+  <span class="k">let</span> hasMoreToolCalls = <span class="k">true</span>;
+  <span class="k">while</span> (hasMoreToolCalls || pendingMessages.length) { <span class="c">// 内层 INNER</span>
+    <span class="k">const</span> message = <span class="k">await</span> <span class="f">streamAssistantResponse</span>(...);
+    <span class="k">const</span> toolCalls = message.content.<span class="f">filter</span>(c => c.type === <span class="s">"toolCall"</span>);
+    <span class="k">if</span> (toolCalls.length) <span class="f">executeToolCalls</span>(...);
+    hasMoreToolCalls = !batch.terminate;
+  }
+  <span class="k">const</span> followUp = <span class="k">await</span> config.<span class="f">getFollowUpMessages</span>?.();
+  <span class="k">if</span> (followUp?.length) { pendingMessages = followUp; <span class="k">continue</span>; }
+  <span class="k">break</span>;
+}`,
+`<span class="c">// 一切交互都靠订阅事件流驱动 UI</span>
+agent.<span class="f">subscribe</span>((event) => {
+  <span class="k">if</span> (event.type === <span class="s">"message_update"</span> &&
+      event.assistantMessageEvent.type === <span class="s">"text_delta"</span>) {
+    process.stdout.<span class="f">write</span>(event.assistantMessageEvent.delta);
+  }
+});
+
+<span class="k">await</span> agent.<span class="f">prompt</span>(<span class="s">"Hello!"</span>);
+<span class="c">// agent_start → turn_start → message_* → tool_* → turn_end → agent_end</span>`,
+    ];
+    const host = document.getElementById('codePanes');
+    host.innerHTML = `<pre>${PANES[0]}</pre>`;
+    document.querySelectorAll('.tabs button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('on'));
+        btn.classList.add('on');
+        host.innerHTML = `<pre>${PANES[+btn.dataset.tab]}</pre>`;
+      });
+    });
+  })();
+</script>
+</body>
+</html>
