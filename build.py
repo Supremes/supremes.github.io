@@ -110,14 +110,15 @@ def main():
         shutil.copy2(cat_json, os.path.join(portal_dst, '_categories.json'))
         print('  ✓ portal/_categories.json')
 
-    # 为每个 portal 页面创建 slug-based 路径（兼容 GitHub Pages）
+    # 为每个 portal 页面创建无扩展名路径（兼容 GitHub Pages）
     for _root2, _dirs2, _files2 in os.walk(portal_src):
         _dirs2[:] = [d for d in _dirs2 if not d.startswith((".", "_"))]
         for _f2 in _files2:
             if not _f2.endswith(".html"):
                 continue
-            _slug = os.path.splitext(_f2)[0]
             _src2 = os.path.join(_root2, _f2)
+            _rel2 = os.path.relpath(_src2, portal_src)
+            _slug = os.path.splitext(_rel2)[0]
             _slug_dir = os.path.join(portal_dst, _slug)
             os.makedirs(_slug_dir, exist_ok=True)
             shutil.copy2(_src2, os.path.join(_slug_dir, "index.html"))

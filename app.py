@@ -12,6 +12,7 @@ import threading
 from flask import Flask, render_template, abort, request, jsonify, send_file, Response
 import markdown
 from pygments.formatters import HtmlFormatter
+from werkzeug.security import safe_join
 
 app = Flask(__name__)
 REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -605,13 +606,35 @@ def portal_index():
 
 @app.route('/portal/<path:slug>')
 def portal_page(slug):
-    if not re.match(r'^[a-zA-Z0-9_/-]+$', slug):
-        abort(404)
-    # 支持子目录路径，如 agent/memory/mem0-memory-system
-    matches = glob.glob(os.path.join(PORTAL_DIR, '**', f'{slug}.html'), recursive=True)
-    if not matches:
-        abort(404)
-    return send_file(matches[0])
+    def is_public_path(rel_path):
+        parts = rel_path.replace('\\', '/').split('/')
+        return all(part and not part.startswith(('.', '_')) for part in parts)
+
+    def find_legacy_basename(slug_value):
+        if '/' in slug_value:
+            return None
+        target = slug_value if slug_value.endswith('.html') else f'{slug_value}.html'
+        if not is_public_path(target):
+            return None
+        for root, dirs, files in os.walk(PORTAL_DIR):
+            dirs[:] = [d for d in dirs if not d.startswith(('.', '_'))]
+            if target in files:
+                return os.path.join(root, target)
+        return None
+
+    candidates = [slug] if slug.endswith('.html') else [f'{slug}.html']
+    for candidate in candidates:
+        if not is_public_path(candidate):
+            continue
+        path = safe_join(PORTAL_DIR, candidate)
+        if path and os.path.isfile(path) and path.endswith('.html'):
+            return send_file(path)
+
+    legacy_path = find_legacy_basename(slug)
+    if legacy_path:
+        return send_file(legacy_path)
+
+    abort(404)
 
 
 @app.errorhandler(404)
