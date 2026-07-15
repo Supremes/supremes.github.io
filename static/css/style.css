@@ -1235,7 +1235,7 @@ body.no-sidebar .sidebar-toggle { display: none !important; }
 }
 
 /* 嵌套子目录缩进：每深一层，children 容器右移 14px */
-.tree-node:not(.depth-0) > .tree-children { padding-left: 14px; }
+.tree-node > .tree-children { padding-left: 14px; }
 .tree-article {
   display: block;
   padding: 5px 10px 5px 30px;

@@ -5,7 +5,6 @@ import os
 import re
 import json
 import glob
-import subprocess
 from datetime import datetime
 import sqlite3
 import threading
@@ -94,6 +93,10 @@ def add_no_cache_headers(response):
 @app.context_processor
 def inject_now():
     return {'now': datetime.now}
+
+
+FEATURED_ARTICLE_PATHS = [
+]
 
 
 def build_cat_tree(articles):
@@ -216,37 +219,22 @@ def process_sublists(text):
     return '\n'.join(result)
 
 
-def load_git_updated_map():
-    """一次性扫 git 历史，返回 {repo相对路径: 最近 commit 的 YYYY-MM-DD}"""
-    result = {}
-    try:
-        out = subprocess.run(
-            ['git', '-C', REPO_ROOT, 'log', '--pretty=format:%aI', '--name-only'],
-            capture_output=True, text=True, timeout=15,
-        )
-        if out.returncode != 0:
-            return result
-        current_date = None
-        for line in out.stdout.splitlines():
-            line = line.strip()
-            if not line:
-                continue
-            if 'T' in line and ':' in line and line[0].isdigit():
-                current_date = line[:10]
-            elif current_date and line.endswith('.md'):
-                # git log 默认时序倒序，第一次见到的就是最新
-                if line not in result:
-                    result[line] = current_date
-    except (subprocess.SubprocessError, FileNotFoundError):
-        pass
-    return result
+def normalize_frontmatter_date(value):
+    """将 front matter 日期规整为 YYYY-MM-DD；缺失或非法时返回空串。"""
+    if not value:
+        return ''
+    text = str(value).strip().strip('"').strip("'")
+    match = re.match(r'^(\d{4}-\d{2}-\d{2})', text)
+    return match.group(1) if match else ''
+
+
+def is_truthy_frontmatter(value):
+    return str(value).strip().lower() in {'1', 'true', 'yes', 'y', 'on'}
 
 
 def load_articles():
     """扫描 content/ 下所有 .md 文件，返回文章列表"""
     articles = []
-    git_dates = load_git_updated_map()
-    today = datetime.now().strftime('%Y-%m-%d')
 
     for md_path in glob.glob(os.path.join(CONTENT_DIR, '**', '*.md'), recursive=True):
         rel = os.path.relpath(md_path, CONTENT_DIR)
@@ -272,12 +260,9 @@ def load_articles():
             }
         )
 
-        date = meta.get('date', '')
-        repo_rel = os.path.join('content', rel).replace(os.sep, '/')
-        if git_dates:
-            updated = git_dates.get(repo_rel) or today
-        else:
-            updated = date or today
+        date = normalize_frontmatter_date(meta.get('date', ''))
+        updated = normalize_frontmatter_date(meta.get('updated', '')) or date
+        sort_date = updated or '1970-01-01'
 
         articles.append({
             'slug': slug,
@@ -285,6 +270,8 @@ def load_articles():
             'title': meta.get('title', slug),
             'date': date,
             'updated': updated,
+            'sort_date': sort_date,
+            'featured': is_truthy_frontmatter(meta.get('featured', '')),
             'tags': meta.get('tags', []) if isinstance(meta.get('tags'), list) else [t.strip() for t in meta.get('tags', '').split(',') if t.strip()],
             'summary': meta.get('summary', ''),
             'content': html_body,
@@ -292,8 +279,30 @@ def load_articles():
             'path': rel,
         })
 
-    articles.sort(key=lambda a: (a['updated'], a['date']), reverse=True)
+    articles.sort(key=lambda a: (a['sort_date'], a['title']), reverse=True)
     return articles
+
+
+def select_featured_articles(articles, limit=6):
+    """首页精选常读：优先人工路径配置，其次 front matter featured。"""
+    by_path = {a['path'].replace(os.sep, '/'): a for a in articles}
+    selected = []
+    seen = set()
+
+    for path in FEATURED_ARTICLE_PATHS:
+        article = by_path.get(path)
+        if article:
+            selected.append(article)
+            seen.add(article['path'])
+
+    for article in articles:
+        if len(selected) >= limit:
+            break
+        if article.get('featured') and article['path'] not in seen:
+            selected.append(article)
+            seen.add(article['path'])
+
+    return selected[:limit]
 
 
 def parse_frontmatter(text):
@@ -364,7 +373,7 @@ reload_if_changed()
 @app.route('/')
 def index():
     reload_if_changed()
-    featured = ARTICLES[:6]
+    featured = select_featured_articles(ARTICLES)
     recent = ARTICLES[:10]
     cat_counts = {c: sum(1 for a in ARTICLES if a['category'] == c) for c in CATEGORIES}
     sorted_cats = sorted(CATEGORIES, key=lambda c: cat_counts.get(c, 0), reverse=True)

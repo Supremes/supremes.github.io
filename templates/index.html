@@ -50,11 +50,41 @@
   </a>
 </div>
 
-<!-- 最新文章（提前） -->
-<section class="section" id="articles">
+<!-- 精选常读 -->
+{% if featured %}
+<section class="section" id="featured">
   <div class="container">
     <div class="section-header">
-      <h2 class="section-title">最新文章</h2>
+      <h2 class="section-title">精选常读</h2>
+      <a href="/articles" class="btn btn-outline">全部文章 →</a>
+    </div>
+    <div class="article-list">
+      {% for a in featured %}
+      <a href="/article/{{ a.slug }}" class="article-row">
+        <div class="article-row-body">
+          <h3>{{ a.title }}</h3>
+          {% if a.summary %}
+          <p>{{ a.summary }}</p>
+          {% endif %}
+        </div>
+        <div class="article-row-meta">
+          {% if a.updated or a.date %}
+          <span class="article-row-date">{{ a.updated or a.date }}</span>
+          {% endif %}
+          <span class="article-row-cat">{{ a.category }}</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- 最近更新 -->
+<section class="section" id="articles" style="padding-top: 0;">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">最近更新</h2>
       <a href="/articles" class="btn btn-outline">全部文章 →</a>
     </div>
     <div class="article-list">
@@ -67,8 +97,8 @@
           {% endif %}
         </div>
         <div class="article-row-meta">
-          {% if a.updated %}
-          <span class="article-row-date">{{ a.updated }}</span>
+          {% if a.updated or a.date %}
+          <span class="article-row-date">{{ a.updated or a.date }}</span>
           {% endif %}
           <span class="article-row-cat">{{ a.category }}</span>
         </div>

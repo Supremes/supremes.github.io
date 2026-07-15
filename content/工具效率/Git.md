@@ -1,6 +1,9 @@
 ---
 title: Git 学习笔记
-tags: [git]
+tags:
+  - git
+featured: "true"
+updated: 2026-07-15 21:00
 ---
 # 🍄 Git 全方位实战手册：从入门到通关
 
