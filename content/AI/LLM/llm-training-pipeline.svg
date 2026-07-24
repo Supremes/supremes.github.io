@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="750" viewBox="0 0 1200 750">
+<defs>
+<filter id="s1" x="-5%" y="-5%" width="110%" height="120%"><feDropShadow dx="0" dy="1.5" stdDeviation="2.5" flood-color="#0F172A" flood-opacity="0.07"/></filter>
+<filter id="s2" x="-3%" y="-3%" width="106%" height="112%"><feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-color="#0F172A" flood-opacity="0.05"/></filter>
+<marker id="a1" viewBox="0 0 10 7" refX="9" refY="3.5" markerWidth="8" markerHeight="6" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#94A3B8"/></marker>
+<marker id="ab" viewBox="0 0 10 7" refX="9" refY="3.5" markerWidth="8" markerHeight="6" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#4F46E5"/></marker>
+<marker id="ao" viewBox="0 0 10 7" refX="9" refY="3.5" markerWidth="8" markerHeight="6" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#D97706"/></marker>
+<marker id="ag" viewBox="0 0 10 7" refX="9" refY="3.5" markerWidth="8" markerHeight="6" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#16A34A"/></marker>
+</defs>
+<style>text{font-family:system-ui,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif}</style>
+
+<!-- Background -->
+<rect width="1200" height="750" fill="#FAFBFD"/>
+
+<!-- Title -->
+<text x="600" y="22" text-anchor="middle" font-size="18" font-weight="700" fill="#1E293B">LLM 训练全景流水线 Training Pipeline</text>
+
+<!-- Feedback Arrow (Data Flywheel) -->
+<path d="M1042 58 Q600 18 152 58" stroke="#16A34A" stroke-width="1.3" stroke-dasharray="5 3" fill="none" marker-end="url(#ag)"/>
+<text x="600" y="34" text-anchor="middle" font-size="9" fill="#16A34A" font-weight="600" letter-spacing="0.3">数据飞轮 Data Flywheel</text>
+
+<!-- ===== PIPELINE ROW ===== -->
+
+<!-- 1. 数据工程 -->
+<rect x="78" y="58" width="148" height="56" rx="8" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1.5" filter="url(#s1)"/>
+<text x="152" y="82" text-anchor="middle" font-size="14" font-weight="700" fill="#16A34A">数据工程</text>
+<text x="152" y="99" text-anchor="middle" font-size="10" fill="#64748B">Data Engineering</text>
+<line x1="228" y1="86" x2="254" y2="86" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#a1)"/>
+
+<!-- 2. 预训练 -->
+<rect x="256" y="58" width="148" height="56" rx="8" fill="#EEF2FF" stroke="#A5B4FC" stroke-width="1.5" filter="url(#s1)"/>
+<text x="330" y="82" text-anchor="middle" font-size="14" font-weight="700" fill="#4338CA">预训练</text>
+<text x="330" y="99" text-anchor="middle" font-size="10" fill="#64748B">Pre-training</text>
+<line x1="406" y1="86" x2="432" y2="86" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#a1)"/>
+
+<!-- 3. 后训练 -->
+<rect x="434" y="58" width="148" height="56" rx="8" fill="#FFFBEB" stroke="#FDE68A" stroke-width="1.5" filter="url(#s1)"/>
+<text x="508" y="82" text-anchor="middle" font-size="14" font-weight="700" fill="#D97706">后训练</text>
+<text x="508" y="99" text-anchor="middle" font-size="10" fill="#64748B">Post-training</text>
+<line x1="584" y1="86" x2="610" y2="86" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#a1)"/>
+
+<!-- 4. 评估 -->
+<rect x="612" y="58" width="148" height="56" rx="8" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.5" filter="url(#s1)"/>
+<text x="686" y="82" text-anchor="middle" font-size="14" font-weight="700" fill="#475569">评估</text>
+<text x="686" y="99" text-anchor="middle" font-size="10" fill="#64748B">Evaluation</text>
+<line x1="762" y1="86" x2="788" y2="86" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#a1)"/>
+
+<!-- 5. 部署 -->
+<rect x="790" y="58" width="148" height="56" rx="8" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.5" filter="url(#s1)"/>
+<text x="864" y="82" text-anchor="middle" font-size="14" font-weight="700" fill="#475569">部署</text>
+<text x="864" y="99" text-anchor="middle" font-size="10" fill="#64748B">Deployment</text>
+<line x1="940" y1="86" x2="966" y2="86" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#a1)"/>
+
+<!-- 6. 监控迭代 -->
+<rect x="968" y="58" width="148" height="56" rx="8" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.5" filter="url(#s1)"/>
+<text x="1042" y="82" text-anchor="middle" font-size="14" font-weight="700" fill="#475569">监控迭代</text>
+<text x="1042" y="99" text-anchor="middle" font-size="10" fill="#64748B">Monitoring</text>
+
+<!-- ===== CONNECTOR LINES ===== -->
+<line x1="330" y1="114" x2="310" y2="150" stroke="#C7D2FE" stroke-width="1" stroke-dasharray="3 2" opacity="0.7"/>
+<line x1="508" y1="114" x2="885" y2="150" stroke="#FDE68A" stroke-width="1" stroke-dasharray="3 2" opacity="0.7"/>
+
+<!-- ===== TRAINING LOOP CONTAINER ===== -->
+<rect x="35" y="150" width="550" height="315" rx="12" fill="#EEF2FF" fill-opacity="0.35" stroke="#C7D2FE" stroke-width="1.5"/>
+<text x="310" y="173" text-anchor="middle" font-size="14" font-weight="700" fill="#4338CA">训练循环 The Training Loop</text>
+<text x="310" y="189" text-anchor="middle" font-size="9" fill="#6366F1" font-style="italic">预训练决定能力上限 · ~90% 总算力消耗</text>
+<text x="310" y="210" text-anchor="middle" font-size="10" fill="#4338CA" font-weight="500">目标: 下一 Token 预测 (Next Token Prediction)</text>
+
+<!-- Forward Pass -->
+<rect x="85" y="238" width="165" height="50" rx="8" fill="#fff" stroke="#818CF8" stroke-width="1.5" filter="url(#s2)"/>
+<text x="167" y="258" text-anchor="middle" font-size="12" font-weight="600" fill="#4338CA">前向传播</text>
+<text x="167" y="275" text-anchor="middle" font-size="9" fill="#64748B">Forward Pass</text>
+
+<!-- Loss Computation -->
+<rect x="370" y="238" width="165" height="50" rx="8" fill="#fff" stroke="#818CF8" stroke-width="1.5" filter="url(#s2)"/>
+<text x="452" y="258" text-anchor="middle" font-size="12" font-weight="600" fill="#4338CA">损失计算</text>
+<text x="452" y="275" text-anchor="middle" font-size="9" fill="#64748B">Loss (Cross-Entropy)</text>
+
+<!-- Backward Pass -->
+<rect x="370" y="368" width="165" height="50" rx="8" fill="#fff" stroke="#818CF8" stroke-width="1.5" filter="url(#s2)"/>
+<text x="452" y="388" text-anchor="middle" font-size="12" font-weight="600" fill="#4338CA">反向传播</text>
+<text x="452" y="405" text-anchor="middle" font-size="9" fill="#64748B">Backward (&#x2202;L/&#x2202;W)</text>
+
+<!-- Optimizer Step -->
+<rect x="85" y="368" width="165" height="50" rx="8" fill="#fff" stroke="#818CF8" stroke-width="1.5" filter="url(#s2)"/>
+<text x="167" y="388" text-anchor="middle" font-size="12" font-weight="600" fill="#4338CA">优化器更新</text>
+<text x="167" y="405" text-anchor="middle" font-size="9" fill="#64748B">Optimizer (AdamW)</text>
+
+<!-- Loop Arrows (clockwise) -->
+<line x1="252" y1="263" x2="368" y2="263" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#ab)"/>
+<line x1="452" y1="290" x2="452" y2="366" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#ab)"/>
+<line x1="368" y1="393" x2="252" y2="393" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#ab)"/>
+<line x1="167" y1="366" x2="167" y2="290" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#ab)"/>
+
+<!-- Center Repeat Badge -->
+<rect x="275" y="307" width="70" height="36" rx="6" fill="#E0E7FF" stroke="#C7D2FE" stroke-width="0.8"/>
+<text x="310" y="323" text-anchor="middle" font-size="10" fill="#4338CA" font-weight="600">重复</text>
+<text x="310" y="337" text-anchor="middle" font-size="8" fill="#6366F1">&#xD7; 万亿 tokens</text>
+
+<!-- Training Loop Bottom Annotations -->
+<text x="120" y="440" text-anchor="middle" font-size="9" fill="#64748B">混合精度 BF16/FP32</text>
+<text x="310" y="440" text-anchor="middle" font-size="9" fill="#64748B">梯度累积 &amp; 检查点</text>
+<text x="490" y="440" text-anchor="middle" font-size="9" fill="#64748B">LR: Warmup &#x2192; Cosine</text>
+<text x="310" y="457" text-anchor="middle" font-size="8" fill="#94A3B8" font-style="italic">Chinchilla: &#x2248;20 tokens / 参数</text>
+
+<!-- ===== POST-TRAINING CONTAINER ===== -->
+<rect x="605" y="150" width="560" height="315" rx="12" fill="#FFFBEB" fill-opacity="0.3" stroke="#FDE68A" stroke-width="1.5"/>
+<text x="885" y="173" text-anchor="middle" font-size="14" font-weight="700" fill="#D97706">后训练对齐 Post-training Alignment</text>
+<text x="885" y="189" text-anchor="middle" font-size="9" fill="#F59E0B" font-style="italic">后训练决定可用性</text>
+
+<!-- SFT -->
+<rect x="650" y="200" width="470" height="55" rx="8" fill="#fff" stroke="#FBBF24" stroke-width="1.5" filter="url(#s2)"/>
+<text x="670" y="222" font-size="13" font-weight="600" fill="#B45309">SFT 监督微调</text>
+<text x="1100" y="222" text-anchor="end" font-size="9" fill="#D97706">Supervised Fine-Tuning</text>
+<text x="670" y="240" font-size="9" fill="#64748B">指令-回答对训练 | 对话格式 | 同 NTP 目标函数</text>
+
+<line x1="885" y1="257" x2="885" y2="298" stroke="#D97706" stroke-width="1.5" marker-end="url(#ao)"/>
+
+<!-- RLHF / DPO -->
+<rect x="650" y="300" width="470" height="55" rx="8" fill="#fff" stroke="#FBBF24" stroke-width="1.5" filter="url(#s2)"/>
+<text x="670" y="322" font-size="13" font-weight="600" fill="#B45309">RLHF / DPO 偏好对齐</text>
+<text x="1100" y="322" text-anchor="end" font-size="9" fill="#D97706">Preference Alignment</text>
+<text x="670" y="340" font-size="9" fill="#64748B">人类偏好 &#x2192; 奖励模型 &#x2192; PPO / 直接偏好优化 DPO</text>
+
+<line x1="885" y1="357" x2="885" y2="398" stroke="#D97706" stroke-width="1.5" marker-end="url(#ao)"/>
+
+<!-- RLVR -->
+<rect x="650" y="400" width="470" height="55" rx="8" fill="#fff" stroke="#FBBF24" stroke-width="1.5" filter="url(#s2)"/>
+<text x="670" y="422" font-size="13" font-weight="600" fill="#B45309">RLVR 可验证奖励强化</text>
+<text x="1100" y="422" text-anchor="end" font-size="9" fill="#D97706">Verifiable Rewards</text>
+<text x="670" y="440" font-size="9" fill="#64748B">数学/代码自动验证 | Constitutional AI / RLAIF</text>
+
+<!-- ===== DISTRIBUTED TRAINING CONTAINER ===== -->
+<rect x="35" y="500" width="1130" height="218" rx="12" fill="#F5F3FF" fill-opacity="0.35" stroke="#DDD6FE" stroke-width="1.5"/>
+<text x="600" y="525" text-anchor="middle" font-size="14" font-weight="700" fill="#6D28D9">分布式训练策略 Distributed Training Strategies</text>
+<text x="600" y="540" text-anchor="middle" font-size="9" fill="#8B5CF6">3D 并行: DP &#xD7; TP &#xD7; PP 联合 | 支撑千亿参数模型训练</text>
+
+<!-- Data Parallelism -->
+<rect x="70" y="555" width="250" height="110" rx="8" fill="#fff" stroke="#C4B5FD" stroke-width="1.3" filter="url(#s2)"/>
+<text x="195" y="578" text-anchor="middle" font-size="13" font-weight="700" fill="#6D28D9">数据并行</text>
+<text x="195" y="594" text-anchor="middle" font-size="10" fill="#7C3AED">Data Parallelism (DP)</text>
+<text x="195" y="614" text-anchor="middle" font-size="9" fill="#64748B">复制模型到 N 个 GPU</text>
+<text x="195" y="630" text-anchor="middle" font-size="9" fill="#64748B">分割批次, AllReduce 梯度</text>
+<text x="195" y="648" text-anchor="middle" font-size="8" fill="#94A3B8">最简单, 通信量 O(参数量)</text>
+
+<!-- Tensor Parallelism -->
+<rect x="340" y="555" width="250" height="110" rx="8" fill="#fff" stroke="#C4B5FD" stroke-width="1.3" filter="url(#s2)"/>
+<text x="465" y="578" text-anchor="middle" font-size="13" font-weight="700" fill="#6D28D9">张量并行</text>
+<text x="465" y="594" text-anchor="middle" font-size="10" fill="#7C3AED">Tensor Parallelism (TP)</text>
+<text x="465" y="614" text-anchor="middle" font-size="9" fill="#64748B">分割权重矩阵到多 GPU</text>
+<text x="465" y="630" text-anchor="middle" font-size="9" fill="#64748B">同节点内 NVLink 高速互联</text>
+<text x="465" y="648" text-anchor="middle" font-size="8" fill="#94A3B8">适合单层过大的模型</text>
+
+<!-- Pipeline Parallelism -->
+<rect x="610" y="555" width="250" height="110" rx="8" fill="#fff" stroke="#C4B5FD" stroke-width="1.3" filter="url(#s2)"/>
+<text x="735" y="578" text-anchor="middle" font-size="13" font-weight="700" fill="#6D28D9">流水线并行</text>
+<text x="735" y="594" text-anchor="middle" font-size="10" fill="#7C3AED">Pipeline Parallelism (PP)</text>
+<text x="735" y="614" text-anchor="middle" font-size="9" fill="#64748B">分割模型层到多 GPU</text>
+<text x="735" y="630" text-anchor="middle" font-size="9" fill="#64748B">微批次流水线减少气泡</text>
+<text x="735" y="648" text-anchor="middle" font-size="8" fill="#94A3B8">跨节点, 减少显存占用</text>
+
+<!-- ZeRO / FSDP -->
+<rect x="880" y="555" width="250" height="110" rx="8" fill="#fff" stroke="#C4B5FD" stroke-width="1.3" filter="url(#s2)"/>
+<text x="1005" y="578" text-anchor="middle" font-size="13" font-weight="700" fill="#6D28D9">零冗余优化</text>
+<text x="1005" y="594" text-anchor="middle" font-size="10" fill="#7C3AED">ZeRO / FSDP</text>
+<text x="1005" y="614" text-anchor="middle" font-size="9" fill="#64748B">Stage 1: 分割优化器状态</text>
+<text x="1005" y="630" text-anchor="middle" font-size="9" fill="#64748B">Stage 2: + 分割梯度</text>
+<text x="1005" y="648" text-anchor="middle" font-size="9" fill="#64748B">Stage 3: + 分割参数 (=FSDP)</text>
+
+<!-- Additional Parallelism Note -->
+<text x="600" y="695" text-anchor="middle" font-size="8" fill="#94A3B8">Expert Parallelism (MoE 专家分发) | Sequence Parallelism (序列维度) | Gradient Checkpointing (激活重计算)</text>
+
+<!-- Bottom Cost Annotation -->
+<text x="600" y="738" text-anchor="middle" font-size="9" fill="#94A3B8">LLaMA-3 405B 预估成本 ~30M USD | 数千 H100 GPU 训练数月 | 预训练主导成本 (~90%+)</text>
+
+</svg>

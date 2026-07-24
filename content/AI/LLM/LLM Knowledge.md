@@ -1,15 +1,26 @@
 ---
-title: LLM 基础知识
+title: LLM Knowledge
 tags: []
 categories:
   - AI
 hidden: false
-updated: '2026-03-25 22:54'
+updated: 2026-07-24 16:39
 abbrlink: b4688e1e
 date: 2026-03-16 23:25:16
 cover:
 sticky:
+featured: "true"
 ---
+## Questions
+
+**1. LLM 上下文窗口大小和什么有关？主要受到哪些约束？**
+
+大模型窗口大小受到 LLM 推理流程中，各个阶段不同因素的互相影响，Prefill 预填充阶段，受到算力影响，Decode 解码阶段，受到内存带宽（GPU 显存 - HBM -> GPU 计算核心 - 寄存器）的影响。
+
+**2. 为什么要压缩上下文窗口？**
+- 解决上下文窗口的长度约束和成本约束：上下文窗口有限，同时 token 越多，API 调用成本越高
+- 提升思考质量：总结后的知识比原始形式更利于模型使用。若信息堆积过多，反而会引起注意力被分散的问题，导致思考质量不高。
+
 ## Transformer
 
 > [!info]
@@ -68,17 +79,17 @@ sticky:
     
     - 这是最终的输出序列，每个标记的表示都融入了整个序列的上下文信息。
 
-## Token
+### Token
 
 > [!info]
 > 大模型计算资源的**计费单元**和**内存分配单元**
-## Context Window
+### Context Window
 
 > [!info]
 >  
 >  大模型在一次交互中，能够处理的最大 Token 数量。
 
-### 组件
+#### 组件
 
 Context Window includes:
 - User Prompt
@@ -89,23 +100,23 @@ Context Window includes:
 - RAG 检索的向量文档（长期记忆)
 - Response
 
-### Context Window 是 Agent 设计的核心约束
+#### Context Window 是 Agent 设计的核心约束
 
 在构建 Agent 系统时，Context Window 就是你的**物理瓶颈**，类似于单台服务器的物理内存。它从以下四个维度死死卡住了 Agent 的工程化上限：
 
-#### 记忆OOM
+##### 记忆OOM
 Context window 的容量有限，而一个成熟的 agent，需要短期记忆（**对话上下文**）+长期记忆（**RAG 检索的向量文档**），若一味的往里塞，很容易爆表 OOM。因此还需要为 agent 设计记忆机制，例如保留 System prompt，对历史对话进行**滑动窗口截断 - 类似 FIFO**, 或者用一个小模型对历史对话进行压缩，摘要。
 
-#### 计算复杂度带来的接口超时
+##### 计算复杂度带来的接口超时
 Transformer 架构底层的自注意力机制，其计算复杂度相对于 Token 的数量，是平方级别的增长。若 token 越多，耗时就越长。
 
-#### 中间迷失 Lost in the Middle
+##### 中间迷失 Lost in the Middle
 
 大模型对于长文的内容理解，会出现**只记住开头和结尾，忽略中间**的情况，这边是中间迷失。
 
 >  工程映射：在 RAG 架构中，做好 Document Chunking 和 Re-ranking，只把最核心的 Top-k 喂给大模型，只给重点，减少噪声信息。
 
-#### 工具调用（Tool Calling / ReAct）的“常量池”开销
+##### 工具调用（Tool Calling / ReAct）的”常量池”开销
 
 Agent 具有可调用外部工具的能力，但是每个 tool 需要提供 metadata（函数描述，参数声明等信息），光是工具描述，便要占用 context window 不少的内容，这样留给实际业务的空间也不多了。
 
@@ -225,3 +236,24 @@ ReAct 和 Plan-and-Solve 都是**一次性**的任务执行链路——一旦输
 **总结来说：**
 
 如果把解决复杂问题比作写一篇文章，**Plan-and-Solve** 是在列大纲并按章节起草，**ReAct** 是在边查资料边撰写内容。而 **Reflection** 则是写完后的"校对和审稿机制"。Reflection 将原本单向执行的 ReAct 和 Plan-and-Solve 包裹进了一个持续迭代优化的循环中，显著提升了智能体处理复杂任务的成功率和结果质量。
+
+## LLM Inference
+
+![LLM inference Pipeline](llm-inference-pipeline.svg)
+
+- prefill 和 decode 两阶段，都是在 GPU 上跑 transformer 的前向传播。
+- 投影权重矩阵 (Wq, Wk, Wv)：属于模型固有参数，静态保存在显存中（比如占用几十个 GB），不用生成，只需加载
+- KV：根据输入 (X), 经过和投影权重矩阵进行线性计算后，得出来的向量 (K=XWk, V=XWv)
+- KV Cache: 缓存的是历史 Token 已经计算好的 K 和 V 向量，不是权重矩阵
+### Prefill （预填充）
+
+- 处于推理阶段的起点，其速度决定了核心指标：**TTFT (Time To First Token) - 首 Token 延迟**
+- 一次性读取用户给出的全部 Prompt（假设 N 个 token），与投影权重矩阵 W 计算出这 N 个 Token 的 Q, K, V 向量，并写入 KV Cache，预测出第一个输出 Token
+- 若开启了 Prefix Caching 技术后，可以复用前几轮对话中，prefill 阶段生成的 KV Cache，降低 TTFT
+- 算力密集的并行计算，**计算复杂度高，瓶颈卡在显卡算力上**
+
+### Decode（解码）
+
+- 紧随 Prefill 之后，直到生成结束，其速度决定了核心指标：**TPOT (Time Per Output Token) - 每 Token 延迟**
+- 每一次只输入上一步刚生成的 1 个 Token，读取 KV Cache，与投影权重矩阵 W 计算出下一个 Token，如此反复，直至遇到停止符 EOS
+- 内存带宽密集的串行计算，**瓶颈卡在显卡读取速度上，频繁读取 KV Cache 和模型权重矩阵**

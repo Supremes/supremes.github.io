@@ -186,8 +186,8 @@
     const content = document.querySelector('.article-content');
     if (!content) return;
 
-    // 收集所有可用标题：优先 h2/h3，不够则包含 h1/h4
-    let headings = content.querySelectorAll('h2, h3');
+    // 收集所有可用标题：优先 h2/h3/h4，不够则包含 h1
+    let headings = content.querySelectorAll('h2, h3, h4');
     if (headings.length < 1) {
       headings = content.querySelectorAll('h1, h2, h3, h4');
     }

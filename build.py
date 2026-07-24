@@ -127,6 +127,23 @@ def main():
     shutil.copytree(STATIC_SRC, os.path.join(DIST, 'static'))
     print('  ✓ static/')
 
+    # 拷贝 content/ 下的图片等静态资源到 dist/content-assets/
+    ASSET_EXTENSIONS = {'.svg', '.png', '.jpg', '.jpeg', '.gif', '.webp', '.ico', '.pdf'}
+    content_src = os.path.join(ROOT, 'content')
+    assets_dst = os.path.join(DIST, 'content-assets')
+    asset_count = 0
+    for root, dirs, files in os.walk(content_src):
+        for f in files:
+            if os.path.splitext(f)[1].lower() in ASSET_EXTENSIONS:
+                src_path = os.path.join(root, f)
+                rel_path = os.path.relpath(src_path, content_src)
+                dst_path = os.path.join(assets_dst, rel_path)
+                os.makedirs(os.path.dirname(dst_path), exist_ok=True)
+                shutil.copy2(src_path, dst_path)
+                asset_count += 1
+    if asset_count:
+        print(f'  ✓ content-assets/ ({asset_count} files)')
+
     # 搜索索引
     build_search_index()
 

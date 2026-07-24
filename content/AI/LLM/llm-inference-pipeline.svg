@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700">
+<style>text{font-family:system-ui,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif}</style>
+<defs>
+  <filter id="ds"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1E293B" flood-opacity="0.08"/></filter>
+  <filter id="ds-sm"><feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-color="#1E293B" flood-opacity="0.06"/></filter>
+  <marker id="a" viewBox="0 0 10 7" refX="9.5" refY="3.5" markerWidth="8" markerHeight="5.6" orient="auto"><path d="M0,0 L10,3.5 L0,7Z" fill="#94A3B8"/></marker>
+  <marker id="ab" viewBox="0 0 10 7" refX="9.5" refY="3.5" markerWidth="8" markerHeight="5.6" orient="auto"><path d="M0,0 L10,3.5 L0,7Z" fill="#6366F1"/></marker>
+  <marker id="ao" viewBox="0 0 10 7" refX="9.5" refY="3.5" markerWidth="8" markerHeight="5.6" orient="auto"><path d="M0,0 L10,3.5 L0,7Z" fill="#D97706"/></marker>
+  <linearGradient id="gp" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#EEF2FF"/><stop offset="100%" stop-color="#E0E7FF"/></linearGradient>
+  <linearGradient id="gd" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFFBEB"/><stop offset="100%" stop-color="#FEF3C7"/></linearGradient>
+  <linearGradient id="gc" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFFFFF"/><stop offset="100%" stop-color="#F8FAFC"/></linearGradient>
+  <linearGradient id="gk" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ECFDF5"/><stop offset="100%" stop-color="#D1FAE5"/></linearGradient>
+</defs>
+
+<!-- Background -->
+<rect width="1200" height="700" fill="#FAFBFD"/>
+
+<!-- Title -->
+<text x="600" y="36" text-anchor="middle" font-size="21" font-weight="700" fill="#0F172A" letter-spacing="0.5">LLM 推理流水线 (Inference Pipeline)</text>
+<text x="600" y="56" text-anchor="middle" font-size="12" fill="#64748B">从输入文本到生成响应的完整数据流</text>
+
+<!-- Transformer Inference Dashed Box -->
+<rect x="340" y="78" width="472" height="370" rx="14" fill="#F8FAFC" fill-opacity="0.4" stroke="#94A3B8" stroke-width="1.5" stroke-dasharray="8 4"/>
+<text x="576" y="98" text-anchor="middle" font-size="12" font-weight="600" fill="#64748B" letter-spacing="0.3">Transformer 推理 (Forward Pass)</text>
+
+<!-- Stage 1: Input Text -->
+<rect x="18" y="211" width="78" height="58" rx="10" fill="url(#gc)" stroke="#CBD5E1" stroke-width="1.2" filter="url(#ds-sm)"/>
+<text x="57" y="237" text-anchor="middle" font-size="13" font-weight="600" fill="#334155">输入文本</text>
+<text x="57" y="254" text-anchor="middle" font-size="9.5" fill="#94A3B8">Input Text</text>
+
+<!-- Stage 2: Tokenizer -->
+<rect x="118" y="211" width="82" height="58" rx="10" fill="url(#gc)" stroke="#CBD5E1" stroke-width="1.2" filter="url(#ds-sm)"/>
+<text x="159" y="237" text-anchor="middle" font-size="13" font-weight="600" fill="#334155">分词器</text>
+<text x="159" y="254" text-anchor="middle" font-size="9.5" fill="#94A3B8">Tokenizer</text>
+
+<!-- Stage 3: Embedding -->
+<rect x="224" y="202" width="100" height="76" rx="10" fill="url(#gc)" stroke="#CBD5E1" stroke-width="1.2" filter="url(#ds-sm)"/>
+<text x="274" y="226" text-anchor="middle" font-size="13" font-weight="600" fill="#334155">嵌入层</text>
+<text x="274" y="244" text-anchor="middle" font-size="9.5" fill="#94A3B8">Token Emb + RoPE</text>
+<text x="274" y="262" text-anchor="middle" font-size="9" fill="#94A3B8">位置编码</text>
+
+<!-- Stage 4: Prefill Phase -->
+<rect x="355" y="115" width="195" height="220" rx="12" fill="url(#gp)" stroke="#818CF8" stroke-width="1.8" filter="url(#ds)"/>
+<text x="452" y="140" text-anchor="middle" font-size="14" font-weight="700" fill="#3730A3">预填充阶段</text>
+<text x="452" y="156" text-anchor="middle" font-size="10.5" fill="#4F46E5">(Prefill Phase)</text>
+<text x="452" y="176" text-anchor="middle" font-size="9.5" fill="#6366F1">所有输入 Token 并行处理</text>
+<rect x="368" y="186" width="168" height="68" rx="7" fill="#FFF" fill-opacity="0.7" stroke="#A5B4FC" stroke-width="1"/>
+<text x="452" y="204" text-anchor="middle" font-size="10" font-weight="600" fill="#4338CA">QKV 线性投影</text>
+<text x="452" y="219" text-anchor="middle" font-size="10" font-weight="600" fill="#4338CA">Multi-Head Attention</text>
+<text x="452" y="234" text-anchor="middle" font-size="10" font-weight="600" fill="#4338CA">LayerNorm + FFN (MLP)</text>
+<text x="452" y="249" text-anchor="middle" font-size="8.5" fill="#6366F1">x N Transformer Layers</text>
+<rect x="375" y="262" width="155" height="22" rx="11" fill="#EEF2FF" stroke="#818CF8" stroke-width="1"/>
+<text x="452" y="277" text-anchor="middle" font-size="9.5" font-weight="700" fill="#4338CA">Compute-Bound 计算密集</text>
+<rect x="393" y="294" width="118" height="20" rx="6" fill="#4F46E5" fill-opacity="0.08"/>
+<text x="452" y="308" text-anchor="middle" font-size="8.5" fill="#4F46E5" font-weight="500">决定 TTFT 首 Token 延迟</text>
+
+<!-- Stage 5: Decode Phase -->
+<rect x="600" y="115" width="195" height="220" rx="12" fill="url(#gd)" stroke="#FBBF24" stroke-width="1.8" filter="url(#ds)"/>
+<text x="697" y="140" text-anchor="middle" font-size="14" font-weight="700" fill="#92400E">解码阶段</text>
+<text x="697" y="156" text-anchor="middle" font-size="10.5" fill="#B45309">(Decode Phase)</text>
+<text x="697" y="176" text-anchor="middle" font-size="9.5" fill="#D97706">逐 Token 自回归生成</text>
+<rect x="613" y="186" width="168" height="68" rx="7" fill="#FFF" fill-opacity="0.7" stroke="#FCD34D" stroke-width="1"/>
+<text x="697" y="204" text-anchor="middle" font-size="10" font-weight="600" fill="#92400E">Q 投影 (新 Token)</text>
+<text x="697" y="219" text-anchor="middle" font-size="10" font-weight="600" fill="#92400E">Attn (读取 KV Cache)</text>
+<text x="697" y="234" text-anchor="middle" font-size="10" font-weight="600" fill="#92400E">LayerNorm + FFN + Sample</text>
+<text x="697" y="249" text-anchor="middle" font-size="8.5" fill="#B45309">x N Layers, 每步 1 Token</text>
+<rect x="618" y="262" width="158" height="22" rx="11" fill="#FFFBEB" stroke="#FBBF24" stroke-width="1"/>
+<text x="697" y="277" text-anchor="middle" font-size="9.5" font-weight="700" fill="#92400E">Memory-BW 带宽受限</text>
+<rect x="636" y="294" width="122" height="20" rx="6" fill="#F59E0B" fill-opacity="0.08"/>
+<text x="697" y="308" text-anchor="middle" font-size="8.5" fill="#B45309" font-weight="500">决定 TPOT 每 Token 延迟</text>
+
+<!-- KV Cache Cylinder -->
+<rect x="527" y="382" width="96" height="38" fill="url(#gk)" stroke="none"/>
+<line x1="527" y1="382" x2="527" y2="420" stroke="#22C55E" stroke-width="1.4"/>
+<line x1="623" y1="382" x2="623" y2="420" stroke="#22C55E" stroke-width="1.4"/>
+<ellipse cx="575" cy="382" rx="48" ry="10" fill="#BBF7D0" stroke="#22C55E" stroke-width="1.4"/>
+<ellipse cx="575" cy="420" rx="48" ry="10" fill="#D1FAE5" stroke="#22C55E" stroke-width="1.4"/>
+<text x="575" y="400" text-anchor="middle" font-size="11" font-weight="600" fill="#15803D">KV 缓存</text>
+<text x="575" y="414" text-anchor="middle" font-size="8" fill="#16A34A">(KV Cache)</text>
+
+<!-- Stage 6: Sampling -->
+<rect x="835" y="202" width="88" height="76" rx="10" fill="url(#gc)" stroke="#CBD5E1" stroke-width="1.2" filter="url(#ds-sm)"/>
+<text x="879" y="226" text-anchor="middle" font-size="13" font-weight="600" fill="#334155">采样</text>
+<text x="879" y="244" text-anchor="middle" font-size="9.5" fill="#94A3B8">Sampling</text>
+<text x="879" y="262" text-anchor="middle" font-size="8.5" fill="#94A3B8">top-p / top-k / T</text>
+
+<!-- Stage 7: De-tokenizer -->
+<rect x="950" y="211" width="95" height="58" rx="10" fill="url(#gc)" stroke="#CBD5E1" stroke-width="1.2" filter="url(#ds-sm)"/>
+<text x="997" y="237" text-anchor="middle" font-size="13" font-weight="600" fill="#334155">反分词</text>
+<text x="997" y="254" text-anchor="middle" font-size="9.5" fill="#94A3B8">De-tokenize</text>
+
+<!-- Stage 8: Output -->
+<rect x="1080" y="211" width="90" height="58" rx="10" fill="url(#gc)" stroke="#CBD5E1" stroke-width="1.2" filter="url(#ds-sm)"/>
+<text x="1125" y="233" text-anchor="middle" font-size="13" font-weight="600" fill="#334155">输出文本</text>
+<text x="1125" y="250" text-anchor="middle" font-size="9.5" fill="#94A3B8">Streaming Output</text>
+
+<!-- Main Flow Arrows -->
+<line x1="96" y1="240" x2="116" y2="240" stroke="#94A3B8" stroke-width="1.4" marker-end="url(#a)"/>
+<line x1="200" y1="240" x2="222" y2="240" stroke="#94A3B8" stroke-width="1.4" marker-end="url(#a)"/>
+<line x1="324" y1="240" x2="353" y2="240" stroke="#94A3B8" stroke-width="1.4" marker-end="url(#a)"/>
+<line x1="550" y1="240" x2="598" y2="240" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a)"/>
+<line x1="795" y1="240" x2="833" y2="240" stroke="#94A3B8" stroke-width="1.4" marker-end="url(#a)"/>
+<line x1="923" y1="240" x2="948" y2="240" stroke="#94A3B8" stroke-width="1.4" marker-end="url(#a)"/>
+<line x1="1045" y1="240" x2="1078" y2="240" stroke="#94A3B8" stroke-width="1.4" marker-end="url(#a)"/>
+
+<!-- Label: First Token between Prefill and Decode -->
+<text x="575" y="234" text-anchor="middle" font-size="8" fill="#475569">首 Token</text>
+
+<!-- KV Cache Connection Arrows -->
+<line x1="470" y1="335" x2="545" y2="372" stroke="#6366F1" stroke-width="1.3" stroke-dasharray="5 3" marker-end="url(#ab)"/>
+<text x="488" y="360" font-size="8.5" fill="#6366F1" font-weight="600">写入</text>
+<line x1="605" y1="372" x2="700" y2="335" stroke="#D97706" stroke-width="1.3" stroke-dasharray="5 3" marker-end="url(#ao)"/>
+<text x="664" y="360" font-size="8.5" fill="#D97706" font-weight="600">读取</text>
+
+<!-- Decode Auto-regressive Loop Arrow -->
+<path d="M795,275 C813,275 813,205 795,205" fill="none" stroke="#D97706" stroke-width="1.4" marker-end="url(#ao)"/>
+<text x="820" y="236" font-size="8.5" fill="#B45309" font-weight="500">自回归</text>
+<text x="820" y="248" font-size="8.5" fill="#B45309" font-weight="500">循环</text>
+
+<!-- Legend Left: Performance Metrics -->
+<rect x="25" y="480" width="555" height="185" rx="10" fill="#FFF" stroke="#E2E8F0" stroke-width="1" filter="url(#ds-sm)"/>
+<text x="45" y="503" font-size="13" font-weight="700" fill="#1E293B">性能指标与瓶颈分析</text>
+<line x1="45" y1="510" x2="560" y2="510" stroke="#E2E8F0"/>
+<rect x="45" y="520" width="10" height="10" rx="2" fill="#4F46E5"/>
+<text x="62" y="530" font-size="11" fill="#334155"><tspan font-weight="700">TTFT</tspan> (Time To First Token) -- 由 Prefill 阶段决定</text>
+<text x="62" y="545" font-size="10" fill="#64748B">瓶颈: 全部输入 Token 的完整前向传播 (QKV + Attention + FFN x N Layers)</text>
+<rect x="45" y="556" width="10" height="10" rx="2" fill="#F59E0B"/>
+<text x="62" y="566" font-size="11" fill="#334155"><tspan font-weight="700">TPOT</tspan> (Time Per Output Token) -- 由 Decode 阶段决定</text>
+<text x="62" y="581" font-size="10" fill="#64748B">瓶颈: HBM 到计算核心的模型权重加载带宽 (非 softmax 计算量)</text>
+<rect x="45" y="592" width="10" height="10" rx="2" fill="#22C55E"/>
+<text x="62" y="602" font-size="11" fill="#334155"><tspan font-weight="700">KV Cache</tspan> -- Prefill 生成, Decode 复用, 避免重复计算历史 K/V</text>
+<text x="62" y="617" font-size="10" fill="#64748B">KV Cache 本身不减少 Prefill 延迟; Prefix Caching 可跨请求复用前缀</text>
+<rect x="45" y="630" width="520" height="26" rx="6" fill="#F8FAFC" stroke="#E2E8F0"/>
+<text x="55" y="647" font-size="10" fill="#64748B" font-style="italic">Decode 每步仅处理 1 Token, 但需加载全部模型权重 -- 算术强度极低, 受限于 HBM 带宽</text>
+
+<!-- Legend Right: Optimization Techniques -->
+<rect x="600" y="480" width="570" height="185" rx="10" fill="#FFF" stroke="#E2E8F0" stroke-width="1" filter="url(#ds-sm)"/>
+<text x="620" y="503" font-size="13" font-weight="700" fill="#1E293B">常见优化技术</text>
+<line x1="620" y1="510" x2="1150" y2="510" stroke="#E2E8F0"/>
+<rect x="620" y="520" width="70" height="18" rx="4" fill="#EEF2FF" stroke="#818CF8" stroke-width="0.8"/>
+<text x="655" y="533" text-anchor="middle" font-size="9" font-weight="600" fill="#4338CA">Prefill</text>
+<text x="700" y="533" font-size="10.5" fill="#475569">Prefix Caching / FlashAttention / Chunked Prefill</text>
+<rect x="620" y="548" width="70" height="18" rx="4" fill="#FFFBEB" stroke="#FBBF24" stroke-width="0.8"/>
+<text x="655" y="561" text-anchor="middle" font-size="9" font-weight="600" fill="#92400E">Decode</text>
+<text x="700" y="561" font-size="10.5" fill="#475569">Continuous Batching / Speculative Decoding / 量化</text>
+<rect x="620" y="576" width="70" height="18" rx="4" fill="#ECFDF5" stroke="#22C55E" stroke-width="0.8"/>
+<text x="655" y="589" text-anchor="middle" font-size="9" font-weight="600" fill="#15803D">KV Cache</text>
+<text x="700" y="589" font-size="10.5" fill="#475569">PagedAttention / GQA / MQA / KV Cache 量化</text>
+<rect x="620" y="604" width="70" height="18" rx="4" fill="#F8FAFC" stroke="#94A3B8" stroke-width="0.8"/>
+<text x="655" y="617" text-anchor="middle" font-size="9" font-weight="600" fill="#475569">硬件层</text>
+<text x="700" y="617" font-size="10.5" fill="#475569">Tensor Parallel / Pipeline Parallel / HBM 扩容</text>
+<rect x="620" y="638" width="535" height="22" rx="6" fill="#FFF7ED" stroke="#FBBF24" stroke-width="0.8"/>
+<text x="630" y="653" font-size="9.5" fill="#92400E" font-style="italic">Prefix Caching 可降低 TTFT (复用前缀 KV), 但 KV Cache 本身是 Prefill 产物, 不减少其延迟</text>
+
+</svg>

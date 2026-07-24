@@ -260,6 +260,16 @@ def load_articles():
             }
         )
 
+        # 将相对路径的图片 src 重写为 /content-assets/ 绝对路径
+        content_dir_rel = os.path.dirname(rel).replace(os.sep, '/')
+        def _rewrite_img(m):
+            src = m.group(1)
+            if src.startswith(('http://', 'https://', '/', 'data:')):
+                return m.group(0)
+            asset_path = f'{content_dir_rel}/{src}' if content_dir_rel else src
+            return m.group(0).replace(m.group(1), f'/content-assets/{asset_path}')
+        html_body = re.sub(r'<img\s[^>]*src="([^"]+)"', _rewrite_img, html_body)
+
         date = normalize_frontmatter_date(meta.get('date', ''))
         updated = normalize_frontmatter_date(meta.get('updated', '')) or date
         sort_date = updated or '1970-01-01'
@@ -643,6 +653,19 @@ def portal_page(slug):
     if legacy_path:
         return send_file(legacy_path)
 
+    abort(404)
+
+
+@app.route('/content-assets/<path:filepath>')
+def content_assets(filepath):
+    """Serve static assets (images, SVG, etc.) stored alongside markdown in content/"""
+    ALLOWED_EXTENSIONS = {'.svg', '.png', '.jpg', '.jpeg', '.gif', '.webp', '.ico', '.pdf'}
+    ext = os.path.splitext(filepath)[1].lower()
+    if ext not in ALLOWED_EXTENSIONS:
+        abort(404)
+    path = safe_join(CONTENT_DIR, filepath)
+    if path and os.path.isfile(path):
+        return send_file(path)
     abort(404)
 
 
