@@ -2,6 +2,8 @@
 title: KV Cache
 date: 2026-03-16
 tags: []
+hidden: false
+updated: 2026-07-24 23:21
 ---
 > [!Important]
 > - Query, Key, Value

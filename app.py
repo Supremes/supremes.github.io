@@ -247,6 +247,8 @@ def load_articles():
 
         # 解析 YAML front matter
         meta, body = parse_frontmatter(raw)
+        if is_truthy_frontmatter(meta.get('hidden', '')):
+            continue
         # 预处理 Obsidian 风格的 callout 语法
         body = process_callouts(body)
         # 预处理 tab 缩进子列表
