@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <marker id="arrow-orange" viewBox="0 0 10 8" refX="9" refY="4" markerWidth="9" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,4 L0,8 Z" fill="#E97820"/>
+    </marker>
+    <marker id="arrow-blue" viewBox="0 0 10 8" refX="9" refY="4" markerWidth="9" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,4 L0,8 Z" fill="#3483C5"/>
+    </marker>
+    <style>
+      text {
+        font-family: system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+      }
+      .title { font-size: 30px; font-weight: 700; fill: #171717; }
+      .subtitle { font-size: 17px; fill: #575757; }
+      .step { font-size: 15px; font-weight: 700; fill: #E97820; }
+      .heading { font-size: 21px; font-weight: 700; fill: #171717; }
+      .body { font-size: 15px; fill: #303030; }
+      .small { font-size: 13px; fill: #666666; }
+      .tag { font-size: 14px; font-weight: 650; }
+      .note-title { font-size: 17px; font-weight: 700; fill: #171717; }
+      .note { font-size: 14px; fill: #303030; }
+    </style>
+  </defs>
+
+  <rect width="1600" height="900" fill="#FFFFFF"/>
+
+  <text x="800" y="52" text-anchor="middle" class="title">登录不是一步，而是一条身份链路</text>
+  <text x="800" y="82" text-anchor="middle" class="subtitle">先证明“我是谁”，再保存登录状态；访问资源时，系统才判断“我能做什么”</text>
+
+  <rect x="445" y="104" width="710" height="46" rx="23" fill="#FFF7F2" stroke="#E97820" stroke-width="1.5"/>
+  <text x="800" y="133" text-anchor="middle" font-size="18" font-weight="700" fill="#B74812">
+    认证 + 建立登录态 = 登录　　｜　　认证 + 授权 ≠ 登录
+  </text>
+
+  <!-- Main path -->
+  <path d="M145 312 C205 292 235 292 288 312" fill="none" stroke="#E97820" stroke-width="3" marker-end="url(#arrow-orange)"/>
+  <path d="M530 312 C555 294 580 294 608 312" fill="none" stroke="#E97820" stroke-width="3" marker-end="url(#arrow-orange)"/>
+  <path d="M940 312 C965 294 987 294 1010 312" fill="none" stroke="#E97820" stroke-width="3" marker-end="url(#arrow-orange)"/>
+  <path d="M1254 312 C1294 290 1334 290 1374 312" fill="none" stroke="#E97820" stroke-width="3" marker-end="url(#arrow-orange)"/>
+
+  <!-- User and Xiaohei -->
+  <circle cx="91" cy="248" r="27" fill="#111111"/>
+  <circle cx="82" cy="243" r="3.5" fill="#FFFFFF"/>
+  <circle cx="99" cy="243" r="3.5" fill="#FFFFFF"/>
+  <path d="M90 275 L85 309 M99 275 L107 309 M67 273 L44 291 M113 272 L135 286" fill="none" stroke="#111111" stroke-width="5" stroke-linecap="round"/>
+  <path d="M136 286 L153 276 L164 286 L153 296 Z" fill="none" stroke="#E97820" stroke-width="3"/>
+  <text x="91" y="343" text-anchor="middle" class="body" font-weight="700">用户</text>
+  <text x="91" y="364" text-anchor="middle" class="small">拿着“证明”来敲门</text>
+
+  <!-- Step 1 -->
+  <rect x="288" y="194" width="242" height="238" rx="22" fill="#FFFFFF" stroke="#222222" stroke-width="1.8"/>
+  <text x="312" y="225" class="step">01</text>
+  <text x="409" y="261" text-anchor="middle" class="heading">身份声明</text>
+  <text x="409" y="289" text-anchor="middle" class="body">“我是 user@example.com”</text>
+  <path d="M343 323 C368 304 450 304 476 323 L476 375 C450 393 368 393 343 375 Z" fill="#F8F8F8" stroke="#222222" stroke-width="1.5"/>
+  <text x="409" y="344" text-anchor="middle" class="tag" fill="#222222">用户名 / 账号 / 身份标识</text>
+  <text x="409" y="366" text-anchor="middle" class="small">这里只是声称，还没有证明</text>
+  <text x="409" y="413" text-anchor="middle" class="small" fill="#B74812">Claim：我说我是谁</text>
+
+  <!-- Step 2: two authentication paths -->
+  <rect x="610" y="154" width="330" height="320" rx="22" fill="#FFFFFF" stroke="#222222" stroke-width="1.8"/>
+  <text x="634" y="185" class="step">02</text>
+  <text x="775" y="218" text-anchor="middle" class="heading">选择并执行认证</text>
+  <text x="775" y="246" text-anchor="middle" class="body">业务应用视角：两条同级认证路径</text>
+
+  <rect x="629" y="269" width="140" height="171" rx="16" fill="#FFF7F2" stroke="#E97820" stroke-width="1.5"/>
+  <text x="699" y="296" text-anchor="middle" class="tag" fill="#B74812">直接认证</text>
+  <text x="699" y="321" text-anchor="middle" class="small">应用或 IdP 核验</text>
+  <rect x="642" y="338" width="114" height="28" rx="14" fill="#FFFFFF" stroke="#E97820"/>
+  <text x="699" y="357" text-anchor="middle" font-size="12.5" fill="#B74812">密码 / MFA</text>
+  <rect x="642" y="373" width="114" height="28" rx="14" fill="#FFFFFF" stroke="#E97820"/>
+  <text x="699" y="392" text-anchor="middle" font-size="12.5" fill="#B74812">WebAuthn / Kerberos</text>
+  <text x="699" y="422" text-anchor="middle" class="small">LDAP Bind 也可核验</text>
+
+  <rect x="781" y="269" width="140" height="171" rx="16" fill="#F2F8FD" stroke="#3483C5" stroke-width="1.5"/>
+  <text x="851" y="296" text-anchor="middle" class="tag" fill="#22699E">联邦认证</text>
+  <text x="851" y="321" text-anchor="middle" class="small">应用委托给 IdP</text>
+  <rect x="794" y="338" width="114" height="28" rx="14" fill="#FFFFFF" stroke="#3483C5"/>
+  <text x="851" y="357" text-anchor="middle" font-size="12.5" fill="#22699E">OIDC 或 SAML</text>
+  <path d="M808 384 C832 372 870 372 895 384" fill="none" stroke="#3483C5" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arrow-blue)"/>
+  <text x="851" y="405" text-anchor="middle" class="small">IdP 内部仍使用</text>
+  <text x="851" y="424" text-anchor="middle" class="small">密码 / MFA / Kerberos</text>
+
+  <text x="775" y="462" text-anchor="middle" class="small" fill="#B74812">协议与核验机制都属于 Authentication 阶段</text>
+
+  <!-- Step 3 -->
+  <rect x="1012" y="174" width="242" height="278" rx="22" fill="#FFFFFF" stroke="#222222" stroke-width="1.8"/>
+  <text x="1036" y="205" class="step">03</text>
+  <text x="1133" y="241" text-anchor="middle" class="heading">接收并验证结果</text>
+  <text x="1133" y="269" text-anchor="middle" class="body">确认产物可信、有效且属于本应用</text>
+  <rect x="1045" y="293" width="176" height="34" rx="12" fill="#FFF7F2" stroke="#E97820" stroke-width="1.3"/>
+  <text x="1133" y="315" text-anchor="middle" class="tag" fill="#B74812">本地认证上下文</text>
+  <rect x="1045" y="337" width="176" height="34" rx="12" fill="#F2F8FD" stroke="#3483C5" stroke-width="1.3"/>
+  <text x="1133" y="359" text-anchor="middle" class="tag" fill="#22699E">OIDC：ID Token</text>
+  <rect x="1045" y="381" width="176" height="34" rx="12" fill="#F2F8FD" stroke="#3483C5" stroke-width="1.3"/>
+  <text x="1133" y="403" text-anchor="middle" class="tag" fill="#22699E">SAML：Assertion</text>
+  <text x="1133" y="437" text-anchor="middle" class="small">协议在第 2 步；这里验证其产物</text>
+
+  <!-- Step 4 -->
+  <rect x="1374" y="194" width="190" height="238" rx="22" fill="#FFFFFF" stroke="#222222" stroke-width="1.8"/>
+  <text x="1398" y="225" class="step">04</text>
+  <text x="1469" y="261" text-anchor="middle" class="heading">建立登录态</text>
+  <text x="1469" y="289" text-anchor="middle" class="body">后续不用反复登录</text>
+  <rect x="1403" y="317" width="132" height="34" rx="17" fill="#FFF7F2" stroke="#E97820"/>
+  <text x="1469" y="339" text-anchor="middle" class="tag" fill="#B74812">Session Cookie</text>
+  <text x="1469" y="375" text-anchor="middle" font-size="15" font-weight="700" fill="#C7463A">或</text>
+  <rect x="1392" y="389" width="154" height="34" rx="17" fill="#F2F8FD" stroke="#3483C5"/>
+  <text x="1469" y="411" text-anchor="middle" font-size="13" font-weight="650" fill="#22699E">Access / Refresh Token</text>
+
+  <!-- Authorization loop -->
+  <path d="M1469 432 C1469 494 1397 500 1338 515 C1250 538 1196 556 1196 616" fill="none" stroke="#E97820" stroke-width="3" marker-end="url(#arrow-orange)"/>
+  <rect x="975" y="585" width="442" height="118" rx="22" fill="#FFF7F2" stroke="#E97820" stroke-width="1.8"/>
+  <text x="1000" y="616" class="step">05 · 每次请求都发生</text>
+  <text x="1196" y="647" text-anchor="middle" class="heading">授权决策 → 访问资源</text>
+  <text x="1196" y="676" text-anchor="middle" font-size="13.5" fill="#303030">OAuth Access Token / Session → RBAC、ABAC、ACL → 允许或拒绝</text>
+  <path d="M1417 644 C1478 644 1501 619 1501 574 C1501 527 1469 506 1425 506" fill="none" stroke="#C7463A" stroke-width="2" stroke-dasharray="7 5" marker-end="url(#arrow-orange)"/>
+  <text x="1507" y="548" class="small" fill="#C7463A">持续检查</text>
+
+  <!-- Relationships -->
+  <rect x="65" y="510" width="846" height="193" rx="22" fill="#FFFFFF" stroke="#222222" stroke-width="1.5"/>
+  <text x="91" y="544" class="note-title">协议关系：哪些替换，哪些搭配？</text>
+  <line x1="91" y1="557" x2="885" y2="557" stroke="#DDDDDD"/>
+
+  <text x="91" y="589" class="tag" fill="#C7463A">可替换</text>
+  <text x="175" y="589" class="note">OIDC ↔ SAML：都是面向应用的联邦认证协议，前者偏现代应用，后者偏传统企业。</text>
+  <text x="175" y="617" class="note">Session Cookie ↔ Token 组合：维持登录的策略不同，按架构选择，也可以并存。</text>
+  <text x="175" y="645" class="note">密码 / WebAuthn ↔ Kerberos：都是实际核验身份的机制，但适用环境不同。</text>
+
+  <text x="91" y="680" class="tag" fill="#22699E">需搭配</text>
+  <text x="175" y="680" class="note">OAuth + OIDC｜LDAP/AD + Kerberos｜LDAP/AD + IdP + OIDC/SAML｜登录 + RBAC/ABAC。</text>
+
+  <!-- Memory strip -->
+  <path d="M100 770 C310 731 520 806 725 766 C930 726 1152 803 1498 757" fill="none" stroke="#222222" stroke-width="2.2"/>
+  <circle cx="100" cy="770" r="6" fill="#E97820"/>
+  <circle cx="1498" cy="757" r="6" fill="#E97820"/>
+  <text x="800" y="752" text-anchor="middle" class="note-title">一条记忆线</text>
+  <text x="800" y="797" text-anchor="middle" font-size="18" fill="#222222">
+    LDAP 管“人册”　·　Kerberos 管“内网票”　·　OIDC / SAML 管“跨系统证明”
+  </text>
+  <text x="800" y="829" text-anchor="middle" font-size="18" fill="#222222">
+    OAuth 管“代办权限”　·　Session / Token 管“保持登录”　·　RBAC / ABAC 管“最终放行”
+  </text>
+
+  <!-- Legend -->
+  <line x1="550" y1="867" x2="605" y2="867" stroke="#E97820" stroke-width="3" marker-end="url(#arrow-orange)"/>
+  <text x="615" y="872" class="small">主流程</text>
+  <line x1="715" y1="867" x2="770" y2="867" stroke="#3483C5" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#arrow-blue)"/>
+  <text x="780" y="872" class="small">后台支撑</text>
+  <text x="912" y="872" class="small" fill="#C7463A">“或 / ↔”表示同层替代，“+”表示组合工作</text>
+</svg>
