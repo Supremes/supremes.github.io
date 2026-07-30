@@ -529,6 +529,7 @@ Hibernate 提供两级缓存机制，用于减少数据库访问，提高性能�
   - 强制启用，无法禁用。
   - 仅在同一 `Session` 内有效，不跨 `Session` 共享。
   - 缓存的是实体对象的完整状态（包括关联对象）。
+- **复用前提**：必须在同一 `Session` 中按相同实体类型和主键访问，且实体仍在持久化上下文中（未被 `evict()`、`clear()`，`Session` 也未关闭）。
 - **工作原理**：
   - 当通过 `get()`、`load()` 或查询加载实体时，Hibernate 将实体放入一级缓存。
   - 同一 `Session` 内重复查询相同实体时，直接从缓存返回，避免数据库访问。
@@ -544,6 +545,7 @@ Hibernate 提供两级缓存机制，用于减少数据库访问，提高性能�
   - 默认禁用，需显式配置（如 EHCache、Redis）。
   - 可缓存实体、查询结果或集合。
   - 跨 `Session` 和线程共享，需考虑并发一致性。
+- **复用前提**：访问来自同一 `SessionFactory`，目标实体已配置为可缓存，并按相同实体类型和主键访问；对应缓存项尚未过期、被逐出或因数据变更失效。
 - **配置**：
   - 启用二级缓存：设置 `hibernate.cache.use_second_level_cache=true`。
   - 指定缓存提供者（如 `org.hibernate.cache.ehcache.EhCacheRegionFactory`）。
@@ -969,8 +971,4 @@ Hibernate 依赖注解定义实体和映射关系，常用注解包括：
 - **核心类/接口**：`Session`、`SessionFactory`（Hibernate 模式）或 `EntityManager`、`EntityManagerFactory`（JPA 模式）。
 - **核心方法**：`save`、`get`、`createQuery`（Session）或 `persist`、`find`、`createQuery`（EntityManager）。
 - **实践重点**：搭建小项目，熟悉注解、查询和事务管理。
-
-如果你有具体问题（如配置示例、某个方法的用法、调试错误），请提供更多细节，我可以进一步指导！
-
-
 
