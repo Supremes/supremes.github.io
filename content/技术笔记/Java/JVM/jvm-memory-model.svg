@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Execution plan:
+- Goal: 用一张面向 Java 开发者的手绘图解释 JVM 运行时数据区。
+- Confirmed facts: 线程私有区包含 pc、JVM 栈和本地方法栈；堆与方法区线程共享。
+- Assumptions: “JVM 内存模型”指运行时数据区，而非并发语义中的 Java Memory Model。
+- First artifact: 单张自包含 SVG，并嵌入现有 JVM 笔记。
+- Variation axes: 无；采用纸张、墨线和三色分区的单一方向。
+- Verification: XML 解析、实际渲染、文字裁切与整体阅读路径检查。
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1100" viewBox="0 0 1600 1100"
+     role="img" aria-labelledby="title desc">
+  <title id="title">JVM 内存模型：运行时数据区</title>
+  <desc id="desc">手绘风格的 JVM 内存结构图。上方展示每个线程私有的程序计数器、JVM 栈和本地方法栈；中部展示线程共享的堆和方法区；下方展示 HotSpot 常见的 Metaspace、Code Cache、Direct Memory 等本地内存。</desc>
+
+  <defs>
+    <filter id="paper-texture" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="3" seed="17" result="noise"/>
+      <feColorMatrix in="noise" type="saturate" values="0" result="grayNoise"/>
+      <feComponentTransfer in="grayNoise" result="faintNoise">
+        <feFuncA type="table" tableValues="0 0.055"/>
+      </feComponentTransfer>
+      <feBlend in="SourceGraphic" in2="faintNoise" mode="multiply"/>
+    </filter>
+    <filter id="rough" x="-3%" y="-4%" width="106%" height="108%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.012 0.035" numOctaves="2" seed="8" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.8" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="soft-shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="3" dy="5" stdDeviation="1.5" flood-color="#2A2722" flood-opacity="0.12"/>
+    </filter>
+
+    <pattern id="dot-blue" width="12" height="12" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.1" fill="#2F6F8F" opacity="0.18"/>
+    </pattern>
+    <pattern id="dash-green" width="16" height="16" patternUnits="userSpaceOnUse" patternTransform="rotate(-12)">
+      <path d="M1 8 L7 8" stroke="#33705A" stroke-width="1.5" opacity="0.16" stroke-linecap="round"/>
+    </pattern>
+    <pattern id="hatch-orange" width="13" height="13" patternUnits="userSpaceOnUse" patternTransform="rotate(24)">
+      <path d="M0 2 L13 2" stroke="#B45E35" stroke-width="1.2" opacity="0.13"/>
+    </pattern>
+
+    <marker id="arrow-ink" viewBox="0 0 12 10" refX="10" refY="5" markerWidth="10" markerHeight="8" orient="auto">
+      <path d="M1 1 Q7 4 11 5 Q7 6 1 9" fill="none" stroke="#2A2722" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arrow-blue" viewBox="0 0 12 10" refX="10" refY="5" markerWidth="10" markerHeight="8" orient="auto">
+      <path d="M1 1 Q7 4 11 5 Q7 6 1 9" fill="none" stroke="#2F6F8F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arrow-orange" viewBox="0 0 12 10" refX="10" refY="5" markerWidth="10" markerHeight="8" orient="auto">
+      <path d="M1 1 Q7 4 11 5 Q7 6 1 9" fill="none" stroke="#B45E35" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+
+    <style>
+      text {
+        font-family: "Kaiti SC", "STKaiti", "KaiTi", "Songti SC", serif;
+        fill: #2A2722;
+      }
+      .latin {
+        font-family: "SFMono-Regular", "Menlo", "Liberation Mono", monospace;
+      }
+      .title { font-size: 52px; font-weight: 700; }
+      .subtitle { font-size: 21px; }
+      .eyebrow { font-size: 17px; font-weight: 700; letter-spacing: 1px; }
+      .section-title { font-size: 29px; font-weight: 700; }
+      .box-title { font-size: 23px; font-weight: 700; }
+      .body { font-size: 17px; }
+      .small { font-size: 14px; }
+      .tiny { font-size: 12px; }
+      .muted { fill: #686158; }
+      .blue { fill: #2F6F8F; }
+      .green { fill: #33705A; }
+      .orange { fill: #B45E35; }
+      .ink-line {
+        fill: none;
+        stroke: #2A2722;
+        stroke-width: 2.4;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .sketch { filter: url(#rough); }
+      .flow {
+        fill: none;
+        stroke-width: 2.4;
+        stroke-linecap: round;
+        stroke-dasharray: 8 8;
+      }
+      .zone { transition: transform 180ms ease; transform-box: fill-box; transform-origin: center; }
+      .zone:hover { transform: translateY(-3px) rotate(-0.15deg); }
+      @media (prefers-reduced-motion: no-preference) {
+        .flow { animation: travel 6s linear infinite; }
+        @keyframes travel { to { stroke-dashoffset: -64; } }
+      }
+    </style>
+  </defs>
+
+  <!-- 纸张 -->
+  <rect width="1600" height="1100" fill="#F8F1E4"/>
+  <rect x="18" y="18" width="1564" height="1064" rx="9" fill="#FBF6EC" stroke="#D7CBB9" stroke-width="2" filter="url(#paper-texture)"/>
+  <path d="M31 37 Q402 22 792 35 T1568 29" fill="none" stroke="#D5C8B5" stroke-width="1.2" opacity="0.6"/>
+  <path d="M29 1064 Q415 1075 812 1062 T1571 1071" fill="none" stroke="#D5C8B5" stroke-width="1.2" opacity="0.6"/>
+
+  <!-- 标题 -->
+  <g>
+    <text x="66" y="76" class="title">JVM 内存模型</text>
+    <path d="M66 91 Q264 85 445 92" fill="none" stroke="#E2B94D" stroke-width="10" stroke-linecap="round" opacity="0.55"/>
+    <text x="68" y="124" class="subtitle muted">运行时数据区 Runtime Data Areas · 一张图看清「数据放哪、谁能访问、何时回收」</text>
+
+    <g transform="rotate(1 1288 82)">
+      <path d="M1122 43 Q1321 36 1528 46 L1521 113 Q1314 119 1117 108 Z" fill="#FFF7C7" stroke="#9C8337" stroke-width="1.8" class="sketch" filter="url(#soft-shadow)"/>
+      <text x="1321" y="71" text-anchor="middle" class="eyebrow" fill="#715D20">先别混淆</text>
+      <text x="1321" y="97" text-anchor="middle" class="small">运行时数据区 ≠ Java Memory Model（JMM）</text>
+    </g>
+  </g>
+
+  <!-- 主区域边界 -->
+  <path d="M54 160 Q801 146 1545 162 L1538 822 Q789 833 59 818 Z"
+        fill="#FFFDF8" stroke="#2A2722" stroke-width="2.7" class="sketch"/>
+  <path d="M62 168 Q795 157 1536 170" fill="none" stroke="#2A2722" stroke-width="1.2" opacity="0.35" class="sketch"/>
+  <text x="82" y="193" class="eyebrow muted">JVM SPEC · 抽象运行时数据区</text>
+  <text x="1516" y="193" text-anchor="end" class="small muted">规范不强制物理布局，也不指定 GC 算法</text>
+
+  <!-- 线程私有 -->
+  <g class="zone" id="thread-private">
+    <path d="M85 214 Q354 204 627 215 L622 791 Q350 800 89 789 Z"
+          fill="#EAF3F6" stroke="#2F6F8F" stroke-width="2.7" class="sketch"/>
+    <path d="M92 221 Q349 211 620 222 L615 784 Q352 791 96 782 Z"
+          fill="url(#dot-blue)" stroke="#2F6F8F" stroke-width="1.1" opacity="0.65" class="sketch"/>
+
+    <path d="M118 202 Q305 194 489 204 L481 246 Q296 252 112 245 Z"
+          fill="#D6EAF0" stroke="#2F6F8F" stroke-width="2" class="sketch"/>
+    <text x="301" y="232" text-anchor="middle" class="section-title blue">线程私有 · 每个线程一份</text>
+
+    <!-- 线程标签 -->
+    <g>
+      <path d="M124 264 Q197 257 270 264 L268 296 Q196 300 123 294 Z" fill="#FFFDF8" stroke="#2F6F8F" stroke-width="1.7" class="sketch"/>
+      <circle cx="146" cy="280" r="7" fill="#2F6F8F"/>
+      <text x="162" y="286" class="body blue">Thread A</text>
+      <path d="M290 264 Q363 258 436 265 L433 296 Q360 300 289 294 Z" fill="#FFFDF8" stroke="#2F6F8F" stroke-width="1.7" class="sketch" opacity="0.6"/>
+      <circle cx="312" cy="280" r="7" fill="#2F6F8F" opacity="0.6"/>
+      <text x="328" y="286" class="body blue" opacity="0.75">Thread B</text>
+      <text x="586" y="285" text-anchor="end" class="small muted">结构相同，数据隔离</text>
+    </g>
+
+    <!-- pc -->
+    <path d="M119 315 Q354 306 591 316 L587 398 Q352 405 121 397 Z"
+          fill="#FFFDF8" stroke="#2F6F8F" stroke-width="2.2" class="sketch"/>
+    <text x="145" y="347" class="box-title blue">程序计数器</text>
+    <text x="145" y="374" class="body">当前 JVM 指令地址</text>
+    <path d="M404 335 Q453 325 497 338 T576 336" fill="none" stroke="#E2B94D" stroke-width="8" stroke-linecap="round" opacity="0.45"/>
+    <text x="576" y="345" text-anchor="end" class="small muted">执行 native 方法时值未定义</text>
+    <text x="576" y="375" text-anchor="end" class="small latin blue">pc Register</text>
+
+    <!-- JVM 栈 -->
+    <path d="M119 420 Q353 409 591 421 L587 676 Q353 685 120 674 Z"
+          fill="#FFFDF8" stroke="#2F6F8F" stroke-width="2.2" class="sketch"/>
+    <text x="145" y="454" class="box-title blue">Java 虚拟机栈</text>
+    <text x="568" y="452" text-anchor="end" class="small muted">方法调用 push · 返回 pop</text>
+
+    <!-- 栈帧 -->
+    <g>
+      <path d="M157 489 Q335 480 520 489 L516 536 Q336 543 159 535 Z" fill="#DCECF1" stroke="#2F6F8F" stroke-width="1.8" class="sketch"/>
+      <text x="179" y="519" class="body blue" font-weight="700">Frame #3 · 当前</text>
+
+      <path d="M157 543 Q335 535 520 544 L516 591 Q336 597 159 590 Z" fill="#E7F2F5" stroke="#2F6F8F" stroke-width="1.7" class="sketch"/>
+      <text x="179" y="573" class="body blue" font-weight="700">Frame #2</text>
+
+      <path d="M157 597 Q335 590 520 599 L516 646 Q336 652 159 645 Z" fill="#F0F7F8" stroke="#2F6F8F" stroke-width="1.6" class="sketch"/>
+      <text x="179" y="627" class="body blue" font-weight="700">Frame #1</text>
+
+      <path d="M286 498 L286 636 M387 498 L387 636" fill="none" stroke="#2F6F8F" stroke-width="1.2" stroke-dasharray="4 5" opacity="0.55"/>
+      <text x="337" y="515" text-anchor="middle" class="tiny">局部变量表</text>
+      <text x="450" y="515" text-anchor="middle" class="tiny">操作数栈</text>
+      <text x="337" y="569" text-anchor="middle" class="tiny">动态链接</text>
+      <text x="450" y="569" text-anchor="middle" class="tiny">返回地址</text>
+    </g>
+    <text x="145" y="662" class="tiny orange">过深：StackOverflowError　扩展失败：OutOfMemoryError</text>
+
+    <!-- 本地方法栈 -->
+    <path d="M119 700 Q353 692 591 701 L587 767 Q353 773 121 766 Z"
+          fill="#FFFDF8" stroke="#2F6F8F" stroke-width="2.2" class="sketch"/>
+    <text x="145" y="732" class="box-title blue">本地方法栈</text>
+    <text x="145" y="756" class="small">支撑 native 方法 / C 栈 · JVM 实现可选</text>
+    <text x="568" y="743" text-anchor="end" class="small latin blue">Native Method Stack</text>
+  </g>
+
+  <!-- 线程共享 -->
+  <g class="zone" id="shared-runtime">
+    <path d="M657 214 Q1083 202 1512 216 L1507 791 Q1080 801 661 789 Z"
+          fill="#EAF2EA" stroke="#33705A" stroke-width="2.7" class="sketch"/>
+    <path d="M665 222 Q1084 211 1504 224 L1499 783 Q1082 793 669 781 Z"
+          fill="url(#dash-green)" stroke="#33705A" stroke-width="1.1" opacity="0.62" class="sketch"/>
+
+    <path d="M690 202 Q914 193 1136 204 L1129 246 Q910 251 683 244 Z"
+          fill="#DCECDD" stroke="#33705A" stroke-width="2" class="sketch"/>
+    <text x="910" y="232" text-anchor="middle" class="section-title green">线程共享 · JVM 启动时创建</text>
+
+    <!-- 堆 -->
+    <path d="M692 277 Q939 266 1184 278 L1180 754 Q935 764 695 751 Z"
+          fill="#FFFDF8" stroke="#33705A" stroke-width="2.4" class="sketch"/>
+    <text x="720" y="315" class="box-title green">堆 Heap</text>
+    <text x="1152" y="313" text-anchor="end" class="body">对象实例 + 数组 · GC 主战场</text>
+
+    <path d="M720 337 Q938 329 1155 338" fill="none" stroke="#33705A" stroke-width="1.3" stroke-dasharray="7 6"/>
+    <text x="720" y="366" class="small muted">HotSpot 常见分代（属于实现策略，不是 JVMS 强制结构）</text>
+
+    <!-- 新生代 -->
+    <path d="M722 386 Q938 378 1153 388 L1150 509 Q938 516 724 507 Z"
+          fill="#E8F1E7" stroke="#33705A" stroke-width="1.9" class="sketch"/>
+    <text x="744" y="416" class="body green" font-weight="700">Young Generation</text>
+    <path d="M744 435 Q877 429 1005 437 L1003 486 Q875 491 745 485 Z" fill="#F9F5E9" stroke="#33705A" stroke-width="1.5" class="sketch"/>
+    <text x="875" y="466" text-anchor="middle" class="body">Eden</text>
+    <path d="M1016 435 Q1070 431 1124 437 L1122 486 Q1070 489 1017 485 Z" fill="#F9F5E9" stroke="#33705A" stroke-width="1.5" class="sketch"/>
+    <path d="M1069 435 L1068 486" stroke="#33705A" stroke-width="1.3"/>
+    <text x="1042" y="466" text-anchor="middle" class="small">S0</text>
+    <text x="1096" y="466" text-anchor="middle" class="small">S1</text>
+
+    <!-- 老年代 -->
+    <path d="M722 530 Q938 522 1153 532 L1150 633 Q938 640 724 631 Z"
+          fill="#DDECDD" stroke="#33705A" stroke-width="1.9" class="sketch"/>
+    <text x="938" y="570" text-anchor="middle" class="box-title green">Old / Tenured Generation</text>
+    <text x="938" y="600" text-anchor="middle" class="small muted">长期存活或晋升的对象</text>
+
+    <!-- 堆内补充 -->
+    <path d="M722 655 Q936 648 1153 657 L1151 724 Q937 731 724 722 Z"
+          fill="#FFF7C7" stroke="#9C8337" stroke-width="1.6" class="sketch"/>
+    <text x="744" y="684" class="body" font-weight="700">常见内容</text>
+    <text x="744" y="709" class="small">对象字段 · 数组元素 · String Pool（JDK 7+）· Class 对象</text>
+    <text x="938" y="744" text-anchor="middle" class="tiny orange">空间不足：OutOfMemoryError: Java heap space</text>
+
+    <!-- 方法区 -->
+    <path d="M1212 277 Q1349 270 1482 280 L1478 754 Q1348 762 1215 751 Z"
+          fill="#FFFDF8" stroke="#33705A" stroke-width="2.4" class="sketch"/>
+    <text x="1348" y="316" text-anchor="middle" class="box-title green">方法区</text>
+    <text x="1348" y="341" text-anchor="middle" class="small latin green">Method Area</text>
+    <text x="1348" y="373" text-anchor="middle" class="small muted">JVMS 定义的逻辑区域</text>
+
+    <path d="M1237 398 Q1348 392 1458 400 L1455 462 Q1348 467 1238 460 Z" fill="#E8F1E7" stroke="#33705A" stroke-width="1.5" class="sketch"/>
+    <text x="1348" y="425" text-anchor="middle" class="body" font-weight="700">运行时常量池</text>
+    <text x="1348" y="448" text-anchor="middle" class="small">每个 class / interface 一份</text>
+
+    <path d="M1237 480 Q1348 474 1458 482 L1455 544 Q1348 549 1238 542 Z" fill="#E8F1E7" stroke="#33705A" stroke-width="1.5" class="sketch"/>
+    <text x="1348" y="508" text-anchor="middle" class="body" font-weight="700">字段 / 方法数据</text>
+    <text x="1348" y="531" text-anchor="middle" class="small">类级结构与符号引用</text>
+
+    <path d="M1237 562 Q1348 556 1458 564 L1455 626 Q1348 631 1238 624 Z" fill="#E8F1E7" stroke="#33705A" stroke-width="1.5" class="sketch"/>
+    <text x="1348" y="590" text-anchor="middle" class="body" font-weight="700">方法字节码</text>
+    <text x="1348" y="613" text-anchor="middle" class="small">含构造器与初始化方法</text>
+
+    <path d="M1237 650 Q1348 644 1458 652 L1455 724 Q1348 730 1238 722 Z" fill="#FFF7C7" stroke="#9C8337" stroke-width="1.5" class="sketch"/>
+    <text x="1348" y="680" text-anchor="middle" class="small" font-weight="700">HotSpot：类元数据主要落在</text>
+    <text x="1348" y="705" text-anchor="middle" class="body orange">Metaspace（本地内存）</text>
+  </g>
+
+  <!-- 栈引用指向堆 -->
+  <path d="M531 568 Q612 548 680 574 Q700 581 716 571" class="flow" stroke="#2F6F8F" marker-end="url(#arrow-blue)"/>
+  <path d="M535 575 Q608 558 681 584" fill="none" stroke="#2F6F8F" stroke-width="1" opacity="0.35" class="sketch"/>
+  <text x="627" y="540" text-anchor="middle" class="small blue" transform="rotate(-3 627 540)">局部变量里的引用 → 堆中对象</text>
+
+  <!-- 本地 / 堆外内存 -->
+  <g class="zone" id="native-memory">
+    <path d="M57 855 Q798 843 1543 857 L1538 1017 Q799 1028 61 1014 Z"
+          fill="#F5E5D9" stroke="#B45E35" stroke-width="2.7" stroke-dasharray="12 7" class="sketch"/>
+    <path d="M66 864 Q798 852 1534 866 L1529 1008 Q800 1018 69 1006 Z"
+          fill="url(#hatch-orange)" stroke="#B45E35" stroke-width="1" opacity="0.72" class="sketch"/>
+
+    <path d="M84 839 Q287 832 486 841 L480 882 Q285 888 80 880 Z"
+          fill="#F2D6C4" stroke="#B45E35" stroke-width="2" class="sketch"/>
+    <text x="282" y="868" text-anchor="middle" class="section-title orange">本地内存 / Off-heap</text>
+    <text x="1511" y="878" text-anchor="end" class="small muted">不受 -Xmx 直接约束，但仍计入进程 RSS</text>
+
+    <g>
+      <path d="M91 908 Q221 902 350 909 L347 986 Q219 992 92 985 Z" fill="#FFFDF8" stroke="#B45E35" stroke-width="1.8" class="sketch"/>
+      <text x="220" y="939" text-anchor="middle" class="box-title orange">Thread / GC</text>
+      <text x="220" y="965" text-anchor="middle" class="small">线程栈、GC 与 VM 结构</text>
+
+      <path d="M375 908 Q505 902 634 909 L631 986 Q503 992 376 985 Z" fill="#FFFDF8" stroke="#B45E35" stroke-width="1.8" class="sketch"/>
+      <text x="504" y="939" text-anchor="middle" class="box-title orange">JNI / Native Libs</text>
+      <text x="504" y="965" text-anchor="middle" class="small">本地库与 C/C++ 分配</text>
+
+      <path d="M659 908 Q789 902 918 909 L915 986 Q787 992 660 985 Z" fill="#FFFDF8" stroke="#B45E35" stroke-width="1.8" class="sketch"/>
+      <text x="788" y="939" text-anchor="middle" class="box-title orange">Direct Memory</text>
+      <text x="788" y="965" text-anchor="middle" class="small">NIO DirectByteBuffer</text>
+
+      <path d="M943 908 Q1073 902 1202 909 L1199 986 Q1071 992 944 985 Z" fill="#FFFDF8" stroke="#B45E35" stroke-width="1.8" class="sketch"/>
+      <text x="1072" y="939" text-anchor="middle" class="box-title orange">Code Cache</text>
+      <text x="1072" y="965" text-anchor="middle" class="small">JIT 编译后的本地机器码</text>
+
+      <path d="M1227 908 Q1360 902 1493 909 L1490 986 Q1358 992 1228 985 Z" fill="#FFFDF8" stroke="#B45E35" stroke-width="1.8" class="sketch"/>
+      <text x="1360" y="939" text-anchor="middle" class="box-title orange">Metaspace</text>
+      <text x="1360" y="965" text-anchor="middle" class="small">HotSpot 类元数据</text>
+      <text x="1360" y="981" text-anchor="middle" class="tiny latin muted">-XX:MaxMetaspaceSize</text>
+    </g>
+  </g>
+
+  <!-- 方法区到 Metaspace、堆到 Direct Memory -->
+  <path d="M1347 724 Q1363 812 1360 900" class="flow" stroke="#B45E35" marker-end="url(#arrow-orange)"/>
+  <text x="1393" y="817" class="small orange" transform="rotate(2 1393 817)">HotSpot 实现映射</text>
+  <path d="M1032 724 Q1016 817 795 902" class="flow" stroke="#B45E35" marker-end="url(#arrow-orange)"/>
+  <text x="906" y="813" text-anchor="middle" class="small orange" transform="rotate(-6 906 813)">对象持有 cleaner / address</text>
+
+  <!-- 页脚 -->
+  <path d="M65 1050 Q315 1041 545 1050" fill="none" stroke="#E2B94D" stroke-width="9" stroke-linecap="round" opacity="0.45"/>
+  <text x="66" y="1055" class="body" font-weight="700">排查内存时别只盯着 -Xmx：</text>
+  <text x="314" y="1055" class="body">Heap + Metaspace + Direct Memory + Code Cache + Thread Stacks + Native allocations</text>
+  <text x="1530" y="1055" text-anchor="end" class="small muted">依据 JVMS §2.5；HotSpot 细节已单独标注</text>
+</svg>
