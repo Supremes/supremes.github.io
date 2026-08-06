@@ -186,12 +186,10 @@
     const content = document.querySelector('.article-content');
     if (!content) return;
 
-    // 收集所有可用标题：优先 h2/h3/h4，不够则包含 h1
-    let headings = content.querySelectorAll('h2, h3, h4');
-    if (headings.length < 1) {
-      headings = content.querySelectorAll('h1, h2, h3, h4');
-    }
+    // 收集正文中的一级至四级标题
+    const headings = content.querySelectorAll('h1, h2, h3, h4');
     if (headings.length < 1) return;
+    const topLevel = Math.min(...Array.from(headings, h => Number(h.tagName.slice(1))));
 
     // 生成目录 HTML
     function buildTocHtml() {
@@ -199,11 +197,8 @@
       headings.forEach((h, i) => {
         const id = h.id || h.textContent.trim().replace(/\s+/g, '-').toLowerCase();
         if (!h.id) h.id = id;
-        let cls = '';
-        if (h.tagName === 'H1') cls = ' class="toc-h1"';
-        else if (h.tagName === 'H3') cls = ' class="toc-h3"';
-        else if (h.tagName === 'H4') cls = ' class="toc-h4"';
-        html += `<li${cls}><a href="#${id}" data-index="${i}">${h.textContent.replace(/¶$/, '').trim()}</a></li>`;
+        const level = Number(h.tagName.slice(1));
+        html += `<li class="toc-h${level}" style="--toc-depth:${level - topLevel}"><a href="#${id}" data-index="${i}">${h.textContent.replace(/¶$/, '').trim()}</a></li>`;
       });
       html += '</ul>';
       return html;

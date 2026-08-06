@@ -1023,6 +1023,7 @@ img { max-width: 100%; height: auto; }
 
 .toc-list li {
   margin: 0;
+  padding-left: calc(var(--toc-depth, 0) * 12px);
 }
 
 .toc-list a {
@@ -1053,12 +1054,10 @@ img { max-width: 100%; height: auto; }
 }
 
 .toc-list .toc-h3 {
-  padding-left: 20px;
   font-size: 0.78rem;
 }
 
 .toc-list .toc-h4 {
-  padding-left: 32px;
   font-size: 0.75rem;
   color: var(--ink-muted);
 }
@@ -1127,12 +1126,10 @@ img { max-width: 100%; height: auto; }
 }
 
 .toc-drawer .toc-h3 {
-  padding-left: 24px;
   font-size: 0.85rem;
 }
 
 .toc-drawer .toc-h4 {
-  padding-left: 36px;
   font-size: 0.8rem;
   color: var(--ink-muted);
 }
