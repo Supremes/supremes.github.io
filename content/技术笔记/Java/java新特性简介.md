@@ -249,7 +249,7 @@ Lambda 表达式和 Stream API 通常一起使用，以实现更简洁、高效�
    interface MyFunctionalInterface {
        void myMethod();
    }
-   ```
+```
 
 3. **新的日期和时间 API：**
 
