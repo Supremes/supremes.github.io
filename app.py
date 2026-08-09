@@ -232,6 +232,38 @@ def is_truthy_frontmatter(value):
     return str(value).strip().lower() in {'1', 'true', 'yes', 'y', 'on'}
 
 
+def normalize_rel_path(path):
+    return os.path.normpath(path).replace(os.sep, '/')
+
+
+def rewrite_internal_markdown_links(html, current_rel_path, path_to_slug):
+    current_dir = os.path.dirname(current_rel_path)
+
+    def _rewrite_link(match):
+        prefix, href, suffix = match.groups()
+        if href.startswith(('http://', 'https://', 'mailto:', 'tel:', 'data:', '/', '#')):
+            return match.group(0)
+
+        href_without_anchor, anchor_sep, anchor = href.partition('#')
+        href_path, query_sep, query = href_without_anchor.partition('?')
+        if not href_path.endswith('.md'):
+            return match.group(0)
+
+        target_rel = normalize_rel_path(os.path.join(current_dir, href_path))
+        slug = path_to_slug.get(target_rel)
+        if not slug:
+            return match.group(0)
+
+        new_href = f'/article/{slug}'
+        if query_sep:
+            new_href += f'?{query}'
+        if anchor_sep:
+            new_href += f'#{anchor}'
+        return f'{prefix}{new_href}{suffix}'
+
+    return re.sub(r'(<a\s[^>]*href=")([^"]+)(")', _rewrite_link, html)
+
+
 def load_articles():
     """扫描 content/ 下所有 .md 文件，返回文章列表"""
     articles = []
@@ -290,6 +322,14 @@ def load_articles():
             'raw': body,
             'path': rel,
         })
+
+    path_to_slug = {normalize_rel_path(a['path']): a['slug'] for a in articles}
+    for article in articles:
+        article['content'] = rewrite_internal_markdown_links(
+            article['content'],
+            article['path'],
+            path_to_slug,
+        )
 
     articles.sort(key=lambda a: (a['sort_date'], a['title']), reverse=True)
     return articles
