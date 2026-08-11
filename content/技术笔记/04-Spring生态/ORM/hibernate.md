@@ -1,6 +1,7 @@
 ---
 title: Hibernate ORM 框架详解
 date: 2025-11-28
+updated: 2026-08-11
 summary: 详解 Hibernate 框架的核心概念，包括 Session、SessionFactory、XML 配置、注解映射以及缓存机制，从入门到精通的完整指南
 tags:
   - Hibernate
@@ -9,13 +10,135 @@ tags:
   - Java
 ---
 # Hibernate
-Hibernate 是一个用于 Java 环境的开源对象关系映射（ORM）框架，XML 映射文件是 Hibernate 配置实体类和数据库表之间映射关系的重要方式。以下是 Hibernate XML 映射文件中常见标签的介绍：
+Hibernate 是 Java 生态主流的 ORM 实现，也是 Spring Data JPA 默认使用的 JPA Provider 之一。
 
-## 环境配置
+![JPA、JPQL、Hibernate 与 HQL 的关系和使用区别](./hibernate-hql-jpa-jpql.svg)
+
+## 版本速查（截至 2026-08-11）
+
+### 一句话结论
+
+- **新独立项目**：优先 Hibernate ORM **7.4**，要求 Java 17+。
+- **Spring Boot 项目**：优先使用 Boot BOM 管理的版本，不要自行强行覆盖 Hibernate。
+- **存量 Spring Boot 3 / Java 11 项目**：常见仍在 Hibernate **6.x**，按框架版本规划升级。
+- **Hibernate 5.6 / Spring Boot 2**：都属于旧生态，应以迁移为主，不再作为新项目选型。
+- **Hibernate 8.0**：当前是开发线，不用于生产。
+
+### 主流版本线
+
+| 版本线 | 官方状态 | Java | Persistence API | 适用判断 |
+| --- | --- | --- | --- | --- |
+| **7.4.5.Final** | 最新稳定版 | 17 / 21 / 25 | Jakarta Persistence 3.2 | 新独立项目优先 |
+| **7.2.24.Final** | limited support | 17 / 21 | Jakarta Persistence 3.2 | 已上线项目维护，不建议新选 |
+| **6.6.55.Final** | limited support | 11 / 17 / 21 / 25 | Jakarta Persistence 3.1 | 受 Spring/Java 版本约束的存量项目 |
+| **5.6.15.Final** | EOL | 8 / 11 / 17 | JPA 2.2，主包仍是 `javax.persistence` | Spring Boot 2 等遗留项目 |
+| **8.0** | development | 以发布时矩阵为准 | 以发布时规范为准 | 只用于试验 |
+
+> `limited support` 表示只处理足够重要的问题；`EOL` 表示普通 Bug 甚至安全问题都很可能不再修复。
+
+### 5.6 → 6.x 的核心变化
+
+1. **命名空间切换**
+   - `javax.persistence.*` → `jakarta.persistence.*`
+   - Jakarta EE 9 完成包名迁移，这是升级时最直观的编译错误来源。
+
+2. **Maven 坐标变化**
+   - 5.6：`org.hibernate:hibernate-core`
+   - 6.x / 7.x：`org.hibernate.orm:hibernate-core`
+   - `hibernate-entitymanager` 早已并入 `hibernate-core`，不要再单独依赖。
+
+3. **查询引擎重写**
+   - HQL 与 Criteria 统一进入 SQM（Semantic Query Model）。
+   - SQL AST、类型系统和 JDBC 结果读取被重构，结果集改为优先按位置读取。
+   - 查询语义更严格，旧 HQL、Criteria、自定义函数和原生结果映射是升级重点。
+
+4. **类型与映射更严格**
+   - 自定义 `UserType`、Dialect、标识符生成器和数组类型可能需要适配。
+   - 一些过去被容忍的隐式类型转换、列别名依赖和旧映射写法不再成立。
+
+5. **抓取行为需要复测**
+   - 关联抓取判定发生变化，复杂 `EAGER` 关系可能生成更多 Join。
+   - 默认优先使用 `LAZY`，通过实体图或 `join fetch` 明确查询需求。
+
+### 6.x → 7.x 的核心变化
+
+1. **运行时基线提高**
+   - 7.x 以 Java 17 为最低基线。
+   - 对齐 Jakarta Persistence 3.2，API 和类型安全能力继续增强。
+
+2. **许可证与模块演进**
+   - 7.0 起采用 Apache License 2.0。
+   - Hibernate Models、Processor 和查询方法能力继续加强。
+
+3. **查询 API 更类型安全**
+   - 增加 option objects、`QuerySpecification` 等新 API。
+   - Hibernate Processor 可在编译期检查 HQL，并生成类型安全的查询/Repository 实现。
+
+4. **构建插件变化**
+   - 字节码增强 Maven 插件改为：
+     `org.hibernate.orm:hibernate-maven-plugin`
+   - 旧插件配置不能直接照搬，升级时必须查看对应版本 migration guide。
+
+5. **7.4 的实用改进**
+   - 在支持子查询内 limit/offset 的数据库上，集合 `join fetch` 可以安全结合分页，不再只能退化成 JVM 内存分页。
+   - 继续补强 `@Temporal`、Envers `@Audited` 等能力。
+
+### Spring Boot 怎么选版本
+
+Spring Boot 已为 JPA、Hibernate、Spring ORM 和连接池验证兼容组合，推荐只声明 starter：
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-jpa</artifactId>
+</dependency>
+```
+
+原则：
+
+- 不在 starter 依赖上手写版本，由 Spring Boot parent/BOM 管理。
+- 只有确认 Boot 官方依赖管理支持目标 Hibernate，才覆盖版本。
+- 升 Hibernate 优先通过升级 Spring Boot 完成，避免框架组合未经验证。
+
+非 Spring Boot 独立使用当前稳定版时：
+
+```xml
+<dependency>
+    <groupId>org.hibernate.orm</groupId>
+    <artifactId>hibernate-core</artifactId>
+    <version>7.4.5.Final</version>
+</dependency>
+```
+
+### 大版本迁移 Checklist
+
+- [ ] 先升级到当前大版本的最后一个小版本，再跨大版本。
+- [ ] 检查 Java 基线、`javax` → `jakarta`、Maven groupId。
+- [ ] 编译全部实体、Converter、Listener、自定义 Type 和 Dialect。
+- [ ] 回归 HQL、Criteria、native query、分页和锁查询。
+- [ ] 用 `SchemaValidator` 或迁移工具比较 DDL，不直接依赖生产环境 `hbm2ddl.auto=update`。
+- [ ] 检查 SQL 数量、执行计划、批处理、N+1 和抓取行为。
+- [ ] 按目标版本 migration guide 逐项处理，不把 6.0→6.6 的行为视为完全不变。
+
+### 面试 30 秒回答
+
+> Hibernate 5.6 是 `javax.persistence` 和 Java 8 时代的最后主流版本，目前已经 EOL；Hibernate 6 完成了 Jakarta 包迁移，并重写 SQM、SQL AST 和类型系统，是 Spring Boot 3 早期常见基线；Hibernate 7 进一步把最低 Java 提升到 17，对齐 Jakarta Persistence 3.2，并加强类型安全查询和编译期 Processor。新独立项目看 7.4，Spring Boot 项目则跟随 Boot BOM，不要手工跨版本覆盖。
+
+### 官方资料
+
+- [Hibernate ORM Releases](https://hibernate.org/orm/releases/)
+- [Hibernate ORM 7.4](https://hibernate.org/orm/releases/7.4/)
+- [Hibernate 6.0 Migration Guide](https://docs.hibernate.org/orm/6.0/migration-guide/)
+- [Hibernate 7.0 Migration Guide](https://docs.hibernate.org/orm/7.0/migration-guide/)
+- [Hibernate 7.4 Migration Guide](https://docs.hibernate.org/orm/7.4/migration-guide/)
+
+## 旧版环境配置参考（Hibernate 5.6 / Spring 5）
+
+> 以下依赖和 XML 配置用于识别存量项目，不应作为新项目模板。
 
 在 Spring 框架中使用 Hibernate 作为 ORM 框架时，需要导入以下相关库（依赖项）。以下是基于 Maven 或 Gradle 的依赖配置，具体依赖取决于你使用的 Spring 版本、Hibernate 版本以及是否使用 JPA。
 
-### 1. **核心 D**ependencies
+### 1. 核心 Dependencies
 #### Hibernate Core
 Hibernate 的核心库，提供基本的 ORM 功能。
 - **Maven**:
@@ -23,7 +146,7 @@ Hibernate 的核心库，提供基本的 ORM 功能。
   <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-core</artifactId>
-      <version>5.6.15.Final</version> <!-- 替换为最新稳定版本 -->
+      <version>5.6.15.Final</version> <!-- EOL：仅用于存量项目示例 -->
   </dependency>
   ```
 - **Gradle**:
@@ -110,9 +233,8 @@ Spring Boot 提供了 starter 依赖，简化配置：
   **说明**：`spring-boot-starter-data-jpa` 已经包含了 Hibernate、Spring ORM 和 JPA 相关依赖，并默认配置 HikariCP。你还需要单独添加数据库驱动（如 MySQL）。
 
 ### 4. **版本注意事项**
-- **Hibernate 版本**：推荐使用最新稳定版（截至 2025 年 4 月，5.6.x 或 6.x 系列）。Hibernate 6.x 要求 JDK 11+ 并有重大变更（如去掉 `hibernate-entitymanager` 包）。
-- **Spring 版本**：确保 Spring 和 Hibernate 版本兼容。例如，Spring 5.x 通常与 Hibernate 5.x 搭配，Spring 6.x 与 Hibernate 6.x 更兼容。
-- **Spring Boot**：如果使用 Spring Boot，`spring-boot-starter-data-jpa` 会自动管理兼容的 Hibernate 版本。
+- 此节示例固定在 Hibernate 5.6 / Spring 5 / Spring Boot 2，用于阅读遗留项目。
+- 新项目优先使用 Spring Boot 管理的 Hibernate，或采用上方列出的最新稳定线。
 
 ### 5. **典型配置示例（非 Spring Boot）**
 在 Spring 配置文件（如 `applicationContext.xml`）中配置 Hibernate：
@@ -154,7 +276,7 @@ spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
 ### 总结
 - **最小依赖**：`hibernate-core`、`spring-orm`、数据库驱动。
 - **推荐（Spring Boot）**：`spring-boot-starter-data-jpa` + 数据库驱动。
-- **JPA 场景**：添加 `hibernate-entitymanager`（Hibernate 5.x）。
+- **JPA 场景**：无需添加 `hibernate-entitymanager`；相关能力已并入 `hibernate-core`。
 - **连接池**：建议使用 HikariCP。
 
 如果使用 Spring Boot，`spring-boot-starter-data-jpa` 是最简便的方式。如果是传统 Spring 项目，需手动添加 Hibernate 和 Spring ORM 依赖。确保版本兼容，并根据数据库类型选择合适的驱动。
@@ -845,19 +967,19 @@ try {
 在 Spring Boot 或现代项目中，通常使用 Hibernate 作为 JPA 实现，基于 `EntityManager`。
 
 ##### **常用类和接口**
-1. **`javax.persistence.EntityManager`（或 `jakarta.persistence`）**
+1. **`jakarta.persistence.EntityManager`**
    - **作用**：JPA 的核心接口，类似 `Session`，管理实体的持久化操作。
    - **获取方式**：通过 Spring 注入或 `EntityManagerFactory` 创建。
 
-2. **`javax.persistence.EntityManagerFactory`**
+2. **`jakarta.persistence.EntityManagerFactory`**
    - **作用**：创建 `EntityManager`，类似 `SessionFactory`。
    - **特点**：线程安全，全局单例。
 
-3. **`javax.persistence.Query`**
+3. **`jakarta.persistence.Query`**
    - **作用**：执行 JPQL（类似 HQL）或原生 SQL 查询。
    - **获取方式**：通过 `EntityManager.createQuery()` 创建。
 
-4. **`javax.persistence.EntityTransaction`**
+4. **`jakarta.persistence.EntityTransaction`**
    - **作用**：管理 JPA 事务。
    - **获取方式**：通过 `EntityManager.getTransaction()` 获取。
 
@@ -971,4 +1093,3 @@ Hibernate 依赖注解定义实体和映射关系，常用注解包括：
 - **核心类/接口**：`Session`、`SessionFactory`（Hibernate 模式）或 `EntityManager`、`EntityManagerFactory`（JPA 模式）。
 - **核心方法**：`save`、`get`、`createQuery`（Session）或 `persist`、`find`、`createQuery`（EntityManager）。
 - **实践重点**：搭建小项目，熟悉注解、查询和事务管理。
-

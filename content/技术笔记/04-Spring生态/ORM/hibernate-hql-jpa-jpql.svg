@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Execution plan:
+- Goal: 面向 Java 后端面试与工程选型，解释 JPA、JPQL、Hibernate、HQL 的关系。
+- Confirmed facts: JPA 是规范；Hibernate 是实现；JPQL 是标准查询语言；HQL 是 Hibernate 查询语言且兼容 JPQL；Hibernate 6 将 HQL/JPQL 统一转换为 SQM 和 SQL AST。
+- Assumptions: 读者使用 Spring Data JPA 或 Hibernate ORM 5/6/7。
+- First artifact: 单张自包含手绘风 SVG，并嵌入 Hibernate 笔记。
+- Variation axes: 无；采用“角色分层 + 调用链 + 选型卡”的单一方向。
+- Verification: XML 解析、实际渲染、边界与文字重叠检查。
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="1080" viewBox="0 0 1320 1080"
+     role="img" aria-labelledby="title desc">
+  <title id="title">JPA、JPQL、Hibernate 与 HQL 的关系和使用区别</title>
+  <desc id="desc">上半部分展示 JPA 规范由 Hibernate 实现，JPQL 是标准查询语言且属于 HQL 可接受语法的子集；Hibernate 6 将 JPQL 和 HQL 统一转换为 SQM、SQL AST，最终生成 SQL。下半部分比较 JPQL、HQL 和原生 SQL 的使用场景。</desc>
+
+  <defs>
+    <filter id="rough" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="3" seed="19" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="soft" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="7" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="1.3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+
+    <marker id="aRed" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+      <path d="M1,1 L8,5 L1,9" fill="none" stroke="#C2453C" stroke-width="1.7" stroke-linecap="round"/>
+    </marker>
+    <marker id="aGrn" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+      <path d="M1,1 L8,5 L1,9" fill="none" stroke="#33705A" stroke-width="1.7" stroke-linecap="round"/>
+    </marker>
+    <marker id="aBlu" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+      <path d="M1,1 L8,5 L1,9" fill="none" stroke="#2F6F8F" stroke-width="1.7" stroke-linecap="round"/>
+    </marker>
+    <marker id="aInk" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+      <path d="M1,1 L8,5 L1,9" fill="none" stroke="#2A2722" stroke-width="1.7" stroke-linecap="round"/>
+    </marker>
+
+    <style>
+      text {
+        font-family: "LXGW WenKai", "Kaiti SC", "STKaiti", "KaiTi", cursive;
+        fill: #2A2722;
+      }
+      .code { font-family: Menlo, Monaco, monospace; font-size: 12px; }
+      .codeb { font-family: Menlo, Monaco, monospace; font-size: 12px; font-weight: 700; }
+      .xs { font-size: 11.5px; }
+      .sm { font-size: 13px; }
+      .t { font-size: 14.5px; }
+      .tb { font-size: 14.5px; font-weight: 700; }
+      .big { font-size: 17px; font-weight: 700; }
+      .h { font-size: 20px; font-weight: 700; }
+      .ink { fill: #2A2722; }
+      .gry { fill: #686158; }
+      .red { fill: #C2453C; }
+      .grn { fill: #33705A; }
+      .blu { fill: #2F6F8F; }
+      .amb { fill: #9C6A17; }
+      .sInk { stroke: #2A2722; }
+      .sGry { stroke: #887F73; }
+      .sRed { stroke: #C2453C; }
+      .sGrn { stroke: #33705A; }
+      .sBlu { stroke: #2F6F8F; }
+      .sAmb { stroke: #D9A441; }
+      .round { stroke-linecap: round; stroke-linejoin: round; }
+    </style>
+  </defs>
+
+  <!-- 纸张 -->
+  <rect width="1320" height="1080" fill="#F8F1E4"/>
+  <g filter="url(#rough)">
+    <rect x="18" y="18" width="1284" height="1044" rx="12"
+          fill="#FBF6EC" stroke="#D7CBB9" stroke-width="2"/>
+  </g>
+
+  <!-- 标题 -->
+  <text x="40" y="58" class="ink" style="font-size:26px;font-weight:700">JPA、JPQL、Hibernate、HQL：到底什么关系？</text>
+  <text x="40" y="84" class="gry" style="font-size:13.5px">先分清「规范、实现、查询语言」，再决定项目里该用哪一个</text>
+  <path d="M40,106 Q660,96 1280,106" fill="none" class="sGry round" stroke-width="2" filter="url(#rough)"/>
+
+  <!-- 左侧角色标签 -->
+  <g filter="url(#soft)">
+    <rect x="40" y="145" width="230" height="340" rx="12" fill="#F2EDE2" stroke="#887F73" stroke-width="2"/>
+    <circle cx="68" cy="209" r="15" fill="#EAF2F5" stroke="#2F6F8F" stroke-width="2"/>
+    <circle cx="68" cy="271" r="15" fill="#EAF3EC" stroke="#33705A" stroke-width="2"/>
+    <circle cx="68" cy="333" r="15" fill="#EAF2F5" stroke="#2F6F8F" stroke-width="2"/>
+    <circle cx="68" cy="395" r="15" fill="#FDF3E2" stroke="#D9A441" stroke-width="2"/>
+    <rect x="61" y="438" width="188" height="30" rx="15" fill="#F8E8E4" stroke="#C2453C" stroke-width="1.8"/>
+  </g>
+  <text x="62" y="178" class="h">① 先分清角色</text>
+  <text x="68" y="214" text-anchor="middle" class="tb blu">1</text>
+  <text x="95" y="205" class="tb">JPA</text>
+  <text x="95" y="224" class="sm gry">标准规范 / API</text>
+  <text x="68" y="276" text-anchor="middle" class="tb grn">2</text>
+  <text x="95" y="267" class="tb">JPQL</text>
+  <text x="95" y="286" class="sm gry">JPA 定义的查询语言</text>
+  <text x="68" y="338" text-anchor="middle" class="tb blu">3</text>
+  <text x="95" y="329" class="tb">Hibernate</text>
+  <text x="95" y="348" class="sm gry">JPA Provider / ORM 实现</text>
+  <text x="68" y="400" text-anchor="middle" class="tb amb">4</text>
+  <text x="95" y="391" class="tb">HQL</text>
+  <text x="95" y="410" class="sm gry">Hibernate 增强查询语言</text>
+  <text x="155" y="458" text-anchor="middle" class="tb red">规范 ≠ 实现</text>
+
+  <!-- 上层：规范与实现 -->
+  <g filter="url(#soft)">
+    <rect x="300" y="145" width="490" height="165" rx="12" fill="#EAF3EC" stroke="#33705A" stroke-width="2.4"/>
+    <rect x="322" y="220" width="446" height="68" rx="8" fill="#F5FAF5" stroke="#33705A" stroke-width="2"/>
+    <rect x="810" y="145" width="470" height="165" rx="12" fill="#EAF2F5" stroke="#2F6F8F" stroke-width="2.4"/>
+    <rect x="832" y="220" width="426" height="68" rx="8" fill="#F2F7F9" stroke="#2F6F8F" stroke-width="2"/>
+  </g>
+
+  <text x="325" y="179" class="h grn">JPA · 标准层</text>
+  <text x="325" y="203" class="t">定义实体映射、生命周期、EntityManager 与 JPQL</text>
+  <text x="344" y="247" class="big">JPQL</text>
+  <text x="344" y="271" class="t gry">标准查询语言：面向实体与属性，不直接面向表和列</text>
+
+  <text x="835" y="179" class="h blu">Hibernate · 实现层</text>
+  <text x="835" y="203" class="t">实现 JPA，同时提供 Session、HQL 等增强能力</text>
+  <text x="854" y="247" class="big">HQL</text>
+  <text x="854" y="271" class="t gry">Hibernate 查询语言：兼容 JPQL，并提供更多能力</text>
+
+  <!-- 关系箭头 -->
+  <path d="M782,178 Q800,161 818,178" fill="none" class="sBlu round" stroke-width="2.2" marker-end="url(#aBlu)"/>
+  <text x="800" y="142" text-anchor="middle" class="xs blu">implements</text>
+  <path d="M748,278 Q790,334 832,278" fill="none" class="sGrn round" stroke-width="2.2" marker-end="url(#aGrn)"/>
+  <text x="790" y="332" text-anchor="middle" class="tb grn">JPQL 是 HQL 的标准子集</text>
+
+  <!-- Hibernate 6 查询管线 -->
+  <g filter="url(#soft)">
+    <rect x="300" y="355" width="980" height="130" rx="12" fill="#F2EDE2" stroke="#887F73" stroke-width="2"/>
+    <rect x="330" y="405" width="115" height="48" rx="24" fill="#EAF3EC" stroke="#33705A" stroke-width="2"/>
+    <rect x="470" y="405" width="105" height="48" rx="24" fill="#EAF2F5" stroke="#2F6F8F" stroke-width="2"/>
+    <rect x="650" y="397" width="140" height="64" rx="10" fill="#EAF2F5" stroke="#2F6F8F" stroke-width="2.2"/>
+    <rect x="850" y="397" width="140" height="64" rx="10" fill="#EAF2F5" stroke="#2F6F8F" stroke-width="2.2"/>
+    <rect x="1080" y="397" width="140" height="64" rx="10" fill="#EAF3EC" stroke="#33705A" stroke-width="2.2"/>
+  </g>
+  <text x="325" y="383" class="tb">Hibernate 6 统一查询管线</text>
+  <text x="387" y="435" text-anchor="middle" class="codeb grn">JPQL</text>
+  <text x="522" y="435" text-anchor="middle" class="codeb blu">HQL</text>
+  <text x="720" y="425" text-anchor="middle" class="codeb blu">SQM</text>
+  <text x="720" y="446" text-anchor="middle" class="xs gry">语义查询模型</text>
+  <text x="920" y="425" text-anchor="middle" class="codeb blu">SQL AST</text>
+  <text x="920" y="446" text-anchor="middle" class="xs gry">SQL 抽象语法树</text>
+  <text x="1150" y="425" text-anchor="middle" class="codeb grn">SQL</text>
+  <text x="1150" y="446" text-anchor="middle" class="xs gry">发送给数据库</text>
+
+  <path d="M445,423 Q540,394 650,416" fill="none" class="sGrn round" stroke-width="2" marker-end="url(#aGrn)"/>
+  <path d="M575,437 Q610,451 650,440" fill="none" class="sBlu round" stroke-width="2" marker-end="url(#aBlu)"/>
+  <path d="M790,429 Q820,422 850,429" fill="none" class="sBlu round" stroke-width="2.2" marker-end="url(#aBlu)"/>
+  <path d="M990,429 Q1035,420 1080,429" fill="none" class="sGrn round" stroke-width="2.2" marker-end="url(#aGrn)"/>
+
+  <!-- 选型标题 -->
+  <text x="40" y="543" class="h">② 项目里怎么选？</text>
+  <path d="M238,547 Q735,539 1280,548" fill="none" class="sGry round" stroke-width="1.8" filter="url(#rough)"/>
+
+  <!-- 三张选型卡 -->
+  <g filter="url(#soft)">
+    <rect x="40" y="575" width="390" height="280" rx="12" fill="#EAF3EC" stroke="#33705A" stroke-width="2.4"/>
+    <rect x="62" y="718" width="346" height="70" rx="8" fill="#F5FAF5" stroke="#33705A" stroke-width="1.8"/>
+    <rect x="465" y="575" width="390" height="280" rx="12" fill="#EAF2F5" stroke="#2F6F8F" stroke-width="2.4"/>
+    <rect x="487" y="718" width="346" height="70" rx="8" fill="#F2F7F9" stroke="#2F6F8F" stroke-width="1.8"/>
+    <rect x="890" y="575" width="390" height="280" rx="12" fill="#FDF3E2" stroke="#D9A441" stroke-width="2.4"/>
+    <rect x="912" y="718" width="346" height="70" rx="8" fill="#FFF8EA" stroke="#D9A441" stroke-width="1.8"/>
+  </g>
+
+  <text x="64" y="612" class="h grn">JPQL · 默认优先</text>
+  <text x="64" y="640" class="t">✓ 标准、可移植，Spring Data JPA 常用</text>
+  <text x="64" y="666" class="t">✓ API 以 EntityManager 为中心</text>
+  <text x="64" y="692" class="t">✓ 普通 CRUD 与实体查询足够用</text>
+  <text x="80" y="744" class="code">entityManager.createQuery(</text>
+  <text x="80" y="766" class="code">  "select u from User u", User.class)</text>
+  <text x="235" y="825" text-anchor="middle" class="big grn">业务查询，先选它</text>
+
+  <text x="489" y="612" class="h blu">HQL · 需要增强时</text>
+  <text x="489" y="640" class="t">✓ Hibernate 专属查询能力</text>
+  <text x="489" y="666" class="t">✓ CTE、窗口函数、扩展函数等</text>
+  <text x="489" y="692" class="t">✓ API 以 Session 为中心</text>
+  <text x="505" y="744" class="code">session.createSelectionQuery(</text>
+  <text x="505" y="766" class="code">  "from User", User.class)</text>
+  <text x="660" y="825" text-anchor="middle" class="big blu">深度绑定 Hibernate 时选</text>
+
+  <text x="914" y="612" class="h amb">Native SQL · 逃生口</text>
+  <text x="914" y="640" class="t">✓ 数据库特有语法与极致控制</text>
+  <text x="914" y="666" class="t">△ 可移植性最低，映射成本更高</text>
+  <text x="914" y="692" class="t">△ 复杂报表或 ORM 难表达时使用</text>
+  <text x="930" y="744" class="code">entityManager.createNativeQuery(</text>
+  <text x="930" y="766" class="code">  "select * from users")</text>
+  <text x="1085" y="825" text-anchor="middle" class="big amb">ORM 表达不了，再选它</text>
+
+  <!-- 误区与事实 -->
+  <g filter="url(#soft)">
+    <rect x="40" y="895" width="475" height="100" rx="10" fill="#F8E8E4" stroke="#C2453C" stroke-width="2.6" stroke-dasharray="6 4"/>
+    <rect x="540" y="895" width="740" height="100" rx="10" fill="#EAF3EC" stroke="#33705A" stroke-width="2.4"/>
+  </g>
+  <text x="65" y="928" class="big red">✗ 常见误区</text>
+  <text x="65" y="955" class="t">“Hibernate 6 弃用了 HQL，全面改用 JPA / JPQL。”</text>
+  <text x="65" y="980" class="tb red">错：规范、实现、语言被混成了一件事。</text>
+
+  <text x="565" y="928" class="big grn">✓ Hibernate 6 的真实变化</text>
+  <text x="565" y="955" class="t">HQL 没有废弃；查询引擎被重写，HQL 与 JPQL 都先进入 SQM。</text>
+  <text x="565" y="980" class="tb grn">变化的是内部翻译管线和严格度，不是“放弃 HQL”。</text>
+
+  <!-- 根源结论 -->
+  <g filter="url(#rough)">
+    <rect x="80" y="1018" width="1160" height="44" rx="22" fill="#FDF3E2" stroke="#D9A441" stroke-width="2.4"/>
+  </g>
+  <text x="660" y="1046" text-anchor="middle" class="big">
+    根源：JPA 是标准，Hibernate 是实现；JPQL / HQL 是两条查询入口，最终都要翻译成 SQL。
+  </text>
+</svg>
