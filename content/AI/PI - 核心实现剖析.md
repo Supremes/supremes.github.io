@@ -35,7 +35,14 @@ PI通过**发布-订阅**模式实现了事件驱动，这也是PI扩展实现�
 
 ## 上下文压缩
 
-发生在**两轮对话之间**，不是在对话进行中发生的
+- **触发方式**：包括 threshold 自动触发、context overflow 恢复和 `/compact` 手动触发；自动触发条件是 `contextTokens > contextWindow - reserveTokens`
+- **执行时机**：threshold 通常在一次 Agent 运行结束后的检查点执行；overflow 是例外，会中断失败或被截断的调用，压缩后最多自动重试一次
+- **保留策略**：从最新消息向前累计，默认保留最近 `20k` tokens，并预留 `16,384` tokens 给下一次模型响应
+- **切点约束**：优先在完整 Turn 边界切分；单个 Turn 过大时可以从 assistant message 处拆分，但不会切在 tool result，避免拆散 tool call 和对应结果
+- **生成摘要**：调用 LLM 把较早消息压成结构化 summary；重复压缩时会带上 previous summary，并累计已读取、已修改的文件信息
+- **写入 Session**：不删除旧节点，只在 Session Tree 末尾追加 `CompactionEntry`；之后发送给模型的是 `summary + firstKeptEntryId` 之后的近期消息
+- **数据性质**：对模型上下文是有损压缩，对本地 JSONL 历史是无损保存；生成摘要本身也会消耗 token 和 cost
+- **扩展入口**：`session_before_compact` 可以取消压缩或提供自定义结果，完成和失败分别触发 `session_compact`、`session_compact_failed`
 
 ## Session 会话管理
 
