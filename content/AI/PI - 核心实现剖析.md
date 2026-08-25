@@ -1,5 +1,5 @@
 ---
-updated: 2026-08-21 15:21
+updated: 2026-08-25 10:00
 title: PI - 核心实现剖析
 ---
 
@@ -70,3 +70,26 @@ PI 的扩展不是继承 `Agent` 或改写主循环，而是通过**两阶段绑
 - `registerTool ()` 、` pi. on () ` ：类似 Spring 注册 Bean、Listener 或 Interceptor
 - `ExtensionRunner` ：类似 Spring 容器，负责保存注册项并在合适时机调用
 - ExtensionAPI  和事件  ctx ：属于 DI，PI 把扩展需要的依赖传进去
+
+### 事件菜单 （速查）
+光看图记不住全部。下面这张表按「发生在哪个环节」分类，每行标上「能做什么」，扫一遍心里有个数就行，不用背。
+
+| 环节        | 事件                          | 对应 Agent 的什么位置                                     | 能做什么（常见场景）                 |
+| --------- | --------------------------- | -------------------------------------------------- | -------------------------- |
+| 会话        | `session_start`             | 会话启动 / 恢复                                          | 初始化数据、恢复用户偏好               |
+|           | `session_shutdown`          | 扩展运行时被卸载（quit / reload / 切换会话）                     | 清理资源                       |
+| Agent 主循环 | `before_agent_start` ⭐      | 提交问题后、开跑前                                          | 改系统提示词、注入开场消息              |
+|           | `agent_start` / `agent_end` | 一轮问答的开始 / 结束                                       | 计时、收尾、通知前端                 |
+|           | `agent_settled` ⭐           | 一次 `prompt()` 彻底跑完（含 retry/compaction/queue 全部处理完） | **可靠结束信号**：写库收尾、推 SSE done |
+|           | `turn_start` / `turn_end`   | 每一小轮的开始 / 结束                                       | 预加载数据、每轮存档                 |
+| 用户输入      | `input` ⭐                   | 收到用户输入后                                            | 敏感词过滤、快捷指令、改写输入            |
+| 发给 LLM    | `context` ⭐                 | 发请求给大模型前                                           | 注入用户偏好、塞实时数据               |
+|           | `before_provider_request`   | HTTP 请求体组装完、即将发出                                   | 改请求体（return 新 payload）     |
+|           | `after_provider_response`   | 收到 LLM 的 HTTP 响应后                                  | 监控限流、错误告警（只读）              |
+| 消息输出      | `message_start`             | 一条消息开始                                             | 消息到来的通知                    |
+|           | `message_update`            | 消息流式更新（逐字）                                         | 实时渲染、打字机效果                 |
+|           | `message_end`               | 一条消息结束                                             | 改最终消息、记 token 用量           |
+
+> ⚠️ message_end 一轮会触发多次：它不是「整轮问答结束才发一次」，而是「每条 assistant 消息结束都发一次」。一次 prompt () 里 Agent 跑多轮 ReAct、调多次工具，就会触发好几次 message_end（中间那些「要调工具了」的 assistant 消息结束时也会发）。所以别拿 message_end 当整轮收尾信号——在那里写「推 SSE done」「算总 token」会重复触发好几次。整轮的可靠收尾用 agent_settled（每 prompt 只触发一次）；记 token 总量要在 agent_settled 时累加，而不是在 message_end 里各自记一笔。 | 工具 | tool_call ⭐ | 工具执行前 | 拦危险操作、改参数、权限检查 | | | tool_execution_start | 工具真正开跑 | 审计日志、显示「正在执行」 | | | tool_execution_update | 工具执行中的进度 | 展示进度片段 | | | tool_execution_end | 工具执行结束 | 算耗时、记结果 | | | tool_result ⭐ | 工具执行后 | 改返回值、敏感数据脱敏 | | 模型切换 | model_select | 切了模型 | 联动 UI、记日志 | | | thinking_level_select | 切了思考强度 | 记录、通知 | | 上下文压缩 | session_before_compact | 压缩上下文前 | 取消压缩、自定义压缩方式（用自己的摘要替代默认压缩）|
+
+> ⭐标星的 5 个事件（before_agent_start / context / tool_call / tool_result / input）有个特殊身份——它们是那个坑的主角（只在 pi. on 派发，session. subscribe 收不到），而且是「能动手」的事件里最常用的几个（能动手的事件总共约 15 个，详见 4.5 速查表）。
