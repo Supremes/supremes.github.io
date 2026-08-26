@@ -11,14 +11,15 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-webfont@1.7.0/style.css" rel="stylesheet">
 
-  <link rel="stylesheet" href="/static/css/style.css?v=8">
+  <link rel="stylesheet" href="/static/css/style.css?v=10">
   {% block head %}{% endblock %}
 </head>
 <body class="{% block body_class %}has-sidebar{% endblock %}">
   <!-- ───── 导航栏 ───── -->
   <header class="site-header">
     <div class="container header-inner">
-      <button class="sidebar-toggle icon-btn" id="sidebar-toggle" aria-label="切换文件树">☰</button>
+      <button class="sidebar-toggle icon-btn" id="sidebar-toggle"
+              aria-label="展开目录" aria-controls="sidebar" aria-expanded="true">☰</button>
       <a href="/" class="logo">
         <span class="logo-icon">📚</span>
         <span class="logo-text">知识库</span>
@@ -86,7 +87,7 @@
     </div>
   </footer>
 
-  <script src="/static/js/main.js?v=9"></script>
+  <script src="/static/js/main.js?v=11"></script>
   
   <!-- MathJax for LaTeX rendering -->
   <script>

@@ -1159,7 +1159,12 @@ img { max-width: 100%; height: auto; }
 
 /* ──────── 侧边栏（文件树）──────── */
 .sidebar-toggle { display: none; font-size: 1.3rem; line-height: 1; padding: 6px 10px; }
-.sidebar-close  { display: none; }
+.sidebar-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+}
 
 .sidebar {
   position: fixed;
@@ -1171,14 +1176,26 @@ img { max-width: 100%; height: auto; }
   border-right: 1px solid var(--border);
   overflow-y: auto;
   z-index: 50;
-  transition: transform 0.25s ease;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
 }
 .sidebar-backdrop { display: none; }
 
 body.has-sidebar .site-main { margin-left: 260px; }
+body.sidebar-collapsed .sidebar { transform: translateX(-100%); }
+body.has-sidebar.sidebar-collapsed .site-main { margin-left: 0; }
+body.has-sidebar.sidebar-collapsed .sidebar-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
 body.no-sidebar .sidebar,
 body.no-sidebar .sidebar-backdrop,
 body.no-sidebar .sidebar-toggle { display: none !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar { transition: none; }
+}
 
 .sidebar-header {
   display: flex;

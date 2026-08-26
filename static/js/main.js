@@ -309,19 +309,61 @@
     const sidebar = document.getElementById('sidebar');
     if (!sidebar) return;
 
-    // 移动端：汉堡按钮 + 关闭按钮 + 遮罩 + ESC
+    const body = document.body;
     const toggleBtn = document.getElementById('sidebar-toggle');
     const closeBtn = document.getElementById('sidebar-close');
     const backdrop = document.getElementById('sidebar-backdrop');
-    const open = () => { sidebar.classList.add('open'); backdrop && backdrop.classList.add('open'); };
-    const close = () => { sidebar.classList.remove('open'); backdrop && backdrop.classList.remove('open'); };
+    const main = document.querySelector('.site-main');
+    const desktop = window.matchMedia('(min-width: 1101px)');
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const collapsedKey = 'kb-sidebar-collapsed';
+    let mainAnimation;
+    const setCollapsed = (collapsed, animate = false) => {
+      const start = animate && main ? main.getBoundingClientRect().left : 0;
+      body.classList.toggle('sidebar-collapsed', collapsed);
+      if (animate && main && !reducedMotion.matches) {
+        const offset = start - main.getBoundingClientRect().left;
+        mainAnimation?.cancel();
+        mainAnimation = main.animate(
+          [{ transform: `translateX(${offset}px)` }, { transform: 'translateX(0)' }],
+          { duration: 300, easing: 'cubic-bezier(0.4, 0, 0.2, 1)' }
+        );
+      }
+      localStorage.setItem(collapsedKey, collapsed ? '1' : '0');
+      toggleBtn?.setAttribute('aria-expanded', String(!collapsed));
+      closeBtn?.setAttribute('aria-expanded', String(!collapsed));
+    };
+    const open = () => {
+      sidebar.classList.add('open');
+      backdrop?.classList.add('open');
+      toggleBtn?.setAttribute('aria-expanded', 'true');
+    };
+    const close = () => {
+      sidebar.classList.remove('open');
+      backdrop?.classList.remove('open');
+      toggleBtn?.setAttribute('aria-expanded', 'false');
+    };
 
-    toggleBtn && toggleBtn.addEventListener('click', () => {
-      sidebar.classList.contains('open') ? close() : open();
+    if (desktop.matches) {
+      setCollapsed(localStorage.getItem(collapsedKey) === '1');
+    } else {
+      toggleBtn?.setAttribute('aria-expanded', 'false');
+    }
+
+    toggleBtn?.addEventListener('click', () => {
+      if (desktop.matches) {
+        setCollapsed(false, true);
+      } else {
+        sidebar.classList.contains('open') ? close() : open();
+      }
     });
-    closeBtn && closeBtn.addEventListener('click', close);
-    backdrop && backdrop.addEventListener('click', close);
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+    closeBtn?.addEventListener('click', () => {
+      desktop.matches ? setCollapsed(true, true) : close();
+    });
+    backdrop?.addEventListener('click', close);
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && !desktop.matches) close();
+    });
 
     // sessionStorage 记忆分类展开/折叠状态
     sidebar.querySelectorAll('details.tree-node').forEach(d => {
