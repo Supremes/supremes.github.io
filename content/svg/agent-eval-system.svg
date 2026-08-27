@@ -1,0 +1,268 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="1800" viewBox="0 0 1320 1800" font-family="'Chalkboard SE','Comic Sans MS','Hanzipen SC','Segoe Print',cursive">
+  <defs>
+    <filter id="rough" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="3" seed="31" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="soft" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="19" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="1.3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="aRed" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+      <path d="M1,1 L8,5 L1,9" fill="none" stroke="#C2453C" stroke-width="1.7" stroke-linecap="round"/>
+    </marker>
+    <marker id="aGrn" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+      <path d="M1,1 L8,5 L1,9" fill="none" stroke="#4E7C5B" stroke-width="1.7" stroke-linecap="round"/>
+    </marker>
+    <marker id="aBlu" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+      <path d="M1,1 L8,5 L1,9" fill="none" stroke="#3C6E9E" stroke-width="1.7" stroke-linecap="round"/>
+    </marker>
+    <marker id="aInk" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+      <path d="M1,1 L8,5 L1,9" fill="none" stroke="#33302B" stroke-width="1.7" stroke-linecap="round"/>
+    </marker>
+  </defs>
+  <style>
+    .ink { fill: #33302B; }
+    .red { fill: #C2453C; }
+    .grn { fill: #4E7C5B; }
+    .blu { fill: #3C6E9E; }
+    .amb { fill: #A8730F; }
+    .gry { fill: #8C867D; }
+    .sRed { stroke: #C2453C; fill: none; }
+    .sGrn { stroke: #4E7C5B; fill: none; }
+    .sBlu { stroke: #3C6E9E; fill: none; }
+    .sGry { stroke: #B5AEA3; fill: none; }
+    .sAmb { stroke: #D9A441; fill: none; }
+    .code { font-family: Menlo,Monaco,monospace; font-size: 12px; }
+    .codeb { font-family: Menlo,Monaco,monospace; font-size: 12px; font-weight: bold; }
+    .xs { font-size: 11.5px; }
+    .sm { font-size: 13px; }
+    .t { font-size: 14.5px; }
+    .tb { font-size: 14.5px; font-weight: bold; }
+    .big { font-size: 17px; font-weight: bold; }
+    .h { font-size: 20px; font-weight: bold; }
+    .line { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  </style>
+
+  <rect width="1320" height="1800" fill="#FDFAF4"/>
+
+  <text x="40" y="48" class="ink" font-size="26" font-weight="bold">Agent 评测：从“答对一次”到“持续可靠地完成任务”</text>
+  <text x="40" y="78" class="gry" font-size="13.5">评的是 Model + Harness + Tool + Policy + Environment 的组合体，而不是裸模型</text>
+  <path d="M40,101 Q660,93 1280,101" class="sGry line" stroke-width="2" filter="url(#rough)"/>
+
+  <text x="40" y="140" class="h ink">一、三个互补视角：结果判成败，轨迹找原因，单步守预算</text>
+  <text x="1278" y="140" text-anchor="end" class="sm gry">三者缺一，都会留下系统性盲区</text>
+
+  <g filter="url(#rough)">
+    <rect x="40" y="162" width="230" height="310" rx="12" fill="#FBF6EC" stroke="#D9C7A4" stroke-width="2.4"/>
+  </g>
+  <text x="65" y="198" class="big ink">被测对象</text>
+  <text x="65" y="234" class="codeb blu">Agent System</text>
+  <text x="65" y="268" class="t ink">Model</text>
+  <text x="65" y="294" class="t ink">+ Prompt / Skill</text>
+  <text x="65" y="320" class="t ink">+ Tool / Runtime</text>
+  <text x="65" y="346" class="t ink">+ Memory / Context</text>
+  <text x="65" y="372" class="t ink">+ Policy / Environment</text>
+  <g filter="url(#soft)">
+    <rect x="60" y="402" width="190" height="50" rx="8" fill="#F8E9CE" stroke="#D9A441" stroke-width="2"/>
+  </g>
+  <text x="155" y="426" text-anchor="middle" class="tb amb">固定变量再比较</text>
+  <text x="155" y="446" text-anchor="middle" class="sm ink">否则分数无法归因</text>
+
+  <g filter="url(#soft)">
+    <rect x="300" y="162" width="300" height="208" rx="10" fill="#F2F8F4" stroke="#4E7C5B" stroke-width="2.4"/>
+    <rect x="620" y="162" width="300" height="208" rx="10" fill="#F1F6FB" stroke="#3C6E9E" stroke-width="2.4"/>
+    <rect x="940" y="162" width="340" height="208" rx="10" fill="#FDF6E8" stroke="#D9A441" stroke-width="2.4"/>
+  </g>
+
+  <text x="325" y="194" class="big grn">① Outcome / Final State</text>
+  <text x="325" y="228" class="tb ink">最终真的完成了吗？</text>
+  <text x="325" y="260" class="t ink">└→ 测试是否通过</text>
+  <text x="325" y="286" class="t ink">└→ 数据库 / 文件 / DOM 状态</text>
+  <text x="325" y="318" class="sm gry">最接近业务真值</text>
+  <text x="325" y="344" class="sm red">盲区：无法解释为什么</text>
+
+  <text x="645" y="194" class="big blu">② Trajectory</text>
+  <text x="645" y="228" class="tb ink">过程合理、安全、经济吗？</text>
+  <text x="645" y="260" class="t ink">└→ Tool / args / policy</text>
+  <text x="645" y="286" class="t ink">└→ 冗余、回退、首错、循环</text>
+  <text x="645" y="318" class="sm gry">负责诊断，不绑唯一参考路径</text>
+  <text x="645" y="344" class="sm red">盲区：好路径不等于好结果</text>
+
+  <text x="965" y="194" class="big amb">③ Turn / Step</text>
+  <text x="965" y="228" class="tb ink">这一步是否已经异常？</text>
+  <text x="965" y="260" class="t ink">└→ TTFT / token / cost</text>
+  <text x="965" y="286" class="t ink">└→ 参数错、越权、死循环信号</text>
+  <text x="965" y="318" class="sm gry">适合线上实时规则与告警</text>
+  <text x="965" y="344" class="sm red">盲区：局部对不代表全局对</text>
+
+  <g filter="url(#soft)">
+    <rect x="300" y="392" width="980" height="80" rx="10" fill="#E3EFF9" stroke="#3C6E9E" stroke-width="2.2"/>
+  </g>
+  <text x="790" y="423" text-anchor="middle" class="big ink">正确组合：最终状态定成败 + 必要约束守底线 + 软过程指标做诊断</text>
+  <text x="790" y="450" text-anchor="middle" class="sm blu">不要用一条人工“标准轨迹”误杀所有合法替代路径</text>
+
+  <text x="40" y="522" class="h ink">二、指标：pass@k 看“至少成一次”，pass^k 看“连续不出错”</text>
+  <text x="1278" y="522" text-anchor="end" class="sm gry">公式成立需要独立同分布；生产失败常常相关</text>
+
+  <g filter="url(#rough)">
+    <rect x="40" y="544" width="600" height="382" rx="12" fill="#F1F6FB" stroke="#3C6E9E" stroke-width="2.4"/>
+    <rect x="680" y="544" width="600" height="382" rx="12" fill="#FBF6EC" stroke="#D9C7A4" stroke-width="2.4"/>
+  </g>
+
+  <text x="65" y="580" class="big blu">同一个单次成功率 p，会讲出两个相反故事</text>
+  <g filter="url(#soft)">
+    <rect x="65" y="604" width="250" height="118" rx="10" fill="#E3EFF9" stroke="#3C6E9E" stroke-width="2"/>
+    <rect x="345" y="604" width="270" height="118" rx="10" fill="#F6DEDB" stroke="#C2453C" stroke-width="2.4"/>
+  </g>
+  <text x="190" y="636" text-anchor="middle" class="codeb blu">pass@k = 1-(1-p)^k</text>
+  <text x="190" y="666" text-anchor="middle" class="tb ink">k 次里至少一次成功</text>
+  <text x="190" y="696" text-anchor="middle" class="sm gry">探索 / 候选生成 / 能力上限</text>
+  <text x="480" y="636" text-anchor="middle" class="codeb red">pass^k = p^k</text>
+  <text x="480" y="666" text-anchor="middle" class="tb ink">k 次必须全部成功</text>
+  <text x="480" y="696" text-anchor="middle" class="sm gry">支付 / 权限 / 部署 / 可靠性</text>
+
+  <text x="65" y="762" class="tb ink">当 p = 90%</text>
+  <g filter="url(#soft)">
+    <rect x="65" y="782" width="550" height="104" rx="10" fill="#FFFFFF" stroke="#B5AEA3" stroke-width="2"/>
+  </g>
+  <text x="90" y="812" class="codeb ink">k</text>
+  <text x="250" y="812" text-anchor="middle" class="codeb blu">pass@k</text>
+  <text x="470" y="812" text-anchor="middle" class="codeb red">pass^k</text>
+  <text x="90" y="840" class="code ink">1</text>
+  <text x="250" y="840" text-anchor="middle" class="code blu">90%</text>
+  <text x="470" y="840" text-anchor="middle" class="code red">90%</text>
+  <text x="90" y="868" class="code ink">8</text>
+  <text x="250" y="868" text-anchor="middle" class="code blu">≈ 100%</text>
+  <text x="470" y="868" text-anchor="middle" class="codeb red">43.05%</text>
+  <text x="340" y="910" text-anchor="middle" class="big red">Demo 证明“做得到”；生产要求“每次都做对”</text>
+
+  <text x="705" y="580" class="big ink">上线决策至少同时看 6 组指标</text>
+  <g filter="url(#soft)">
+    <rect x="705" y="606" width="260" height="78" rx="10" fill="#F2F8F4" stroke="#4E7C5B" stroke-width="2"/>
+    <rect x="995" y="606" width="260" height="78" rx="10" fill="#F1F6FB" stroke="#3C6E9E" stroke-width="2"/>
+    <rect x="705" y="704" width="260" height="78" rx="10" fill="#F1F6FB" stroke="#3C6E9E" stroke-width="2"/>
+    <rect x="995" y="704" width="260" height="78" rx="10" fill="#FDF6E8" stroke="#D9A441" stroke-width="2"/>
+    <rect x="705" y="802" width="260" height="78" rx="10" fill="#FCF2F1" stroke="#C2453C" stroke-width="2.4"/>
+    <rect x="995" y="802" width="260" height="78" rx="10" fill="#F2F8F4" stroke="#4E7C5B" stroke-width="2"/>
+  </g>
+  <text x="730" y="636" class="tb grn">有效性</text>
+  <text x="730" y="662" class="sm ink">任务成功 / 最终状态</text>
+  <text x="1020" y="636" class="tb blu">轨迹质量</text>
+  <text x="1020" y="662" class="sm ink">工具、参数、首错、循环</text>
+  <text x="730" y="734" class="tb blu">可靠性</text>
+  <text x="730" y="760" class="sm ink">pass@1 / pass^k / 方差</text>
+  <text x="1020" y="734" class="tb amb">效率</text>
+  <text x="1020" y="760" class="sm ink">成功成本 / p95 / 轮数</text>
+  <text x="730" y="832" class="tb red">安全合规</text>
+  <text x="730" y="858" class="sm ink">越权 / 注入 / 泄漏 / veto</text>
+  <text x="1020" y="832" class="tb grn">鲁棒与体验</text>
+  <text x="1020" y="858" class="sm ink">扰动 / 接管 / 放弃 / CSAT</text>
+  <text x="980" y="910" text-anchor="middle" class="big amb">主指标决定方向；护栏定义不能跨过的底线</text>
+
+  <text x="40" y="978" class="h ink">三、工程闭环：不是跑一遍 Benchmark，而是持续制造可信证据</text>
+  <text x="1278" y="978" text-anchor="end" class="sm gry">每个产物都必须可版本化、可复现、可回流</text>
+
+  <g filter="url(#rough)">
+    <rect x="40" y="1000" width="230" height="358" rx="12" fill="#FBF6EC" stroke="#D9C7A4" stroke-width="2.4"/>
+  </g>
+  <text x="65" y="1036" class="big ink">评分优先级</text>
+  <text x="65" y="1074" class="tb grn">① Deterministic</text>
+  <text x="65" y="1098" class="sm ink">状态 / 测试 / Schema</text>
+  <text x="65" y="1136" class="tb blu">② LLM Judge</text>
+  <text x="65" y="1160" class="sm ink">开放质量 + Rubric</text>
+  <text x="65" y="1198" class="tb amb">③ Human Review</text>
+  <text x="65" y="1222" class="sm ink">高风险 / 分歧 / 低置信</text>
+  <g filter="url(#soft)">
+    <rect x="60" y="1260" width="190" height="78" rx="8" fill="#F8E9CE" stroke="#D9A441" stroke-width="2"/>
+  </g>
+  <text x="155" y="1288" text-anchor="middle" class="tb amb">Langfuse 的位置</text>
+  <text x="155" y="1312" text-anchor="middle" class="sm ink">Trace / Score / Dataset</text>
+  <text x="155" y="1332" text-anchor="middle" class="xs red">不是 Runtime / Resume</text>
+
+  <g filter="url(#soft)">
+    <rect x="300" y="1000" width="300" height="126" rx="10" fill="#F1F6FB" stroke="#3C6E9E" stroke-width="2"/>
+    <rect x="640" y="1000" width="300" height="126" rx="10" fill="#F1F6FB" stroke="#3C6E9E" stroke-width="2"/>
+    <rect x="980" y="1000" width="300" height="126" rx="10" fill="#F2F8F4" stroke="#4E7C5B" stroke-width="2"/>
+    <rect x="300" y="1210" width="300" height="126" rx="10" fill="#F2F8F4" stroke="#4E7C5B" stroke-width="2.4"/>
+    <rect x="640" y="1210" width="300" height="126" rx="10" fill="#FDF6E8" stroke="#D9A441" stroke-width="2.4"/>
+    <rect x="980" y="1210" width="300" height="126" rx="10" fill="#FFFFFF" stroke="#B5AEA3" stroke-width="2"/>
+  </g>
+
+  <text x="325" y="1032" class="codeb blu">① DEFINE + DATASET</text>
+  <text x="325" y="1062" class="tb ink">成功、veto、任务桶</text>
+  <text x="325" y="1090" class="sm gry">典型 + 边界 + 历史失败 + holdout</text>
+  <text x="325" y="1112" class="sm blu">每个 case 都有可验证 outcome</text>
+
+  <text x="665" y="1032" class="codeb blu">② RESETTABLE ENV</text>
+  <text x="665" y="1062" class="tb ink">固定初始状态与版本</text>
+  <text x="665" y="1090" class="sm gry">容器 / VM / 模拟 DB / 时间</text>
+  <text x="665" y="1112" class="sm blu">副作用隔离，episode 可重跑</text>
+
+  <text x="1005" y="1032" class="codeb grn">③ RUN + TRACE</text>
+  <text x="1005" y="1062" class="tb ink">多次采样，保留完整证据</text>
+  <text x="1005" y="1090" class="sm gry">model / prompt / tool / code version</text>
+  <text x="1005" y="1112" class="sm grn">失败 run 也必须落库</text>
+
+  <text x="1005" y="1242" class="codeb ink">④ GRADE</text>
+  <text x="1005" y="1272" class="tb ink">状态 → 规则 → Judge → 人</text>
+  <text x="1005" y="1300" class="sm gry">Rubric、证据、置信度、veto</text>
+  <text x="1005" y="1322" class="sm red">grader error ≠ agent failure</text>
+
+  <text x="665" y="1242" class="codeb amb">⑤ ATTRIBUTE + STATS</text>
+  <text x="665" y="1272" class="tb ink">定位首错，不只报总分</text>
+  <text x="665" y="1300" class="sm gry">分桶、配对分析、置信区间</text>
+  <text x="665" y="1322" class="sm amb">输出代表 bad case 与失败分类</text>
+
+  <text x="325" y="1242" class="codeb grn">⑥ GATE + FEEDBACK</text>
+  <text x="325" y="1272" class="tb ink">CI 门禁 → 灰度 → 线上回流</text>
+  <text x="325" y="1300" class="sm gry">质量 + 安全 + 成本 + 延迟护栏</text>
+  <text x="325" y="1322" class="sm grn">bad case 变成新的回归资产</text>
+
+  <path d="M600,1063 Q620,1050 640,1063" class="sBlu line" stroke-width="2.2" marker-end="url(#aBlu)"/>
+  <path d="M940,1063 Q960,1050 980,1063" class="sGrn line" stroke-width="2.2" marker-end="url(#aGrn)"/>
+  <path d="M1130,1126 Q1150,1165 1130,1210" class="sGrn line" stroke-width="2.2" marker-end="url(#aGrn)"/>
+  <path d="M980,1273 Q960,1286 940,1273" class="sAmb line" stroke-width="2.2" marker-end="url(#aInk)"/>
+  <path d="M640,1273 Q620,1286 600,1273" class="sGrn line" stroke-width="2.2" marker-end="url(#aGrn)"/>
+  <path d="M450,1336 Q430,1378 500,1396 Q880,1430 1090,1150" class="sBlu line" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#aBlu)"/>
+  <text x="780" y="1408" text-anchor="middle" class="big blu">观察 → 假设 → 实验 → 验证 → 回流：每一轮只改变一个主要变量</text>
+
+  <text x="40" y="1480" class="h ink">四、四个高频坑：评测系统也会撒谎</text>
+  <text x="1278" y="1480" text-anchor="end" class="sm red">看到高分先问：数据、环境、评分器和统计都可信吗？</text>
+
+  <g filter="url(#soft)">
+    <rect x="40" y="1502" width="290" height="184" rx="10" fill="#FCF2F1" stroke="#C2453C" stroke-width="2.4"/>
+    <rect x="350" y="1502" width="290" height="184" rx="10" fill="#FCF2F1" stroke="#C2453C" stroke-width="2.4"/>
+    <rect x="660" y="1502" width="290" height="184" rx="10" fill="#FCF2F1" stroke="#C2453C" stroke-width="2.4"/>
+    <rect x="970" y="1502" width="310" height="184" rx="10" fill="#FCF2F1" stroke="#C2453C" stroke-width="2.4"/>
+  </g>
+
+  <text x="65" y="1536" class="big red">① 数据泄漏</text>
+  <text x="65" y="1570" class="tb ink">评测题进入 Prompt / 训练</text>
+  <text x="65" y="1598" class="t ink">└→ 高分只是背答案</text>
+  <text x="65" y="1630" class="sm gry">私有 holdout + 来源追踪</text>
+  <text x="65" y="1654" class="sm grn">公开集只做外部参照</text>
+
+  <text x="375" y="1536" class="big red">② 唯一路径崇拜</text>
+  <text x="375" y="1570" class="tb ink">合法替代方案被判错</text>
+  <text x="375" y="1598" class="t ink">└→ 优化成复刻 grader</text>
+  <text x="375" y="1630" class="sm gry">状态真值 + 不变量 + 软路径分</text>
+  <text x="375" y="1654" class="sm grn">允许动作集合，不锁死序列</text>
+
+  <text x="685" y="1536" class="big red">③ Judge 未校准</text>
+  <text x="685" y="1570" class="tb ink">偏爱位置、长度和同源风格</text>
+  <text x="685" y="1598" class="t ink">└→ 分数不是人类判断代理</text>
+  <text x="685" y="1630" class="sm gry">交换顺序 + 金标 + kappa</text>
+  <text x="685" y="1654" class="sm grn">分歧与低置信转人工</text>
+
+  <text x="995" y="1536" class="big red">④ 单次平均分</text>
+  <text x="995" y="1570" class="tb ink">随机波动和关键桶退化被隐藏</text>
+  <text x="995" y="1598" class="t ink">└→ 小样本就宣布提升</text>
+  <text x="995" y="1630" class="sm gry">多次采样 + 分桶 + 配对统计</text>
+  <text x="995" y="1654" class="sm grn">报告样本量与置信区间</text>
+
+  <g filter="url(#rough)">
+    <rect x="160" y="1722" width="1000" height="56" rx="26" fill="#FDF3E2" stroke="#D9A441" stroke-width="2.4"/>
+  </g>
+  <text x="660" y="1757" text-anchor="middle" class="big ink">根源：评测不是“给 Agent 打分”，而是建立一条可复现、可诊断、能阻止回归的证据链</text>
+</svg>

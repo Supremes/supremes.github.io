@@ -1,0 +1,235 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="1780" viewBox="0 0 1320 1780" font-family="'Chalkboard SE','Comic Sans MS','Hanzipen SC','Segoe Print',cursive">
+  <defs>
+    <filter id="rough" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="3" seed="17" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="soft" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="7" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="1.3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="aRed" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+      <path d="M1,1 L8,5 L1,9" fill="none" stroke="#C2453C" stroke-width="1.7" stroke-linecap="round"/>
+    </marker>
+    <marker id="aGrn" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+      <path d="M1,1 L8,5 L1,9" fill="none" stroke="#4E7C5B" stroke-width="1.7" stroke-linecap="round"/>
+    </marker>
+    <marker id="aBlu" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+      <path d="M1,1 L8,5 L1,9" fill="none" stroke="#3C6E9E" stroke-width="1.7" stroke-linecap="round"/>
+    </marker>
+    <marker id="aInk" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+      <path d="M1,1 L8,5 L1,9" fill="none" stroke="#33302B" stroke-width="1.7" stroke-linecap="round"/>
+    </marker>
+  </defs>
+  <style>
+    .ink { fill: #33302B; }
+    .red { fill: #C2453C; }
+    .grn { fill: #4E7C5B; }
+    .blu { fill: #3C6E9E; }
+    .amb { fill: #A8730F; }
+    .gry { fill: #8C867D; }
+    .sRed { stroke: #C2453C; fill: none; }
+    .sGrn { stroke: #4E7C5B; fill: none; }
+    .sBlu { stroke: #3C6E9E; fill: none; }
+    .sGry { stroke: #B5AEA3; fill: none; }
+    .sAmb { stroke: #D9A441; fill: none; }
+    .code { font-family: Menlo,Monaco,monospace; font-size: 12px; }
+    .codeb { font-family: Menlo,Monaco,monospace; font-size: 12px; font-weight: bold; }
+    .xs { font-size: 11.5px; }
+    .sm { font-size: 13px; }
+    .t { font-size: 14.5px; }
+    .tb { font-size: 14.5px; font-weight: bold; }
+    .big { font-size: 17px; font-weight: bold; }
+    .h { font-size: 20px; font-weight: bold; }
+    .line { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  </style>
+
+  <rect width="1320" height="1780" fill="#FDFAF4"/>
+
+  <text x="40" y="48" class="ink" font-size="26" font-weight="bold">同一 claimId 的竞争加锁与安全解锁</text>
+  <text x="40" y="78" class="gry" font-size="13.5">FileSystemClaimStore：从原子 mkdir 到 token 校验，再到 stale lock 接管</text>
+  <path d="M40,101 Q660,93 1280,101" class="sGry line" stroke-width="2" filter="url(#rough)"/>
+
+  <text x="40" y="136" class="h ink">正常主线：A 赢得 operation lock，B 等待后重试</text>
+  <text x="1278" y="136" text-anchor="end" class="sm gry">时间从上往下</text>
+
+  <g filter="url(#soft)">
+    <rect x="40" y="156" width="350" height="50" rx="10" fill="#F1F6FB" stroke="#3C6E9E" stroke-width="2"/>
+    <rect x="430" y="156" width="460" height="50" rx="10" fill="#EFEAE0" stroke="#B5AEA3" stroke-width="2"/>
+    <rect x="930" y="156" width="350" height="50" rx="10" fill="#F1F6FB" stroke="#3C6E9E" stroke-width="2"/>
+  </g>
+  <text x="215" y="187" text-anchor="middle" class="tb blu">PI 进程 A</text>
+  <text x="660" y="187" text-anchor="middle" class="tb ink">共享文件系统</text>
+  <text x="1105" y="187" text-anchor="middle" class="tb blu">PI 进程 B</text>
+
+  <path d="M215,216 Q208,660 215,1190" class="sGry line" stroke-width="1.6" stroke-dasharray="6 6"/>
+  <path d="M660,216 Q668,660 660,1190" class="sGry line" stroke-width="1.6" stroke-dasharray="6 6"/>
+  <path d="M1105,216 Q1098,660 1105,1190" class="sGry line" stroke-width="1.6" stroke-dasharray="6 6"/>
+
+  <text x="40" y="242" class="tb ink">① 同一路径映射到同一个 claimId</text>
+  <g filter="url(#soft)">
+    <rect x="55" y="258" width="320" height="62" rx="10" fill="#FFFFFF" stroke="#3C6E9E" stroke-width="2"/>
+    <rect x="490" y="258" width="340" height="62" rx="10" fill="#E3EFF9" stroke="#3C6E9E" stroke-width="2"/>
+    <rect x="945" y="258" width="320" height="62" rx="10" fill="#FFFFFF" stroke="#3C6E9E" stroke-width="2"/>
+  </g>
+  <text x="75" y="283" class="codeb blu">transact(canonicalPath)</text>
+  <text x="75" y="305" class="sm ink">计算 SHA-256</text>
+  <text x="660" y="283" text-anchor="middle" class="codeb ink">claimId = sha256(path)</text>
+  <text x="660" y="305" text-anchor="middle" class="sm gry">同一路径 → 同一把操作锁</text>
+  <text x="965" y="283" class="codeb blu">transact(canonicalPath)</text>
+  <text x="965" y="305" class="sm ink">得到完全相同的 claimId</text>
+  <path d="M375,286 Q430,274 490,286" class="sBlu line" stroke-width="2" marker-end="url(#aBlu)"/>
+  <path d="M945,286 Q888,274 830,286" class="sBlu line" stroke-width="2" marker-end="url(#aBlu)"/>
+
+  <text x="40" y="354" class="tb ink">② 两边同时 mkdir，文件系统只允许一个成功</text>
+  <g filter="url(#soft)">
+    <rect x="500" y="370" width="320" height="66" rx="10" fill="#FFFFFF" stroke="#B5AEA3" stroke-width="2"/>
+  </g>
+  <text x="660" y="396" text-anchor="middle" class="codeb ink">mkdir(locks/&lt;claimId&gt;.lock)</text>
+  <text x="660" y="419" text-anchor="middle" class="sm gry">原子创建目录 = 竞争裁判</text>
+  <path d="M215,320 Q330,370 500,397" class="sBlu line" stroke-width="2.2" marker-end="url(#aBlu)"/>
+  <path d="M1105,320 Q980,370 820,397" class="sBlu line" stroke-width="2.2" marker-end="url(#aBlu)"/>
+
+  <g filter="url(#soft)">
+    <rect x="55" y="464" width="320" height="86" rx="10" fill="#F2F8F4" stroke="#4E7C5B" stroke-width="2.4"/>
+    <rect x="490" y="464" width="340" height="86" rx="10" fill="#E3EFF9" stroke="#3C6E9E" stroke-width="2"/>
+    <rect x="945" y="464" width="320" height="86" rx="10" fill="#FDF6E8" stroke="#D9A441" stroke-width="2.4"/>
+  </g>
+  <text x="75" y="490" class="codeb grn">✓ mkdir 成功</text>
+  <text x="75" y="516" class="tb ink">A 成为当前锁持有者</text>
+  <text x="75" y="538" class="sm gry">进入锁内临界区</text>
+  <text x="660" y="495" text-anchor="middle" class="big blu">同一时刻只有一个赢家</text>
+  <text x="660" y="523" text-anchor="middle" class="sm ink">不同 claimId 仍可并行</text>
+  <text x="965" y="490" class="codeb red">✗ EEXIST</text>
+  <text x="965" y="516" class="tb ink">B 没拿到锁</text>
+  <text x="965" y="538" class="sm amb">检查 stale 后等待重试</text>
+  <path d="M590,436 Q425,452 365,477" class="sGrn line" stroke-width="2.2" marker-end="url(#aGrn)"/>
+  <path d="M730,436 Q890,452 955,477" class="sRed line" stroke-width="2.2" marker-end="url(#aRed)"/>
+
+  <text x="40" y="586" class="tb ink">③ A 写入本次锁 token；B 只在锁外轮询</text>
+  <g filter="url(#soft)">
+    <rect x="55" y="602" width="320" height="88" rx="10" fill="#F1F6FB" stroke="#3C6E9E" stroke-width="2"/>
+    <rect x="470" y="602" width="380" height="88" rx="10" fill="#FFFFFF" stroke="#B5AEA3" stroke-width="2"/>
+    <rect x="945" y="602" width="320" height="88" rx="10" fill="#FDF6E8" stroke="#D9A441" stroke-width="2"/>
+  </g>
+  <text x="75" y="630" class="codeb blu">tokenA = randomUUID()</text>
+  <text x="75" y="655" class="sm ink">写入 owner-token，flag = wx</text>
+  <text x="75" y="677" class="sm grn">返回 tokenA 给 withOperationLock</text>
+  <text x="660" y="630" text-anchor="middle" class="codeb ink">locks/&lt;claimId&gt;.lock/</text>
+  <text x="660" y="655" text-anchor="middle" class="code ink">└→ owner-token = tokenA</text>
+  <text x="660" y="677" text-anchor="middle" class="xs gry">锁目录与 claim JSON 是两套文件</text>
+  <text x="965" y="630" class="codeb amb">recoverStale(lockPath)</text>
+  <text x="965" y="655" class="sm ink">mtime 未超过 30s → 不接管</text>
+  <text x="965" y="677" class="code ink">delay(2ms) → retry</text>
+  <path d="M375,646 Q425,633 470,646" class="sBlu line" stroke-width="2" marker-end="url(#aBlu)"/>
+
+  <g filter="url(#rough)">
+    <rect x="40" y="724" width="850" height="248" rx="12" fill="#F1F6FB" stroke="#3C6E9E" stroke-width="2.4"/>
+    <rect x="930" y="724" width="350" height="248" rx="12" fill="#FDF6E8" stroke="#D9A441" stroke-width="2.4"/>
+  </g>
+  <text x="65" y="756" class="big blu">④ A 的锁内临界区：读 → 判断 → 改</text>
+  <text x="955" y="756" class="big amb">B 的等待循环</text>
+  <g filter="url(#soft)">
+    <rect x="65" y="778" width="350" height="66" rx="10" fill="#FFFFFF" stroke="#B5AEA3" stroke-width="2"/>
+    <rect x="465" y="778" width="395" height="66" rx="10" fill="#FFFFFF" stroke="#B5AEA3" stroke-width="2"/>
+    <rect x="65" y="875" width="795" height="70" rx="10" fill="#E3EFF9" stroke="#3C6E9E" stroke-width="2"/>
+  </g>
+  <text x="85" y="805" class="codeb ink">#readSnapshot(claimId)</text>
+  <text x="85" y="829" class="sm gry">读取 claim JSON → snapshot</text>
+  <text x="485" y="805" class="codeb ink">operation(snapshot, transaction)</text>
+  <text x="485" y="829" class="sm gry">业务层判断 missing / valid / corrupt</text>
+  <text x="85" y="903" class="codeb blu">transaction.save(record)</text>
+  <text x="85" y="928" class="sm ink">临时文件 wx → 写完整 JSON → rename 覆盖 claim 文件</text>
+  <text x="828" y="928" text-anchor="end" class="sm grn">✓ 原子落盘</text>
+  <path d="M415,811 Q440,800 465,811" class="sBlu line" stroke-width="2" marker-end="url(#aBlu)"/>
+  <path d="M662,844 Q670,860 640,875" class="sBlu line" stroke-width="2" marker-end="url(#aBlu)"/>
+  <text x="955" y="800" class="codeb red">mkdir → EEXIST</text>
+  <text x="955" y="832" class="t ink">└→ stat(lockPath).mtime</text>
+  <text x="955" y="864" class="t ink">└→ fresh：不删除</text>
+  <text x="955" y="896" class="t ink">└→ delay(2ms)</text>
+  <text x="955" y="928" class="tb amb">└→ 回到 mkdir 重试</text>
+  <path d="M1234,938 Q1262,850 1234,790" class="sAmb line" stroke-width="2" stroke-dasharray="5 5" marker-end="url(#aInk)"/>
+
+  <text x="40" y="1009" class="tb ink">⑤ A 无论成功还是抛错，都在 finally 中尝试解锁</text>
+  <g filter="url(#soft)">
+    <rect x="55" y="1025" width="800" height="104" rx="10" fill="#F2F8F4" stroke="#4E7C5B" stroke-width="2.4"/>
+    <rect x="945" y="1025" width="320" height="104" rx="10" fill="#FDF6E8" stroke="#D9A441" stroke-width="2"/>
+  </g>
+  <text x="75" y="1054" class="codeb ink">actualToken = readFile(lockPath/owner-token)</text>
+  <text x="75" y="1081" class="tb grn">actualToken === tokenA → rm(lockPath, recursive)</text>
+  <text x="75" y="1107" class="sm ink">只删除自己仍然持有的那一代锁目录</text>
+  <text x="965" y="1054" class="codeb grn">✓ 下一次 mkdir 成功</text>
+  <text x="965" y="1081" class="tb ink">B 获得 operation lock</text>
+  <text x="965" y="1107" class="sm gry">生成并写入 tokenB</text>
+  <path d="M855,1077 Q900,1064 945,1077" class="sGrn line" stroke-width="2.2" marker-end="url(#aGrn)"/>
+
+  <g filter="url(#soft)">
+    <rect x="55" y="1150" width="320" height="76" rx="10" fill="#F1F6FB" stroke="#3C6E9E" stroke-width="2"/>
+    <rect x="470" y="1150" width="380" height="76" rx="10" fill="#FFFFFF" stroke="#B5AEA3" stroke-width="2"/>
+    <rect x="945" y="1150" width="320" height="76" rx="10" fill="#FCF2F1" stroke="#C2453C" stroke-width="2.4"/>
+  </g>
+  <text x="75" y="1177" class="tb blu">A 的 claim 仍然存在</text>
+  <text x="75" y="1203" class="sm ink">直到 agent_settled 才 releaseOwner</text>
+  <text x="660" y="1177" text-anchor="middle" class="codeb ink">snapshot.kind = "valid"</text>
+  <text x="660" y="1203" text-anchor="middle" class="sm gry">leasePolicy → active</text>
+  <text x="965" y="1177" class="tb red">B 返回 conflict</text>
+  <text x="965" y="1203" class="sm ink">再用 tokenB 正常释放操作锁</text>
+  <path d="M945,1100 Q885,1120 830,1150" class="sBlu line" stroke-width="2" marker-end="url(#aBlu)"/>
+  <path d="M375,1188 Q425,1176 470,1188" class="sRed line" stroke-width="2" marker-end="url(#aRed)"/>
+  <path d="M850,1194 Q900,1206 945,1194" class="sRed line" stroke-width="2" marker-end="url(#aRed)"/>
+
+  <text x="40" y="1272" class="h ink">异常支线：旧锁超过 30s，B 接管后如何避免被 A 误删</text>
+  <g filter="url(#rough)">
+    <rect x="40" y="1290" width="1240" height="300" rx="12" fill="#FDF6E8" stroke="#D9A441" stroke-width="2.6"/>
+  </g>
+
+  <g filter="url(#soft)">
+    <rect x="65" y="1322" width="285" height="102" rx="10" fill="#FCF2F1" stroke="#C2453C" stroke-width="2.4"/>
+    <rect x="390" y="1322" width="390" height="102" rx="10" fill="#FFFFFF" stroke="#B5AEA3" stroke-width="2"/>
+    <rect x="820" y="1322" width="435" height="102" rx="10" fill="#F2F8F4" stroke="#4E7C5B" stroke-width="2.4"/>
+  </g>
+  <text x="85" y="1351" class="codeb red">① A 持锁卡住 / 崩溃</text>
+  <text x="85" y="1379" class="sm ink">锁目录创建后已超过 30s</text>
+  <text x="85" y="1405" class="tb red">age &gt; staleAfterMs</text>
+  <text x="410" y="1351" class="codeb amb">② B 再次遇到 EEXIST</text>
+  <text x="410" y="1379" class="sm ink">stat 得到 stale → rename</text>
+  <text x="410" y="1405" class="code ink">lock → lock.&lt;uuid&gt;.stale → rm</text>
+  <text x="840" y="1351" class="codeb grn">③ B 建立全新一代锁</text>
+  <text x="840" y="1379" class="sm ink">mkdir(lockPath) → 写 owner-token</text>
+  <text x="840" y="1405" class="codeb blu">actualToken = tokenB</text>
+  <path d="M350,1373 Q370,1360 390,1373" class="sRed line" stroke-width="2.2" marker-end="url(#aRed)"/>
+  <path d="M780,1373 Q800,1360 820,1373" class="sGrn line" stroke-width="2.2" marker-end="url(#aGrn)"/>
+
+  <g filter="url(#soft)">
+    <rect x="65" y="1460" width="360" height="90" rx="10" fill="#FCF2F1" stroke="#C2453C" stroke-width="2"/>
+    <rect x="465" y="1460" width="340" height="90" rx="10" fill="#FFFFFF" stroke="#B5AEA3" stroke-width="2"/>
+    <rect x="845" y="1460" width="410" height="90" rx="10" fill="#DFEDE4" stroke="#4E7C5B" stroke-width="2.4"/>
+  </g>
+  <text x="85" y="1489" class="codeb red">④ A 后来恢复，进入 finally</text>
+  <text x="85" y="1517" class="sm ink">携带旧 expectedToken = tokenA</text>
+  <text x="85" y="1539" class="sm gry">尝试释放同名 lockPath</text>
+  <text x="485" y="1489" class="codeb ink">read owner-token</text>
+  <text x="485" y="1517" class="tb ink">tokenB ≠ tokenA</text>
+  <text x="485" y="1539" class="sm gry">当前锁已经换代</text>
+  <text x="865" y="1489" class="codeb grn">✓ A 跳过 rm(lockPath)</text>
+  <text x="865" y="1517" class="tb ink">不会误删 B 的新锁</text>
+  <text x="865" y="1539" class="sm amb">但 A 的旧 operation 仍可能继续执行</text>
+  <path d="M425,1505 Q445,1492 465,1505" class="sRed line" stroke-width="2" marker-end="url(#aRed)"/>
+  <path d="M805,1505 Q825,1492 845,1505" class="sGrn line" stroke-width="2" marker-end="url(#aGrn)"/>
+
+  <text x="660" y="1577" text-anchor="middle" class="big red">token 只保护“谁能删锁”，它不是阻止旧操作继续写入的 fencing token</text>
+
+  <g filter="url(#soft)">
+    <rect x="40" y="1618" width="600" height="76" rx="10" fill="#E3EFF9" stroke="#3C6E9E" stroke-width="2"/>
+    <rect x="680" y="1618" width="600" height="76" rx="10" fill="#DFEDE4" stroke="#4E7C5B" stroke-width="2"/>
+  </g>
+  <text x="65" y="1646" class="codeb blu">locks/.../owner-token</text>
+  <text x="65" y="1671" class="sm ink">短生命周期：标记“当前这代 operation lock”归谁释放</text>
+  <text x="705" y="1646" class="codeb grn">ClaimRecord.ownerToken</text>
+  <text x="705" y="1671" class="sm ink">长生命周期：与 sessionId + pid 一起标记 claim 持有者</text>
+
+  <g filter="url(#rough)">
+    <rect x="160" y="1714" width="1000" height="52" rx="26" fill="#FDF3E2" stroke="#D9A441" stroke-width="2.4"/>
+  </g>
+  <text x="660" y="1747" text-anchor="middle" class="big ink">根源：原子 mkdir 决定谁进入临界区；token 校验保证只有当前锁持有者能解锁</text>
+</svg>

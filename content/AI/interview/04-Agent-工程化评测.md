@@ -5,6 +5,7 @@ tags: [interview, eval, observability, llm-as-judge, ab-test]
 ---
 
 > 速答版见 [[00-面试速答总览]]。
+> 覆盖完整指标、Benchmark、Judge、数据集、系统设计与代码题的综合复习版见 [[Agent-评测面试复习]]。
 > 这三题串成一条线：**Q15 记录 → Q16 验证提升 → Q17 对比方案**。它们考的是同一件事 ——
 > **能不能把「感觉变好了」变成可度量、可复现、能进 CI 的结论。**
 

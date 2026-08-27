@@ -1,0 +1,235 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="1600" viewBox="0 0 1320 1600" font-family="'Chalkboard SE','Comic Sans MS','Hanzipen SC','Segoe Print',cursive">
+  <defs>
+    <filter id="rough" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="3" seed="23" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="soft" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="13" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="1.3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="aRed" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+      <path d="M1,1 L8,5 L1,9" fill="none" stroke="#C2453C" stroke-width="1.7" stroke-linecap="round"/>
+    </marker>
+    <marker id="aGrn" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+      <path d="M1,1 L8,5 L1,9" fill="none" stroke="#4E7C5B" stroke-width="1.7" stroke-linecap="round"/>
+    </marker>
+    <marker id="aBlu" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+      <path d="M1,1 L8,5 L1,9" fill="none" stroke="#3C6E9E" stroke-width="1.7" stroke-linecap="round"/>
+    </marker>
+    <marker id="aInk" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+      <path d="M1,1 L8,5 L1,9" fill="none" stroke="#33302B" stroke-width="1.7" stroke-linecap="round"/>
+    </marker>
+  </defs>
+  <style>
+    .ink { fill: #33302B; }
+    .red { fill: #C2453C; }
+    .grn { fill: #4E7C5B; }
+    .blu { fill: #3C6E9E; }
+    .amb { fill: #A8730F; }
+    .gry { fill: #8C867D; }
+    .sRed { stroke: #C2453C; fill: none; }
+    .sGrn { stroke: #4E7C5B; fill: none; }
+    .sBlu { stroke: #3C6E9E; fill: none; }
+    .sGry { stroke: #B5AEA3; fill: none; }
+    .sAmb { stroke: #D9A441; fill: none; }
+    .code { font-family: Menlo,Monaco,monospace; font-size: 12px; }
+    .codeb { font-family: Menlo,Monaco,monospace; font-size: 12px; font-weight: bold; }
+    .xs { font-size: 11.5px; }
+    .sm { font-size: 13px; }
+    .t { font-size: 14.5px; }
+    .tb { font-size: 14.5px; font-weight: bold; }
+    .big { font-size: 17px; font-weight: bold; }
+    .h { font-size: 20px; font-weight: bold; }
+    .line { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  </style>
+
+  <rect width="1320" height="1600" fill="#FDFAF4"/>
+
+  <text x="40" y="48" class="ink" font-size="26" font-weight="bold">Agent Tool Registry：不是工具列表，而是能力控制面</text>
+  <text x="40" y="78" class="gry" font-size="13.5">它把“模型看见什么、此刻允许什么、执行后如何追责”连接成一条确定性链路</text>
+  <path d="M40,101 Q660,93 1280,101" class="sGry line" stroke-width="2" filter="url(#rough)"/>
+
+  <text x="40" y="140" class="h ink">一、Registry 必须固化的 6 类事实</text>
+  <text x="1278" y="140" text-anchor="end" class="sm gry">控制面：声明 / 发现 / 解析，不直接执行</text>
+
+  <g filter="url(#rough)">
+    <rect x="40" y="162" width="230" height="404" rx="12" fill="#FBF6EC" stroke="#D9C7A4" stroke-width="2.4"/>
+  </g>
+  <text x="65" y="196" class="big ink">核心记录</text>
+  <text x="65" y="228" class="codeb blu">ToolDescriptor</text>
+  <text x="65" y="258" class="code ink">namespace/name</text>
+  <text x="65" y="282" class="code ink">@version + digest</text>
+  <text x="65" y="318" class="tb ink">不可变版本</text>
+  <text x="65" y="344" class="sm gry">同名新实现不能静默覆盖</text>
+  <text x="65" y="378" class="tb ink">可重放快照</text>
+  <text x="65" y="404" class="sm gry">一次 turn 固定解析结果</text>
+  <text x="65" y="438" class="tb ink">职责要窄</text>
+  <text x="65" y="464" class="sm gry">Registry ≠ Executor</text>
+  <g filter="url(#soft)">
+    <rect x="60" y="492" width="190" height="54" rx="8" fill="#F8E9CE" stroke="#D9A441" stroke-width="2"/>
+  </g>
+  <text x="155" y="516" text-anchor="middle" class="tb amb">先描述能力</text>
+  <text x="155" y="536" text-anchor="middle" class="sm ink">再在调用时做决策</text>
+
+  <g filter="url(#soft)">
+    <rect x="300" y="162" width="490" height="116" rx="10" fill="#F1F6FB" stroke="#3C6E9E" stroke-width="2"/>
+    <rect x="300" y="298" width="490" height="116" rx="10" fill="#FFFFFF" stroke="#B5AEA3" stroke-width="2"/>
+    <rect x="300" y="434" width="490" height="116" rx="10" fill="#F2F8F4" stroke="#4E7C5B" stroke-width="2"/>
+    <rect x="810" y="162" width="470" height="116" rx="10" fill="#F1F6FB" stroke="#3C6E9E" stroke-width="2"/>
+    <rect x="810" y="298" width="470" height="116" rx="10" fill="#FDF6E8" stroke="#D9A441" stroke-width="2"/>
+    <rect x="810" y="434" width="470" height="116" rx="10" fill="#F2F8F4" stroke="#4E7C5B" stroke-width="2"/>
+  </g>
+
+  <text x="325" y="192" class="big blu">① 身份与发现</text>
+  <text x="325" y="221" class="t ink">稳定 ID、命名空间、owner、来源、标签</text>
+  <text x="325" y="248" class="t ink">租户 / 会话 / 模型可见性；别名显式迁移</text>
+  <text x="758" y="268" text-anchor="end" class="codeb blu">resolve(id) → pinned version</text>
+
+  <text x="325" y="328" class="big ink">② 契约与模型体验</text>
+  <text x="325" y="357" class="t ink">严格 input / output schema + 语义约束 + 示例</text>
+  <text x="325" y="384" class="t ink">名称与描述可区分；错误能指导模型纠正</text>
+  <text x="758" y="404" text-anchor="end" class="codeb ink">units / enum / default / nullable</text>
+
+  <text x="325" y="464" class="big grn">③ 策略与作用域</text>
+  <text x="325" y="493" class="t ink">权限、风险级别、副作用、确认门、secret 引用</text>
+  <text x="325" y="520" class="t ink">授权绑定 actor + resource + 当前 request context</text>
+  <text x="758" y="540" text-anchor="end" class="codeb grn">least privilege · deny by default</text>
+
+  <text x="835" y="192" class="big blu">④ 执行语义</text>
+  <text x="835" y="221" class="t ink">timeout、cancel、retry、幂等键、并发与顺序</text>
+  <text x="835" y="248" class="t ink">read-only 可并行；mutating 默认串行</text>
+  <text x="1248" y="268" text-anchor="end" class="codeb blu">sideEffect / retrySafe</text>
+
+  <text x="835" y="328" class="big amb">⑤ 生命周期与可用性</text>
+  <text x="835" y="357" class="t ink">兼容性、弃用窗口、feature flag、健康状态</text>
+  <text x="835" y="384" class="t ink">reload 建新 runtime；旧调用继续使用旧快照</text>
+  <text x="1248" y="404" text-anchor="end" class="codeb amb">active → deprecated → removed</text>
+
+  <text x="835" y="464" class="big grn">⑥ 可观测性与治理</text>
+  <text x="835" y="493" class="t ink">callId、tool@version、policy 决策、耗时与结果</text>
+  <text x="835" y="520" class="t ink">参数默认脱敏；审计、SLO、成本、成功率可聚合</text>
+  <text x="1248" y="540" text-anchor="end" class="codeb grn">trace ≠ raw secret dump</text>
+
+  <g filter="url(#soft)">
+    <rect x="300" y="580" width="980" height="52" rx="10" fill="#E3EFF9" stroke="#3C6E9E" stroke-width="2.2"/>
+  </g>
+  <text x="790" y="612" text-anchor="middle" class="big ink">设计原则：Registry 保存“事实”；Policy 做“决策”；Executor 承担“副作用”</text>
+
+  <text x="40" y="680" class="h ink">二、一次工具调用的正确顺序</text>
+  <text x="1278" y="680" text-anchor="end" class="sm gry">数据面：每次调用都重新验证，不能相信模型上一步的判断</text>
+
+  <g filter="url(#rough)">
+    <rect x="40" y="702" width="230" height="308" rx="12" fill="#F1F6FB" stroke="#3C6E9E" stroke-width="2.4"/>
+  </g>
+  <text x="65" y="738" class="big blu">关键边界</text>
+  <text x="65" y="776" class="tb ink">控制面</text>
+  <text x="65" y="801" class="sm gry">发现、解析、版本快照</text>
+  <text x="65" y="837" class="tb ink">策略面</text>
+  <text x="65" y="862" class="sm gry">授权、确认、配额判断</text>
+  <text x="65" y="898" class="tb ink">执行面</text>
+  <text x="65" y="923" class="sm gry">隔离、取消、结果封装</text>
+  <g filter="url(#soft)">
+    <rect x="60" y="948" width="190" height="42" rx="8" fill="#E3EFF9" stroke="#3C6E9E" stroke-width="2"/>
+  </g>
+  <text x="155" y="974" text-anchor="middle" class="tb blu">分层才能独立演进</text>
+
+  <g filter="url(#soft)">
+    <rect x="300" y="702" width="286" height="104" rx="10" fill="#F1F6FB" stroke="#3C6E9E" stroke-width="2"/>
+    <rect x="647" y="702" width="286" height="104" rx="10" fill="#F1F6FB" stroke="#3C6E9E" stroke-width="2"/>
+    <rect x="994" y="702" width="286" height="104" rx="10" fill="#F2F8F4" stroke="#4E7C5B" stroke-width="2.4"/>
+    <rect x="300" y="852" width="286" height="104" rx="10" fill="#F2F8F4" stroke="#4E7C5B" stroke-width="2.4"/>
+    <rect x="647" y="852" width="286" height="104" rx="10" fill="#FDF6E8" stroke="#D9A441" stroke-width="2.4"/>
+    <rect x="994" y="852" width="286" height="104" rx="10" fill="#FFFFFF" stroke="#B5AEA3" stroke-width="2"/>
+  </g>
+
+  <text x="325" y="732" class="codeb blu">① DISCOVER</text>
+  <text x="325" y="760" class="tb ink">只暴露最小相关工具集</text>
+  <text x="325" y="785" class="sm gry">减少 token 与选错工具概率</text>
+
+  <text x="672" y="732" class="codeb blu">② RESOLVE</text>
+  <text x="672" y="760" class="tb ink">固定版本、handler 与 digest</text>
+  <text x="672" y="785" class="sm gry">turn 内不受热更新漂移</text>
+
+  <text x="1019" y="732" class="codeb grn">③ AUTHORIZE</text>
+  <text x="1019" y="760" class="tb ink">按当前 actor 与资源判权</text>
+  <text x="1019" y="785" class="sm gry">高风险操作请求显式确认</text>
+
+  <text x="325" y="882" class="codeb grn">⑥ OBSERVE</text>
+  <text x="325" y="910" class="tb ink">结构化结果 + 错误分类</text>
+  <text x="325" y="935" class="sm gry">记录审计；返回模型可行动反馈</text>
+
+  <text x="672" y="882" class="codeb amb">⑤ EXECUTE</text>
+  <text x="672" y="910" class="tb ink">隔离执行并传播取消信号</text>
+  <text x="672" y="935" class="sm gry">只对 retry-safe 失败做退避重试</text>
+
+  <text x="1019" y="882" class="codeb ink">④ VALIDATE</text>
+  <text x="1019" y="910" class="tb ink">结构校验 + 语义校验</text>
+  <text x="1019" y="935" class="sm gry">路径、单位、范围、资源存在性</text>
+
+  <path d="M586,754 Q615,742 647,754" class="sBlu line" stroke-width="2.2" marker-end="url(#aBlu)"/>
+  <path d="M933,754 Q962,742 994,754" class="sGrn line" stroke-width="2.2" marker-end="url(#aGrn)"/>
+  <path d="M1137,806 Q1165,831 1137,852" class="sGrn line" stroke-width="2.2" marker-end="url(#aGrn)"/>
+  <path d="M994,904 Q966,917 933,904" class="sAmb line" stroke-width="2.2" marker-end="url(#aInk)"/>
+  <path d="M647,904 Q618,917 586,904" class="sBlu line" stroke-width="2.2" marker-end="url(#aBlu)"/>
+
+  <text x="790" y="998" text-anchor="middle" class="big grn">✓ 模型提出意图；系统独立完成解析、授权、执行与记账</text>
+
+  <text x="40" y="1056" class="h ink">三、最容易踩的 8 个坑</text>
+  <text x="1278" y="1056" text-anchor="end" class="sm red">任何一项都可能让“能调用”变成“不可控”</text>
+
+  <g filter="url(#rough)">
+    <rect x="40" y="1078" width="230" height="356" rx="12" fill="#FCF2F1" stroke="#C2453C" stroke-width="2.6"/>
+  </g>
+  <text x="65" y="1114" class="big red">危险信号</text>
+  <text x="65" y="1152" class="tb ink">✗ 静默覆盖</text>
+  <text x="65" y="1180" class="tb ink">✗ 注册即授权</text>
+  <text x="65" y="1208" class="tb ink">✗ 盲目重试</text>
+  <text x="65" y="1236" class="tb ink">✗ 全量暴露</text>
+  <text x="65" y="1264" class="tb ink">✗ 在途漂移</text>
+  <text x="65" y="1292" class="tb ink">✗ 信任输出</text>
+  <text x="65" y="1320" class="tb ink">✗ 明文观测</text>
+  <text x="65" y="1348" class="tb ink">✗ 上帝对象</text>
+  <g filter="url(#soft)">
+    <rect x="60" y="1372" width="190" height="42" rx="8" fill="#F6DEDB" stroke="#C2453C" stroke-width="2.2"/>
+  </g>
+  <text x="155" y="1398" text-anchor="middle" class="tb red">先问：失败会伤到谁？</text>
+
+  <g filter="url(#soft)">
+    <rect x="300" y="1078" width="490" height="164" rx="10" fill="#FCF2F1" stroke="#C2453C" stroke-width="2.4"/>
+    <rect x="810" y="1078" width="470" height="164" rx="10" fill="#FCF2F1" stroke="#C2453C" stroke-width="2.4"/>
+    <rect x="300" y="1262" width="490" height="164" rx="10" fill="#FCF2F1" stroke="#C2453C" stroke-width="2.4"/>
+    <rect x="810" y="1262" width="470" height="164" rx="10" fill="#FCF2F1" stroke="#C2453C" stroke-width="2.4"/>
+  </g>
+
+  <text x="325" y="1110" class="big red">身份与契约</text>
+  <text x="325" y="1142" class="tb ink">① 只用 name 当主键，新实现静默覆盖旧实现</text>
+  <text x="325" y="1168" class="sm gry">结果：历史调用不可复现，回滚也找不到原版本</text>
+  <text x="325" y="1200" class="tb ink">② 以为 JSON Schema 等于业务语义</text>
+  <text x="325" y="1226" class="sm gry">结构合法不代表路径安全、单位正确或资源存在</text>
+
+  <text x="835" y="1110" class="big red">权限与信任</text>
+  <text x="835" y="1142" class="tb ink">③ 只在 register 时验权限，execute 时直接放行</text>
+  <text x="835" y="1168" class="sm gry">actor、资源与租户都可能已变化，形成越权窗口</text>
+  <text x="835" y="1200" class="tb ink">④ 把插件与 tool output 当可信内容</text>
+  <text x="835" y="1226" class="sm gry">供应链代码有系统权限；输出也可能携带 prompt injection</text>
+
+  <text x="325" y="1294" class="big red">执行与恢复</text>
+  <text x="325" y="1326" class="tb ink">⑤ 对 timeout / crash 一律自动重试</text>
+  <text x="325" y="1352" class="sm gry">邮件、扣款、写文件可能已成功，重试会重复副作用</text>
+  <text x="325" y="1384" class="tb ink">⑥ 没有取消传播、错误分类与幂等声明</text>
+  <text x="325" y="1410" class="sm gry">Agent 无法判断该改参数、问用户、重试还是立刻停止</text>
+
+  <text x="835" y="1294" class="big red">上下文与治理</text>
+  <text x="835" y="1326" class="tb ink">⑦ 每轮暴露全部工具，描述又高度相似</text>
+  <text x="835" y="1352" class="sm gry">挤占 context、破坏前缀缓存，还提高选错工具概率</text>
+  <text x="835" y="1384" class="tb ink">⑧ Registry 同时加载代码、判权、执行、记日志</text>
+  <text x="835" y="1410" class="sm gry">耦合成单点故障；日志还可能泄露 args、header 与 secret</text>
+
+  <text x="790" y="1470" text-anchor="middle" class="big red">判断标准：越权能否被挡住？副作用能否去重？一次历史调用能否原样重放？</text>
+
+  <g filter="url(#rough)">
+    <rect x="160" y="1518" width="1000" height="56" rx="26" fill="#FDF3E2" stroke="#D9A441" stroke-width="2.4"/>
+  </g>
+  <text x="660" y="1553" text-anchor="middle" class="big ink">根源：Tool Registry 管的不是函数集合，而是“能力暴露 → 授权 → 副作用 → 证据”的完整边界</text>
+</svg>
