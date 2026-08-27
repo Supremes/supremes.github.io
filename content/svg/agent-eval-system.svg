@@ -46,7 +46,7 @@
 
   <rect width="1320" height="1800" fill="#FDFAF4"/>
 
-  <text x="40" y="48" class="ink" font-size="26" font-weight="bold">Agent 评测：从“答对一次”到“持续可靠地完成任务”</text>
+  <text x="40" y="48" class="ink" font-size="26" font-weight="bold">Agent 评测：单次答对不等于可持续交付</text>
   <text x="40" y="78" class="gry" font-size="13.5">评的是 Model + Harness + Tool + Policy + Environment 的组合体，而不是裸模型</text>
   <path d="M40,101 Q660,93 1280,101" class="sGry line" stroke-width="2" filter="url(#rough)"/>
 
@@ -100,9 +100,9 @@
     <rect x="300" y="392" width="980" height="80" rx="10" fill="#E3EFF9" stroke="#3C6E9E" stroke-width="2.2"/>
   </g>
   <text x="790" y="423" text-anchor="middle" class="big ink">正确组合：最终状态定成败 + 必要约束守底线 + 软过程指标做诊断</text>
-  <text x="790" y="450" text-anchor="middle" class="sm blu">不要用一条人工“标准轨迹”误杀所有合法替代路径</text>
+  <text x="790" y="450" text-anchor="middle" class="sm blu">一条人工参考路径会误杀其他合法解法</text>
 
-  <text x="40" y="522" class="h ink">二、指标：pass@k 看“至少成一次”，pass^k 看“连续不出错”</text>
+  <text x="40" y="522" class="h ink">二、指标：pass@k 算至少一次成功，pass^k 算连续成功</text>
   <text x="1278" y="522" text-anchor="end" class="sm gry">公式成立需要独立同分布；生产失败常常相关</text>
 
   <g filter="url(#rough)">
@@ -135,7 +135,7 @@
   <text x="90" y="868" class="code ink">8</text>
   <text x="250" y="868" text-anchor="middle" class="code blu">≈ 100%</text>
   <text x="470" y="868" text-anchor="middle" class="codeb red">43.05%</text>
-  <text x="340" y="910" text-anchor="middle" class="big red">Demo 证明“做得到”；生产要求“每次都做对”</text>
+  <text x="340" y="910" text-anchor="middle" class="big red">Demo 看能力上限；生产看每次交付</text>
 
   <text x="705" y="580" class="big ink">上线决策至少同时看 6 组指标</text>
   <g filter="url(#soft)">
@@ -160,8 +160,8 @@
   <text x="1020" y="858" class="sm ink">扰动 / 接管 / 放弃 / CSAT</text>
   <text x="980" y="910" text-anchor="middle" class="big amb">主指标决定方向；护栏定义不能跨过的底线</text>
 
-  <text x="40" y="978" class="h ink">三、工程闭环：不是跑一遍 Benchmark，而是持续制造可信证据</text>
-  <text x="1278" y="978" text-anchor="end" class="sm gry">每个产物都必须可版本化、可复现、可回流</text>
+  <text x="40" y="978" class="h ink">三、工程闭环：让每次结论都有可复核的证据</text>
+  <text x="1278" y="978" text-anchor="end" class="sm gry">版本、输入和结果都要能复现和回流</text>
 
   <g filter="url(#rough)">
     <rect x="40" y="1000" width="230" height="358" rx="12" fill="#FBF6EC" stroke="#D9C7A4" stroke-width="2.4"/>
@@ -202,7 +202,7 @@
   <text x="1005" y="1032" class="codeb grn">③ RUN + TRACE</text>
   <text x="1005" y="1062" class="tb ink">多次采样，保留完整证据</text>
   <text x="1005" y="1090" class="sm gry">model / prompt / tool / code version</text>
-  <text x="1005" y="1112" class="sm grn">失败 run 也必须落库</text>
+  <text x="1005" y="1112" class="sm grn">失败 run 也要落库</text>
 
   <text x="1005" y="1242" class="codeb ink">④ GRADE</text>
   <text x="1005" y="1272" class="tb ink">状态 → 规则 → Judge → 人</text>
@@ -264,5 +264,5 @@
   <g filter="url(#rough)">
     <rect x="160" y="1722" width="1000" height="56" rx="26" fill="#FDF3E2" stroke="#D9A441" stroke-width="2.4"/>
   </g>
-  <text x="660" y="1757" text-anchor="middle" class="big ink">根源：评测不是“给 Agent 打分”，而是建立一条可复现、可诊断、能阻止回归的证据链</text>
+  <text x="660" y="1757" text-anchor="middle" class="big ink">评测要留下可复现、可诊断、能阻止回归的证据</text>
 </svg>
