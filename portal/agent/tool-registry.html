@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Agent 的 Tool Registry 怎么做</title>
+<style>
+  :root{
+    --paper:#FCFBF6;
+    --ink:#232B38;
+    --ink-soft:#4B5768;
+    --ink-faint:rgba(35,43,56,.16);
+
+    --green:#5FA97A;   --green-bg:#E7F4EB;
+    --blue:#5B92CF;    --blue-bg:#E4EEF9;
+    --purple:#9A7BC8;  --purple-bg:#EEE8F8;
+    --orange:#E28A4C;  --orange-bg:#FCEDDF;
+    --hi:#FFDC4D;
+
+    --f-hand:"HanziPen SC","Hanzipen SC","Chalkboard SE","Marker Felt","PingFang SC",sans-serif;
+    --f-body:"Yuanti SC","YuanTi SC","PingFang SC","Hiragino Sans GB",sans-serif;
+    --f-mark:"Chalkboard SE","Marker Felt","Comic Sans MS","HanziPen SC",sans-serif;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:#EDEAE1;
+    font-family:var(--f-body);
+    color:var(--ink);
+    display:flex;align-items:center;justify-content:center;
+    overflow:hidden;
+  }
+
+  /* ── 舞台：固定 1600×900（16:9），按窗口等比缩放 ────────────── */
+  #stage{transform-origin:center center}
+
+  .poster{
+    width:1600px;height:900px;
+    background:var(--paper);
+    background-image:
+      linear-gradient(rgba(35,43,56,.042) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(35,43,56,.042) 1px,transparent 1px);
+    background-size:30px 30px;
+    padding:30px 46px 26px;
+    display:flex;flex-direction:column;
+    position:relative;
+    box-shadow:0 18px 50px rgba(35,43,56,.18);
+  }
+  /* 白板四角的磁贴 */
+  .magnet{position:absolute;width:15px;height:15px;border-radius:50%;
+          background:var(--ink-faint);box-shadow:inset 0 -2px 0 rgba(35,43,56,.1)}
+  .magnet.tl{top:14px;left:16px} .magnet.tr{top:14px;right:16px}
+  .magnet.bl{bottom:14px;left:16px} .magnet.br{bottom:14px;right:16px}
+
+  /* ── 顶部标题区 15% ───────────────────────────────────────── */
+  header{flex:0 0 auto;text-align:center;padding-bottom:6px}
+  .eyebrow{
+    font-family:var(--f-mark);font-size:14px;letter-spacing:.24em;
+    color:var(--ink-soft);text-transform:uppercase;margin-bottom:8px;
+  }
+  h1{
+    font-family:var(--f-hand);font-size:57px;font-weight:700;
+    letter-spacing:.01em;line-height:1.12;
+    position:relative;display:inline-block;
+  }
+  h1 .en{font-family:var(--f-mark);letter-spacing:.005em}
+  .subtitle{
+    margin-top:12px;font-size:21px;color:var(--ink-soft);
+    font-family:var(--f-hand);letter-spacing:.04em;
+  }
+  .subtitle b{color:var(--ink);font-weight:700}
+
+  /* ── 主体：4 列卡片 + 3 个流转箭头 ─────────────────────────── */
+  main{
+    flex:1 1 auto;min-height:0;
+    display:grid;
+    grid-template-columns:1fr 46px 1fr 46px 1fr 46px 1fr;
+    align-items:stretch;
+    padding:14px 0 12px;
+  }
+
+  .card{
+    position:relative;
+    background:#fff;
+    border:2.5px solid var(--ink);
+    border-radius:20px 26px 18px 24px / 26px 18px 24px 20px;
+    padding:16px 18px 15px;
+    display:flex;flex-direction:column;
+    opacity:0;animation:dropR .55s cubic-bezier(.22,1,.36,1) forwards;
+  }
+  /* 马克笔"描了两遍"的第二道线 */
+  .card::before{
+    content:"";position:absolute;inset:-5px;pointer-events:none;
+    border:1.5px solid rgba(35,43,56,.2);
+    border-radius:26px 18px 24px 20px / 18px 26px 20px 24px;
+  }
+  .card.c1{--r:-.55deg; transform:rotate(-.55deg); animation-delay:.05s}
+  .card.c2{--r:.4deg;   transform:rotate(.4deg);   animation-delay:.17s}
+  .card.c3{--r:-.35deg; transform:rotate(-.35deg); animation-delay:.29s}
+  .card.c4{--r:.5deg;   transform:rotate(.5deg);   animation-delay:.41s}
+
+  @keyframes dropR{
+    from{opacity:0;transform:translateY(18px) rotate(0deg)}
+    to  {opacity:1;transform:translateY(0) rotate(var(--r))}
+  }
+
+  /* 顶部彩色圆角标签 */
+  .chip{
+    align-self:flex-start;
+    font-family:var(--f-mark);font-size:14.5px;font-weight:700;
+    padding:5px 14px 6px;
+    border:2px solid var(--ink);
+    border-radius:14px 9px 13px 8px / 8px 13px 9px 14px;
+    display:flex;align-items:baseline;gap:8px;
+    letter-spacing:.03em;
+  }
+  .chip .n{font-size:12px;opacity:.6}
+  .c1 .chip{background:var(--green-bg)}
+  .c2 .chip{background:var(--blue-bg)}
+  .c3 .chip{background:var(--purple-bg)}
+  .c4 .chip{background:var(--orange-bg)}
+
+  /* 手绘插画 */
+  .art{height:104px;margin:11px 0 4px;display:flex;align-items:center;justify-content:center}
+  .art svg{height:100%;width:auto;overflow:visible}
+  .art path,.art rect,.art circle,.art line{
+    stroke:var(--ink);stroke-width:2.4;fill:none;
+    stroke-linecap:round;stroke-linejoin:round;
+  }
+  .art .fill-g{fill:var(--green-bg)} .art .fill-b{fill:var(--blue-bg)}
+  .art .fill-p{fill:var(--purple-bg)} .art .fill-o{fill:var(--orange-bg)}
+  .art .fill-y{fill:var(--hi)}
+  .art .thin{stroke-width:1.9}
+  .art .dash{stroke-width:1.9;stroke-dasharray:2 5;opacity:.55}
+  .art .ok{stroke:var(--green);stroke-width:3.4}
+  .art .no{stroke:var(--orange);stroke-width:3.2}
+
+  /* 核心关键词 */
+  .keyword{
+    font-family:var(--f-hand);font-size:27px;font-weight:700;
+    text-align:center;margin-bottom:3px;
+  }
+  /* 马克笔划线：宽度精确贴合文字，multiply 混色所以压在字上也不糊 */
+  .kw{position:relative;display:inline-block}
+  /* SVG 是 replaced element：只给 height 会按 viewBox 比例算出固定宽度，
+     right 会被忽略。必须显式给 width，线才跟着文字长短走。 */
+  .u{
+    position:absolute;left:-4px;bottom:1px;
+    width:calc(100% + 8px);height:9px;
+    mix-blend-mode:multiply;pointer-events:none;
+  }
+
+  /* 要点 */
+  ul{list-style:none;margin-top:9px;flex:1 1 auto}
+  li{
+    font-size:15px;line-height:1.62;color:var(--ink);
+    padding-left:19px;position:relative;margin-bottom:9px;
+  }
+  li::before{
+    content:"";position:absolute;left:2px;top:9px;
+    width:8px;height:8px;border-radius:50% 40% 55% 45%;
+  }
+  .c1 li::before{background:var(--green)} .c2 li::before{background:var(--blue)}
+  .c3 li::before{background:var(--purple)}.c4 li::before{background:var(--orange)}
+  li code{
+    font-family:var(--f-mark);font-size:13.5px;
+    background:rgba(35,43,56,.06);padding:1px 5px;border-radius:5px;
+  }
+  li b{font-weight:700;box-shadow:inset 0 -7px 0 rgba(255,220,77,.55)}
+
+  /* 底部"适用场景"浅色圆角区 */
+  .use{
+    margin-top:6px;padding:9px 12px;
+    border-radius:13px 9px 14px 10px / 9px 14px 10px 13px;
+    font-size:13.5px;line-height:1.5;color:var(--ink-soft);
+  }
+  .use span{font-family:var(--f-mark);font-weight:700;color:var(--ink);margin-right:5px}
+  .c1 .use{background:var(--green-bg)} .c2 .use{background:var(--blue-bg)}
+  .c3 .use{background:var(--purple-bg)}.c4 .use{background:var(--orange-bg)}
+
+  /* 卡片之间的流转箭头 */
+  .flow{display:flex;align-items:center;justify-content:center;
+        opacity:0;animation:fadeIn .4s ease forwards}
+  .flow:nth-of-type(1){animation-delay:.5s}
+  .flow:nth-of-type(2){animation-delay:.58s}
+  .flow:nth-of-type(3){animation-delay:.66s}
+  .flow svg{width:34px;overflow:visible}
+  .flow path{stroke:var(--ink);stroke-width:2.4;fill:none;
+             stroke-linecap:round;stroke-linejoin:round;opacity:.5}
+  @keyframes fadeIn{to{opacity:1}}
+
+  /* ── 底部总结横条 15% ─────────────────────────────────────── */
+  footer{
+    flex:0 0 auto;
+    display:flex;align-items:center;gap:22px;
+    padding:15px 26px;
+    background:#fff;
+    border:2.5px solid var(--ink);
+    border-radius:22px 16px 24px 18px / 16px 24px 18px 22px;
+    position:relative;transform:rotate(-.18deg);
+    opacity:0;animation:fadeIn .5s ease .74s forwards;
+  }
+  footer::before{
+    content:"";position:absolute;inset:-5px;pointer-events:none;
+    border:1.5px solid rgba(35,43,56,.2);
+    border-radius:16px 24px 18px 22px / 24px 16px 22px 18px;
+  }
+  .bulb{flex:0 0 auto;width:56px}
+  .bulb path{stroke:var(--ink);stroke-width:2.4;fill:none;
+             stroke-linecap:round;stroke-linejoin:round}
+  .bulb .glass{fill:var(--hi)}
+  .bulb .ray{stroke-width:2.2;opacity:.6}
+  .summary{flex:1 1 auto}
+  .summary .lead{
+    font-family:var(--f-hand);font-size:27px;font-weight:700;line-height:1.3;
+  }
+  .summary .lead .u{left:-7px;bottom:-3px;width:calc(100% + 14px);height:13px}
+  .summary .sub{margin-top:7px;font-size:15.5px;color:var(--ink-soft);line-height:1.55}
+  .summary .sub b{color:var(--ink);font-weight:700}
+  .tally{
+    flex:0 0 auto;display:flex;gap:9px;padding-left:22px;
+    border-left:2px dashed var(--ink-faint);
+  }
+  .tally div{
+    font-family:var(--f-mark);font-size:12.5px;text-align:center;
+    padding:8px 11px;border:2px solid var(--ink);
+    border-radius:12px 8px 13px 9px / 8px 13px 9px 12px;line-height:1.35;
+  }
+  .tally div strong{display:block;font-size:19px;margin-bottom:1px}
+  .tally .t1{background:var(--green-bg)} .tally .t2{background:var(--blue-bg)}
+  .tally .t3{background:var(--purple-bg)}.tally .t4{background:var(--orange-bg)}
+
+  /* ── 截图助手 ─────────────────────────────────────────────── */
+  #hint{
+    position:fixed;right:16px;bottom:14px;z-index:20;
+    font-family:var(--f-mark);font-size:12px;color:#7B8494;
+    background:rgba(255,255,255,.9);border:1px solid #D8D3C7;
+    padding:6px 11px;border-radius:8px;cursor:pointer;user-select:none;
+  }
+  #hint:hover{color:var(--ink);border-color:var(--ink)}
+  body.raw{overflow:auto;display:block}
+  body.raw #stage{transform:none!important}
+  body.raw #hint,body.bare #hint{display:none}
+
+  @media print{
+    @page{size:1600px 900px;margin:0}
+    body{background:#fff;display:block;overflow:visible}
+    #stage{transform:none!important}
+    #hint{display:none}
+    .poster{box-shadow:none}
+    .card,.flow,footer{opacity:1!important;animation:none!important}
+    .card.c1{transform:rotate(-.55deg)} .card.c2{transform:rotate(.4deg)}
+    .card.c3{transform:rotate(-.35deg)} .card.c4{transform:rotate(.5deg)}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .card,.flow,footer{animation:none!important;opacity:1!important}
+    .card.c1{transform:rotate(-.55deg)} .card.c2{transform:rotate(.4deg)}
+    .card.c3{transform:rotate(-.35deg)} .card.c4{transform:rotate(.5deg)}
+  }
+</style>
+</head>
+<body>
+
+<div id="stage">
+<div class="poster">
+  <i class="magnet tl"></i><i class="magnet tr"></i>
+  <i class="magnet bl"></i><i class="magnet br"></i>
+
+  <!-- ══ 标题 ══════════════════════════════════════════════ -->
+  <header>
+    <div class="eyebrow">AI Agent · Engineering Notes</div>
+    <h1>AI Agent 的 <span class="en">Tool Registry</span> 该怎么做</h1>
+    <div class="subtitle">
+      四步走：<b>进得来</b> → <b>看得懂</b> → <b>选得对</b> → <b>跑得稳</b>
+    </div>
+  </header>
+
+  <!-- ══ 主体四卡 ══════════════════════════════════════════ -->
+  <main>
+
+    <!-- ── 卡片 1 · 注册与发现 ─────────────────────────── -->
+    <section class="card c1">
+      <div class="chip"><span class="n">01</span>进得来</div>
+
+      <div class="art">
+        <svg viewBox="0 0 140 100" role="img" aria-label="贴着标签的工具柜和一把放大镜">
+          <!-- 柜体 -->
+          <path d="M12 24 L12 84 Q12 88 16 88 L84 88 Q88 88 88 84 L88 24 Q88 20 84 20 L16 20 Q12 20 12 24 Z"/>
+          <path class="thin" d="M13 42 L87 42"/>
+          <path class="thin" d="M13 64 L87 64"/>
+          <!-- 抽屉标签 -->
+          <rect class="fill-g" x="20" y="26" width="15" height="9" rx="3"/>
+          <rect class="fill-g" x="20" y="48" width="15" height="9" rx="3"/>
+          <rect class="fill-g" x="20" y="70" width="15" height="9" rx="3"/>
+          <!-- 把手 -->
+          <path class="thin" d="M48 31 L72 31"/>
+          <path class="thin" d="M48 53 L72 53"/>
+          <path class="thin" d="M48 75 L72 75"/>
+          <!-- 放大镜：照在柜子上找工具 -->
+          <circle cx="106" cy="54" r="17" fill="rgba(252,251,246,.92)"/>
+          <path d="M118 67 L131 82"/>
+          <path class="thin" d="M99 50 L113 50 M99 58 L108 58"/>
+        </svg>
+      </div>
+
+      <div class="keyword"><span class="kw">注册与发现<svg class="u" viewBox="0 0 200 10" preserveAspectRatio="none">
+          <path d="M3 6 Q50 2 100 6 T197 5" stroke="#5FA97A" stroke-width="6"
+                fill="none" stroke-linecap="round" opacity=".45"/>
+        </svg></span></div>
+
+      <ul>
+        <li>用<b>装饰器 / 注解自动注册</b>，别攒一条 <code>if-else</code> 长链</li>
+        <li>Schema 从函数签名生成，<b>代码是唯一事实源</b>，改一处就够</li>
+        <li>统一加 <code>namespace</code> 前缀，多个 MCP server 才不会撞名覆盖</li>
+      </ul>
+
+      <div class="use"><span>适用</span>工具来自多个来源：本地函数、MCP server、远程 API</div>
+    </section>
+
+    <div class="flow"><svg viewBox="0 0 40 24"><path d="M4 12 Q16 8 30 12"/><path d="M23 6 L31 12 L23 18"/></svg></div>
+
+    <!-- ── 卡片 2 · Schema 设计 ────────────────────────── -->
+    <section class="card c2">
+      <div class="chip"><span class="n">02</span>看得懂</div>
+
+      <div class="art">
+        <svg viewBox="0 0 140 100" role="img" aria-label="一页工具说明书，旁边一个对勾和一个叉">
+          <!-- 说明书 -->
+          <path class="fill-b" d="M22 12 L80 12 Q84 12 84 16 L84 74 L68 90 L26 90 Q22 90 22 86 Z"/>
+          <path class="thin" d="M84 74 L70 74 Q68 74 68 76 L68 90"/>
+          <!-- 文字行 -->
+          <path class="thin" d="M32 30 L74 30"/>
+          <path class="thin" d="M32 42 L66 42"/>
+          <path class="thin" d="M32 54 L72 54"/>
+          <path class="thin" d="M32 66 L54 66"/>
+          <!-- 该写的 -->
+          <path class="ok" d="M99 32 L108 42 L128 18"/>
+          <!-- 不该写的 -->
+          <path class="no" d="M102 60 L122 80 M122 60 L102 80"/>
+        </svg>
+      </div>
+
+      <div class="keyword"><span class="kw">Schema 设计<svg class="u" viewBox="0 0 200 10" preserveAspectRatio="none">
+          <path d="M3 5 Q50 9 100 4 T197 6" stroke="#5B92CF" stroke-width="6"
+                fill="none" stroke-linecap="round" opacity=".45"/>
+        </svg></span></div>
+
+      <ul>
+        <li><code>description</code> 是 prompt 不是文档：写清<b>什么时候用、什么时候别用</b></li>
+        <li>参数<b>拍平</b>，少嵌套 object、少 union，模型填不对复杂结构</li>
+        <li>能枚举就别放自由字符串，把选择题留给模型、填空题留给代码</li>
+      </ul>
+
+      <div class="use"><span>适用</span>模型总挑错工具、参数老是填错的时候</div>
+    </section>
+
+    <div class="flow"><svg viewBox="0 0 40 24"><path d="M4 12 Q16 16 30 12"/><path d="M23 6 L31 12 L23 18"/></svg></div>
+
+    <!-- ── 卡片 3 · 选择与裁剪 ─────────────────────────── -->
+    <section class="card c3">
+      <div class="chip"><span class="n">03</span>选得对</div>
+
+      <div class="art">
+        <svg viewBox="0 0 140 100" role="img" aria-label="一堆工具经过漏斗筛出三个">
+          <!-- 上方一堆候选工具 -->
+          <rect class="thin" x="20" y="4" width="11" height="11" rx="3"/>
+          <circle class="thin" cx="46" cy="10" r="5.5"/>
+          <rect class="thin" x="62" y="2" width="11" height="11" rx="3"/>
+          <circle class="thin" cx="90" cy="10" r="5.5"/>
+          <rect class="thin" x="106" y="4" width="11" height="11" rx="3"/>
+          <!-- 漏斗 -->
+          <path class="fill-p" d="M22 26 L118 26 L82 60 L82 72 L58 82 L58 60 Z"/>
+          <!-- 掉落 -->
+          <path class="dash" d="M70 84 L70 92"/>
+          <!-- 精选出的三个 -->
+          <rect class="fill-p" x="38" y="86" width="13" height="13" rx="4"/>
+          <rect class="fill-p" x="63" y="86" width="13" height="13" rx="4"/>
+          <rect class="fill-p" x="88" y="86" width="13" height="13" rx="4"/>
+        </svg>
+      </div>
+
+      <div class="keyword"><span class="kw">选择与裁剪<svg class="u" viewBox="0 0 200 10" preserveAspectRatio="none">
+          <path d="M3 6 Q50 3 100 7 T197 4" stroke="#9A7BC8" stroke-width="6"
+                fill="none" stroke-linecap="round" opacity=".45"/>
+        </svg></span></div>
+
+      <ul>
+        <li>工具一多准确率就掉，<b>几十个起就该管</b>，全塞进 context 是白烧 token</li>
+        <li>按场景分组 + <b>schema 懒加载</b>：先给名字，用到哪个再展开定义</li>
+        <li>按角色和任务阶段过滤，<b>模型看不见的工具就不会乱调</b></li>
+      </ul>
+
+      <div class="use"><span>适用</span>接了一堆 MCP，context 被工具定义吃满的时候</div>
+    </section>
+
+    <div class="flow"><svg viewBox="0 0 40 24"><path d="M4 12 Q16 8 30 12"/><path d="M23 6 L31 12 L23 18"/></svg></div>
+
+    <!-- ── 卡片 4 · 执行与治理 ─────────────────────────── -->
+    <section class="card c4">
+      <div class="chip"><span class="n">04</span>跑得稳</div>
+
+      <div class="art">
+        <svg viewBox="0 0 140 100" role="img" aria-label="一面带对勾的盾牌和一个重试循环箭头">
+          <!-- 盾牌：每次调用都过一道关 -->
+          <path class="fill-o" d="M44 8 L76 21 L76 52 Q76 76 44 90 Q12 76 12 52 L12 21 Z"/>
+          <path class="ok" d="M27 49 L39 61 L61 34"/>
+          <!-- 重试循环 -->
+          <path d="M110 26 A26 26 0 1 1 88 66"/>
+          <path d="M110 26 L98 20 M110 26 L100 35"/>
+          <!-- 圆心里的表针：超时 -->
+          <path class="thin" d="M110 52 L110 39 M110 52 L121 52"/>
+        </svg>
+      </div>
+
+      <div class="keyword"><span class="kw">执行与治理<svg class="u" viewBox="0 0 200 10" preserveAspectRatio="none">
+          <path d="M3 5 Q50 8 100 4 T197 7" stroke="#E28A4C" stroke-width="6"
+                fill="none" stroke-linecap="round" opacity=".45"/>
+        </svg></span></div>
+
+      <ul>
+        <li>模型给的参数<b>按外部输入校验</b>，别直接透传进数据库和 shell</li>
+        <li>超时、重试、幂等 key 一个不能少；<b>写操作必须人工确认</b></li>
+        <li>报错要写成<b>模型能照着改的话</b>，别甩 stack trace；结果超长先截断</li>
+      </ul>
+
+      <div class="use"><span>适用</span>工具开始碰真实数据、准备上生产的时候</div>
+    </section>
+
+  </main>
+
+  <!-- ══ 底部总结 ══════════════════════════════════════════ -->
+  <footer>
+    <svg class="bulb" viewBox="0 0 64 64" role="img" aria-label="灯泡">
+      <path class="glass" d="M32 12 Q45 12 45 26 Q45 34 39 39 L39 45 L25 45 L25 39 Q19 34 19 26 Q19 12 32 12 Z"/>
+      <path d="M25 49 L39 49 M27 55 L37 55"/>
+      <path class="ray" d="M32 7 L32 2 M13 18 L8 14 M51 18 L56 14"/>
+    </svg>
+
+    <div class="summary">
+      <div class="lead"><span class="kw">Registry 的用户是模型，不是人<svg class="u" viewBox="0 0 300 12" preserveAspectRatio="none">
+          <path d="M4 7 Q75 2 150 7 T296 5" stroke="#FFDC4D" stroke-width="9"
+                fill="none" stroke-linecap="round"/>
+        </svg></span></div>
+      <div class="sub">
+        判断标准不是「这个工具能不能跑通」，而是<b>「模型能不能在该用它的时候准确选中它」</b>。<br>
+        写完一个工具先自测：只看 name + description 这两行，我自己选得对吗？
+      </div>
+    </div>
+
+    <div class="tally">
+      <div class="t1"><strong>唯一</strong>事实源</div>
+      <div class="t2"><strong>清晰</strong>边界</div>
+      <div class="t3"><strong>够用</strong>就好</div>
+      <div class="t4"><strong>永远</strong>不信任</div>
+    </div>
+  </footer>
+
+</div>
+</div>
+
+<div id="hint">适配窗口 · 点我切 1:1 原始尺寸（方便截图）</div>
+
+<script>
+  const stage = document.getElementById('stage');
+  const hint  = document.getElementById('hint');
+
+  // ?bare 或 ?raw：去掉提示条 / 直接按 1:1 输出，方便截图和自动化渲染
+  const q = new URLSearchParams(location.search);
+  if (q.has('bare')) document.body.classList.add('bare');
+  if (q.has('raw'))  document.body.classList.add('raw');
+
+  function fit(){
+    if (document.body.classList.contains('raw')) return;
+    const s = Math.min(window.innerWidth / 1600, window.innerHeight / 900);
+    stage.style.transform = 'scale(' + s + ')';
+  }
+  window.addEventListener('resize', fit);
+  fit();
+
+  hint.addEventListener('click', () => {
+    document.body.classList.toggle('raw');
+    fit();
+  });
+</script>
+
+</body>
+</html>
