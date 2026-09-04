@@ -1,0 +1,203 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="1290" viewBox="0 0 1320 1290" font-family="'Chalkboard SE','Comic Sans MS','Hanzipen SC','Segoe Print',cursive">
+
+  <defs>
+    <filter id="rough" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="3" seed="41" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="soft" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="7" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="1.3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="aRed" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+      <path d="M1,1 L8,5 L1,9" fill="none" stroke="#C2453C" stroke-width="1.7" stroke-linecap="round"/>
+    </marker>
+    <marker id="aGrn" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+      <path d="M1,1 L8,5 L1,9" fill="none" stroke="#4E7C5B" stroke-width="1.7" stroke-linecap="round"/>
+    </marker>
+    <marker id="aBlu" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+      <path d="M1,1 L8,5 L1,9" fill="none" stroke="#3C6E9E" stroke-width="1.7" stroke-linecap="round"/>
+    </marker>
+    <marker id="aInk" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+      <path d="M1,1 L8,5 L1,9" fill="none" stroke="#33302B" stroke-width="1.7" stroke-linecap="round"/>
+    </marker>
+  </defs>
+
+  <style>
+    .ink{fill:#33302B}.red{fill:#C2453C}.grn{fill:#4E7C5B}.blu{fill:#3C6E9E}.amb{fill:#A8730F}.gry{fill:#8C867D}
+    .sRed{stroke:#C2453C}.sGrn{stroke:#4E7C5B}.sBlu{stroke:#3C6E9E}.sGry{stroke:#B5AEA3}.sAmb{stroke:#D9A441}
+    .code{font-family:Menlo,Monaco,monospace;font-size:12px}
+    .codeb{font-family:Menlo,Monaco,monospace;font-size:12px;font-weight:bold}
+    .xs{font-size:11.5px}.sm{font-size:13px}.t{font-size:14.5px}.tb{font-size:14.5px;font-weight:bold}
+    .big{font-size:17px;font-weight:bold}.h{font-size:20px;font-weight:bold}
+  </style>
+
+  <rect width="1320" height="1290" fill="#FDFAF4"/>
+
+  <text x="660" y="50" text-anchor="middle" class="ink" font-size="26" font-weight="bold">Advisor Chain：一批 advisor，两条互不相干的责任链</text>
+  <text x="660" y="78" text-anchor="middle" class="gry" font-size="13.5">DefaultChatClient + DefaultAroundAdvisorChain v1.1.8 · 链的终点不是约定，是 LOWEST_PRECEDENCE 排出来的</text>
+  <path d="M290,92 Q660,86 1030,92" fill="none" class="sGry" stroke-width="2" filter="url(#rough)"/>
+
+  <!-- ══════════ A：构建期 ══════════ -->
+  <g filter="url(#rough)">
+    <rect x="40" y="112" width="1240" height="150" rx="12" fill="#FBF6EC" stroke="#D9C7A4" stroke-width="2"/>
+  </g>
+  <text x="660" y="142" text-anchor="middle" class="ink big">构建期：buildAdvisorChain() 就干三件事（DefaultChatClient L1044）</text>
+
+  <g filter="url(#soft)">
+    <rect x="62" y="158" width="372" height="86" rx="10" fill="#FFFFFF" class="sGry" stroke-width="2"/>
+    <rect x="474" y="158" width="372" height="86" rx="10" fill="#FFFFFF" class="sGry" stroke-width="2"/>
+    <rect x="886" y="158" width="372" height="86" rx="10" fill="#E3EFF9" class="sBlu" stroke-width="2.4"/>
+  </g>
+
+  <text x="248" y="182" text-anchor="middle" class="ink tb">一次塞进两个 model advisor</text>
+  <text x="248" y="204" text-anchor="middle" class="blu code">advisors.add(ChatModelCallAdvisor)</text>
+  <text x="248" y="226" text-anchor="middle" class="blu code">advisors.add(ChatModelStreamAdvisor)</text>
+
+  <text x="660" y="182" text-anchor="middle" class="ink tb">pushAll 时按接口类型分流</text>
+  <text x="660" y="204" text-anchor="middle" class="ink xs">instanceof CallAdvisor → callAdvisors</text>
+  <text x="660" y="226" text-anchor="middle" class="ink xs">instanceof StreamAdvisor → streamAdvisors</text>
+
+  <text x="1072" y="182" text-anchor="middle" class="blu tb">靠 order 沉底，不靠 add 顺序</text>
+  <text x="1072" y="204" text-anchor="middle" class="blu code">Ordered.LOWEST_PRECEDENCE</text>
+  <text x="1072" y="226" text-anchor="middle" class="ink xs">你什么时候 add，它俩都排最后</text>
+
+  <!-- ══════════ B 上轨：Call 链 ══════════ -->
+  <g filter="url(#rough)">
+    <rect x="40" y="290" width="1240" height="205" rx="12" fill="#F1F6FB" class="sBlu" stroke-width="2"/>
+  </g>
+  <text x="660" y="320" text-anchor="middle" class="ink big">① Call 链（同步）· ChatClientRequest 进，ChatClientResponse 出</text>
+
+  <g filter="url(#soft)">
+    <rect x="62" y="336" width="216" height="80" rx="10" fill="#FFFFFF" class="sGry" stroke-width="2"/>
+    <rect x="308" y="336" width="216" height="80" rx="10" fill="#FFFFFF" class="sGry" stroke-width="2"/>
+    <rect x="554" y="336" width="216" height="80" rx="10" fill="#FFFFFF" class="sGry" stroke-width="2"/>
+    <rect x="800" y="336" width="216" height="80" rx="10" fill="#FFFFFF" class="sGry" stroke-width="2"/>
+    <rect x="1046" y="336" width="216" height="80" rx="10" fill="#E3EFF9" class="sBlu" stroke-width="2.6"/>
+  </g>
+
+  <text x="170" y="360" text-anchor="middle" class="ink code">LoggingAdvisor</text>
+  <text x="170" y="382" text-anchor="middle" class="gry xs">order = 0</text>
+  <text x="170" y="404" text-anchor="middle" class="ink xs">打请求响应日志</text>
+
+  <text x="416" y="360" text-anchor="middle" class="ink code">ChatMemoryAdvisor</text>
+  <text x="416" y="382" text-anchor="middle" class="gry xs">order = 10</text>
+  <text x="416" y="404" text-anchor="middle" class="ink xs">往 prompt 里塞历史</text>
+
+  <text x="662" y="360" text-anchor="middle" class="ink code">RagAdvisor</text>
+  <text x="662" y="382" text-anchor="middle" class="gry xs">order = 20</text>
+  <text x="662" y="404" text-anchor="middle" class="ink xs">检索文档拼进 prompt</text>
+
+  <text x="908" y="360" text-anchor="middle" class="ink code">GuardrailAdvisor</text>
+  <text x="908" y="382" text-anchor="middle" class="gry xs">order = 30</text>
+  <text x="908" y="404" text-anchor="middle" class="ink xs">内容安全，可直接短路</text>
+
+  <text x="1154" y="360" text-anchor="middle" class="blu codeb">ChatModelCallAdvisor</text>
+  <text x="1154" y="382" text-anchor="middle" class="red xs">LOWEST_PRECEDENCE</text>
+  <text x="1154" y="404" text-anchor="middle" class="blu xs">链的终点，真正调模型</text>
+
+  <path d="M280,376 Q294,373 304,376" fill="none" class="sBlu" stroke-width="2" marker-end="url(#aBlu)"/>
+  <path d="M526,376 Q540,373 550,376" fill="none" class="sBlu" stroke-width="2" marker-end="url(#aBlu)"/>
+  <path d="M772,376 Q786,373 796,376" fill="none" class="sBlu" stroke-width="2" marker-end="url(#aBlu)"/>
+  <path d="M1018,376 Q1032,373 1042,376" fill="none" class="sBlu" stroke-width="2" marker-end="url(#aBlu)"/>
+
+  <g filter="url(#soft)"><rect x="62" y="430" width="1200" height="54" rx="10" fill="#FFFFFF" class="sGry" stroke-width="2"/></g>
+  <text x="662" y="452" text-anchor="middle" class="ink"><tspan class="codeb">nextCall()</tspan><tspan class="sm" dx="8">：</tspan><tspan class="code">callAdvisors.pop()</tspan><tspan class="sm" dx="8">→ 包一层 AdvisorObservation →</tspan><tspan class="code" dx="8">advisor.adviseCall(request, this)</tspan></text>
+  <text x="662" y="474" text-anchor="middle" class="gry xs">advisor 拿到的 chain 就是 this，它调 chain.nextCall() 就轮到下一个 —— 靠 pop 推进，没有索引也没有 for 循环</text>
+
+  <text x="660" y="513" text-anchor="middle" class="amb sm">同一批 advisor 实例，被 pushAll 分流成两条独立的 Deque —— 下面这条走的是完全不同的方法</text>
+
+  <!-- ══════════ B 下轨：Stream 链 ══════════ -->
+  <g filter="url(#rough)">
+    <rect x="40" y="527" width="1240" height="245" rx="12" fill="#F2F8F4" class="sGrn" stroke-width="2"/>
+  </g>
+  <text x="660" y="557" text-anchor="middle" class="ink big">② Stream 链（响应式）· 同样的 advisor，拿到手的却是 Flux&lt;ChatClientResponse&gt;</text>
+
+  <g filter="url(#soft)">
+    <rect x="62" y="573" width="216" height="80" rx="10" fill="#FFFFFF" class="sGry" stroke-width="2"/>
+    <rect x="308" y="573" width="216" height="80" rx="10" fill="#FFFFFF" class="sGry" stroke-width="2"/>
+    <rect x="554" y="573" width="216" height="80" rx="10" fill="#FFFFFF" class="sGry" stroke-width="2"/>
+    <rect x="800" y="573" width="216" height="80" rx="10" fill="#FFFFFF" class="sGry" stroke-width="2"/>
+    <rect x="1046" y="573" width="216" height="80" rx="10" fill="#DFEDE4" class="sGrn" stroke-width="2.6"/>
+  </g>
+
+  <text x="170" y="597" text-anchor="middle" class="ink code">LoggingAdvisor</text>
+  <text x="170" y="619" text-anchor="middle" class="gry xs">order = 0</text>
+  <text x="170" y="641" text-anchor="middle" class="ink xs">只能逐 chunk 打</text>
+
+  <text x="416" y="597" text-anchor="middle" class="ink code">ChatMemoryAdvisor</text>
+  <text x="416" y="619" text-anchor="middle" class="gry xs">order = 10</text>
+  <text x="416" y="641" class="amb xs" text-anchor="middle">要等流结束才能存</text>
+
+  <text x="662" y="597" text-anchor="middle" class="ink code">RagAdvisor</text>
+  <text x="662" y="619" text-anchor="middle" class="gry xs">order = 20</text>
+  <text x="662" y="641" text-anchor="middle" class="ink xs">检索发生在订阅之前</text>
+
+  <text x="908" y="597" text-anchor="middle" class="ink code">GuardrailAdvisor</text>
+  <text x="908" y="619" text-anchor="middle" class="gry xs">order = 30</text>
+  <text x="908" y="641" text-anchor="middle" class="amb xs">流已吐出去就拦不住了</text>
+
+  <text x="1154" y="597" text-anchor="middle" class="grn codeb">ChatModelStreamAdvisor</text>
+  <text x="1154" y="619" text-anchor="middle" class="red xs">LOWEST_PRECEDENCE</text>
+  <text x="1154" y="641" text-anchor="middle" class="grn xs">stream() + publishOn</text>
+
+  <path d="M280,613 Q294,610 304,613" fill="none" class="sGrn" stroke-width="2" marker-end="url(#aGrn)"/>
+  <path d="M526,613 Q540,610 550,613" fill="none" class="sGrn" stroke-width="2" marker-end="url(#aGrn)"/>
+  <path d="M772,613 Q786,610 796,613" fill="none" class="sGrn" stroke-width="2" marker-end="url(#aGrn)"/>
+  <path d="M1018,613 Q1032,610 1042,613" fill="none" class="sGrn" stroke-width="2" marker-end="url(#aGrn)"/>
+
+  <g filter="url(#soft)"><rect x="62" y="667" width="1200" height="80" rx="10" fill="#FFFFFF" class="sGry" stroke-width="2"/></g>
+  <text x="662" y="691" text-anchor="middle" class="ink"><tspan class="codeb">nextStream()</tspan><tspan class="sm" dx="8">：</tspan><tspan class="code">Flux.deferContextual(ctx -&gt; { streamAdvisors.pop(); ... })</tspan><tspan class="sm" dx="8">—— pop 推迟到订阅那一刻才发生</tspan></text>
+  <text x="662" y="713" text-anchor="middle" class="blu code">.contextWrite(ctx -&gt; ctx.put(ObservationThreadLocalAccessor.KEY, observation))</text>
+  <text x="662" y="735" text-anchor="middle" class="gry xs">最后 ChatClientMessageAggregator 旁路聚合一份完整响应喂给 observation —— 下游拿到的仍是原始碎片流</text>
+
+  <!-- ══════════ C：三个关注点 ══════════ -->
+  <g filter="url(#rough)">
+    <rect x="40" y="802" width="1240" height="345" rx="12" fill="#FBF6EC" stroke="#D9C7A4" stroke-width="2"/>
+  </g>
+  <text x="660" y="834" text-anchor="middle" class="ink h">读这块代码，其实只要回答三个问题</text>
+
+  <g filter="url(#soft)">
+    <rect x="62" y="850" width="372" height="200" rx="10" fill="#FFFFFF" class="sGry" stroke-width="2"/>
+    <rect x="474" y="850" width="372" height="200" rx="10" fill="#FFFFFF" class="sGry" stroke-width="2"/>
+    <rect x="886" y="850" width="372" height="200" rx="10" fill="#FFFFFF" class="sGry" stroke-width="2"/>
+  </g>
+
+  <text x="248" y="876" text-anchor="middle" class="blu tb">Q1 怎么改 Prompt 和 Context？</text>
+  <text x="248" y="902" text-anchor="middle" class="ink xs">ChatClientRequest 是不可变 record</text>
+  <text x="248" y="926" text-anchor="middle" class="ink xs">advisor 不原地改，而是 mutate()</text>
+  <text x="248" y="950" text-anchor="middle" class="ink xs">造一个新的往下传</text>
+  <g filter="url(#soft)"><rect x="80" y="964" width="336" height="70" rx="8" fill="#E3EFF9" class="sBlu" stroke-width="2"/></g>
+  <text x="248" y="986" text-anchor="middle" class="ink xs">context 那个 Map 是跨 advisor 传状态</text>
+  <text x="248" y="1006" text-anchor="middle" class="ink xs">的唯一通道；响应回来时反着走一遍，</text>
+  <text x="248" y="1026" text-anchor="middle" class="blu xs">所以顺序同时影响请求和响应两侧</text>
+
+  <text x="660" y="876" text-anchor="middle" class="grn tb">Q2 为什么非得拆成两套？</text>
+  <text x="660" y="902" text-anchor="middle" class="ink xs">不是两套实现凑数，是语义根本不同</text>
+  <text x="660" y="926" text-anchor="middle" class="ink xs">同步拿到的是完整 ChatClientResponse</text>
+  <text x="660" y="950" text-anchor="middle" class="ink xs">流式拿到的是 Flux，元素随时还在来</text>
+  <g filter="url(#soft)"><rect x="492" y="964" width="336" height="70" rx="8" fill="#DFEDE4" class="sGrn" stroke-width="2"/></g>
+  <text x="660" y="986" text-anchor="middle" class="ink xs">硬塞成一套接口，流式 advisor 就只能</text>
+  <text x="660" y="1006" text-anchor="middle" class="red xs">先 block() 等完 —— 流式就白做了</text>
+  <text x="660" y="1026" text-anchor="middle" class="grn xs">旁路 aggregator 才是正确解法</text>
+
+  <text x="1072" y="876" text-anchor="middle" class="red tb">Q3 为什么 model 必须在末端？</text>
+  <text x="1072" y="902" text-anchor="middle" class="ink xs">它是全链唯一不调 chain.nextXxx()</text>
+  <text x="1072" y="926" text-anchor="middle" class="ink xs">的那个 —— 调完模型直接 return</text>
+  <text x="1072" y="950" text-anchor="middle" class="ink xs">链就在这里自然终止</text>
+  <g filter="url(#soft)"><rect x="904" y="964" width="336" height="70" rx="8" fill="#F6DEDB" class="sRed" stroke-width="2"/></g>
+  <text x="1072" y="986" text-anchor="middle" class="ink xs">排在它后面的 advisor 永远拿不到执行</text>
+  <text x="1072" y="1006" text-anchor="middle" class="ink xs">机会，而且不会报错，只是静默不生效</text>
+  <text x="1072" y="1026" text-anchor="middle" class="red xs">✗ 自定义 advisor 别设成最低优先级</text>
+
+  <g filter="url(#soft)"><rect x="62" y="1064" width="1196" height="64" rx="8" fill="#FDF6E8" class="sAmb" stroke-width="2.2"/></g>
+  <text x="660" y="1090" text-anchor="middle" class="amb"><tspan class="tb">⚠ 两条 Deque 都是 pop() 消费式的 —— 链走一遍就空了，</tspan><tspan class="ink tb">所以每次 call() / stream() 都会重建一条新链</tspan></text>
+  <text x="660" y="1114" text-anchor="middle" class="ink xs">advisor 想在链中间重入（比如 RAG 拿到文档后再走一遍后半段），必须用 chain.copy(after) 复制出剩余部分，不能复用原链</text>
+
+  <!-- ═══ 结论胶囊 ═══ -->
+  <g filter="url(#rough)">
+    <rect x="115" y="1182" width="1090" height="52" rx="26" fill="#FDF3E2" stroke="#D9A441" stroke-width="2.4"/>
+  </g>
+  <text x="660" y="1214" text-anchor="middle" class="ink big">把「调模型」也做成链上的一个 advisor，横切能力就跟模型调用彻底解耦了 —— 这招最值得抄</text>
+
+</svg>

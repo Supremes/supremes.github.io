@@ -1,0 +1,223 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="1480" viewBox="0 0 1320 1480" font-family="'Chalkboard SE','Comic Sans MS','Hanzipen SC','Segoe Print',cursive">
+
+  <defs>
+    <filter id="rough" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="3" seed="17" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="soft" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="9" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="1.3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="aRed" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+      <path d="M1,1 L8,5 L1,9" fill="none" stroke="#C2453C" stroke-width="1.7" stroke-linecap="round"/>
+    </marker>
+    <marker id="aGrn" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+      <path d="M1,1 L8,5 L1,9" fill="none" stroke="#4E7C5B" stroke-width="1.7" stroke-linecap="round"/>
+    </marker>
+    <marker id="aBlu" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+      <path d="M1,1 L8,5 L1,9" fill="none" stroke="#3C6E9E" stroke-width="1.7" stroke-linecap="round"/>
+    </marker>
+    <marker id="aInk" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+      <path d="M1,1 L8,5 L1,9" fill="none" stroke="#33302B" stroke-width="1.7" stroke-linecap="round"/>
+    </marker>
+  </defs>
+
+  <style>
+    .ink{fill:#33302B}.red{fill:#C2453C}.grn{fill:#4E7C5B}.blu{fill:#3C6E9E}.amb{fill:#A8730F}.gry{fill:#8C867D}
+    .sRed{stroke:#C2453C}.sGrn{stroke:#4E7C5B}.sBlu{stroke:#3C6E9E}.sGry{stroke:#B5AEA3}.sAmb{stroke:#D9A441}
+    .code{font-family:Menlo,Monaco,monospace;font-size:12px}
+    .codeb{font-family:Menlo,Monaco,monospace;font-size:12px;font-weight:bold}
+    .xs{font-size:11.5px}.sm{font-size:13px}.t{font-size:14.5px}.tb{font-size:14.5px;font-weight:bold}
+    .big{font-size:17px;font-weight:bold}.h{font-size:20px;font-weight:bold}
+  </style>
+
+  <rect width="1320" height="1480" fill="#FDFAF4"/>
+
+  <text x="660" y="50" text-anchor="middle" class="ink" font-size="26" font-weight="bold">Tool Calling 闭环：模型说「我要调工具」之后的 6 道关</text>
+  <text x="660" y="78" text-anchor="middle" class="gry" font-size="13.5">spring-ai v1.1.8 · 从 hasToolCalls() 到 ToolResponseMessage 回填 —— 每道关都藏着你手搓时会漏掉的边界</text>
+  <path d="M290,92 Q660,86 1030,92" fill="none" class="sGry" stroke-width="2" filter="url(#rough)"/>
+
+  <!-- ═══ 表头 ═══ -->
+  <g filter="url(#soft)">
+    <rect x="88" y="112" width="200" height="48" rx="10" fill="#EFEAE0" class="sGry" stroke-width="2"/>
+    <rect x="310" y="112" width="490" height="48" rx="10" fill="#EFEAE0" class="sGry" stroke-width="2"/>
+    <rect x="820" y="112" width="460" height="48" rx="10" fill="#EFEAE0" class="sGry" stroke-width="2"/>
+  </g>
+  <text x="188" y="142" text-anchor="middle" class="ink tb">阶段 / 类</text>
+  <text x="555" y="142" text-anchor="middle" class="ink tb">源码实际做了什么</text>
+  <text x="1050" y="142" text-anchor="middle" class="ink tb">藏在里面的边界条件</text>
+
+  <!-- ═══ 流程脊柱 ═══ -->
+  <path d="M62,190 Q69,610 62,1120" fill="none" class="sBlu" stroke-width="2.2" filter="url(#rough)"/>
+
+  <!-- ══════════ ROW 1 ══════════ -->
+  <g filter="url(#soft)">
+    <rect x="88" y="175" width="200" height="140" rx="10" fill="#FBF6EC" stroke="#D9C7A4" stroke-width="2"/>
+    <rect x="310" y="175" width="490" height="140" rx="10" fill="#F1F6FB" class="sBlu" stroke-width="2"/>
+    <rect x="820" y="175" width="460" height="140" rx="10" fill="#FFFFFF" class="sGry" stroke-width="2"/>
+  </g>
+  <circle cx="62" cy="209" r="15" fill="#FDFAF4" class="sBlu" stroke-width="2.2"/>
+  <text x="62" y="215" text-anchor="middle" class="blu" font-size="15" font-weight="bold">1</text>
+  <text x="188" y="209" text-anchor="middle" class="ink tb">准入判定</text>
+  <text x="188" y="238" text-anchor="middle" class="ink code">DefaultToolExecution</text>
+  <text x="188" y="256" text-anchor="middle" class="ink code">EligibilityPredicate</text>
+  <text x="188" y="288" text-anchor="middle" class="gry xs">这一步不过，后面全不发生</text>
+
+  <text x="335" y="205"><tspan class="ink codeb">test(promptOptions, chatResponse)</tspan><tspan class="gry xs" dx="10">全文就 2 行</tspan></text>
+  <text x="335" y="233" class="blu code">a) isInternalToolExecutionEnabled(options)</text>
+  <text x="335" y="261" class="blu code">b) chatResponse.hasToolCalls()</text>
+  <text x="335" y="289" class="grn xs">└→ 两个都 true 才进闭环，否则原样返回给调用方</text>
+
+  <text x="845" y="205" class="ink xs">开关默认是打开的。手动关掉它，模型返回的</text>
+  <text x="845" y="233" class="ink xs">tool call 就不会被执行，Spring AI 原样吐给你</text>
+  <text x="845" y="261" class="amb xs">└→ 这是留给外部 Agent Runtime 接管的唯一口子</text>
+  <text x="845" y="289" class="gry code">ToolCallingChatOptions.internalToolExecutionEnabled</text>
+
+  <!-- ══════════ ROW 2 ══════════ -->
+  <g filter="url(#soft)">
+    <rect x="88" y="339" width="200" height="140" rx="10" fill="#FBF6EC" stroke="#D9C7A4" stroke-width="2"/>
+    <rect x="310" y="339" width="490" height="140" rx="10" fill="#F1F6FB" class="sBlu" stroke-width="2"/>
+    <rect x="820" y="339" width="460" height="140" rx="10" fill="#FFFFFF" class="sGry" stroke-width="2"/>
+  </g>
+  <circle cx="62" cy="373" r="15" fill="#FDFAF4" class="sBlu" stroke-width="2.2"/>
+  <text x="62" y="379" text-anchor="middle" class="blu" font-size="15" font-weight="bold">2</text>
+  <text x="188" y="373" text-anchor="middle" class="ink tb">工具进入请求</text>
+  <text x="188" y="402" text-anchor="middle" class="ink code">DefaultToolCalling</text>
+  <text x="188" y="420" text-anchor="middle" class="ink code">Manager</text>
+  <text x="188" y="452" text-anchor="middle" class="gry code">.resolveToolDefinitions()</text>
+
+  <text x="335" y="369" class="ink sm">把 options 里的两个来源合成一批 ToolDefinition：</text>
+  <text x="335" y="397" class="blu code">toolCallbacks（现成对象） + toolNames（Bean 名）</text>
+  <text x="335" y="425" class="ink xs">同名的只留一份：toolName 若已出现在 toolCallbacks 里</text>
+  <text x="335" y="453" class="grn xs">└→ 直接 skip，避免同一个工具在请求里出现两遍</text>
+
+  <text x="845" y="369" class="ink xs">resolve 不到？当场抛 IllegalStateException，</text>
+  <text x="845" y="397" class="ink xs">并 warn 一句「LLM 可能改了工具名」</text>
+  <text x="845" y="425" class="amb xs">└→ MCP 工具名太长被截断时，最容易踩这个坑</text>
+  <text x="845" y="453" class="gry xs">改 McpToolNamePrefixGenerator 可以自定义前缀规则</text>
+
+  <!-- ══════════ ROW 3 ══════════ -->
+  <g filter="url(#soft)">
+    <rect x="88" y="503" width="200" height="140" rx="10" fill="#FBF6EC" stroke="#D9C7A4" stroke-width="2"/>
+    <rect x="310" y="503" width="490" height="140" rx="10" fill="#F1F6FB" class="sBlu" stroke-width="2"/>
+    <rect x="820" y="503" width="460" height="140" rx="10" fill="#FFFFFF" class="sGry" stroke-width="2"/>
+  </g>
+  <circle cx="62" cy="537" r="15" fill="#FDFAF4" class="sBlu" stroke-width="2.2"/>
+  <text x="62" y="543" text-anchor="middle" class="blu" font-size="15" font-weight="bold">3</text>
+  <text x="188" y="537" text-anchor="middle" class="ink tb">定位 ToolCallback</text>
+  <text x="188" y="566" text-anchor="middle" class="ink code">SpringBeanTool</text>
+  <text x="188" y="584" text-anchor="middle" class="ink code">CallbackResolver</text>
+  <text x="188" y="616" text-anchor="middle" class="gry xs">两级查找，不是一级</text>
+
+  <text x="335" y="533" class="ink sm">先在 prompt options 的 toolCallbacks 里按名字找，</text>
+  <text x="335" y="561" class="amb sm">找不到，才 fallback 到 resolver 去容器里捞 Bean</text>
+  <text x="335" y="589" class="blu code">ResolvableType 反射出泛型入参 → 生成 JSON Schema</text>
+  <text x="335" y="617" class="grn xs">└→ 最后包成 FunctionToolCallback 交出去</text>
+
+  <text x="845" y="533" class="ink xs">反射结果进 ConcurrentHashMap 缓存，同名只算一次</text>
+  <text x="845" y="561" class="ink xs">Bean 的类型决定包装方式，四种全支持：</text>
+  <text x="845" y="589" class="blu code">Function / BiFunction / Supplier / Consumer</text>
+  <text x="845" y="617" class="gry xs">└→ Kotlin 的还会多走一层 KotlinDelegate 包装</text>
+
+  <!-- ══════════ ROW 4 ══════════ -->
+  <g filter="url(#soft)">
+    <rect x="88" y="667" width="200" height="140" rx="10" fill="#FBF6EC" stroke="#D9C7A4" stroke-width="2"/>
+    <rect x="310" y="667" width="490" height="140" rx="10" fill="#F2F8F4" class="sGrn" stroke-width="2"/>
+    <rect x="820" y="667" width="460" height="140" rx="10" fill="#FDF6E8" class="sAmb" stroke-width="2.4"/>
+  </g>
+  <circle cx="62" cy="701" r="15" fill="#FDFAF4" class="sGrn" stroke-width="2.2"/>
+  <text x="62" y="707" text-anchor="middle" class="grn" font-size="15" font-weight="bold">4</text>
+  <text x="188" y="701" text-anchor="middle" class="ink tb">JSON → Java → 执行</text>
+  <text x="188" y="730" text-anchor="middle" class="ink code">FunctionToolCallback</text>
+  <text x="188" y="748" text-anchor="middle" class="ink code">.call()</text>
+  <text x="188" y="780" text-anchor="middle" class="gry xs">真正干活的那 3 行</text>
+
+  <text x="335" y="697" class="grn code">JsonParser.fromJson(toolInput, toolInputType)</text>
+  <text x="355" y="725" class="ink xs">└→ 反序列化成你声明的入参对象</text>
+  <text x="335" y="753" class="grn code">toolFunction.apply(request, toolContext)</text>
+  <text x="335" y="781" class="grn code">toolCallResultConverter.convert(response, null)</text>
+
+  <text x="845" y="697" class="amb tb">⚠ 流式下 arguments 可能是 null 或空串</text>
+  <text x="845" y="725" class="ink xs">Manager 在调用前硬兜底，并打一条 warn：</text>
+  <g filter="url(#soft)"><rect x="842" y="738" width="416" height="52" rx="8" fill="#F8E9CE" class="sAmb" stroke-width="2"/></g>
+  <text x="1050" y="759" text-anchor="middle" class="amb codeb">finalToolInputArguments = "{}"</text>
+  <text x="1050" y="779" text-anchor="middle" class="ink xs">没这一手，反序列化当场炸</text>
+
+  <!-- ══════════ ROW 5 ══════════ -->
+  <g filter="url(#soft)">
+    <rect x="88" y="831" width="200" height="140" rx="10" fill="#FBF6EC" stroke="#D9C7A4" stroke-width="2"/>
+    <rect x="310" y="831" width="490" height="140" rx="10" fill="#FDF6E8" class="sAmb" stroke-width="2.4"/>
+    <rect x="820" y="831" width="460" height="140" rx="10" fill="#FFFFFF" class="sGry" stroke-width="2"/>
+  </g>
+  <circle cx="62" cy="865" r="15" fill="#FDFAF4" class="sAmb" stroke-width="2.2"/>
+  <text x="62" y="871" text-anchor="middle" class="amb" font-size="15" font-weight="bold">5</text>
+  <text x="188" y="865" text-anchor="middle" class="ink tb">异常不中断</text>
+  <text x="188" y="894" text-anchor="middle" class="ink code">ToolExecution</text>
+  <text x="188" y="912" text-anchor="middle" class="ink code">ExceptionProcessor</text>
+  <text x="188" y="944" text-anchor="middle" class="gry xs">报错也是一种「结果」</text>
+
+  <text x="335" y="861" class="ink xs">业务异常 → 被包成 ToolExecutionException 抛出</text>
+  <text x="335" y="889" class="ink xs">→ processor.process(ex) 把它转成一段字符串</text>
+  <g filter="url(#soft)"><rect x="332" y="902" width="446" height="52" rx="8" fill="#F8E9CE" class="sAmb" stroke-width="2"/></g>
+  <text x="555" y="923" text-anchor="middle" class="amb tb">→ 当成工具的「正常返回值」继续往下走</text>
+  <text x="555" y="943" text-anchor="middle" class="ink xs">catch 在 observe() 里面，不会冒到上层</text>
+
+  <text x="845" y="861" class="ink xs">所以工具报错不会终止对话 —— 模型会看到这段</text>
+  <text x="845" y="889" class="ink xs">错误信息，自己换参数重试，或者改用别的工具</text>
+  <text x="845" y="917" class="grn xs">└→ 这是「让模型自愈」的设计，不是 bug</text>
+  <text x="845" y="945" class="red xs">✗ 想让它直接炸？必须换掉 processor 实现</text>
+
+  <!-- ══════════ ROW 6 ══════════ -->
+  <g filter="url(#soft)">
+    <rect x="88" y="995" width="200" height="140" rx="10" fill="#FBF6EC" stroke="#D9C7A4" stroke-width="2"/>
+    <rect x="310" y="995" width="490" height="140" rx="10" fill="#F2F8F4" class="sGrn" stroke-width="2.4"/>
+    <rect x="820" y="995" width="460" height="140" rx="10" fill="#F2F8F4" class="sGrn" stroke-width="2.4"/>
+  </g>
+  <circle cx="62" cy="1029" r="15" fill="#FDFAF4" class="sGrn" stroke-width="2.2"/>
+  <text x="62" y="1035" text-anchor="middle" class="grn" font-size="15" font-weight="bold">6</text>
+  <text x="188" y="1029" text-anchor="middle" class="ink tb">结果回填历史</text>
+  <text x="188" y="1058" text-anchor="middle" class="ink code">buildConversation</text>
+  <text x="188" y="1076" text-anchor="middle" class="ink code">HistoryAfterToolExec</text>
+  <text x="188" y="1108" text-anchor="middle" class="gry xs">顺序错了 Provider 直接 400</text>
+
+  <text x="335" y="1025" class="ink sm">新的 conversationHistory 严格是三段拼接：</text>
+  <text x="335" y="1053" class="grn code">原 messages</text>
+  <text x="355" y="1081" class="grn code">+ AssistantMessage（带 toolCalls）</text>
+  <text x="355" y="1109" class="grn code">+ ToolResponseMessage（带执行结果）</text>
+
+  <text x="1050" y="1025" text-anchor="middle" class="grn big">为什么工具返回值不是最终答案</text>
+  <g filter="url(#soft)"><rect x="842" y="1038" width="416" height="76" rx="8" fill="#DFEDE4" class="sGrn" stroke-width="2"/></g>
+  <text x="1050" y="1062" text-anchor="middle" class="ink sm">模型必须看到「我说要调 → 真调了 → 结果是啥」</text>
+  <text x="1050" y="1086" text-anchor="middle" class="ink sm">这个完整三元组，才能把结果翻译成人话</text>
+  <text x="1050" y="1106" text-anchor="middle" class="gry xs">缺 AssistantMessage 那条，模型不知道是自己要调的</text>
+
+  <!-- ═══ 分叉：returnDirect ═══ -->
+  <path d="M62,1120 Q64,1140 90,1152" fill="none" class="sBlu" stroke-width="2.2" marker-end="url(#aBlu)" filter="url(#rough)"/>
+  <g filter="url(#rough)">
+    <rect x="40" y="1170" width="1240" height="190" rx="12" fill="#FBF6EC" stroke="#D9C7A4" stroke-width="2"/>
+  </g>
+  <text x="660" y="1202" text-anchor="middle" class="ink h">最后一道岔路：returnDirect 决定还要不要再问一次模型</text>
+
+  <g filter="url(#soft)">
+    <rect x="62" y="1216" width="580" height="90" rx="10" fill="#F2F8F4" class="sGrn" stroke-width="2.2"/>
+    <rect x="678" y="1216" width="580" height="90" rx="10" fill="#F1F6FB" class="sBlu" stroke-width="2.2"/>
+  </g>
+  <text x="352" y="1242" text-anchor="middle" class="grn tb">returnDirect == false（默认）</text>
+  <text x="352" y="1268" text-anchor="middle" class="ink code">internalCall(new Prompt(history, options), response)</text>
+  <text x="352" y="1292" text-anchor="middle" class="ink xs">带着工具结果再问一次模型，直到它不再要工具</text>
+
+  <text x="968" y="1242" text-anchor="middle" class="blu tb">returnDirect == true</text>
+  <text x="968" y="1268" text-anchor="middle" class="ink code">ToolExecutionResult.buildGenerations(result)</text>
+  <text x="968" y="1292" text-anchor="middle" class="ink xs">工具结果直接当答案返回，省掉一次模型调用</text>
+
+  <g filter="url(#soft)"><rect x="62" y="1316" width="1196" height="32" rx="8" fill="#F6DEDB" class="sRed" stroke-width="2.2"/></g>
+  <text x="660" y="1338" text-anchor="middle" class="red"><tspan class="tb">⚠ 一批里有多个 tool call 时，returnDirect 取 AND：</tspan><tspan class="codeb" dx="8">returnDirect = returnDirect &amp;&amp; cb.returnDirect()</tspan></text>
+
+  <!-- ═══ 结论胶囊 ═══ -->
+  <g filter="url(#rough)">
+    <rect x="120" y="1394" width="1080" height="52" rx="26" fill="#FDF3E2" stroke="#D9A441" stroke-width="2.4"/>
+  </g>
+  <text x="660" y="1426" text-anchor="middle" class="ink big">Spring AI 把「Action → Observation → 再决策」做成了标准闭环 —— 但闭环该转几圈，它一个字都没管</text>
+
+</svg>

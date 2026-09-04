@@ -1,0 +1,186 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="1340" viewBox="0 0 1320 1340" font-family="'Chalkboard SE','Comic Sans MS','Hanzipen SC','Segoe Print',cursive">
+
+  <defs>
+    <filter id="rough" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="3" seed="23" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="soft" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="4" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="1.3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="aRed" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+      <path d="M1,1 L8,5 L1,9" fill="none" stroke="#C2453C" stroke-width="1.7" stroke-linecap="round"/>
+    </marker>
+    <marker id="aGrn" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+      <path d="M1,1 L8,5 L1,9" fill="none" stroke="#4E7C5B" stroke-width="1.7" stroke-linecap="round"/>
+    </marker>
+    <marker id="aBlu" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+      <path d="M1,1 L8,5 L1,9" fill="none" stroke="#3C6E9E" stroke-width="1.7" stroke-linecap="round"/>
+    </marker>
+    <marker id="aInk" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+      <path d="M1,1 L8,5 L1,9" fill="none" stroke="#33302B" stroke-width="1.7" stroke-linecap="round"/>
+    </marker>
+  </defs>
+
+  <style>
+    .ink{fill:#33302B}.red{fill:#C2453C}.grn{fill:#4E7C5B}.blu{fill:#3C6E9E}.amb{fill:#A8730F}.gry{fill:#8C867D}
+    .sRed{stroke:#C2453C}.sGrn{stroke:#4E7C5B}.sBlu{stroke:#3C6E9E}.sGry{stroke:#B5AEA3}.sAmb{stroke:#D9A441}
+    .code{font-family:Menlo,Monaco,monospace;font-size:12px}
+    .codeb{font-family:Menlo,Monaco,monospace;font-size:12px;font-weight:bold}
+    .xs{font-size:11.5px}.sm{font-size:13px}.t{font-size:14.5px}.tb{font-size:14.5px;font-weight:bold}
+    .big{font-size:17px;font-weight:bold}.h{font-size:20px;font-weight:bold}
+  </style>
+
+  <rect width="1320" height="1340" fill="#FDFAF4"/>
+
+  <text x="660" y="50" text-anchor="middle" class="ink" font-size="26" font-weight="bold">ReAct 循环藏在哪一层？就在 ChatModel 的两个方法里</text>
+  <text x="660" y="78" text-anchor="middle" class="gry" font-size="13.5">OpenAiChatModel v1.1.8 · 同步是方法自调用，流式是 Flux 自嵌套 —— 两条路都没有任何次数上限</text>
+  <path d="M290,92 Q660,86 1030,92" fill="none" class="sGry" stroke-width="2" filter="url(#rough)"/>
+
+  <!-- ═══ 共同入口 ═══ -->
+  <g filter="url(#rough)">
+    <rect x="40" y="112" width="1240" height="100" rx="12" fill="#FBF6EC" stroke="#D9C7A4" stroke-width="2"/>
+  </g>
+  <text x="660" y="142" text-anchor="middle" class="ink big">两条路径的共同起点：合并 Options，然后从第 0 层开始</text>
+  <text x="660" y="170" text-anchor="middle" class="blu code">call(prompt) / stream(prompt)  →  buildRequestPrompt(prompt)  →  internalCall / internalStream(requestPrompt, null)</text>
+  <text x="660" y="194" text-anchor="middle" class="ink xs">第二个参数传 null，意思是「我是第 0 层，还没有前一次的 usage 要累加」—— 这个参数就是递归深度的唯一痕迹</text>
+
+  <path d="M420,214 Q392,230 340,248" fill="none" class="sBlu" stroke-width="2" marker-end="url(#aBlu)" filter="url(#rough)"/>
+  <path d="M900,214 Q928,230 980,248" fill="none" class="sBlu" stroke-width="2" marker-end="url(#aBlu)" filter="url(#rough)"/>
+
+  <!-- ═══ 两列容器 ═══ -->
+  <g filter="url(#rough)">
+    <rect x="40" y="235" width="590" height="730" rx="12" fill="#F1F6FB" class="sBlu" stroke-width="2"/>
+    <rect x="690" y="235" width="590" height="730" rx="12" fill="#F1F6FB" class="sBlu" stroke-width="2"/>
+  </g>
+
+  <!-- ══════ 左列 列头 ══════ -->
+  <g filter="url(#soft)">
+    <rect x="62" y="252" width="520" height="54" rx="10" fill="#FFFFFF" class="sBlu" stroke-width="2.2"/>
+  </g>
+  <text x="322" y="276" text-anchor="middle" class="ink tb">同步路径 · 一次方法自调用</text>
+  <text x="322" y="296" text-anchor="middle" class="blu code">internalCall(Prompt, ChatResponse previous) · L184</text>
+
+  <!-- 左 b1 -->
+  <g filter="url(#soft)"><rect x="62" y="330" width="520" height="80" rx="10" fill="#FFFFFF" class="sGry" stroke-width="2"/></g>
+  <text x="78" y="355" class="ink codeb">createRequest(prompt, false)</text>
+  <text x="78" y="379" class="ink xs">stream = false。Message、ToolDefinition 转成 Provider DTO</text>
+  <text x="78" y="399" class="gry xs">└→ 工具定义就是在这一步进请求体的（见图 1 第 2 关）</text>
+
+  <!-- 左 b2 -->
+  <g filter="url(#soft)"><rect x="62" y="434" width="520" height="80" rx="10" fill="#FFFFFF" class="sGry" stroke-width="2"/></g>
+  <text x="78" y="459" class="ink codeb">observation.observe(() -&gt; retryTemplate.execute(...))</text>
+  <text x="78" y="483" class="ink xs">一次阻塞 HTTP。注意嵌套顺序：重试在 observation 里面</text>
+  <text x="78" y="503" class="gry xs">└→ 所以一次 observation 可能包含好几次实际请求</text>
+
+  <!-- 左 b3 -->
+  <g filter="url(#soft)"><rect x="62" y="538" width="520" height="80" rx="10" fill="#F2F8F4" class="sGrn" stroke-width="2.2"/></g>
+  <text x="78" y="563" class="grn codeb">UsageCalculator.getCumulativeUsage(current, previous)</text>
+  <text x="78" y="587" class="ink xs">token 用量靠 previous 这个入参，一层一层往上滚雪球</text>
+  <text x="78" y="607" class="grn xs">└→ 最外层拿到的 usage，是整条工具链的总和</text>
+
+  <!-- 左 b4 -->
+  <g filter="url(#soft)"><rect x="62" y="642" width="520" height="80" rx="10" fill="#FFFFFF" class="sGry" stroke-width="2"/></g>
+  <text x="78" y="667" class="ink codeb">predicate.isToolExecutionRequired(options, response)</text>
+  <text x="78" y="691" class="grn xs">✓ 返回 false → 直接 return response，递归到此为止</text>
+  <text x="78" y="711" class="amb xs">✗ 返回 true  → 往下走，再转一圈</text>
+
+  <!-- 左 b5 递归 -->
+  <g filter="url(#soft)"><rect x="62" y="746" width="520" height="94" rx="10" fill="#FCF2F1" class="sRed" stroke-width="2.4"/></g>
+  <text x="78" y="771" class="ink code">executeToolCalls(prompt, response)</text>
+  <g filter="url(#soft)"><rect x="76" y="782" width="492" height="46" rx="8" fill="#F6DEDB" class="sRed" stroke-width="2"/></g>
+  <text x="322" y="801" text-anchor="middle" class="red codeb">return internalCall(new Prompt(history, options), response)</text>
+  <text x="322" y="820" text-anchor="middle" class="ink xs">本次 response 变成下一层的 previous —— 这就是全部的递归</text>
+
+  <!-- 左 b6 -->
+  <g filter="url(#soft)"><rect x="62" y="864" width="520" height="80" rx="10" fill="#EFEAE0" class="sGry" stroke-width="2"/></g>
+  <text x="322" y="890" text-anchor="middle" class="ink big">整个 ReAct 就是一次 Java 方法自调用</text>
+  <text x="322" y="914" text-anchor="middle" class="ink xs">调用栈深度 = 模型连续要工具的次数</text>
+  <text x="322" y="934" text-anchor="middle" class="amb xs">└→ 极端情况会吃掉 JVM 栈，但触发前先被 token 上限挡住</text>
+
+  <!-- 左列回环 -->
+  <path d="M582,793 Q608,791 606,752 Q602,540 606,340 Q608,306 584,300" fill="none" class="sRed" stroke-width="2.2" stroke-dasharray="6 4" marker-end="url(#aRed)" filter="url(#rough)"/>
+  <text x="620" y="600" text-anchor="middle" class="red xs" transform="rotate(-90 620 600)">递归回环 · 无次数上限</text>
+
+  <!-- ══════ 右列 列头 ══════ -->
+  <g filter="url(#soft)">
+    <rect x="712" y="252" width="520" height="54" rx="10" fill="#FFFFFF" class="sBlu" stroke-width="2.2"/>
+  </g>
+  <text x="972" y="276" text-anchor="middle" class="ink tb">流式路径 · Flux 自嵌套</text>
+  <text x="972" y="296" text-anchor="middle" class="blu code">internalStream(Prompt, ChatResponse previous) · L270</text>
+
+  <!-- 右 b1 -->
+  <g filter="url(#soft)"><rect x="712" y="330" width="520" height="80" rx="10" fill="#FFFFFF" class="sGry" stroke-width="2"/></g>
+  <text x="728" y="355" class="ink codeb">Flux.deferContextual(contextView -&gt; ...)</text>
+  <text x="728" y="379" class="ink xs">订阅时才建请求，顺手从 Reactor Context 捞 parent observation</text>
+  <text x="728" y="399" class="gry xs">└→ 递归的每一层都会重新 defer 一次，各拿各的 parent</text>
+
+  <!-- 右 b2 -->
+  <g filter="url(#soft)"><rect x="712" y="434" width="520" height="80" rx="10" fill="#FDF6E8" class="sAmb" stroke-width="2.2"/></g>
+  <text x="728" y="459" class="amb codeb">chatCompletionStream() → chunkToChatCompletion() → buffer(2, 1)</text>
+  <text x="728" y="483" class="ink xs">滑动窗口不是为了缓冲，是为了把末尾 chunk 的 usage</text>
+  <text x="728" y="503" class="amb xs">└→ 回填给倒数第二个 response（OpenAI 只在最后一帧给 usage）</text>
+
+  <!-- 右 b3 -->
+  <g filter="url(#soft)"><rect x="712" y="538" width="520" height="80" rx="10" fill="#FFFFFF" class="sGry" stroke-width="2"/></g>
+  <text x="728" y="563" class="ink codeb">.concatMap(response -&gt; { 同一个 predicate })</text>
+  <text x="728" y="587" class="ink xs">跟同步路径共用一个 ToolExecutionEligibilityPredicate</text>
+  <text x="728" y="607" class="red xs">✗ 这里不能换成 flatMap —— 换了工具调用顺序就乱</text>
+
+  <!-- 右 b4 -->
+  <g filter="url(#soft)"><rect x="712" y="642" width="520" height="80" rx="10" fill="#FDF6E8" class="sAmb" stroke-width="2.2"/></g>
+  <text x="728" y="667" class="amb codeb">.subscribeOn(Schedulers.boundedElastic())</text>
+  <text x="728" y="691" class="ink xs">工具执行到今天还是纯阻塞的，源码里挂着 FIXME</text>
+  <text x="728" y="711" class="amb xs">└→ 必须挪出事件循环线程，否则整个 Netty 线程被占死</text>
+
+  <!-- 右 b5 递归 -->
+  <g filter="url(#soft)"><rect x="712" y="746" width="520" height="94" rx="10" fill="#FCF2F1" class="sRed" stroke-width="2.4"/></g>
+  <text x="728" y="771" class="ink code">executeToolCalls(prompt, response)</text>
+  <g filter="url(#soft)"><rect x="726" y="782" width="492" height="46" rx="8" fill="#F6DEDB" class="sRed" stroke-width="2"/></g>
+  <text x="972" y="801" text-anchor="middle" class="red codeb">return internalStream(new Prompt(history, options), response)</text>
+  <text x="972" y="820" text-anchor="middle" class="ink xs">返回的 Flux 被 concat 进当前流，对下游看起来是一条流</text>
+
+  <!-- 右 b6 -->
+  <g filter="url(#soft)"><rect x="712" y="864" width="520" height="80" rx="10" fill="#EFEAE0" class="sGry" stroke-width="2"/></g>
+  <text x="972" y="888" text-anchor="middle" class="ink code">new MessageAggregator().aggregate(flux, ctx::setResponse)</text>
+  <text x="972" y="912" text-anchor="middle" class="ink xs">碎片流聚成一条完整 response，只喂给 observation</text>
+  <text x="972" y="932" text-anchor="middle" class="grn xs">└→ 下游拿到的还是原始碎片流，聚合是旁路的</text>
+
+  <!-- 右列回环 -->
+  <path d="M1232,793 Q1258,791 1256,752 Q1252,540 1256,340 Q1258,306 1234,300" fill="none" class="sRed" stroke-width="2.2" stroke-dasharray="6 4" marker-end="url(#aRed)" filter="url(#rough)"/>
+  <text x="1270" y="600" text-anchor="middle" class="red xs" transform="rotate(-90 1270 600)">递归回环 · 无次数上限</text>
+
+  <!-- ═══ 红色警示区 ═══ -->
+  <g filter="url(#rough)">
+    <rect x="40" y="995" width="1240" height="205" rx="12" fill="#FCF2F1" class="sRed" stroke-width="2.6"/>
+  </g>
+  <text x="660" y="1029" text-anchor="middle" class="red h">这个递归，没有装任何一个刹车</text>
+
+  <g filter="url(#soft)">
+    <rect x="62" y="1046" width="372" height="80" rx="10" fill="#F6DEDB" class="sRed" stroke-width="2"/>
+    <rect x="474" y="1046" width="372" height="80" rx="10" fill="#F6DEDB" class="sRed" stroke-width="2"/>
+    <rect x="886" y="1046" width="372" height="80" rx="10" fill="#F6DEDB" class="sRed" stroke-width="2"/>
+  </g>
+  <text x="248" y="1072" text-anchor="middle" class="red tb">✗ 没有 maxSteps</text>
+  <text x="248" y="1094" text-anchor="middle" class="ink xs">方法签名里根本没有深度参数</text>
+  <text x="248" y="1114" text-anchor="middle" class="ink xs">模型要几次工具就转几圈</text>
+
+  <text x="660" y="1072" text-anchor="middle" class="red tb">✗ 没有循环检测</text>
+  <text x="660" y="1094" text-anchor="middle" class="ink xs">同一个工具、同样的参数反复调</text>
+  <text x="660" y="1114" text-anchor="middle" class="ink xs">Spring AI 一点都察觉不到</text>
+
+  <text x="1072" y="1072" text-anchor="middle" class="red tb">✗ 没有成本预算</text>
+  <text x="1072" y="1094" text-anchor="middle" class="ink xs">Usage 只做累加统计</text>
+  <text x="1072" y="1114" text-anchor="middle" class="ink xs">累到天上去也不会打断</text>
+
+  <text x="660" y="1152" text-anchor="middle" class="ink sm">唯一的天然终止条件：模型自己不再返回 tool call。</text>
+  <text x="660" y="1176" text-anchor="middle" class="ink sm">同步递归吃 JVM 调用栈；流式递归不吃栈，但每一层的上游订阅都一直挂着不释放。</text>
+
+  <!-- ═══ 结论胶囊 ═══ -->
+  <g filter="url(#rough)">
+    <rect x="110" y="1235" width="1100" height="52" rx="26" fill="#FDF3E2" stroke="#D9A441" stroke-width="2.4"/>
+  </g>
+  <text x="660" y="1267" text-anchor="middle" class="ink big">Agent 循环不在什么编排框架层，它就是 ChatModel 里这两个方法 —— 想加刹车，只能自己在外面包一层</text>
+
+</svg>
