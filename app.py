@@ -5,9 +5,11 @@ import os
 import re
 import json
 import glob
+import html
 from datetime import datetime
 import sqlite3
 import threading
+from urllib.parse import quote, unquote, urlsplit, urlunsplit
 from flask import Flask, render_template, abort, request, jsonify, send_file, Response
 import markdown
 from pygments.formatters import HtmlFormatter
@@ -16,6 +18,8 @@ from werkzeug.security import safe_join
 app = Flask(__name__)
 REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
 CONTENT_DIR = os.path.join(REPO_ROOT, 'content')
+IMAGE_EXTENSIONS = {'.svg', '.png', '.jpg', '.jpeg', '.gif', '.webp', '.avif', '.bmp', '.ico'}
+CONTENT_ASSET_EXTENSIONS = IMAGE_EXTENSIONS | {'.pdf'}
 # ──────────────────────────────── AI Analysis Config ────────────────────────
 
 LLM_API_KEY = os.environ.get('LLM_API_KEY', '')
@@ -99,13 +103,14 @@ FEATURED_ARTICLE_PATHS = [
 ]
 
 
-def build_cat_tree(articles):
+def build_cat_tree(articles, media_files=None):
     """按 content/ 下目录层级构建嵌套树。
-    返回 dict {dirname: {name, path, articles, children, total}}。"""
-    root = {'children': {}, 'articles': [], 'total': 0}
-    for a in articles:
-        parts = a['path'].replace(os.sep, '/').split('/')
-        dirs = parts[:-1]  # 去掉文件名
+    返回 dict {dirname: {name, path, articles, media, children, total}}。"""
+    root = {'children': {}, 'articles': [], 'media': [], 'total': 0}
+
+    def add_entry(entry, entry_type):
+        parts = entry['path'].replace(os.sep, '/').split('/')
+        dirs = parts[:-1] or ['未分类']
         node = root
         path_acc = ''
         for d in dirs:
@@ -113,13 +118,18 @@ def build_cat_tree(articles):
             if d not in node['children']:
                 node['children'][d] = {
                     'name': d, 'path': path_acc,
-                    'articles': [], 'children': {}, 'total': 0,
+                    'articles': [], 'media': [], 'children': {}, 'total': 0,
                 }
             node = node['children'][d]
-        node['articles'].append(a)
+        node[entry_type].append(entry)
+
+    for article in articles:
+        add_entry(article, 'articles')
+    for media in media_files or []:
+        add_entry(media, 'media')
 
     def count(n):
-        c = len(n['articles'])
+        c = len(n['articles']) + len(n['media'])
         for ch in n['children'].values():
             c += count(ch)
         n['total'] = c
@@ -137,7 +147,7 @@ def build_cat_tree(articles):
 
 @app.context_processor
 def inject_cat_tree():
-    return {'cat_tree': build_cat_tree(ARTICLES)}
+    return {'cat_tree': build_cat_tree(ARTICLES, MEDIA_FILES)}
 
 # ──────────────────────────────── 内容加载 ────────────────────────────────
 
@@ -219,6 +229,33 @@ def process_sublists(text):
     return '\n'.join(result)
 
 
+def process_obsidian_image_embeds(text):
+    """将 Obsidian 图片嵌入语法转换为 HTML img。"""
+    def replace_embed(match):
+        target = match.group(1).strip()
+        option = (match.group(2) or '').strip()
+        if os.path.splitext(target)[1].lower() not in IMAGE_EXTENSIONS:
+            return match.group(0)
+
+        alt = os.path.basename(target)
+        size_attrs = ''
+        if option:
+            size_match = re.fullmatch(r'(\d+)(?:x(\d+))?', option)
+            if size_match:
+                size_attrs = f' width="{size_match.group(1)}"'
+                if size_match.group(2):
+                    size_attrs += f' height="{size_match.group(2)}"'
+            else:
+                alt = option
+
+        return (
+            f'<img src="{html.escape(target, quote=True)}" '
+            f'alt="{html.escape(alt, quote=True)}"{size_attrs}>'
+        )
+
+    return re.sub(r'!\[\[([^|\]]+)(?:\|([^\]]+))?\]\]', replace_embed, text)
+
+
 def normalize_frontmatter_date(value):
     """将 front matter 日期规整为 YYYY-MM-DD；缺失或非法时返回空串。"""
     if not value:
@@ -234,6 +271,27 @@ def is_truthy_frontmatter(value):
 
 def normalize_rel_path(path):
     return os.path.normpath(path).replace(os.sep, '/')
+
+
+def rewrite_content_image_sources(html_body, current_rel_path):
+    current_dir = os.path.dirname(current_rel_path)
+
+    def _rewrite_img(match):
+        src = match.group(2)
+        parsed = urlsplit(src)
+        if parsed.scheme or parsed.netloc or parsed.path.startswith(('/', '#')):
+            return match.group(0)
+
+        decoded_path = unquote(parsed.path)
+        target_rel = normalize_rel_path(os.path.join(current_dir, decoded_path))
+        if target_rel == '..' or target_rel.startswith('../'):
+            return match.group(0)
+
+        asset_path = f'/content-assets/{quote(target_rel, safe="/")}'
+        new_src = urlunsplit(('', '', asset_path, parsed.query, parsed.fragment))
+        return f'{match.group(1)}{new_src}{match.group(3)}'
+
+    return re.sub(r'(<img\s[^>]*src=["\'])([^"\']+)(["\'])', _rewrite_img, html_body)
 
 
 def rewrite_internal_markdown_links(html, current_rel_path, path_to_slug):
@@ -283,6 +341,8 @@ def load_articles():
             continue
         # 预处理 Obsidian 风格的 callout 语法
         body = process_callouts(body)
+        # 预处理 Obsidian 风格的图片嵌入语法
+        body = process_obsidian_image_embeds(body)
         # 预处理 tab 缩进子列表
         body = process_sublists(body)
         html_body = markdown.markdown(
@@ -294,15 +354,7 @@ def load_articles():
             }
         )
 
-        # 将相对路径的图片 src 重写为 /content-assets/ 绝对路径
-        content_dir_rel = os.path.dirname(rel).replace(os.sep, '/')
-        def _rewrite_img(m):
-            src = m.group(1)
-            if src.startswith(('http://', 'https://', '/', 'data:')):
-                return m.group(0)
-            asset_path = f'{content_dir_rel}/{src}' if content_dir_rel else src
-            return m.group(0).replace(m.group(1), f'/content-assets/{asset_path}')
-        html_body = re.sub(r'<img\s[^>]*src="([^"]+)"', _rewrite_img, html_body)
+        html_body = rewrite_content_image_sources(html_body, rel)
 
         date = normalize_frontmatter_date(meta.get('date', ''))
         updated = normalize_frontmatter_date(meta.get('updated', '')) or date
@@ -333,6 +385,28 @@ def load_articles():
 
     articles.sort(key=lambda a: (a['sort_date'], a['title']), reverse=True)
     return articles
+
+
+def load_media_files():
+    """扫描 content/ 下可由浏览器直接渲染的图片。"""
+    media_files = []
+    for root, dirs, files in os.walk(CONTENT_DIR):
+        dirs[:] = [d for d in dirs if not d.startswith('.')]
+        for filename in files:
+            extension = os.path.splitext(filename)[1].lower()
+            if extension not in IMAGE_EXTENSIONS:
+                continue
+            path = normalize_rel_path(os.path.relpath(os.path.join(root, filename), CONTENT_DIR))
+            parts = path.split('/')
+            media_files.append({
+                'path': path,
+                'name': filename,
+                'title': os.path.splitext(filename)[0],
+                'extension': extension.lstrip('.').upper(),
+                'category': parts[0] if len(parts) > 1 else '未分类',
+            })
+    media_files.sort(key=lambda item: item['path'].lower())
+    return media_files
 
 
 def select_featured_articles(articles, limit=6):
@@ -394,22 +468,29 @@ def parse_frontmatter(text):
 # ──────────────────────────────── 全局数据（热加载）────────────────────────
 
 ARTICLES = []
+MEDIA_FILES = []
 CATEGORIES = []
 ALL_TAGS = []
 _content_mtime = 0
 
 def reload_if_changed():
     """检测 content/ 目录变化，自动重新加载文章"""
-    global ARTICLES, CATEGORIES, ALL_TAGS, _content_mtime
+    global ARTICLES, MEDIA_FILES, CATEGORIES, ALL_TAGS, _content_mtime
     try:
-        # 获取 content 目录下所有 .md 文件的最新修改时间
+        # 获取文章和图片的最新修改时间
         latest = 0
-        for md_path in glob.glob(os.path.join(CONTENT_DIR, '**', '*.md'), recursive=True):
-            mtime = os.path.getmtime(md_path)
-            if mtime > latest:
-                latest = mtime
+        for root, dirs, files in os.walk(CONTENT_DIR):
+            dirs[:] = [d for d in dirs if not d.startswith('.')]
+            for filename in files:
+                extension = os.path.splitext(filename)[1].lower()
+                if extension != '.md' and extension not in IMAGE_EXTENSIONS:
+                    continue
+                mtime = os.path.getmtime(os.path.join(root, filename))
+                if mtime > latest:
+                    latest = mtime
         if latest > _content_mtime:
             ARTICLES = load_articles()
+            MEDIA_FILES = load_media_files()
             CATEGORIES = sorted(set(a['category'] for a in ARTICLES))
             ALL_TAGS = sorted(set(t for a in ARTICLES for t in a['tags']))
             _content_mtime = latest
@@ -466,7 +547,7 @@ def article(slug):
             next_a = ARTICLES[idx - 1] if idx > 0 else None
             # current_path: 文章所在目录的完整相对路径，如 'AI' 或 'AI/ai-agent'
             dir_parts = a['path'].replace(os.sep, '/').split('/')[:-1]
-            current_path = '/'.join(dir_parts)
+            current_path = '/'.join(dir_parts) or '未分类'
             analyses = get_analyses(a['slug'])
             return render_template('article.html',
                                    article=a, prev=prev_a, next=next_a,
@@ -474,6 +555,25 @@ def article(slug):
                                    categories=CATEGORIES, all_tags=ALL_TAGS,
                                    ai_analyses=analyses)
     abort(404)
+
+
+@app.route('/media/<path:filepath>')
+def media(filepath):
+    reload_if_changed()
+    normalized_path = normalize_rel_path(filepath)
+    media_item = next((item for item in MEDIA_FILES if item['path'] == normalized_path), None)
+    if not media_item:
+        abort(404)
+
+    current_path = '/'.join(normalized_path.split('/')[:-1]) or '未分类'
+    return render_template(
+        'media.html',
+        media=media_item,
+        current_path=current_path,
+        current_media_path=normalized_path,
+        categories=CATEGORIES,
+        all_tags=ALL_TAGS,
+    )
 
 
 @app.route('/search')
@@ -701,9 +801,8 @@ def portal_page(slug):
 @app.route('/content-assets/<path:filepath>')
 def content_assets(filepath):
     """Serve static assets (images, SVG, etc.) stored alongside markdown in content/"""
-    ALLOWED_EXTENSIONS = {'.svg', '.png', '.jpg', '.jpeg', '.gif', '.webp', '.ico', '.pdf'}
     ext = os.path.splitext(filepath)[1].lower()
-    if ext not in ALLOWED_EXTENSIONS:
+    if ext not in CONTENT_ASSET_EXTENSIONS:
         abort(404)
     path = safe_join(CONTENT_DIR, filepath)
     if path and os.path.isfile(path):

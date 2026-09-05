@@ -8,11 +8,11 @@
       <span class="tree-cat-count">{{ node.total }}</span>
     </summary>
     <div class="tree-children">
-      {# 先渲染子目录（folder 优先），再渲染当前节点直接挂的文章 #}
+      {# 先渲染子目录，再渲染当前节点直接挂的文章和图片 #}
       {% for _, child in node.children.items() %}
         {{ render_node(child, depth + 1) }}
       {% endfor %}
-      {% if node.articles %}
+      {% if node.articles or node.media %}
         <ul class="tree-articles">
           {% for a in node.articles %}
           <li>
@@ -20,6 +20,16 @@
                class="tree-article{% if a.slug == current_slug %} active{% endif %}"
                title="{{ a.title }}">
               {{ a.title }}
+            </a>
+          </li>
+          {% endfor %}
+          {% for media in node.media %}
+          <li>
+            <a href="{{ url_for('media', filepath=media.path) }}"
+               class="tree-article tree-media{% if media.path == current_media_path %} active{% endif %}"
+               title="{{ media.name }}">
+              <span class="tree-media-icon" aria-hidden="true">{% if media.extension == 'SVG' %}◇{% else %}▧{% endif %}</span>
+              <span class="tree-media-name">{{ media.name }}</span>
             </a>
           </li>
           {% endfor %}

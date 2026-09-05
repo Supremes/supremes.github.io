@@ -672,9 +672,60 @@ img { max-width: 100%; height: auto; }
 }
 
 .article-content img {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: auto;
   border-radius: var(--radius);
   margin: 1.5em 0;
   box-shadow: var(--shadow-md);
+}
+
+.media-header .article-meta a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.media-header h1,
+.media-header .article-meta > span {
+  overflow-wrap: anywhere;
+}
+
+.media-header .article-meta > span {
+  white-space: normal;
+}
+
+.media-preview {
+  max-width: min(1200px, calc(100vw - 320px));
+  margin: 0 auto var(--space-3xl);
+  padding: 0 var(--space-lg);
+  text-align: center;
+}
+
+.media-preview a {
+  display: block;
+  padding: var(--space-lg);
+  overflow: auto;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.media-preview img {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: calc(100vh - 220px);
+  margin: 0 auto;
+}
+
+.media-preview figcaption {
+  margin-top: var(--space-sm);
+  color: var(--ink-muted);
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
 }
 
 .article-content hr {
@@ -1268,6 +1319,25 @@ body.no-sidebar .sidebar-toggle { display: none !important; }
   color: var(--accent-hover);
   font-weight: 500;
 }
+
+.tree-media {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.tree-media-icon {
+  width: 14px;
+  flex: 0 0 14px;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  text-align: center;
+}
+
+.tree-media-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 [data-theme="dark"] .tree-article.active {
   background: rgba(245, 158, 11, 0.15);
   color: var(--accent);
@@ -1285,6 +1355,7 @@ body.no-sidebar .sidebar-toggle { display: none !important; }
 /* 响应式：drawer 模式 */
 @media (max-width: 1100px) {
   body.has-sidebar .site-main { margin-left: 0; }
+  .media-preview { max-width: 100%; }
   .sidebar {
     transform: translateX(-100%);
     box-shadow: 2px 0 12px rgba(0,0,0,0.15);

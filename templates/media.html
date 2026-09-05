@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}{{ media.name }} — 知识库{% endblock %}
+
+{% block content %}
+<article class="media-page">
+  <header class="article-header media-header">
+    <div class="container">
+      <h1>{{ media.name }}</h1>
+      <div class="article-meta">
+        <span>{{ media.extension }}</span>
+        <span>{{ media.path }}</span>
+        <a href="{{ url_for('content_assets', filepath=media.path) }}" target="_blank" rel="noopener">打开原图</a>
+      </div>
+    </div>
+  </header>
+
+  <figure class="media-preview">
+    <a href="{{ url_for('content_assets', filepath=media.path) }}" target="_blank" rel="noopener">
+      <img src="{{ url_for('content_assets', filepath=media.path) }}" alt="{{ media.title }}">
+    </a>
+    <figcaption>{{ media.path }}</figcaption>
+  </figure>
+</article>
+{% endblock %}

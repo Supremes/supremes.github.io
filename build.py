@@ -6,7 +6,15 @@ import shutil
 import json
 from urllib.parse import quote
 
-from app import app, ARTICLES, CATEGORIES, ALL_TAGS, reload_if_changed
+from app import (
+    app,
+    ARTICLES,
+    MEDIA_FILES,
+    CATEGORIES,
+    ALL_TAGS,
+    CONTENT_ASSET_EXTENSIONS,
+    reload_if_changed,
+)
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 DIST = os.path.join(ROOT, 'dist')
@@ -70,6 +78,15 @@ def main():
         slug = a['slug']
         write_page(client, f'/article/{quote(slug)}', f'article/{slug}/index.html')
 
+    # 图片预览页
+    for media in MEDIA_FILES:
+        media_path = media['path']
+        write_page(
+            client,
+            f'/media/{quote(media_path, safe="/")}',
+            f'media/{media_path}/index.html',
+        )
+
     # 分类页
     for cat in CATEGORIES:
         write_page(client, f'/category/{quote(cat)}', f'category/{cat}/index.html')
@@ -128,13 +145,13 @@ def main():
     print('  ✓ static/')
 
     # 拷贝 content/ 下的图片等静态资源到 dist/content-assets/
-    ASSET_EXTENSIONS = {'.svg', '.png', '.jpg', '.jpeg', '.gif', '.webp', '.ico', '.pdf'}
     content_src = os.path.join(ROOT, 'content')
     assets_dst = os.path.join(DIST, 'content-assets')
     asset_count = 0
     for root, dirs, files in os.walk(content_src):
+        dirs[:] = [d for d in dirs if not d.startswith('.')]
         for f in files:
-            if os.path.splitext(f)[1].lower() in ASSET_EXTENSIONS:
+            if os.path.splitext(f)[1].lower() in CONTENT_ASSET_EXTENSIONS:
                 src_path = os.path.join(root, f)
                 rel_path = os.path.relpath(src_path, content_src)
                 dst_path = os.path.join(assets_dst, rel_path)
