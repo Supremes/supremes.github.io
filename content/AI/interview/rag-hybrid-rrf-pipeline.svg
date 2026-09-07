@@ -1,0 +1,186 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="1030" viewBox="0 0 1320 1030" font-family="'Chalkboard SE','Comic Sans MS','Hanzipen SC','Segoe Print',cursive">
+
+  <defs>
+    <filter id="rough" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="3" seed="23" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="soft" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="7" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="1.3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="aRed" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+      <path d="M1,1 L8,5 L1,9" fill="none" stroke="#C2453C" stroke-width="1.7" stroke-linecap="round"/>
+    </marker>
+    <marker id="aGrn" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+      <path d="M1,1 L8,5 L1,9" fill="none" stroke="#4E7C5B" stroke-width="1.7" stroke-linecap="round"/>
+    </marker>
+    <marker id="aBlu" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+      <path d="M1,1 L8,5 L1,9" fill="none" stroke="#3C6E9E" stroke-width="1.7" stroke-linecap="round"/>
+    </marker>
+    <marker id="aInk" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+      <path d="M1,1 L8,5 L1,9" fill="none" stroke="#33302B" stroke-width="1.7" stroke-linecap="round"/>
+    </marker>
+  </defs>
+
+  <style>
+    .ink{fill:#33302B}.red{fill:#C2453C}.grn{fill:#4E7C5B}.blu{fill:#3C6E9E}.amb{fill:#A8730F}.gry{fill:#8C867D}
+    .sRed{stroke:#C2453C}.sGrn{stroke:#4E7C5B}.sBlu{stroke:#3C6E9E}.sGry{stroke:#B5AEA3}.sAmb{stroke:#D9A441}
+    .code{font-family:Menlo,Monaco,monospace;font-size:12px}
+    .codeb{font-family:Menlo,Monaco,monospace;font-size:12px;font-weight:bold}
+    .xs{font-size:11.5px}.sm{font-size:13px}.t{font-size:14.5px}.tb{font-size:14.5px;font-weight:bold}
+    .big{font-size:17px;font-weight:bold}.h{font-size:20px;font-weight:bold}
+  </style>
+
+  <rect width="1320" height="1030" fill="#FDFAF4"/>
+
+  <text x="660" y="50" text-anchor="middle" class="ink" font-size="26" font-weight="bold">Hybrid 检索里的 RRF：一个只看排名的廉价投票器</text>
+  <text x="660" y="78" text-anchor="middle" class="gry" font-size="13.5">公式二十行代码写完，工程量全在「召回多少、id 对不对得上、后面接不接 reranker」</text>
+  <path d="M300,90 Q660,85 1020,90" fill="none" class="sGry" stroke-width="2" filter="url(#rough)"/>
+
+  <!-- ═══════ ① 链路位置 ═══════ -->
+  <text x="40" y="138" class="ink h">① 链路位置 —— RRF 只是中间那一跳</text>
+
+  <g filter="url(#rough)">
+    <rect x="40" y="152" width="1240" height="212" rx="12" fill="#FBF6EC" stroke="#D9C7A4" stroke-width="2"/>
+  </g>
+
+  <g filter="url(#soft)">
+    <rect x="64" y="232" width="104" height="52" rx="10" fill="#FFFFFF" class="sGry" stroke-width="2"/>
+    <rect x="200" y="170" width="250" height="52" rx="10" fill="#FFFFFF" class="sGry" stroke-width="2"/>
+    <rect x="200" y="232" width="250" height="52" rx="10" fill="#FFFFFF" class="sGry" stroke-width="2"/>
+    <rect x="200" y="294" width="250" height="52" rx="10" fill="#FFFFFF" class="sGry" stroke-width="2" stroke-dasharray="6 4"/>
+    <rect x="520" y="196" width="190" height="124" rx="10" fill="#F1F6FB" class="sBlu" stroke-width="2.4"/>
+    <rect x="536" y="234" width="158" height="48" rx="8" fill="#E3EFF9" class="sBlu" stroke-width="1.8"/>
+    <rect x="770" y="226" width="200" height="64" rx="10" fill="#F2F8F4" class="sGrn" stroke-width="2.4"/>
+    <rect x="1030" y="232" width="190" height="52" rx="10" fill="#EFEAE0" class="sGry" stroke-width="2"/>
+  </g>
+
+  <text x="116" y="254" text-anchor="middle" class="ink codeb">query</text>
+  <text x="116" y="273" text-anchor="middle" class="gry xs">用户提问</text>
+
+  <text x="325" y="192" text-anchor="middle" class="ink tb">BM25 / ES 稀疏</text>
+  <text x="325" y="211" text-anchor="middle" class="gry xs">词面精确匹配 · top-100</text>
+
+  <text x="325" y="254" text-anchor="middle" class="ink tb">Dense 向量</text>
+  <text x="325" y="273" text-anchor="middle" class="gry xs">语义近似 · top-100</text>
+
+  <text x="325" y="316" text-anchor="middle" class="ink tb">多路改写 / SPLADE</text>
+  <text x="325" y="335" text-anchor="middle" class="gry xs">可选第三路 · top-100</text>
+
+  <text x="615" y="222" text-anchor="middle" class="blu big">RRF 融合</text>
+  <text x="615" y="254" text-anchor="middle" class="ink code">score(d) =</text>
+  <text x="615" y="273" text-anchor="middle" class="blu codeb">Σ w/(k + rank)</text>
+  <text x="615" y="303" text-anchor="middle" class="ink sm">只吃排名，不吃分数</text>
+  <text x="615" y="340" text-anchor="middle" class="gry code">k = 60（默认）</text>
+
+  <text x="870" y="252" text-anchor="middle" class="grn tb">Cross-Encoder</text>
+  <text x="870" y="272" text-anchor="middle" class="ink sm">Rerank · 找回语义分</text>
+
+  <text x="1125" y="254" text-anchor="middle" class="ink tb">LLM 生成</text>
+  <text x="1125" y="273" text-anchor="middle" class="gry xs">带引用 · top-5</text>
+
+  <path d="M170,250 Q186,214 197,198" fill="none" stroke="#33302B" stroke-width="2" marker-end="url(#aInk)"/>
+  <path d="M170,258 L197,258" fill="none" stroke="#33302B" stroke-width="2" marker-end="url(#aInk)"/>
+  <path d="M170,266 Q186,302 197,318" fill="none" stroke="#33302B" stroke-width="2" marker-end="url(#aInk)"/>
+
+  <path d="M453,196 Q490,198 517,220" fill="none" class="sBlu" stroke-width="2.4" marker-end="url(#aBlu)"/>
+  <path d="M453,258 L517,258" fill="none" class="sBlu" stroke-width="2.4" marker-end="url(#aBlu)"/>
+  <path d="M453,320 Q490,318 517,297" fill="none" class="sBlu" stroke-width="2.4" marker-end="url(#aBlu)"/>
+
+  <path d="M712,258 L767,258" fill="none" class="sGrn" stroke-width="2.6" marker-end="url(#aGrn)"/>
+  <path d="M972,258 L1027,258" fill="none" class="sGrn" stroke-width="2.6" marker-end="url(#aGrn)"/>
+
+  <text x="739" y="243" text-anchor="middle" class="gry code">top-30</text>
+  <text x="999" y="243" text-anchor="middle" class="gry code">top-5</text>
+
+  <!-- ═══════ ② k 控什么 ═══════ -->
+  <text x="40" y="406" class="ink h">② k 控什么 —— 多路共识 vs 单路高置信</text>
+
+  <g filter="url(#rough)">
+    <rect x="40" y="420" width="610" height="230" rx="12" fill="#FFFFFF" class="sGry" stroke-width="2"/>
+    <rect x="670" y="420" width="610" height="230" rx="12" fill="#FFFFFF" class="sGry" stroke-width="2"/>
+  </g>
+
+  <text x="66" y="452" class="ink tb">同一份候选，k 不同 → 冠军不同</text>
+  <text x="66" y="480" class="gry xs">文档</text>
+  <text x="460" y="480" text-anchor="middle" class="ink codeb">k = 60</text>
+  <text x="575" y="480" text-anchor="middle" class="ink codeb">k = 1</text>
+  <path d="M66,490 Q345,487 624,490" fill="none" class="sGry" stroke-width="1.5" filter="url(#rough)"/>
+
+  <text x="66" y="512" class="ink sm">A：两路都排第 10</text>
+  <text x="460" y="512" text-anchor="middle" class="grn codeb">0.0286 ✓</text>
+  <text x="575" y="512" text-anchor="middle" class="gry code">0.182</text>
+
+  <text x="66" y="540" class="ink sm">B：一路排第 1，另一路没召回</text>
+  <text x="460" y="540" text-anchor="middle" class="gry code">0.0164</text>
+  <text x="575" y="540" text-anchor="middle" class="grn codeb">0.500 ✓</text>
+
+  <g filter="url(#soft)"><rect x="64" y="558" width="562" height="76" rx="8" fill="#E3EFF9" class="sBlu" stroke-width="2"/></g>
+  <text x="345" y="581" text-anchor="middle" class="ink sm">k 大 → 头部压平，多路共识说了算（默认 60）</text>
+  <text x="345" y="603" text-anchor="middle" class="ink sm">k 小 → 头部陡峭，单路 top-1 一票否决</text>
+  <text x="345" y="625" text-anchor="middle" class="gry xs">想让强命中更有话语权，就往 10~20 调</text>
+
+  <text x="696" y="452" class="ink tb">为什么不把两边分数直接加起来</text>
+  <text x="696" y="482" class="ink sm">BM25 分数无上界、随语料统计漂；cosine 固定在 [-1, 1]。</text>
+  <text x="696" y="504" class="ink sm">两把尺子刻度都不一样，加权求和没有意义。</text>
+  <text x="696" y="534" class="ink sm">那先 min-max 归一化？换一批候选集 min/max 就变了，</text>
+  <text x="696" y="556" class="ink sm">同一个 query 分数跟着漂 —— 不稳。</text>
+
+  <g filter="url(#soft)"><rect x="694" y="572" width="562" height="62" rx="8" fill="#DFEDE4" class="sGrn" stroke-width="2"/></g>
+  <text x="975" y="595" text-anchor="middle" class="grn tb">✓ 只吃 rank，天生免疫量纲与分数漂移</text>
+  <text x="975" y="619" text-anchor="middle" class="amb sm">代价：丢掉「强多少」的信息 → 后面必须接 reranker</text>
+
+  <!-- ═══════ ③ 工程坑 ═══════ -->
+  <text x="40" y="692" class="ink h">③ 公式之外，真正会踩的四个坑</text>
+
+  <g filter="url(#soft)">
+    <rect x="40" y="706" width="295" height="196" rx="10" fill="#FCF2F1" class="sRed" stroke-width="2.4"/>
+    <rect x="355" y="706" width="295" height="196" rx="10" fill="#FDF6E8" class="sAmb" stroke-width="2.4"/>
+    <rect x="670" y="706" width="295" height="196" rx="10" fill="#FCF2F1" class="sRed" stroke-width="2.4"/>
+    <rect x="985" y="706" width="295" height="196" rx="10" fill="#F1F6FB" class="sBlu" stroke-width="2.4"/>
+    <rect x="62" y="838" width="251" height="48" rx="8" fill="#F6DEDB" class="sRed" stroke-width="1.8"/>
+    <rect x="377" y="838" width="251" height="48" rx="8" fill="#F8E9CE" class="sAmb" stroke-width="1.8"/>
+    <rect x="692" y="838" width="251" height="48" rx="8" fill="#F6DEDB" class="sRed" stroke-width="1.8"/>
+    <rect x="1007" y="838" width="251" height="48" rx="8" fill="#E3EFF9" class="sBlu" stroke-width="1.8"/>
+  </g>
+
+  <text x="60" y="736" class="red tb">① doc_id 对不齐</text>
+  <text x="60" y="764" class="ink xs">两路得用同一个</text>
+  <text x="60" y="784" class="ink xs">chunk_id 做主键。</text>
+  <text x="60" y="804" class="ink xs">对不上不报错，只是</text>
+  <text x="60" y="824" class="ink xs">效果变差 —— 静默失效</text>
+  <text x="187" y="860" text-anchor="middle" class="red xs">上线前必查：融合后</text>
+  <text x="187" y="880" text-anchor="middle" class="red xs">候选数 ≈ N1+N2 = 有 bug</text>
+
+  <text x="375" y="736" class="amb tb">② 缺席别补末位 rank</text>
+  <text x="375" y="764" class="ink xs">只在一路命中的文档，</text>
+  <text x="375" y="784" class="ink xs">另一路那项直接跳过。</text>
+  <text x="375" y="804" class="ink xs">补 rank=N+1 会系统性</text>
+  <text x="375" y="824" class="ink xs">惩罚单路强命中的长尾</text>
+  <text x="502" y="860" text-anchor="middle" class="amb xs">错误码、产品型号这类</text>
+  <text x="502" y="880" text-anchor="middle" class="amb xs">精确匹配会被压下去</text>
+
+  <text x="690" y="736" class="red tb">③ 拿 RRF 分设阈值</text>
+  <text x="690" y="764" class="ink xs">RRF 分永远在 0.016</text>
+  <text x="690" y="784" class="ink xs">附近，跟「相不相关」</text>
+  <text x="690" y="804" class="ink xs">毫无关系。「没查到就</text>
+  <text x="690" y="824" class="ink xs">拒答」不能建在它上面</text>
+  <text x="817" y="860" text-anchor="middle" class="red xs">阈值要用 reranker 分</text>
+  <text x="817" y="880" text-anchor="middle" class="red xs">或原始 cosine / BM25</text>
+
+  <text x="1005" y="736" class="blu tb">④ N 太小 &amp; 不去重</text>
+  <text x="1005" y="764" class="ink xs">每路 N ≈ 最终 K 的</text>
+  <text x="1005" y="784" class="ink xs">10~20 倍，典型 100。</text>
+  <text x="1005" y="804" class="ink xs">融合前先按内容去重，</text>
+  <text x="1005" y="824" class="ink xs">否则 top-5 全是同一篇</text>
+  <text x="1132" y="860" text-anchor="middle" class="blu xs">相邻 chunk 高度重叠</text>
+  <text x="1132" y="880" text-anchor="middle" class="blu xs">→ 多样性直接归零</text>
+
+  <!-- ═══ 结论条 ═══ -->
+  <g filter="url(#soft)">
+    <rect x="215" y="938" width="890" height="52" rx="26" fill="#FDF3E2" stroke="#D9A441" stroke-width="2.4"/>
+  </g>
+  <text x="660" y="970" text-anchor="middle" class="ink" font-size="16.5" font-weight="bold">RRF 解决「两把尺子刻度不同」，解决不了「到底有多相关」—— 所以它永远排在 reranker 前面</text>
+
+</svg>

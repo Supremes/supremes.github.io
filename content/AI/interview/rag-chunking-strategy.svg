@@ -1,0 +1,197 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="1188" viewBox="0 0 1320 1188" font-family="'Chalkboard SE','Comic Sans MS','Hanzipen SC','Segoe Print',cursive">
+
+  <defs>
+    <filter id="rough" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="3" seed="31" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="soft" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="13" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="1.3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="aRed" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+      <path d="M1,1 L8,5 L1,9" fill="none" stroke="#C2453C" stroke-width="1.7" stroke-linecap="round"/>
+    </marker>
+    <marker id="aGrn" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+      <path d="M1,1 L8,5 L1,9" fill="none" stroke="#4E7C5B" stroke-width="1.7" stroke-linecap="round"/>
+    </marker>
+    <marker id="aBlu" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+      <path d="M1,1 L8,5 L1,9" fill="none" stroke="#3C6E9E" stroke-width="1.7" stroke-linecap="round"/>
+    </marker>
+    <marker id="aInk" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+      <path d="M1,1 L8,5 L1,9" fill="none" stroke="#33302B" stroke-width="1.7" stroke-linecap="round"/>
+    </marker>
+  </defs>
+
+  <style>
+    .ink{fill:#33302B}.red{fill:#C2453C}.grn{fill:#4E7C5B}.blu{fill:#3C6E9E}.amb{fill:#A8730F}.gry{fill:#8C867D}
+    .sRed{stroke:#C2453C}.sGrn{stroke:#4E7C5B}.sBlu{stroke:#3C6E9E}.sGry{stroke:#B5AEA3}.sAmb{stroke:#D9A441}
+    .code{font-family:Menlo,Monaco,monospace;font-size:12px}
+    .codeb{font-family:Menlo,Monaco,monospace;font-size:12px;font-weight:bold}
+    .xs{font-size:11.5px}.sm{font-size:13px}.t{font-size:14.5px}.tb{font-size:14.5px;font-weight:bold}
+    .big{font-size:17px;font-weight:bold}.h{font-size:20px;font-weight:bold}
+  </style>
+
+  <rect width="1320" height="1188" fill="#FDFAF4"/>
+
+  <text x="660" y="50" text-anchor="middle" class="ink" font-size="26" font-weight="bold">文档分块：策略光谱 + chunk size 怎么定</text>
+  <text x="660" y="78" text-anchor="middle" class="gry" font-size="13.5">越往下越贵，但边际收益递减 —— 真正拉开差距的是「结构感知」和「粒度解耦」，不是语义切</text>
+  <path d="M300,90 Q660,85 1020,90" fill="none" class="sGry" stroke-width="2" filter="url(#rough)"/>
+
+  <!-- ═══════ ① 策略光谱 ═══════ -->
+  <text x="40" y="138" class="ink h">① 策略光谱 —— 拿什么信号找边界</text>
+
+  <g filter="url(#soft)">
+    <rect x="40" y="152" width="1240" height="38" rx="10" fill="#EFEAE0" class="sGry" stroke-width="2"/>
+    <rect x="40" y="194" width="1240" height="58" rx="10" fill="#FFFFFF" class="sGry" stroke-width="2"/>
+    <rect x="40" y="256" width="1240" height="58" rx="10" fill="#F2F8F4" class="sGrn" stroke-width="2.4"/>
+    <rect x="40" y="318" width="1240" height="58" rx="10" fill="#F2F8F4" class="sGrn" stroke-width="2.4"/>
+    <rect x="40" y="380" width="1240" height="58" rx="10" fill="#FDF6E8" class="sAmb" stroke-width="2.4"/>
+    <rect x="40" y="442" width="1240" height="58" rx="10" fill="#F1F6FB" class="sBlu" stroke-width="2.4"/>
+  </g>
+
+  <text x="62" y="177" class="gry xs">层级</text>
+  <text x="178" y="177" class="gry xs">策略</text>
+  <text x="400" y="177" class="gry xs">边界信号 = 谁在做判断</text>
+  <text x="870" y="177" text-anchor="middle" class="gry xs">成本</text>
+  <text x="948" y="177" class="gry xs">一句话</text>
+
+  <!-- L0 -->
+  <text x="62" y="218" class="gry big">L0</text>
+  <text x="178" y="218" class="ink tb">固定长度切</text>
+  <text x="178" y="237" class="gry xs">Fixed-size</text>
+  <text x="400" y="218" class="ink xs">数够 N 个 token 就切，纯计数</text>
+  <text x="400" y="237" class="gry xs">└→ 完全不看内容，句子、表格照切不误</text>
+  <text x="870" y="224" text-anchor="middle" class="gry tb">极低</text>
+  <text x="948" y="218" class="red sm">✗ 只适合 demo</text>
+  <text x="948" y="237" class="gry xs">语料极均匀才勉强能用</text>
+
+  <!-- L1 -->
+  <text x="62" y="280" class="grn big">L1</text>
+  <text x="178" y="280" class="ink tb">递归字符切</text>
+  <text x="178" y="299" class="gry xs">Recursive Character</text>
+  <text x="400" y="280" class="ink xs">按分隔符优先级递归降级</text>
+  <text x="400" y="299" class="gry xs">└→ 段落 \n\n → 换行 \n → 句号 。 → 空格</text>
+  <text x="870" y="286" text-anchor="middle" class="grn tb">低</text>
+  <text x="948" y="280" class="grn sm">✓ 通用默认，性价比最高</text>
+  <text x="948" y="299" class="gry xs">先按大结构切，超长再降级</text>
+
+  <!-- L2 -->
+  <text x="62" y="342" class="grn big">L2</text>
+  <text x="178" y="342" class="ink tb">结构感知切</text>
+  <text x="178" y="361" class="gry xs">Structure-aware</text>
+  <text x="400" y="342" class="ink xs">文档自带的结构信号</text>
+  <text x="400" y="361" class="gry xs">└→ Markdown 标题 / HTML DOM / 代码 AST / 表格边框</text>
+  <text x="870" y="348" text-anchor="middle" class="grn tb">低</text>
+  <text x="948" y="342" class="grn sm">✓ 有结构的语料必做</text>
+  <text x="948" y="361" class="gry xs">表格、代码块整体不切</text>
+
+  <!-- L3 -->
+  <text x="62" y="404" class="amb big">L3</text>
+  <text x="178" y="404" class="ink tb">语义切分</text>
+  <text x="178" y="423" class="gry xs">Semantic Chunking</text>
+  <text x="400" y="404" class="ink xs">embedding 模型量相邻句向量的 cosine 距离</text>
+  <text x="400" y="423" class="amb xs">└→ 突变处断开。它不理解文本，只是在测距</text>
+  <text x="870" y="410" text-anchor="middle" class="amb tb">高</text>
+  <text x="948" y="404" class="amb sm">△ 尴尬档位</text>
+  <text x="948" y="423" class="gry xs">比 L1 贵，还常打不过 L1+L2</text>
+
+  <!-- L4 -->
+  <text x="62" y="466" class="blu big">L4</text>
+  <text x="178" y="466" class="ink tb">LLM / Agentic 切</text>
+  <text x="178" y="485" class="gry xs">LLM-based</text>
+  <text x="400" y="466" class="ink xs">生成模型真读完全文，输出切分方案</text>
+  <text x="400" y="485" class="blu xs">└→ 懂前提 / 结论 / 指代，还能顺手加标题、补代词</text>
+  <text x="870" y="472" text-anchor="middle" class="red tb">极高</text>
+  <text x="948" y="466" class="blu sm">有预算可直接跳到这层</text>
+  <text x="948" y="485" class="gry xs">风险：可能改动或漏掉原文</text>
+
+  <!-- ═══════ ② 正交招式 ═══════ -->
+  <text x="40" y="538" class="ink h">② 两个正交招式 —— 跟上面任选一层叠加，不是替代</text>
+
+  <g filter="url(#rough)">
+    <rect x="40" y="552" width="610" height="206" rx="12" fill="#F1F6FB" class="sBlu" stroke-width="2.4"/>
+    <rect x="670" y="552" width="610" height="206" rx="12" fill="#F2F8F4" class="sGrn" stroke-width="2.4"/>
+  </g>
+  <g filter="url(#soft)">
+    <rect x="62" y="702" width="566" height="48" rx="8" fill="#E3EFF9" class="sBlu" stroke-width="2"/>
+    <rect x="692" y="702" width="566" height="48" rx="8" fill="#DFEDE4" class="sGrn" stroke-width="2"/>
+  </g>
+
+  <text x="66" y="582" class="blu tb">父子分块 / Small-to-Big　（粒度解耦）</text>
+  <text x="66" y="606" class="ink xs">矛盾：检索要小块（语义聚焦、命中准），生成要大块（上下文才完整）。</text>
+  <text x="66" y="624" class="ink xs">一个 chunk_size 同时满足不了这两件事。</text>
+  <text x="66" y="652" class="ink xs">① 入库时只把小块（250~500）向量化</text>
+  <text x="66" y="672" class="ink xs">② 命中后按 parentDocumentId / chunkIndex 找回邻居</text>
+  <text x="66" y="692" class="ink xs">③ 拼成大块（或整个父块）再喂 LLM</text>
+  <text x="345" y="722" text-anchor="middle" class="blu tb">检索粒度 ≠ 喂模型粒度</text>
+  <text x="345" y="742" text-anchor="middle" class="amb xs">必须插在 rerank 之后 —— 先用小块打分，再扩成大块</text>
+
+  <text x="696" y="582" class="grn tb">上下文增强 / Contextual Retrieval</text>
+  <text x="696" y="606" class="ink xs">问题：小块脱离原文后，「它」「该功能」指的是啥，embedding</text>
+  <text x="696" y="624" class="ink xs">根本不知道，检索时认不出自己在讲什么。</text>
+  <text x="696" y="652" class="ink xs">入库时先用 LLM 给每块生成一句上下文前缀，再一起 embed：</text>
+  <text x="716" y="674" class="blu code">「本段出自 SSO 配置指南 &gt; 常见错误，讲的是…」</text>
+  <text x="716" y="692" class="gry xs">└→ 前缀 + 原文，一起向量化入库</text>
+  <text x="975" y="722" text-anchor="middle" class="grn tb">Anthropic 实测：检索失败率降 35~49%</text>
+  <text x="975" y="742" text-anchor="middle" class="gry xs">贵在一次性 ingest 成本，可用 prompt caching 摊薄</text>
+
+  <!-- ═══════ ③ chunk size ═══════ -->
+  <text x="40" y="790" class="ink h">③ chunk size 怎么定 —— 三面夹逼出区间，再用评测扫</text>
+
+  <g filter="url(#rough)">
+    <rect x="40" y="804" width="610" height="260" rx="12" fill="#FBF6EC" stroke="#D9C7A4" stroke-width="2"/>
+    <rect x="670" y="804" width="610" height="260" rx="12" fill="#FFFFFF" class="sGry" stroke-width="2"/>
+  </g>
+
+  <text x="66" y="834" class="ink tb">三个约束夹出一个区间</text>
+  <text x="66" y="862" class="red xs">上界①　context 预算：top_k × size ≤ 给证据的 token 上限</text>
+  <text x="66" y="884" class="red xs">上界②　embedding 有效长度 —— 能吃 8192 ≠ 塞 8192 有效</text>
+  <text x="66" y="902" class="gry xs">　　　　 一个向量摊到几千 token，语义被平均掉，什么都不像</text>
+  <text x="66" y="926" class="grn xs">下界　　答案完整性：一块要能独立回答一个问题</text>
+
+  <g filter="url(#soft)"><rect x="200" y="938" width="163" height="24" rx="8" fill="#DFEDE4" class="sGrn" stroke-width="2"/></g>
+  <text x="281" y="955" text-anchor="middle" class="grn codeb">甜区 256~512</text>
+  <path d="M90,972 Q345,969 600,972" fill="none" class="sGry" stroke-width="2" filter="url(#rough)"/>
+  <text x="90" y="991" text-anchor="middle" class="gry code">128</text>
+  <text x="218" y="991" text-anchor="middle" class="grn codeb">256</text>
+  <text x="345" y="991" text-anchor="middle" class="grn codeb">512</text>
+  <text x="473" y="991" text-anchor="middle" class="gry code">1024</text>
+  <text x="600" y="991" text-anchor="middle" class="gry code">2048</text>
+
+  <g filter="url(#soft)"><rect x="62" y="1000" width="566" height="48" rx="8" fill="#FDF3E2" class="sAmb" stroke-width="2"/></g>
+  <text x="345" y="1020" text-anchor="middle" class="ink sm">区间定完，用固定 query 集扫 {256, 512, 1024}</text>
+  <text x="345" y="1040" text-anchor="middle" class="gry xs">看 Recall@k 和答案正确率来选 —— 别靠直觉拍</text>
+
+  <text x="696" y="834" class="ink tb">经验档位（起点，不是终点）</text>
+  <text x="696" y="866" class="ink sm">FAQ / 问答对</text>
+  <text x="1000" y="866" class="ink codeb">128~256</text>
+  <text x="1090" y="866" class="gry xs">一问一答一块</text>
+
+  <text x="696" y="890" class="ink sm">技术文档 / 手册</text>
+  <text x="1000" y="890" class="grn codeb">512</text>
+  <text x="1090" y="890" class="grn xs">默认起点 ✓</text>
+
+  <text x="696" y="914" class="ink sm">论文 / 长论述</text>
+  <text x="1000" y="914" class="ink codeb">1024</text>
+  <text x="1090" y="914" class="gry xs">配父子分块一起用</text>
+
+  <text x="696" y="938" class="ink sm">代码</text>
+  <text x="1000" y="938" class="blu codeb">按函数切</text>
+  <text x="1090" y="938" class="gry xs">别按 token 切</text>
+
+  <text x="696" y="962" class="ink sm">法律条款 / 合同</text>
+  <text x="1000" y="962" class="blu codeb">按条款切</text>
+  <text x="1090" y="962" class="gry xs">条款即天然边界</text>
+
+  <g filter="url(#soft)"><rect x="692" y="1000" width="566" height="48" rx="8" fill="#EFEAE0" class="sGry" stroke-width="2"/></g>
+  <text x="975" y="1020" text-anchor="middle" class="ink sm">overlap 取 10~15%（500 → 50~75）</text>
+  <text x="975" y="1040" text-anchor="middle" class="gry xs">它只是硬切的补丁 —— 能在句子边界断开的地方就不必加</text>
+
+  <!-- ═══ 结论条 ═══ -->
+  <g filter="url(#soft)">
+    <rect x="180" y="1096" width="960" height="52" rx="26" fill="#FDF3E2" stroke="#D9A441" stroke-width="2.4"/>
+  </g>
+  <text x="660" y="1128" text-anchor="middle" class="ink" font-size="16.5" font-weight="bold">大多数 RAG 的检索问题，不是 chunk 切得不够聪明，是切完把结构丢了</text>
+
+</svg>
